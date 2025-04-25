@@ -12,10 +12,39 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "customEditors": [
+      {
+        "viewType": "pysyslink-editor.modelBlockEditor",
+        "displayName": "PySysLink Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.pslk"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "views": {
+    "explorer": [
+      {
+        "id": "pysyslink.blockProperties",
+        "name": "Block Properties",
+        "type": "webview"
+      }
+    ]
+    },
     "commands": [
       {
         "command": "pysyslink-editor.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "pysyslink-editor.openEditor",
+        "title": "Open PySysLink Editor"
+      },
+      {
+        "command": "pysyslink-editor.doRefactor",
+        "title": "PySysLink Cat Refactor"
       }
     ]
   },
