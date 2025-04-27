@@ -46,7 +46,7 @@ function activate(context) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "pysyslink-editor" is now active!');
-    context.subscriptions.push(PySysLinkBlockEditor_1.CatScratchEditorProvider.register(context));
+    context.subscriptions.push(PySysLinkBlockEditor_1.PySysLinkBlockEditorProvider.register(context));
     context.subscriptions.push(vscode.window.registerWebviewViewProvider('pysyslink.blockProperties', new BlockPropertiesProvider_1.BlockPropertiesProvider(context)));
 }
 // This method is called when your extension is deactivated

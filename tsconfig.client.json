@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "ESNext", // Browser-compatible module system
+        "target": "ES2022",
+        "outDir": "out/client",
+        "lib": [
+            "ES2022",
+            "DOM" // Include DOM types for client-side code
+        ],
+        "sourceMap": true,
+        "rootDir": "media",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
+    },
+    "include": [
+        "media/**/*.ts" // Only client-side code
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

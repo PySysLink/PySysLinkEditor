@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [],
-  "main": "./out/extension.js",
+  "main": "./out/server/extension.js",
   "contributes": {
     "customEditors": [
       {
@@ -50,8 +50,8 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compile": "tsc -p tsconfig.server.json && tsc -p tsconfig.client.json", 
+    "watch": "tsc -w -p tsconfig.server.json & tsc -w -p tsconfig.client.json", 
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test"

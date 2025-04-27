@@ -13,11 +13,11 @@ import { getNonce } from './util';
  * - Loading scripts and styles in a custom editor.
  * - Synchronizing changes between a text document and a custom editor.
  */
-export class CatScratchEditorProvider implements vscode.CustomTextEditorProvider {
+export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 
 	public static register(context: vscode.ExtensionContext): vscode.Disposable {
-		const provider = new CatScratchEditorProvider(context);
-		const providerRegistration = vscode.window.registerCustomEditorProvider(CatScratchEditorProvider.viewType, provider);
+		const provider = new PySysLinkBlockEditorProvider(context);
+		const providerRegistration = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
 		return providerRegistration;
 	}
 
@@ -83,6 +83,9 @@ export class CatScratchEditorProvider implements vscode.CustomTextEditorProvider
                 case 'edit':
                     await this.editBlockLabel(document, e.id);
                     return;
+				case 'print':
+					console.log(e.text);
+					return;
             }
         });
 
@@ -134,7 +137,7 @@ export class CatScratchEditorProvider implements vscode.CustomTextEditorProvider
 	private getHtmlForWebview(webview: vscode.Webview): string {
 		// Local path to script and css for the webview
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'media', 'catScratch.js'));
+			this.context.extensionUri, 'out', 'client', 'blockEditor.js'));
 
 		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(
 			this.context.extensionUri, 'media', 'reset.css'));
@@ -143,7 +146,7 @@ export class CatScratchEditorProvider implements vscode.CustomTextEditorProvider
 			this.context.extensionUri, 'media', 'vscode.css'));
 
 		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'media', 'catScratch.css'));
+			this.context.extensionUri, 'media', 'blockEditor.css'));
 
 		// Use a nonce to whitelist which scripts can be run
 		const nonce = getNonce();
@@ -166,7 +169,7 @@ export class CatScratchEditorProvider implements vscode.CustomTextEditorProvider
 				<link href="${styleVSCodeUri}" rel="stylesheet" />
 				<link href="${styleMainUri}" rel="stylesheet" />
 
-				<title>Cat Scratch</title>
+				<title>PySysLink</title>
 			</head>
 			<body>
 				<div class="notes">
@@ -185,7 +188,7 @@ export class CatScratchEditorProvider implements vscode.CustomTextEditorProvider
 	 */
 	private addNewScratch(document: vscode.TextDocument) {
 		const json = this.getDocumentAsJson(document);
-		const character = CatScratchEditorProvider.scratchCharacters[Math.floor(Math.random() * CatScratchEditorProvider.scratchCharacters.length)];
+		const character = PySysLinkBlockEditorProvider.scratchCharacters[Math.floor(Math.random() * PySysLinkBlockEditorProvider.scratchCharacters.length)];
 		json.scratches = [
 			...(Array.isArray(json.scratches) ? json.scratches : []),
 			{

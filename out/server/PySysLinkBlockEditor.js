@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CatScratchEditorProvider = void 0;
+exports.PySysLinkBlockEditorProvider = void 0;
 const vscode = __importStar(require("vscode"));
 const util_1 = require("./util");
 /**
@@ -48,11 +48,11 @@ const util_1 = require("./util");
  * - Loading scripts and styles in a custom editor.
  * - Synchronizing changes between a text document and a custom editor.
  */
-class CatScratchEditorProvider {
+class PySysLinkBlockEditorProvider {
     context;
     static register(context) {
-        const provider = new CatScratchEditorProvider(context);
-        const providerRegistration = vscode.window.registerCustomEditorProvider(CatScratchEditorProvider.viewType, provider);
+        const provider = new PySysLinkBlockEditorProvider(context);
+        const providerRegistration = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
         return providerRegistration;
     }
     static viewType = 'pysyslink-editor.modelBlockEditor';
@@ -105,6 +105,9 @@ class CatScratchEditorProvider {
                 case 'edit':
                     await this.editBlockLabel(document, e.id);
                     return;
+                case 'print':
+                    console.log(e.text);
+                    return;
             }
         });
         updateWebview();
@@ -151,10 +154,10 @@ class CatScratchEditorProvider {
      */
     getHtmlForWebview(webview) {
         // Local path to script and css for the webview
-        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'catScratch.js'));
+        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'out', 'client', 'blockEditor.js'));
         const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'reset.css'));
         const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'vscode.css'));
-        const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'catScratch.css'));
+        const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'blockEditor.css'));
         // Use a nonce to whitelist which scripts can be run
         const nonce = (0, util_1.getNonce)();
         return /* html */ `
@@ -175,7 +178,7 @@ class CatScratchEditorProvider {
 				<link href="${styleVSCodeUri}" rel="stylesheet" />
 				<link href="${styleMainUri}" rel="stylesheet" />
 
-				<title>Cat Scratch</title>
+				<title>PySysLink</title>
 			</head>
 			<body>
 				<div class="notes">
@@ -193,7 +196,7 @@ class CatScratchEditorProvider {
      */
     addNewScratch(document) {
         const json = this.getDocumentAsJson(document);
-        const character = CatScratchEditorProvider.scratchCharacters[Math.floor(Math.random() * CatScratchEditorProvider.scratchCharacters.length)];
+        const character = PySysLinkBlockEditorProvider.scratchCharacters[Math.floor(Math.random() * PySysLinkBlockEditorProvider.scratchCharacters.length)];
         json.scratches = [
             ...(Array.isArray(json.scratches) ? json.scratches : []),
             {
@@ -241,5 +244,5 @@ class CatScratchEditorProvider {
         return vscode.workspace.applyEdit(edit);
     }
 }
-exports.CatScratchEditorProvider = CatScratchEditorProvider;
+exports.PySysLinkBlockEditorProvider = PySysLinkBlockEditorProvider;
 //# sourceMappingURL=PySysLinkBlockEditor.js.map

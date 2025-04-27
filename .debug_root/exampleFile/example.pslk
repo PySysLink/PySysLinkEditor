@@ -2,45 +2,51 @@
   "blocks": [
     {
       "id": "abc123",
-      "label": "Block A",
-      "x": 430,
-      "y": 291
+      "label": "Block Kaixo",
+      "x": 598,
+      "y": 146
     },
     {
       "id": "XfdCX4mrOpnY1bZQYG9yXORGQhBCkvwM",
       "label": "New Block",
-      "x": 159,
-      "y": 217
+      "x": 470,
+      "y": 243
     },
     {
       "id": "QeUZPimZZWlXNc4QGqOsCA2cpVfBOceI",
-      "label": "Kaixo lagun",
-      "x": 326,
-      "y": 105
+      "label": "Wololo",
+      "x": 1120,
+      "y": 324
     },
     {
       "id": "VjDwQJr8S7cmbkmtge8IMn6yGMM1CcnJ",
       "label": "Zergatik?",
-      "x": 611,
-      "y": 233
+      "x": 818,
+      "y": 507
     },
     {
       "id": "BHxcx61Lih9jokiF3Yg08CVTCT29lUhv",
       "label": "New Block",
-      "x": 80,
-      "y": 336
+      "x": 233,
+      "y": 349
     },
     {
       "id": "gnO34RBvd0WxUXhXkQLRt6obXqZYoNDG",
       "label": "New Block",
-      "x": 253,
-      "y": 323
+      "x": 513,
+      "y": 402
     },
     {
       "id": "svcOIjWomtKm8tg0VgbMQiRXHaopdboy",
       "label": "New Block",
-      "x": 50,
-      "y": 50
+      "x": 100,
+      "y": 205
+    },
+    {
+      "id": "FTuytLS8Ux9qlbZsPY13wawOHppqlU6Z",
+      "label": "New Block",
+      "x": 797,
+      "y": 284
     }
   ]
 }
