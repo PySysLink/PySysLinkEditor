@@ -135,23 +135,53 @@ class Block {
 
     function onMouseDown(block: Block, e: MouseEvent): void {
         vscode.postMessage({ type: 'print', text: `Mouse down on block: ${block.label}` });
-        if (e.shiftKey) {
-            // Toggle selection if Shift is pressed
-            block.toggleSelect();
-        } else {
-            // Clear selection and select only this block
-            unselectAll();
-            block.select();
-        }
-        if (getSelectedBlocks().length > 0) {
-            // Start dragging selected blocks
-            isDragging = true;
-            dragStartX = e.clientX;
-            dragStartY = e.clientY;
-
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        }
+    
+        // Store the initial mouse position
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        isDragging = false; // Reset dragging state
+    
+        // Add a temporary mousemove listener to detect drag threshold
+        const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
+            const deltaX = Math.abs(moveEvent.clientX - dragStartX);
+            const deltaY = Math.abs(moveEvent.clientY - dragStartY);
+    
+            if (deltaX > dragThreshold || deltaY > dragThreshold) {
+                // Exceeded drag threshold, start dragging
+                isDragging = true;
+                document.removeEventListener('mousemove', onMouseMoveThreshold);
+    
+                // Start dragging selected blocks
+                if (!block.isSelected()) {
+                    // If the block is not already selected, add it to the selection
+                    block.select();
+                }
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            }
+        };
+    
+        document.addEventListener('mousemove', onMouseMoveThreshold);
+    
+        // Handle mouseup to detect a simple click
+        const onMouseUpThreshold = () => {
+            document.removeEventListener('mousemove', onMouseMoveThreshold);
+            document.removeEventListener('mouseup', onMouseUpThreshold);
+    
+            if (!isDragging) {
+                // If no drag occurred, treat it as a simple click
+                if (e.shiftKey) {
+                    // Toggle selection if Shift is pressed
+                    block.toggleSelect();
+                } else {
+                    // Clear selection and select only this block
+                    unselectAll();
+                    block.select();
+                }
+            }
+        };
+    
+        document.addEventListener('mouseup', onMouseUpThreshold);
     }
 
     function onMouseDownInContainer(e: MouseEvent): void {
