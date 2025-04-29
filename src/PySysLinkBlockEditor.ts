@@ -15,15 +15,27 @@ import { getNonce } from './util';
  */
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 
+	private documentLock: Promise<void> = Promise.resolve();
+
 	public static register(context: vscode.ExtensionContext): vscode.Disposable {
 		const provider = new PySysLinkBlockEditorProvider(context);
 		const providerRegistration = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
 		return providerRegistration;
 	}
 
+	private async withDocumentLock<T>(callback: () => Promise<T>): Promise<T> {
+		console.log('Acquiring lock...');
+
+		// Chain the new operation to the existing lock
+		const releaseLock = this.documentLock.then(() => callback());
+		this.documentLock = releaseLock.then(() => undefined).catch(() => {}); // Prevent lock from breaking on errors
+		console.log('Lock released.');
+
+		return releaseLock;
+	}
+
 	private static readonly viewType = 'pysyslink-editor.modelBlockEditor';
 
-	private static readonly scratchCharacters = ['😸', '😹', '😺', '😻', '😼', '😽', '😾', '🙀', '😿', '🐱'];
 
 	constructor(
 		private readonly context: vscode.ExtensionContext
@@ -80,6 +92,9 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
                 case 'move':
                     this.moveBlock(document, e.id, e.x, e.y);
                     return;
+				case 'moveBatch':
+					this.moveBlocks(document, e.updates);
+					return;
                 case 'edit':
                     await this.editBlockLabel(document, e.id);
                     return;
@@ -106,14 +121,33 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
     }
     
     private moveBlock(document: vscode.TextDocument, id: string, x: number, y: number) {
-        const json = this.getDocumentAsJson(document);
-        const block = (json.blocks || []).find((b: any) => b.id === id);
-        if (block) {
-            block.x = x;
-            block.y = y;
-            this.updateTextDocument(document, json);
-        }
+		this.withDocumentLock(async () => {
+			const json = this.getDocumentAsJson(document);
+			const block = (json.blocks || []).find((b: any) => b.id === id);
+			if (block) {
+				block.x = x;
+				block.y = y;
+				console.log(`Block ${block.label} updated to position x: ${block.x}, y: ${block.y}`);
+
+				await this.updateTextDocument(document, json);
+			}
+		});
     }
+
+	private moveBlocks(document: vscode.TextDocument, updates: { id: string; x: number; y: number }[]) {
+		const json = this.getDocumentAsJson(document);
+	
+		updates.forEach(update => {
+			const block = (json.blocks || []).find((b: any) => b.id === update.id);
+			if (block) {
+				block.x = update.x;
+				block.y = update.y;
+				console.log(`Block ${block.label} updated to position x: ${block.x}, y: ${block.y}`);
+			}
+		});
+	
+		this.updateTextDocument(document, json);
+	}
 
     private async editBlockLabel(doc: vscode.TextDocument, id: string) {
         const json = this.getDocumentAsJson(doc);
@@ -183,37 +217,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			</html>`;
 	}
 
-	/**
-	 * Add a new scratch to the current document.
-	 */
-	private addNewScratch(document: vscode.TextDocument) {
-		const json = this.getDocumentAsJson(document);
-		const character = PySysLinkBlockEditorProvider.scratchCharacters[Math.floor(Math.random() * PySysLinkBlockEditorProvider.scratchCharacters.length)];
-		json.scratches = [
-			...(Array.isArray(json.scratches) ? json.scratches : []),
-			{
-				id: getNonce(),
-				text: character,
-				created: Date.now(),
-			}
-		];
-
-		return this.updateTextDocument(document, json);
-	}
-
-	/**
-	 * Delete an existing scratch from a document.
-	 */
-	private deleteScratch(document: vscode.TextDocument, id: string) {
-		const json = this.getDocumentAsJson(document);
-		if (!Array.isArray(json.scratches)) {
-			return;
-		}
-
-		json.scratches = json.scratches.filter((note: any) => note.id !== id);
-
-		return this.updateTextDocument(document, json);
-	}
 
 	/**
 	 * Try to get a current document as json text.

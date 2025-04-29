@@ -50,13 +50,21 @@ const util_1 = require("./util");
  */
 class PySysLinkBlockEditorProvider {
     context;
+    documentLock = Promise.resolve();
     static register(context) {
         const provider = new PySysLinkBlockEditorProvider(context);
         const providerRegistration = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
         return providerRegistration;
     }
+    async withDocumentLock(callback) {
+        console.log('Acquiring lock...');
+        // Chain the new operation to the existing lock
+        const releaseLock = this.documentLock.then(() => callback());
+        this.documentLock = releaseLock.then(() => undefined).catch(() => { }); // Prevent lock from breaking on errors
+        console.log('Lock released.');
+        return releaseLock;
+    }
     static viewType = 'pysyslink-editor.modelBlockEditor';
-    static scratchCharacters = ['😸', '😹', '😺', '😻', '😼', '😽', '😾', '🙀', '😿', '🐱'];
     constructor(context) {
         this.context = context;
     }
@@ -102,6 +110,9 @@ class PySysLinkBlockEditorProvider {
                 case 'move':
                     this.moveBlock(document, e.id, e.x, e.y);
                     return;
+                case 'moveBatch':
+                    this.moveBlocks(document, e.updates);
+                    return;
                 case 'edit':
                     await this.editBlockLabel(document, e.id);
                     return;
@@ -125,13 +136,28 @@ class PySysLinkBlockEditorProvider {
         this.updateTextDocument(document, json);
     }
     moveBlock(document, id, x, y) {
+        this.withDocumentLock(async () => {
+            const json = this.getDocumentAsJson(document);
+            const block = (json.blocks || []).find((b) => b.id === id);
+            if (block) {
+                block.x = x;
+                block.y = y;
+                console.log(`Block ${block.label} updated to position x: ${block.x}, y: ${block.y}`);
+                await this.updateTextDocument(document, json);
+            }
+        });
+    }
+    moveBlocks(document, updates) {
         const json = this.getDocumentAsJson(document);
-        const block = (json.blocks || []).find((b) => b.id === id);
-        if (block) {
-            block.x = x;
-            block.y = y;
-            this.updateTextDocument(document, json);
-        }
+        updates.forEach(update => {
+            const block = (json.blocks || []).find((b) => b.id === update.id);
+            if (block) {
+                block.x = update.x;
+                block.y = update.y;
+                console.log(`Block ${block.label} updated to position x: ${block.x}, y: ${block.y}`);
+            }
+        });
+        this.updateTextDocument(document, json);
     }
     async editBlockLabel(doc, id) {
         const json = this.getDocumentAsJson(doc);
@@ -190,33 +216,6 @@ class PySysLinkBlockEditorProvider {
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;
-    }
-    /**
-     * Add a new scratch to the current document.
-     */
-    addNewScratch(document) {
-        const json = this.getDocumentAsJson(document);
-        const character = PySysLinkBlockEditorProvider.scratchCharacters[Math.floor(Math.random() * PySysLinkBlockEditorProvider.scratchCharacters.length)];
-        json.scratches = [
-            ...(Array.isArray(json.scratches) ? json.scratches : []),
-            {
-                id: (0, util_1.getNonce)(),
-                text: character,
-                created: Date.now(),
-            }
-        ];
-        return this.updateTextDocument(document, json);
-    }
-    /**
-     * Delete an existing scratch from a document.
-     */
-    deleteScratch(document, id) {
-        const json = this.getDocumentAsJson(document);
-        if (!Array.isArray(json.scratches)) {
-            return;
-        }
-        json.scratches = json.scratches.filter((note) => note.id !== id);
-        return this.updateTextDocument(document, json);
     }
     /**
      * Try to get a current document as json text.

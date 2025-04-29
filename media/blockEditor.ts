@@ -4,9 +4,11 @@ const vscode = acquireVsCodeApi();
 class Block {
     id: string;
     label: string;
-    x: number;
-    y: number;
+    private x: number;
+    private y: number;
     private element: HTMLElement;
+    _isSelected: boolean = false;
+
 
     constructor(id: string, label: string, x: number, y: number, onClick: (block: Block, e: MouseEvent) => void, onMouseDown: (block: Block, e: MouseEvent) => void) {
         this.id = id;
@@ -16,6 +18,58 @@ class Block {
 
         // Create the DOM element for the block
         this.element = this.createElement(onClick, onMouseDown);
+    }
+
+    public setPosition(x: number, y: number): void {
+        this.x = x;
+        this.y = y;
+        this.element.style.left = `${x}px`;
+        this.element.style.top = `${y}px`;
+        
+    }
+
+    public getState(): { type: string; id: string; x: number; y: number}[] {
+        return [{
+            type: 'move',
+            id: this.id,
+            x: this.x,
+            y: this.y
+        }];
+    }
+
+    public parseStateFromJson(blockData: { x: number; y: number; label: string }): void {
+        this.setPosition(blockData.x, blockData.y);
+        this.label = blockData.label;
+    }
+
+    public getPosition(): { x: number; y: number } {
+        return { x: this.x, y: this.y };
+    }
+
+    public select(): void {
+        this._isSelected = true;
+        this.element.classList.add('selected');
+    }
+
+    public unselect(): void {
+        if (this._isSelected) {
+            vscode.postMessage({ type: 'print', text: `block unselected: ${this.label}` });
+        }
+        this._isSelected = false;
+        this.element.classList.remove('selected');
+    }
+
+    public isSelected(): boolean {
+        return this._isSelected;
+    }
+
+    public toggleSelect(): void {
+        this._isSelected = !this._isSelected;
+        if (this._isSelected) {
+            this.select();
+        } else {
+            this.unselect();
+        }
     }
 
     private createElement(onClick: (block: Block, e: MouseEvent) => void, onMouseDown: (block: Block, e: MouseEvent) => void): HTMLElement {
@@ -34,92 +88,62 @@ class Block {
     }
 
 
-    move(deltaX: number, deltaY: number): void {
-        this.x += deltaX;
-        this.y += deltaY;
-        this.updatePosition();
-    }
-
-    updatePosition(): void {
-        this.element.style.left = `${this.x}px`;
-        this.element.style.top = `${this.y}px`;
+    public move(deltaX: number, deltaY: number): void {
+        this.setPosition(this.x + deltaX, this.y + deltaY);
     }
 
     getElement(): HTMLElement {
         return this.element;
     }
-}
 
-class SelectedBlocksManager {
-    private selectedBlocks: Set<Block> = new Set();
-
-    select(block: Block): void {
-        if (!this.selectedBlocks.has(block)) {
-            this.selectedBlocks.add(block);
-            block.getElement().classList.add('selected');
-        }
-    }
-
-    unselect(block: Block): void {
-        if (this.selectedBlocks.has(block)) {
-            this.selectedBlocks.delete(block);
-            block.getElement().classList.remove('selected');
-        }
-    }
-
-    toggle(block: Block): void {
-        if (this.selectedBlocks.has(block)) {
-            this.unselect(block);
-        } else {
-            this.select(block);
-        }
-    }
-
-    clear(): void {
-        this.selectedBlocks.forEach(block => {
-            block.getElement().classList.remove('selected');
-        });
-        this.selectedBlocks.clear();
-    }
-
-    getAll(): Set<Block> {
-        return this.selectedBlocks;
+    public addElementToContainer(container: HTMLElement): void {
+        container.appendChild(this.element);
     }
 }
+
 
 (function () {
     const container = document.querySelector('.notes') as HTMLElement;
 
     let blocks: Block[] = [];
-    const selectedBlocksManager = new SelectedBlocksManager();
 
     let dragStartX = 0;
     let dragStartY = 0;
+
+    let dragThreshold = 5; // Minimum distance to detect a drag
     let isDragging = false;
     let selectionBox: HTMLElement | null = null;
 
     function createBlock(id: string, label: string, x: number, y: number): void {
         const block = new Block(id, label, x, y, onClick, onMouseDown);
         blocks.push(block);
-        container.appendChild(block.getElement());
+    }
+    
+
+    function unselectAll(): void {
+        blocks.forEach(block => block.unselect());
+    }
+    
+    function getSelectedBlocks(): Block[] {
+        return blocks.filter(block => block.isSelected());
     }
 
 
     function onClick(block: Block, e: MouseEvent): void {
         vscode.postMessage({ type: 'print', text: `Block clicked: ${block.label}` });
-        if (e.shiftKey) {
-            // Toggle selection if Shift is pressed
-            selectedBlocksManager.toggle(block);
-        } else {
-            // Clear selection and select only this block
-            selectedBlocksManager.clear();
-            selectedBlocksManager.select(block);
-        }
     }
 
     function onMouseDown(block: Block, e: MouseEvent): void {
         vscode.postMessage({ type: 'print', text: `Mouse down on block: ${block.label}` });
-        if (selectedBlocksManager.getAll().size > 0) {
+        if (e.shiftKey) {
+            // Toggle selection if Shift is pressed
+            block.toggleSelect();
+        } else {
+            // Clear selection and select only this block
+            unselectAll();
+            block.select();
+        }
+        if (getSelectedBlocks().length > 0) {
             // Start dragging selected blocks
             isDragging = true;
             dragStartX = e.clientX;
@@ -130,13 +154,44 @@ class SelectedBlocksManager {
         }
     }
 
+    function onMouseDownInContainer(e: MouseEvent): void {
+        if (e.target !== container) {
+            return; // Ignore clicks on child elements
+        }
+        startBoxSelection(e);
+    }
+
+    function onMouseUp(): void {
+        vscode.postMessage({ type: 'print', text: `Mouse up` });
+
+        if (isDragging) {
+            isDragging = false;
+            const stateMessages = getSelectedBlocks().flatMap(block => block.getState());
+
+            stateMessages.forEach(message => {
+                vscode.postMessage({ type: 'print', text: message});
+            }); 
+
+            
+            vscode.postMessage({ type: 'moveBatch', updates: stateMessages });
+
+        } else if (selectionBox) {
+            // End box selection
+            container.removeChild(selectionBox);
+            selectionBox = null;
+        }
+
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    }
+
     function onMouseMove(e: MouseEvent): void {
         if (isDragging) {
             // Move all selected blocks
             const deltaX = e.clientX - dragStartX;
             const deltaY = e.clientY - dragStartY;
 
-            selectedBlocksManager.getAll().forEach(block => {
+            getSelectedBlocks().forEach(block => {
                 block.move(deltaX, deltaY);
             });
 
@@ -156,30 +211,9 @@ class SelectedBlocksManager {
         }
     }
 
-    function onMouseUp(): void {
-        if (isDragging) {
-            // Send updated positions to the extension
-            selectedBlocksManager.getAll().forEach(block => {
-                vscode.postMessage({
-                    type: 'move',
-                    id: block.id,
-                    x: block.x,
-                    y: block.y
-                });
-            });
-            isDragging = false;
-        } else if (selectionBox) {
-            // End box selection
-            container.removeChild(selectionBox);
-            selectionBox = null;
-        }
-
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-    }
 
     function startBoxSelection(e: MouseEvent): void {
-        selectedBlocksManager.clear();
+        unselectAll();
 
         vscode.postMessage({ type: 'print', text: `Start box selection at ${e.clientX}, ${e.clientY}` });
         selectionBox = document.createElement('div');
@@ -209,11 +243,24 @@ class SelectedBlocksManager {
                 blockRect.top < boxRect.bottom &&
                 blockRect.bottom > boxRect.top
             ) {
-                selectedBlocksManager.select(block);
+                block.select();
             } else {
-                selectedBlocksManager.unselect(block);
+                block.unselect();
             }
         });
+    }
+
+    function renderHTML(blocks: Block[]): void {
+        vscode.postMessage({ type: 'print', text: `Rendering ${blocks.length} blocks` });
+        container.innerHTML = ''; // Clear container
+        blocks.forEach(block => block.addElementToContainer(container));
+
+        // Add button
+        const btn = document.createElement('button');
+        btn.textContent = 'Add Block';
+        btn.addEventListener('click', () => vscode.postMessage({ type: 'add' }));
+        container.appendChild(btn);
+        container.addEventListener('mousedown', onMouseDownInContainer);
     }
 
     function updateBlocks(jsonText: string): void {
@@ -225,19 +272,18 @@ class SelectedBlocksManager {
             return;
         }
 
-        blocks = [];
-        container.innerHTML = ''; // Clear container
-
-        // Render each block
         json.blocks?.forEach(blockData => {
-            createBlock(blockData.id, blockData.label, blockData.x, blockData.y);
+            blocks.find(b => b.id === blockData.id)?.move(blockData.x, blockData.y);
+            var block = blocks.find(b => b.id === blockData.id);
+            if (block) {
+                block.parseStateFromJson(blockData);
+            } else {
+                vscode.postMessage({ type: 'print', text: `Block ID does not exist, creating block: ${blockData.id}` });
+                createBlock(blockData.id, blockData.label, blockData.x, blockData.y);
+            }
         });
 
-        // Add button
-        const btn = document.createElement('button');
-        btn.textContent = 'Add Block';
-        btn.addEventListener('click', () => vscode.postMessage({ type: 'add' }));
-        container.appendChild(btn);
+        renderHTML(blocks);
     }
 
     // Listen for messages from extension
