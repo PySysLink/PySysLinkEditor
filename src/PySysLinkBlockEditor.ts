@@ -58,9 +58,13 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
 
 		function updateWebview() {
+			const json = this.getDocumentAsJson(document);
 			webviewPanel.webview.postMessage({
 				type: 'update',
-				text: document.getText(),
+				text: JSON.stringify({
+					blocks: json.blocks || [],
+					links: json.links || []
+				}),
 			});
 		}
 
@@ -85,24 +89,27 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 		// Receive message from the webview.
 		webviewPanel.webview.onDidReceiveMessage(async e => {
-            switch (e.type) {
-                case 'add':
-                    this.addBlock(document);
-                    return;
-                case 'move':
-                    this.moveBlock(document, e.id, e.x, e.y);
-                    return;
+			switch (e.type) {
+				case 'add':
+					this.addBlock(document);
+					return;
+				case 'move':
+					this.moveBlock(document, e.id, e.x, e.y);
+					return;
 				case 'moveBatch':
 					this.moveBlocks(document, e.updates);
 					return;
-                case 'edit':
-                    await this.editBlockLabel(document, e.id);
-                    return;
+				case 'edit':
+					await this.editBlockLabel(document, e.id);
+					return;
+				case 'addLink':
+					this.addLink(document, e.sourceId, e.targetId);
+					return;
 				case 'print':
 					console.log(e.text);
 					return;
-            }
-        });
+			}
+		});
 
 		updateWebview();
 	}
@@ -119,6 +126,27 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
         json.blocks = blocks;
         this.updateTextDocument(document, json);
     }
+
+	private addLink(document: vscode.TextDocument, sourceId: string, targetId: string): void {
+		this.withDocumentLock(async () => {
+			const json = this.getDocumentAsJson(document);
+			const links = Array.isArray(json.links) ? json.links : [];
+			
+			// Check if the link already exists
+			const existingLink = links.find((link: any) => link.sourceId === sourceId && link.targetId === targetId);
+			if (existingLink) {
+				console.log(`Link between ${sourceId} and ${targetId} already exists.`);
+				return;
+			}
+	
+			// Add the new link
+			links.push({ sourceId, targetId });
+			json.links = links;
+	
+			console.log(`Added link between ${sourceId} and ${targetId}`);
+			await this.updateTextDocument(document, json);
+		});
+	}
     
     private moveBlock(document: vscode.TextDocument, id: string, x: number, y: number) {
 		this.withDocumentLock(async () => {
@@ -227,11 +255,14 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 	private getDocumentAsJson(document: vscode.TextDocument): any {
 		const text = document.getText();
 		if (text.trim().length === 0) {
-			return {};
+			return { blocks: [], links: [] };
 		}
-
+	
 		try {
-			return JSON.parse(text);
+			const json = JSON.parse(text);
+			json.blocks = Array.isArray(json.blocks) ? json.blocks : [];
+			json.links = Array.isArray(json.links) ? json.links : [];
+			return json;
 		} catch {
 			throw new Error('Could not get document as json. Content is not valid json');
 		}
@@ -248,7 +279,8 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		edit.replace(
 			document.uri,
 			new vscode.Range(0, 0, document.lineCount, 0),
-			JSON.stringify(json, null, 2));
+			JSON.stringify(json, null, 2)
+		);
 
 		return vscode.workspace.applyEdit(edit);
 	}

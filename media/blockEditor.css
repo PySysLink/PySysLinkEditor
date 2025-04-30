@@ -96,5 +96,9 @@
     height: 100%;
     pointer-events: none; /* Prevent interaction with the links */
     z-index: 4; /* Render behind blocks but above the canvas background */
+
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-font-smoothing: subpixel-antialiased;
 }
 
