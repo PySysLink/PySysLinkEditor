@@ -211,10 +211,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 				</div>
 				<div class="canvas-container">
 					<div class="zoom-container">
-						<div class="canvas">
-						<svg class="links"></svg>
-
-						</div>
+						<div class="canvas"></div>
 					</div>
 				</div>
 			</div>

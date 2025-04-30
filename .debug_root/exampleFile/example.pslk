@@ -34,7 +34,7 @@
       "id": "gnO34RBvd0WxUXhXkQLRt6obXqZYoNDG",
       "label": "New Block",
       "x": 723,
-      "y": -73
+      "y": 73
     },
     {
       "id": "svcOIjWomtKm8tg0VgbMQiRXHaopdboy",
@@ -46,19 +46,19 @@
       "id": "FTuytLS8Ux9qlbZsPY13wawOHppqlU6Z",
       "label": "New Block",
       "x": 485,
-      "y": -150
+      "y": 150
     },
     {
       "id": "UVUndPeZewkWFKnB5aSfPhycFFJ0eSoR",
       "label": "New Block",
       "x": 574,
-      "y": -37
+      "y": 37
     },
     {
       "id": "MvCb5EEWK5zU6OFURYyQuacIBkVIvDqG",
       "label": "New Block",
       "x": 191,
-      "y": -281
+      "y": 281
     },
     {
       "id": "41KMtEmQKo2mZzHP42DT5BnqFhHXOAxf",
@@ -70,19 +70,19 @@
       "id": "Jqhx3XwVBgWeO05IaMN9xl9AaMtvmBn4",
       "label": "New Block",
       "x": 192.1111111111111,
-      "y": -213.33333333333337
+      "y": 213.33333333333337
     },
     {
       "id": "ERHEhEoYxSA4icdOhN3s6ywYsQeZLaeh",
       "label": "New Block",
       "x": 906.2222222222222,
-      "y": -519.7777777777777
+      "y": 519.7777777777777
     },
     {
       "id": "HXnIaDB0sWITXXvyncpBnnJgI5pElgu6",
       "label": "New Block",
       "x": 898.2222222222222,
-      "y": -15.555555555555657
+      "y": 15.555555555555657
     }
   ]
 }

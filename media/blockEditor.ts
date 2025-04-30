@@ -146,7 +146,7 @@ class Link {
     const zoomContainer = document.querySelector('.zoom-container') as HTMLElement;
     const topControls = document.querySelector('.top-controls') as HTMLElement;
     const canvasContainer = document.querySelector('.canvas-container') as HTMLElement;
-    const linksSvg = document.querySelector('.links') as SVGSVGElement;
+    var linksSvg = document.querySelector('.links') as SVGSVGElement;
 
     let blocks: Block[] = [];
     const links: Link[] = [];
@@ -179,10 +179,24 @@ class Link {
         const link = new Link(sourceId, targetId);
         links.push(link);
         link.addToSvg(linksSvg);
+        updateLinks(canvas);
     }
     
-    function updateLinks(): void {
+    function updateLinks(container: HTMLElement): void {
+        linksSvg = document.querySelector('.links') as SVGSVGElement;
+        if (!linksSvg) {
+            linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            linksSvg.classList.add('links');
+        }
+        
+        linksSvg.style.width = `${canvas.offsetWidth}px`;
+        linksSvg.style.height = `${canvas.offsetHeight}px`;
+        linksSvg.style.transform = canvas.style.transform; // Match the canvas transform (e.g., scale)
+
+
+        links.forEach(link => link.addToSvg(linksSvg));
         links.forEach(link => link.updatePosition(blocks));
+        container.appendChild(linksSvg);
     }
 
     function deleteLink(link: Link): void {
@@ -313,6 +327,8 @@ class Link {
     function onMouseMove(e: MouseEvent): void {
         const scaledDeltaX = (e.clientX - dragStartX) / getZoomLevelReal();
         const scaledDeltaY = (e.clientY - dragStartY) / getZoomLevelReal();
+        
+        updateLinks(canvas);
 
         if (isDragging) {
             getSelectedBlocks().forEach(block => {
@@ -322,7 +338,6 @@ class Link {
             dragStartX = e.clientX;
             dragStartY = e.clientY;
 
-            updateLinks();
 
         } else if (selectionBox) {
             // Update selection box size
@@ -453,9 +468,16 @@ class Link {
         zoomContainer.addEventListener('wheel', handleMouseWheelZoom);
         canvasContainer.addEventListener('mousedown', onMouseDownForPanning);
 
+        
+
+        updateLinks(canvas);
+
         centerCanvas();
 
         setZoom(zoomLevel);
+
+        
+
     }
 
     function centerCanvas(): void {
@@ -500,7 +522,8 @@ class Link {
     
         zoomContainer.style.width = `${scaledWidth}px`;
         zoomContainer.style.height = `${scaledHeight}px`;
-       
+
+        updateLinks(canvas); // Update the links to match the new zoom level
         vscode.postMessage({ type: 'print', text: `Zoom level: ${zoomLevel}` });
     }
 
@@ -545,6 +568,8 @@ class Link {
         // Update the starting position for the next movement
         panStartX = e.clientX;
         panStartY = e.clientY;
+
+        updateLinks(canvas);
     }
     
     function onMouseUpForPanning(e: MouseEvent): void {
