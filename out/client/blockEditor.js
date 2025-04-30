@@ -81,12 +81,45 @@ class Block {
         canvas.appendChild(this.element);
     }
 }
+class Link {
+    sourceId;
+    targetId;
+    lineElement;
+    constructor(sourceId, targetId) {
+        this.sourceId = sourceId;
+        this.targetId = targetId;
+        // Create the SVG line element
+        this.lineElement = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        this.lineElement.setAttribute("stroke", "#007acc");
+        this.lineElement.setAttribute("stroke-width", "2");
+    }
+    updatePosition(blocks) {
+        const sourceBlock = blocks.find(block => block.id === this.sourceId);
+        const targetBlock = blocks.find(block => block.id === this.targetId);
+        if (sourceBlock && targetBlock) {
+            const sourcePos = sourceBlock.getPosition();
+            const targetPos = targetBlock.getPosition();
+            this.lineElement.setAttribute("x1", `${sourcePos.x}`); // Adjust for block center
+            this.lineElement.setAttribute("y1", `${sourcePos.y}`);
+            this.lineElement.setAttribute("x2", `${targetPos.x}`);
+            this.lineElement.setAttribute("y2", `${targetPos.y}`);
+        }
+    }
+    addToSvg(svg) {
+        svg.appendChild(this.lineElement);
+    }
+    removeFromSvg(svg) {
+        svg.removeChild(this.lineElement);
+    }
+}
 (function () {
     const canvas = document.querySelector('.canvas');
     const zoomContainer = document.querySelector('.zoom-container');
     const topControls = document.querySelector('.top-controls');
     const canvasContainer = document.querySelector('.canvas-container');
+    const linksSvg = document.querySelector('.links');
     let blocks = [];
+    const links = [];
     let dragStartX = 0;
     let dragStartY = 0;
     let dragThreshold = 5; // Minimum distance to detect a drag
@@ -96,8 +129,28 @@ class Block {
     const zoomStep = 0.1; // Step for zooming in/out
     const minZoom = 1; // Minimum zoom level
     const maxZoom = 4; // Maximum zoom level
+    let isPanning = false;
+    let panStartX = 0;
+    let panStartY = 0;
+    let canvasHeigh = 4000;
+    let canvasWidth = 8000;
     function getZoomLevelReal() {
         return zoomLevel / 2;
+    }
+    function createLink(sourceId, targetId) {
+        const link = new Link(sourceId, targetId);
+        links.push(link);
+        link.addToSvg(linksSvg);
+    }
+    function updateLinks() {
+        links.forEach(link => link.updatePosition(blocks));
+    }
+    function deleteLink(link) {
+        link.removeFromSvg(linksSvg);
+        const index = links.indexOf(link);
+        if (index !== -1) {
+            links.splice(index, 1);
+        }
     }
     function createBlock(id, label, x, y) {
         const block = new Block(id, label, x, y, onClick, onMouseDown);
@@ -113,47 +166,9 @@ class Block {
         vscode.postMessage({ type: 'print', text: `Block clicked: ${block.label}` });
     }
     function onMouseDown(block, e) {
-        vscode.postMessage({ type: 'print', text: `Mouse down on block: ${block.label}` });
-        if (!block.isSelected()) {
-            if (e.shiftKey) {
-                // Toggle selection if Shift is pressed
-                block.toggleSelect();
-            }
-            else {
-                // Clear selection and select only this block
-                unselectAll();
-                block.select();
-            }
-        }
-        // Store the initial mouse position
-        dragStartX = e.clientX;
-        dragStartY = e.clientY;
-        isDragging = false; // Reset dragging state
-        // Add a temporary mousemove listener to detect drag threshold
-        const onMouseMoveThreshold = (moveEvent) => {
-            const deltaX = Math.abs(moveEvent.clientX - dragStartX);
-            const deltaY = Math.abs(moveEvent.clientY - dragStartY);
-            if (deltaX > dragThreshold || deltaY > dragThreshold) {
-                // Exceeded drag threshold, start dragging
-                isDragging = true;
-                document.removeEventListener('mousemove', onMouseMoveThreshold);
-                // Start dragging selected blocks
-                if (!block.isSelected()) {
-                    // If the block is not already selected, add it to the selection
-                    block.select();
-                }
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            }
-        };
-        document.addEventListener('mousemove', onMouseMoveThreshold);
-        // Handle mouseup to detect a simple click
-        const onMouseUpThreshold = () => {
-            document.removeEventListener('mousemove', onMouseMoveThreshold);
-            document.removeEventListener('mouseup', onMouseUpThreshold);
-            if (!isDragging) {
-                vscode.postMessage({ type: 'print', text: `As simple click on: ${block.label}` });
-                // If no drag occurred, treat it as a simple click
+        if (e.button !== 1) {
+            vscode.postMessage({ type: 'print', text: `Mouse down on block: ${block.label}` });
+            if (!block.isSelected()) {
                 if (e.shiftKey) {
                     // Toggle selection if Shift is pressed
                     block.toggleSelect();
@@ -164,14 +179,56 @@ class Block {
                     block.select();
                 }
             }
-        };
-        document.addEventListener('mouseup', onMouseUpThreshold);
+            // Store the initial mouse position
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            isDragging = false; // Reset dragging state
+            // Add a temporary mousemove listener to detect drag threshold
+            const onMouseMoveThreshold = (moveEvent) => {
+                const deltaX = Math.abs(moveEvent.clientX - dragStartX);
+                const deltaY = Math.abs(moveEvent.clientY - dragStartY);
+                if (deltaX > dragThreshold || deltaY > dragThreshold) {
+                    // Exceeded drag threshold, start dragging
+                    isDragging = true;
+                    document.removeEventListener('mousemove', onMouseMoveThreshold);
+                    // Start dragging selected blocks
+                    if (!block.isSelected()) {
+                        // If the block is not already selected, add it to the selection
+                        block.select();
+                    }
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                }
+            };
+            document.addEventListener('mousemove', onMouseMoveThreshold);
+            // Handle mouseup to detect a simple click
+            const onMouseUpThreshold = () => {
+                document.removeEventListener('mousemove', onMouseMoveThreshold);
+                document.removeEventListener('mouseup', onMouseUpThreshold);
+                if (!isDragging) {
+                    vscode.postMessage({ type: 'print', text: `As simple click on: ${block.label}` });
+                    // If no drag occurred, treat it as a simple click
+                    if (e.shiftKey) {
+                        // Toggle selection if Shift is pressed
+                        block.toggleSelect();
+                    }
+                    else {
+                        // Clear selection and select only this block
+                        unselectAll();
+                        block.select();
+                    }
+                }
+            };
+            document.addEventListener('mouseup', onMouseUpThreshold);
+        }
     }
     function onMouseDownInCanvas(e) {
-        if (e.target !== canvas) {
-            return; // Ignore clicks on child elements
+        if (e.button !== 1) {
+            if (e.target !== canvas) {
+                return; // Ignore clicks on child elements
+            }
+            startBoxSelection(e);
         }
-        startBoxSelection(e);
     }
     function onMouseUp() {
         vscode.postMessage({ type: 'print', text: `Mouse up` });
@@ -200,6 +257,7 @@ class Block {
             });
             dragStartX = e.clientX;
             dragStartY = e.clientY;
+            updateLinks();
         }
         else if (selectionBox) {
             // Update selection box size
@@ -250,6 +308,24 @@ class Block {
             }
         });
     }
+    function createRandomLink() {
+        if (blocks.length < 2) {
+            vscode.postMessage({ type: 'print', text: 'Not enough blocks to create a link.' });
+            return;
+        }
+        // Randomly select two different blocks
+        const sourceIndex = Math.floor(Math.random() * blocks.length);
+        let targetIndex = Math.floor(Math.random() * blocks.length);
+        // Ensure the source and target are not the same
+        while (targetIndex === sourceIndex) {
+            targetIndex = Math.floor(Math.random() * blocks.length);
+        }
+        const sourceBlock = blocks[sourceIndex];
+        const targetBlock = blocks[targetIndex];
+        // Create a link between the two blocks
+        createLink(sourceBlock.id, targetBlock.id);
+        vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
+    }
     function renderHTML(blocks) {
         vscode.postMessage({ type: 'print', text: `Rendering ${blocks.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
@@ -261,6 +337,11 @@ class Block {
         btn.textContent = 'Add Block';
         btn.addEventListener('click', () => vscode.postMessage({ type: 'add' }));
         topControls.appendChild(btn);
+        // Add button to create a link
+        const btnCreateLink = document.createElement('button');
+        btnCreateLink.textContent = 'Create Link';
+        btnCreateLink.addEventListener('click', createRandomLink);
+        topControls.appendChild(btnCreateLink);
         const btnZoomIn = document.createElement('button');
         btnZoomIn.textContent = 'Zoom In';
         const btnZoomOut = document.createElement('button');
@@ -273,6 +354,8 @@ class Block {
         topControls.appendChild(btnZoomIn);
         topControls.appendChild(btnZoomOut);
         topControls.appendChild(btnResetZoom);
+        zoomContainer.addEventListener('wheel', handleMouseWheelZoom);
+        canvasContainer.addEventListener('mousedown', onMouseDownForPanning);
         centerCanvas();
         setZoom(zoomLevel);
     }
@@ -308,11 +391,56 @@ class Block {
         zoomLevel = Math.min(maxZoom, Math.max(minZoom, level));
         zoomContainer.style.transform = `scale(${zoomLevel})`;
         // Dynamically adjust the canvas size based on the zoom level
-        const scaledWidth = Math.min(2000 / 2 * zoomLevel, 2000 / 2);
-        const scaledHeight = Math.min(2000 / 2 * zoomLevel, 2000 / 2);
+        const scaledWidth = Math.min(canvasWidth / 2 * zoomLevel, canvasWidth / 2);
+        const scaledHeight = Math.min(canvasHeigh / 2 * zoomLevel, canvasHeigh / 2);
         zoomContainer.style.width = `${scaledWidth}px`;
         zoomContainer.style.height = `${scaledHeight}px`;
         vscode.postMessage({ type: 'print', text: `Zoom level: ${zoomLevel}` });
+    }
+    function handleMouseWheelZoom(e) {
+        e.preventDefault(); // Prevent default scrolling behavior
+        // Adjust zoom level based on scroll direction
+        if (e.deltaY < 0) {
+            setZoom(zoomLevel + zoomStep); // Zoom in
+        }
+        else if (e.deltaY > 0) {
+            setZoom(zoomLevel - zoomStep); // Zoom out
+        }
+    }
+    function onMouseDownForPanning(e) {
+        if (e.button === 1) { // Middle mouse button
+            e.preventDefault(); // Prevent default middle mouse behavior (e.g., auto-scroll)
+            isPanning = true;
+            canvasContainer.classList.add('panning'); // Add the class
+            // Store the initial mouse position
+            panStartX = e.clientX;
+            panStartY = e.clientY;
+            // Add event listeners for mousemove and mouseup
+            document.addEventListener('mousemove', onMouseMoveForPanning);
+            document.addEventListener('mouseup', onMouseUpForPanning);
+        }
+    }
+    function onMouseMoveForPanning(e) {
+        if (!isPanning)
+            return;
+        // Calculate the distance moved
+        const deltaX = e.clientX - panStartX;
+        const deltaY = e.clientY - panStartY;
+        // Adjust the scroll position of the canvasContainer
+        canvasContainer.scrollLeft -= deltaX;
+        canvasContainer.scrollTop -= deltaY;
+        // Update the starting position for the next movement
+        panStartX = e.clientX;
+        panStartY = e.clientY;
+    }
+    function onMouseUpForPanning(e) {
+        if (e.button === 1) { // Middle mouse button
+            isPanning = false;
+            canvasContainer.classList.remove('panning'); // Remove the class
+            // Remove the event listeners
+            document.removeEventListener('mousemove', onMouseMoveForPanning);
+            document.removeEventListener('mouseup', onMouseUpForPanning);
+        }
     }
     // Listen for messages from extension
     window.addEventListener('message', (e) => {

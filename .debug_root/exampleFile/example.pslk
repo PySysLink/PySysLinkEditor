@@ -3,86 +3,86 @@
     {
       "id": "abc123",
       "label": "Block Kaixo",
-      "x": 1.2417504257550162e+144,
-      "y": 3.2353152386777e+143
+      "x": 1024,
+      "y": 811
     },
     {
       "id": "XfdCX4mrOpnY1bZQYG9yXORGQhBCkvwM",
       "label": "New Block",
-      "x": 69,
-      "y": 230
+      "x": 993,
+      "y": 686
     },
     {
       "id": "QeUZPimZZWlXNc4QGqOsCA2cpVfBOceI",
       "label": "Wololo",
-      "x": 44,
-      "y": -37.25
+      "x": 913.8823529411765,
+      "y": 278.75
     },
     {
       "id": "VjDwQJr8S7cmbkmtge8IMn6yGMM1CcnJ",
       "label": "Zergatik?",
-      "x": 1733.142857142857,
-      "y": 1670.8095238095227
+      "x": 827.1428571428569,
+      "y": 656.8095238095227
     },
     {
       "id": "BHxcx61Lih9jokiF3Yg08CVTCT29lUhv",
       "label": "New Block",
-      "x": 62,
-      "y": 1560.7142857142858
+      "x": 859.8823529411765,
+      "y": 78.71428571428575
     },
     {
       "id": "gnO34RBvd0WxUXhXkQLRt6obXqZYoNDG",
       "label": "New Block",
-      "x": 607,
-      "y": -142
+      "x": 723,
+      "y": -73
     },
     {
       "id": "svcOIjWomtKm8tg0VgbMQiRXHaopdboy",
       "label": "New Block",
-      "x": 1295.0000000000005,
-      "y": 776.7142857142858
+      "x": 1045.1176470588236,
+      "y": 49.00840336134461
     },
     {
       "id": "FTuytLS8Ux9qlbZsPY13wawOHppqlU6Z",
       "label": "New Block",
-      "x": 1750,
-      "y": -250
+      "x": 485,
+      "y": -150
     },
     {
       "id": "UVUndPeZewkWFKnB5aSfPhycFFJ0eSoR",
       "label": "New Block",
-      "x": 458,
-      "y": -106
+      "x": 574,
+      "y": -37
     },
     {
       "id": "MvCb5EEWK5zU6OFURYyQuacIBkVIvDqG",
       "label": "New Block",
-      "x": 1093,
-      "y": -94
+      "x": 191,
+      "y": -281
     },
     {
       "id": "41KMtEmQKo2mZzHP42DT5BnqFhHXOAxf",
       "label": "New Block",
-      "x": 1368.9999999999998,
-      "y": 1190.5555555555554
+      "x": 729,
+      "y": 8.55555555555543
     },
     {
       "id": "Jqhx3XwVBgWeO05IaMN9xl9AaMtvmBn4",
       "label": "New Block",
-      "x": 1422.111111111111,
-      "y": -126.33333333333337
+      "x": 192.1111111111111,
+      "y": -213.33333333333337
     },
     {
       "id": "ERHEhEoYxSA4icdOhN3s6ywYsQeZLaeh",
       "label": "New Block",
-      "x": 402.2222222222222,
-      "y": 368.2222222222223
+      "x": 906.2222222222222,
+      "y": -519.7777777777777
     },
     {
       "id": "HXnIaDB0sWITXXvyncpBnnJgI5pElgu6",
       "label": "New Block",
-      "x": 694.2222222222222,
-      "y": 1042.4444444444443
+      "x": 898.2222222222222,
+      "y": -15.555555555555657
     }
   ]
 }
