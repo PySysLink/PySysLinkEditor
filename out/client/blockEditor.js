@@ -77,18 +77,28 @@ class Block {
     getElement() {
         return this.element;
     }
-    addElementToContainer(container) {
-        container.appendChild(this.element);
+    addElementToCanvas(canvas) {
+        canvas.appendChild(this.element);
     }
 }
 (function () {
-    const container = document.querySelector('.notes');
+    const canvas = document.querySelector('.canvas');
+    const zoomContainer = document.querySelector('.zoom-container');
+    const topControls = document.querySelector('.top-controls');
+    const canvasContainer = document.querySelector('.canvas-container');
     let blocks = [];
     let dragStartX = 0;
     let dragStartY = 0;
     let dragThreshold = 5; // Minimum distance to detect a drag
     let isDragging = false;
     let selectionBox = null;
+    let zoomLevel = 2; // Default zoom level
+    const zoomStep = 0.1; // Step for zooming in/out
+    const minZoom = 1; // Minimum zoom level
+    const maxZoom = 4; // Maximum zoom level
+    function getZoomLevelReal() {
+        return zoomLevel / 2;
+    }
     function createBlock(id, label, x, y) {
         const block = new Block(id, label, x, y, onClick, onMouseDown);
         blocks.push(block);
@@ -104,6 +114,17 @@ class Block {
     }
     function onMouseDown(block, e) {
         vscode.postMessage({ type: 'print', text: `Mouse down on block: ${block.label}` });
+        if (!block.isSelected()) {
+            if (e.shiftKey) {
+                // Toggle selection if Shift is pressed
+                block.toggleSelect();
+            }
+            else {
+                // Clear selection and select only this block
+                unselectAll();
+                block.select();
+            }
+        }
         // Store the initial mouse position
         dragStartX = e.clientX;
         dragStartY = e.clientY;
@@ -131,6 +152,7 @@ class Block {
             document.removeEventListener('mousemove', onMouseMoveThreshold);
             document.removeEventListener('mouseup', onMouseUpThreshold);
             if (!isDragging) {
+                vscode.postMessage({ type: 'print', text: `As simple click on: ${block.label}` });
                 // If no drag occurred, treat it as a simple click
                 if (e.shiftKey) {
                     // Toggle selection if Shift is pressed
@@ -145,8 +167,8 @@ class Block {
         };
         document.addEventListener('mouseup', onMouseUpThreshold);
     }
-    function onMouseDownInContainer(e) {
-        if (e.target !== container) {
+    function onMouseDownInCanvas(e) {
+        if (e.target !== canvas) {
             return; // Ignore clicks on child elements
         }
         startBoxSelection(e);
@@ -163,31 +185,33 @@ class Block {
         }
         else if (selectionBox) {
             // End box selection
-            container.removeChild(selectionBox);
+            canvas.removeChild(selectionBox);
             selectionBox = null;
         }
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
     }
     function onMouseMove(e) {
+        const scaledDeltaX = (e.clientX - dragStartX) / getZoomLevelReal();
+        const scaledDeltaY = (e.clientY - dragStartY) / getZoomLevelReal();
         if (isDragging) {
-            // Move all selected blocks
-            const deltaX = e.clientX - dragStartX;
-            const deltaY = e.clientY - dragStartY;
             getSelectedBlocks().forEach(block => {
-                block.move(deltaX, deltaY);
+                block.move(scaledDeltaX, scaledDeltaY);
             });
             dragStartX = e.clientX;
             dragStartY = e.clientY;
         }
         else if (selectionBox) {
             // Update selection box size
-            const width = e.clientX - dragStartX;
-            const height = e.clientY - dragStartY;
-            selectionBox.style.width = `${Math.abs(width)}px`;
-            selectionBox.style.height = `${Math.abs(height)}px`;
-            selectionBox.style.left = `${Math.min(e.clientX, dragStartX)}px`;
-            selectionBox.style.top = `${Math.min(e.clientY, dragStartY)}px`;
+            const canvasRect = canvas.getBoundingClientRect();
+            const adjustedX = (e.clientX - canvasRect.left) / getZoomLevelReal();
+            const adjustedY = (e.clientY - canvasRect.top) / getZoomLevelReal();
+            const scaledWidth = (adjustedX - dragStartX);
+            const scaledHeight = (adjustedY - dragStartY);
+            selectionBox.style.left = `${Math.min(dragStartX, adjustedX)}px`;
+            selectionBox.style.top = `${Math.min(dragStartY, adjustedY)}px`;
+            selectionBox.style.width = `${Math.abs(scaledWidth)}px`;
+            selectionBox.style.height = `${Math.abs(scaledHeight)}px`;
             // Update selected blocks based on the selection box
             updateSelectionBox();
         }
@@ -195,11 +219,16 @@ class Block {
     function startBoxSelection(e) {
         unselectAll();
         vscode.postMessage({ type: 'print', text: `Start box selection at ${e.clientX}, ${e.clientY}` });
+        // Get the canvas's bounding rectangle
+        const canvasRect = canvas.getBoundingClientRect();
+        // Adjust mouse coordinates to be relative to the canvas
+        const adjustedX = (e.clientX - canvasRect.left) / getZoomLevelReal();
+        const adjustedY = (e.clientY - canvasRect.top) / getZoomLevelReal();
         selectionBox = document.createElement('div');
         selectionBox.className = 'selection-box';
-        container.appendChild(selectionBox);
-        dragStartX = e.clientX;
-        dragStartY = e.clientY;
+        canvas.appendChild(selectionBox);
+        dragStartX = adjustedX;
+        dragStartY = adjustedY;
         selectionBox.style.left = `${dragStartX}px`;
         selectionBox.style.top = `${dragStartY}px`;
         document.addEventListener('mousemove', onMouseMove);
@@ -223,14 +252,34 @@ class Block {
     }
     function renderHTML(blocks) {
         vscode.postMessage({ type: 'print', text: `Rendering ${blocks.length} blocks` });
-        container.innerHTML = ''; // Clear container
-        blocks.forEach(block => block.addElementToContainer(container));
+        canvas.innerHTML = ''; // Clear canvas
+        blocks.forEach(block => block.addElementToCanvas(canvas));
+        canvas.addEventListener('mousedown', onMouseDownInCanvas);
+        topControls.innerHTML = '';
         // Add button
         const btn = document.createElement('button');
         btn.textContent = 'Add Block';
         btn.addEventListener('click', () => vscode.postMessage({ type: 'add' }));
-        container.appendChild(btn);
-        container.addEventListener('mousedown', onMouseDownInContainer);
+        topControls.appendChild(btn);
+        const btnZoomIn = document.createElement('button');
+        btnZoomIn.textContent = 'Zoom In';
+        const btnZoomOut = document.createElement('button');
+        btnZoomOut.textContent = 'Zoom Out';
+        const btnResetZoom = document.createElement('button');
+        btnResetZoom.textContent = 'Reset Zoom';
+        btnZoomIn.addEventListener('click', () => setZoom(zoomLevel + zoomStep));
+        btnZoomOut.addEventListener('click', () => setZoom(zoomLevel - zoomStep));
+        btnResetZoom.addEventListener('click', () => setZoom(2));
+        topControls.appendChild(btnZoomIn);
+        topControls.appendChild(btnZoomOut);
+        topControls.appendChild(btnResetZoom);
+        centerCanvas();
+        setZoom(zoomLevel);
+    }
+    function centerCanvas() {
+        // Scroll to the center of the canvas
+        // canvasContainer.scrollLeft = (canvas.scrollWidth - canvasContainer.clientWidth) / 2;
+        // canvasContainer.scrollTop = (canvas.scrollHeight - canvasContainer.clientHeight) / 2;
     }
     function updateBlocks(jsonText) {
         let json;
@@ -238,7 +287,7 @@ class Block {
             json = JSON.parse(jsonText || '{}');
         }
         catch {
-            container.textContent = 'Invalid JSON';
+            canvas.textContent = 'Invalid JSON';
             return;
         }
         json.blocks?.forEach(blockData => {
@@ -253,6 +302,17 @@ class Block {
             }
         });
         renderHTML(blocks);
+    }
+    function setZoom(level) {
+        // Clamp the zoom level between minZoom and maxZoom
+        zoomLevel = Math.min(maxZoom, Math.max(minZoom, level));
+        zoomContainer.style.transform = `scale(${zoomLevel})`;
+        // Dynamically adjust the canvas size based on the zoom level
+        const scaledWidth = Math.min(2000 / 2 * zoomLevel, 2000 / 2);
+        const scaledHeight = Math.min(2000 / 2 * zoomLevel, 2000 / 2);
+        zoomContainer.style.width = `${scaledWidth}px`;
+        zoomContainer.style.height = `${scaledHeight}px`;
+        vscode.postMessage({ type: 'print', text: `Zoom level: ${zoomLevel}` });
     }
     // Listen for messages from extension
     window.addEventListener('message', (e) => {

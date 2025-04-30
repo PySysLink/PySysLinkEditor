@@ -207,12 +207,15 @@ class PySysLinkBlockEditorProvider {
 				<title>PySysLink</title>
 			</head>
 			<body>
-				<div class="notes">
-					<div class="add-button">
-						<button>Scratch!</button>
+			<div class="main">
+				<div class="top-controls">
+				</div>
+				<div class="canvas-container">
+					<div class="zoom-container">
+						<div class="canvas"></div>
 					</div>
 				</div>
-				
+			</div>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;
