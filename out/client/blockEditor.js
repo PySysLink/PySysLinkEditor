@@ -140,6 +140,7 @@ class Link {
     function createLink(sourceId, targetId) {
         const link = new Link(sourceId, targetId);
         links.push(link);
+        vscode.postMessage({ type: 'addLink', sourceId: link.sourceId, targetId: link.targetId });
         link.addToSvg(linksSvg);
         updateLinks(canvas);
     }
@@ -338,6 +339,7 @@ class Link {
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
     function renderHTML(blocks) {
+        vscode.postMessage({ type: 'print', text: `Render html` });
         vscode.postMessage({ type: 'print', text: `Rendering ${blocks.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
         blocks.forEach(block => block.addElementToCanvas(canvas));
@@ -346,7 +348,7 @@ class Link {
         // Add button
         const btn = document.createElement('button');
         btn.textContent = 'Add Block';
-        btn.addEventListener('click', () => vscode.postMessage({ type: 'add' }));
+        btn.addEventListener('click', () => vscode.postMessage({ type: 'addBlock' }));
         topControls.appendChild(btn);
         // Add button to create a link
         const btnCreateLink = document.createElement('button');
@@ -371,12 +373,26 @@ class Link {
         centerCanvas();
         setZoom(zoomLevel);
     }
+    function renderLinks(linksData) {
+        vscode.postMessage({ type: 'print', text: `Render links` });
+        // Clear existing links
+        links.forEach(link => link.removeFromSvg(linksSvg));
+        links.length = 0;
+        // Create and render new links
+        linksData.forEach(linkData => {
+            const link = new Link(linkData.sourceId, linkData.targetId);
+            links.push(link);
+            link.addToSvg(linksSvg);
+            link.updatePosition(blocks);
+        });
+    }
     function centerCanvas() {
         // Scroll to the center of the canvas
         // canvasContainer.scrollLeft = (canvas.scrollWidth - canvasContainer.clientWidth) / 2;
         // canvasContainer.scrollTop = (canvas.scrollHeight - canvasContainer.clientHeight) / 2;
     }
     function updateBlocks(jsonText) {
+        vscode.postMessage({ type: 'print', text: `Update blocks` });
         let json;
         try {
             json = JSON.parse(jsonText || '{}');
@@ -397,6 +413,7 @@ class Link {
             }
         });
         renderHTML(blocks);
+        renderLinks(json.links || []);
     }
     function setZoom(level) {
         // Clamp the zoom level between minZoom and maxZoom

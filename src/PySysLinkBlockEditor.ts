@@ -1,37 +1,19 @@
 import * as vscode from 'vscode';
+import { addBlock, moveBlock, moveBlocks, editBlockLabel } from './BlockManager';
 import { getNonce } from './util';
+import { addLink} from './LinkManager';
 
-/**
- * Provider for cat scratch editors.
- * 
- * Cat scratch editors are used for `.cscratch` files, which are just json files.
- * To get started, run this extension and open an empty `.cscratch` file in VS Code.
- * 
- * This provider demonstrates:
- * 
- * - Setting up the initial webview for a custom editor.
- * - Loading scripts and styles in a custom editor.
- * - Synchronizing changes between a text document and a custom editor.
- */
+
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
-
 	private documentLock: Promise<void> = Promise.resolve();
 
 	public static register(context: vscode.ExtensionContext): vscode.Disposable {
 		const provider = new PySysLinkBlockEditorProvider(context);
 		const providerRegistration = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
+
+		console.log('Register start');
+
 		return providerRegistration;
-	}
-
-	private async withDocumentLock<T>(callback: () => Promise<T>): Promise<T> {
-		console.log('Acquiring lock...');
-
-		// Chain the new operation to the existing lock
-		const releaseLock = this.documentLock.then(() => callback());
-		this.documentLock = releaseLock.then(() => undefined).catch(() => {}); // Prevent lock from breaking on errors
-		console.log('Lock released.');
-
-		return releaseLock;
 	}
 
 	private static readonly viewType = 'pysyslink-editor.modelBlockEditor';
@@ -41,11 +23,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		private readonly context: vscode.ExtensionContext
 	) { }
 
-	/**
-	 * Called when our custom editor is opened.
-	 * 
-	 * 
-	 */
 	public async resolveCustomTextEditor(
 		document: vscode.TextDocument,
 		webviewPanel: vscode.WebviewPanel,
@@ -55,10 +32,13 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		webviewPanel.webview.options = {
 			enableScripts: true,
 		};
+		console.log('before get html');
 		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+		console.log('after get html');
 
-		function updateWebview() {
-			const json = this.getDocumentAsJson(document);
+
+		const updateWebview = () => {
+			const json  = this.getDocumentAsJson(document);	
 			webviewPanel.webview.postMessage({
 				type: 'update',
 				text: JSON.stringify({
@@ -66,15 +46,8 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 					links: json.links || []
 				}),
 			});
-		}
+		};
 
-		// Hook up event handlers so that we can synchronize the webview with the text document.
-		//
-		// The text document acts as our model, so we have to sync change in the document to our
-		// editor and sync changes in the editor back to the document.
-		// 
-		// Remember that a single text document can also be shared between multiple custom
-		// editors (this happens for example when you split a custom editor)
 
 		const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
 			if (e.document.uri.toString() === document.uri.toString()) {
@@ -82,116 +55,39 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			}
 		});
 
-		// Make sure we get rid of the listener when our editor is closed.
 		webviewPanel.onDidDispose(() => {
 			changeDocumentSubscription.dispose();
 		});
 
-		// Receive message from the webview.
 		webviewPanel.webview.onDidReceiveMessage(async e => {
 			switch (e.type) {
-				case 'add':
-					this.addBlock(document);
+				case 'addBlock':
+					addBlock(document, this.getDocumentAsJson, this.updateTextDocument);
 					return;
 				case 'move':
-					this.moveBlock(document, e.id, e.x, e.y);
+					moveBlock(document, e.id, e.x, e.y, this.getDocumentAsJson, this.updateTextDocument);
 					return;
 				case 'moveBatch':
-					this.moveBlocks(document, e.updates);
+					moveBlocks(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
 					return;
 				case 'edit':
-					await this.editBlockLabel(document, e.id);
+					await editBlockLabel(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
 					return;
 				case 'addLink':
-					this.addLink(document, e.sourceId, e.targetId);
+					addLink(document, e.sourceId, e.targetId, this.getDocumentAsJson, this.updateTextDocument);
 					return;
 				case 'print':
 					console.log(e.text);
 					return;
+				default:
+					console.log(`Type of message not recognized: ${e.type}`);
+				
 			}
 		});
 
 		updateWebview();
 	}
-
-    private addBlock(document: vscode.TextDocument) {
-        const json = this.getDocumentAsJson(document);
-        const blocks = Array.isArray(json.blocks) ? json.blocks : [];
-        blocks.push({
-            id: getNonce(),
-            label: 'New Block',
-            x: 50,
-            y: 50
-        });
-        json.blocks = blocks;
-        this.updateTextDocument(document, json);
-    }
-
-	private addLink(document: vscode.TextDocument, sourceId: string, targetId: string): void {
-		this.withDocumentLock(async () => {
-			const json = this.getDocumentAsJson(document);
-			const links = Array.isArray(json.links) ? json.links : [];
-			
-			// Check if the link already exists
-			const existingLink = links.find((link: any) => link.sourceId === sourceId && link.targetId === targetId);
-			if (existingLink) {
-				console.log(`Link between ${sourceId} and ${targetId} already exists.`);
-				return;
-			}
-	
-			// Add the new link
-			links.push({ sourceId, targetId });
-			json.links = links;
-	
-			console.log(`Added link between ${sourceId} and ${targetId}`);
-			await this.updateTextDocument(document, json);
-		});
-	}
     
-    private moveBlock(document: vscode.TextDocument, id: string, x: number, y: number) {
-		this.withDocumentLock(async () => {
-			const json = this.getDocumentAsJson(document);
-			const block = (json.blocks || []).find((b: any) => b.id === id);
-			if (block) {
-				block.x = x;
-				block.y = y;
-				console.log(`Block ${block.label} updated to position x: ${block.x}, y: ${block.y}`);
-
-				await this.updateTextDocument(document, json);
-			}
-		});
-    }
-
-	private moveBlocks(document: vscode.TextDocument, updates: { id: string; x: number; y: number }[]) {
-		const json = this.getDocumentAsJson(document);
-	
-		updates.forEach(update => {
-			const block = (json.blocks || []).find((b: any) => b.id === update.id);
-			if (block) {
-				block.x = update.x;
-				block.y = update.y;
-				console.log(`Block ${block.label} updated to position x: ${block.x}, y: ${block.y}`);
-			}
-		});
-	
-		this.updateTextDocument(document, json);
-	}
-
-    private async editBlockLabel(doc: vscode.TextDocument, id: string) {
-        const json = this.getDocumentAsJson(doc);
-        const block = (json.blocks || []).find((b: any) => b.id === id);
-        if (!block) { return; }
-      
-        const newLabel = await vscode.window.showInputBox({
-          prompt: 'New label for block',
-          value: block.label
-        });
-      
-        if (newLabel === undefined) { return; }  // user cancelled
-      
-        block.label = newLabel;
-        this.updateTextDocument(doc, json);
-      }
 
 	/**
 	 * Get the static html used for the editor webviews.
@@ -248,12 +144,21 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			</html>`;
 	}
 
+	private async withDocumentLock<T>(callback: () => Promise<T>): Promise<T> {
+		console.log('Acquiring lock...');
 
-	/**
-	 * Try to get a current document as json text.
-	 */
-	private getDocumentAsJson(document: vscode.TextDocument): any {
+		// Chain the new operation to the existing lock
+		const releaseLock = this.documentLock.then(() => callback());
+		this.documentLock = releaseLock.then(() => undefined).catch(() => {}); // Prevent lock from breaking on errors
+		console.log('Lock released.');
+
+		return releaseLock;
+	}
+
+	private getDocumentAsJson =( document: vscode.TextDocument): any => {
+		console.log("Get document json");
 		const text = document.getText();
+		console.log("Text obtained");
 		if (text.trim().length === 0) {
 			return { blocks: [], links: [] };
 		}
@@ -263,25 +168,27 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			json.blocks = Array.isArray(json.blocks) ? json.blocks : [];
 			json.links = Array.isArray(json.links) ? json.links : [];
 			return json;
-		} catch {
+		} catch (error) {
+			console.error('Error parsing document JSON:', error);
 			throw new Error('Could not get document as json. Content is not valid json');
 		}
 	}
 
-	/**
-	 * Write out the json to a given document.
-	 */
-	private updateTextDocument(document: vscode.TextDocument, json: any) {
-		const edit = new vscode.WorkspaceEdit();
+	private updateTextDocument = (document: vscode.TextDocument, json: any) => {
+		this.withDocumentLock(async () => {
 
-		// Just replace the entire document every time for this example extension.
-		// A more complete extension should compute minimal edits instead.
-		edit.replace(
-			document.uri,
-			new vscode.Range(0, 0, document.lineCount, 0),
-			JSON.stringify(json, null, 2)
-		);
+			const edit = new vscode.WorkspaceEdit();
 
-		return vscode.workspace.applyEdit(edit);
+			// Just replace the entire document every time for this example extension.
+			// A more complete extension should compute minimal edits instead.
+			edit.replace(
+				document.uri,
+				new vscode.Range(0, 0, document.lineCount, 0),
+				JSON.stringify(json, null, 2)
+			);
+
+			return vscode.workspace.applyEdit(edit);
+		});
 	}
+
 }

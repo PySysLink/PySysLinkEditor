@@ -1,0 +1,32 @@
+{
+  "blocks": [
+    {
+      "id": "block1",
+      "label": "Block 1",
+      "x": 293,
+      "y": 104
+    },
+    {
+      "id": "block2",
+      "label": "Block 2",
+      "x": 227,
+      "y": 295
+    },
+    {
+      "id": "0dyAOngMNL0Oh6z9fGyR03oDOi4EcvPi",
+      "label": "New Block",
+      "x": 506,
+      "y": 100
+    }
+  ],
+  "links": [
+    {
+      "sourceId": "block1",
+      "targetId": "block2"
+    },
+    {
+      "sourceId": "0dyAOngMNL0Oh6z9fGyR03oDOi4EcvPi",
+      "targetId": "block1"
+    }
+  ]
+}

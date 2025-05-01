@@ -9,32 +9,32 @@
     {
       "id": "XfdCX4mrOpnY1bZQYG9yXORGQhBCkvwM",
       "label": "New Block",
-      "x": 993,
-      "y": 686
+      "x": 716.75,
+      "y": 654.75
     },
     {
       "id": "QeUZPimZZWlXNc4QGqOsCA2cpVfBOceI",
       "label": "Wololo",
-      "x": 913.8823529411765,
-      "y": 278.75
+      "x": 637.6323529411765,
+      "y": 247.5
     },
     {
       "id": "VjDwQJr8S7cmbkmtge8IMn6yGMM1CcnJ",
       "label": "Zergatik?",
-      "x": 827.1428571428569,
-      "y": 656.8095238095227
+      "x": 550.8928571428569,
+      "y": 625.5595238095227
     },
     {
       "id": "BHxcx61Lih9jokiF3Yg08CVTCT29lUhv",
       "label": "New Block",
-      "x": 859.8823529411765,
-      "y": 78.71428571428575
+      "x": 756.8823529411765,
+      "y": 168.71428571428575
     },
     {
       "id": "gnO34RBvd0WxUXhXkQLRt6obXqZYoNDG",
       "label": "New Block",
-      "x": 723,
-      "y": 73
+      "x": 620,
+      "y": 163
     },
     {
       "id": "svcOIjWomtKm8tg0VgbMQiRXHaopdboy",
@@ -45,20 +45,20 @@
     {
       "id": "FTuytLS8Ux9qlbZsPY13wawOHppqlU6Z",
       "label": "New Block",
-      "x": 485,
-      "y": 150
+      "x": 382,
+      "y": 240
     },
     {
       "id": "UVUndPeZewkWFKnB5aSfPhycFFJ0eSoR",
       "label": "New Block",
-      "x": 574,
-      "y": 37
+      "x": 471,
+      "y": 127
     },
     {
       "id": "MvCb5EEWK5zU6OFURYyQuacIBkVIvDqG",
       "label": "New Block",
-      "x": 191,
-      "y": 281
+      "x": 88,
+      "y": 371
     },
     {
       "id": "41KMtEmQKo2mZzHP42DT5BnqFhHXOAxf",
@@ -69,23 +69,38 @@
     {
       "id": "Jqhx3XwVBgWeO05IaMN9xl9AaMtvmBn4",
       "label": "New Block",
-      "x": 192.1111111111111,
-      "y": 213.33333333333337
+      "x": 89.11111111111109,
+      "y": 303.33333333333337
     },
     {
       "id": "ERHEhEoYxSA4icdOhN3s6ywYsQeZLaeh",
       "label": "New Block",
-      "x": 906.2222222222222,
-      "y": 519.7777777777777
+      "x": 629.9722222222222,
+      "y": 488.5277777777777
     },
     {
       "id": "HXnIaDB0sWITXXvyncpBnnJgI5pElgu6",
       "label": "New Block",
-      "x": 898.2222222222222,
-      "y": 15.555555555555657
+      "x": 924.8888888888888,
+      "y": 253.8888888888891
     }
   ],
-    "links": [
-        { "sourceId": "block1", "targetId": "block2" }
-    ]
+  "links": [
+    {
+      "sourceId": "block1",
+      "targetId": "block2"
+    },
+    {
+      "sourceId": "UVUndPeZewkWFKnB5aSfPhycFFJ0eSoR",
+      "targetId": "svcOIjWomtKm8tg0VgbMQiRXHaopdboy"
+    },
+    {
+      "sourceId": "HXnIaDB0sWITXXvyncpBnnJgI5pElgu6",
+      "targetId": "XfdCX4mrOpnY1bZQYG9yXORGQhBCkvwM"
+    },
+    {
+      "sourceId": "QeUZPimZZWlXNc4QGqOsCA2cpVfBOceI",
+      "targetId": "41KMtEmQKo2mZzHP42DT5BnqFhHXOAxf"
+    }
+  ]
 }

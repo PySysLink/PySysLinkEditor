@@ -178,6 +178,7 @@ class Link {
     function createLink(sourceId: string, targetId: string): void {
         const link = new Link(sourceId, targetId);
         links.push(link);
+        vscode.postMessage({ type: 'addLink', sourceId: link.sourceId, targetId: link.targetId });
         link.addToSvg(linksSvg);
         updateLinks(canvas);
     }
@@ -431,6 +432,7 @@ class Link {
     }
 
     function renderHTML(blocks: Block[]): void {
+        vscode.postMessage({ type: 'print', text: `Render html` });
         vscode.postMessage({ type: 'print', text: `Rendering ${blocks.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
         blocks.forEach(block => block.addElementToCanvas(canvas));
@@ -441,7 +443,7 @@ class Link {
         // Add button
         const btn = document.createElement('button');
         btn.textContent = 'Add Block';
-        btn.addEventListener('click', () => vscode.postMessage({ type: 'add' }));
+        btn.addEventListener('click', () => vscode.postMessage({ type: 'addBlock' }));
         topControls.appendChild(btn);
 
         // Add button to create a link
@@ -480,6 +482,22 @@ class Link {
 
     }
 
+    function renderLinks(linksData: { sourceId: string; targetId: string }[]): void {
+        vscode.postMessage({ type: 'print', text: `Render links` });
+
+        // Clear existing links
+        links.forEach(link => link.removeFromSvg(linksSvg));
+        links.length = 0;
+    
+        // Create and render new links
+        linksData.forEach(linkData => {
+            const link = new Link(linkData.sourceId, linkData.targetId);
+            links.push(link);
+            link.addToSvg(linksSvg);
+            link.updatePosition(blocks);
+        });
+    }
+
     function centerCanvas(): void {
         // Scroll to the center of the canvas
         // canvasContainer.scrollLeft = (canvas.scrollWidth - canvasContainer.clientWidth) / 2;
@@ -487,7 +505,8 @@ class Link {
     }
 
     function updateBlocks(jsonText: string): void {
-        let json: { blocks?: { id: string; label: string; x: number; y: number }[] };
+        vscode.postMessage({ type: 'print', text: `Update blocks` });
+        let json: { blocks?: { id: string; label: string; x: number; y: number }[]; links?: { sourceId: string; targetId: string }[] };
         try {
             json = JSON.parse(jsonText || '{}');
         } catch {
@@ -506,7 +525,11 @@ class Link {
             }
         });
 
+
         renderHTML(blocks);
+
+        renderLinks(json.links || []);
+
     }
 
 
