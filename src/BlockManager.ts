@@ -1,15 +1,32 @@
 import * as vscode from 'vscode';
 import { getNonce } from './util';
+import { initializeBlockMetadata } from './BlockMetadata';
 
-export function addBlock(document: vscode.TextDocument, getDocumentAsJson: (doc: vscode.TextDocument) => any, updateTextDocument: (doc: vscode.TextDocument, json: any) => void): void {
+export function addBlock(
+    document: vscode.TextDocument,
+    getDocumentAsJson: (doc: vscode.TextDocument) => any,
+    updateTextDocument: (doc: vscode.TextDocument, json: any) => void
+): void {
     const json = getDocumentAsJson(document);
     const blocks = Array.isArray(json.blocks) ? json.blocks : [];
-    blocks.push({
+
+    // Define the new block
+    const newBlock = {
         id: getNonce(),
         label: 'New Block',
         x: 50,
-        y: 50
-    });
+        y: 50,
+        blockType: 'defaultType', 
+        blockClass: 'defaultClass',
+        inputPorts: 0,
+        outputPorts: 0, 
+        properties: {} 
+    };
+
+    // Initialize ports and properties based on blockType and blockClass
+    initializeBlockMetadata(newBlock);
+
+    blocks.push(newBlock);
     json.blocks = blocks;
     updateTextDocument(document, json);
 }

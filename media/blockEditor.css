@@ -102,3 +102,20 @@
     -webkit-font-smoothing: subpixel-antialiased;
 }
 
+
+.input-port, .output-port {
+    width: 20px;
+    height: 20px;
+    background: #00cc33;
+    color: white;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 20%;
+    margin: 5px;
+}
+.input-port {
+    float: left;
+}
+.output-port {
+    float: right;
+}

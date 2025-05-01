@@ -1,20 +1,36 @@
-// See https://go.microsoft.com/fwlink/?LinkId=733558
-// for the documentation about the tasks.json format
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "watch",
-			"problemMatcher": "$tsc-watch",
-			"isBackground": true,
-			"presentation": {
-				"reveal": "never"
-			},
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
-		}
-	]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "webpack",
+            "type": "npm",
+            "script": "webpack",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false // Not the default task, as we'll use a compound task
+            },
+            "detail": "Run Webpack to bundle the client-side code."
+        },
+        {
+            "label": "compile-server",
+            "type": "shell",
+            "command": "tsc",
+            "args": ["-p", "tsconfig.server.json"], // Use the server-side tsconfig
+            "problemMatcher": "$tsc",
+            "group": {
+                "kind": "build",
+                "isDefault": false // Not the default task
+            },
+            "detail": "Compile the server-side TypeScript code."
+        },
+        {
+            "label": "build-all",
+            "dependsOn": ["webpack", "compile-server"], // Run both tasks
+            "group": {
+                "kind": "build",
+                "isDefault": true // Set this as the default build task
+            }
+        }
+    ]
 }

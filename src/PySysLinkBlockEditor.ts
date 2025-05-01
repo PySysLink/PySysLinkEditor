@@ -74,7 +74,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 					await editBlockLabel(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
 					return;
 				case 'addLink':
-					addLink(document, e.sourceId, e.targetId, this.getDocumentAsJson, this.updateTextDocument);
+					addLink(document, e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.intermediateNodes, this.getDocumentAsJson, this.updateTextDocument);
 					return;
 				case 'print':
 					console.log(e.text);

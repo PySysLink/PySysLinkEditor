@@ -1,5 +1,17 @@
-"use strict";
-const vscode = acquireVsCodeApi();
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./media/Block.ts":
+/*!************************!*\
+  !*** ./media/Block.ts ***!
+  \************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Block: () => (/* binding */ Block)
+/* harmony export */ });
 class Block {
     id;
     label;
@@ -7,11 +19,15 @@ class Block {
     y;
     element;
     _isSelected = false;
-    constructor(id, label, x, y, onClick, onMouseDown) {
+    inputPorts;
+    outputPorts;
+    constructor(id, label, x, y, inputPorts, outputPorts, onClick, onMouseDown) {
         this.id = id;
         this.label = label;
         this.x = x;
         this.y = y;
+        this.inputPorts = inputPorts;
+        this.outputPorts = outputPorts;
         // Create the DOM element for the block
         this.element = this.createElement(onClick, onMouseDown);
     }
@@ -41,9 +57,6 @@ class Block {
         this.element.classList.add('selected');
     }
     unselect() {
-        if (this._isSelected) {
-            vscode.postMessage({ type: 'print', text: `block unselected: ${this.label}` });
-        }
         this._isSelected = false;
         this.element.classList.remove('selected');
     }
@@ -60,16 +73,30 @@ class Block {
         }
     }
     createElement(onClick, onMouseDown) {
-        const el = document.createElement('div');
-        el.className = 'block';
-        el.style.left = `${this.x}px`;
-        el.style.top = `${this.y}px`;
-        el.textContent = this.label;
-        el.dataset.id = this.id;
+        const blockElement = document.createElement('div');
+        blockElement.classList.add('block');
+        blockElement.style.left = `${this.x}px`;
+        blockElement.style.top = `${this.y}px`;
+        const label = document.createElement('div');
+        label.textContent = this.label;
+        blockElement.appendChild(label);
+        for (let i = 0; i < this.inputPorts; i++) {
+            const inputPort = document.createElement('div');
+            inputPort.classList.add('input-port');
+            inputPort.textContent = `In ${i + 1}`;
+            blockElement.appendChild(inputPort);
+        }
+        // Add output ports
+        for (let i = 0; i < this.outputPorts; i++) {
+            const outputPort = document.createElement('div');
+            outputPort.classList.add('output-port');
+            outputPort.textContent = `Out ${i + 1}`;
+            blockElement.appendChild(outputPort);
+        }
         // Attach event listeners
-        el.addEventListener('click', (e) => onClick(this, e));
-        el.addEventListener('mousedown', (e) => onMouseDown(this, e));
-        return el;
+        blockElement.addEventListener('click', (e) => onClick(this, e));
+        blockElement.addEventListener('mousedown', (e) => onMouseDown(this, e));
+        return blockElement;
     }
     move(deltaX, deltaY) {
         this.setPosition(this.x + deltaX, this.y + deltaY);
@@ -80,38 +107,148 @@ class Block {
     addElementToCanvas(canvas) {
         canvas.appendChild(this.element);
     }
+    getPortPosition(portIndex, portType) {
+        const portSpacing = 20; // Spacing between ports
+        const portOffset = portIndex * portSpacing;
+        // Get the block's position relative to the canvas
+        const blockX = this.x;
+        const blockY = this.y;
+        // Adjust for the port type
+        if (portType === "input") {
+            return { x: blockX, y: blockY + portOffset };
+        }
+        else {
+            return { x: blockX + this.element.offsetWidth, y: blockY + portOffset };
+        }
+    }
 }
+
+
+/***/ }),
+
+/***/ "./media/Link.ts":
+/*!***********************!*\
+  !*** ./media/Link.ts ***!
+  \***********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Link: () => (/* binding */ Link)
+/* harmony export */ });
 class Link {
     sourceId;
+    sourcePort;
     targetId;
-    lineElement;
-    constructor(sourceId, targetId) {
+    targetPort;
+    intermediateNodes;
+    polylineElement;
+    constructor(sourceId, sourcePort, targetId, targetPort, intermediateNodes = []) {
         this.sourceId = sourceId;
+        this.sourcePort = sourcePort;
         this.targetId = targetId;
-        // Create the SVG line element
-        this.lineElement = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        this.lineElement.setAttribute("stroke", "#007acc");
-        this.lineElement.setAttribute("stroke-width", "2");
+        this.targetPort = targetPort;
+        this.intermediateNodes = intermediateNodes;
+        // Create the SVG polyline element
+        this.polylineElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        this.polylineElement.setAttribute("stroke", "#007acc");
+        this.polylineElement.setAttribute("stroke-width", "2");
+        this.polylineElement.setAttribute("fill", "none");
     }
     updatePosition(blocks) {
         const sourceBlock = blocks.find(block => block.id === this.sourceId);
         const targetBlock = blocks.find(block => block.id === this.targetId);
         if (sourceBlock && targetBlock) {
-            const sourcePos = sourceBlock.getPosition();
-            const targetPos = targetBlock.getPosition();
-            this.lineElement.setAttribute("x1", `${sourcePos.x}`); // Adjust for block center
-            this.lineElement.setAttribute("y1", `${sourcePos.y}`);
-            this.lineElement.setAttribute("x2", `${targetPos.x}`);
-            this.lineElement.setAttribute("y2", `${targetPos.y}`);
+            const sourcePos = sourceBlock.getPortPosition(this.sourcePort, "output");
+            const targetPos = targetBlock.getPortPosition(this.targetPort, "input");
+            // Combine source, intermediate nodes, and target into a single points string
+            const points = [
+                `${sourcePos.x},${sourcePos.y}`,
+                ...this.intermediateNodes.map(node => `${node.x},${node.y}`),
+                `${targetPos.x},${targetPos.y}`
+            ].join(" ");
+            this.polylineElement.setAttribute("points", points);
         }
     }
     addToSvg(svg) {
-        svg.appendChild(this.lineElement);
+        svg.appendChild(this.polylineElement);
     }
     removeFromSvg(svg) {
-        svg.removeChild(this.lineElement);
+        svg.removeChild(this.polylineElement);
     }
 }
+
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
+/*!******************************!*\
+  !*** ./media/blockEditor.ts ***!
+  \******************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Link__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Link */ "./media/Link.ts");
+/* harmony import */ var _Block__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Block */ "./media/Block.ts");
+
+
+const vscode = acquireVsCodeApi();
 (function () {
     const canvas = document.querySelector('.canvas');
     const zoomContainer = document.querySelector('.zoom-container');
@@ -137,10 +274,10 @@ class Link {
     function getZoomLevelReal() {
         return zoomLevel / 2;
     }
-    function createLink(sourceId, targetId) {
-        const link = new Link(sourceId, targetId);
+    function createLink(sourceId, sourcePort, targetId, targetPort, intermediateNodes) {
+        const link = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link(sourceId, sourcePort, targetId, targetPort, intermediateNodes);
         links.push(link);
-        vscode.postMessage({ type: 'addLink', sourceId: link.sourceId, targetId: link.targetId });
+        vscode.postMessage({ type: 'addLink', sourceId: link.sourceId, sourcePort: link.sourcePort, targetId: link.targetId, targetPort: link.targetPort, intermediateNodes: link.intermediateNodes });
         link.addToSvg(linksSvg);
         updateLinks(canvas);
     }
@@ -164,8 +301,8 @@ class Link {
             links.splice(index, 1);
         }
     }
-    function createBlock(id, label, x, y) {
-        const block = new Block(id, label, x, y, onClick, onMouseDown);
+    function createBlock(id, label, x, y, inputPorts, outputPorts) {
+        const block = new _Block__WEBPACK_IMPORTED_MODULE_1__.Block(id, label, x, y, inputPorts, outputPorts, onClick, onMouseDown);
         blocks.push(block);
     }
     function unselectAll() {
@@ -335,7 +472,7 @@ class Link {
         const sourceBlock = blocks[sourceIndex];
         const targetBlock = blocks[targetIndex];
         // Create a link between the two blocks
-        createLink(sourceBlock.id, targetBlock.id);
+        createLink(sourceBlock.id, 0, targetBlock.id, 0, []);
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
     function renderHTML(blocks) {
@@ -375,12 +512,23 @@ class Link {
     }
     function renderLinks(linksData) {
         vscode.postMessage({ type: 'print', text: `Render links` });
+        if (!linksSvg) {
+            linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            linksSvg.classList.add('links');
+            linksSvg.style.position = 'absolute';
+            linksSvg.style.top = '0';
+            linksSvg.style.left = '0';
+            linksSvg.style.width = '100%';
+            linksSvg.style.height = '100%';
+            linksSvg.style.pointerEvents = 'none';
+            canvasContainer.appendChild(linksSvg);
+        }
         // Clear existing links
         links.forEach(link => link.removeFromSvg(linksSvg));
         links.length = 0;
         // Create and render new links
         linksData.forEach(linkData => {
-            const link = new Link(linkData.sourceId, linkData.targetId);
+            const link = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link(linkData.sourceId, linkData.sourcePort, linkData.targetId, linkData.targetPort, linkData.intermediateNodes);
             links.push(link);
             link.addToSvg(linksSvg);
             link.updatePosition(blocks);
@@ -409,11 +557,17 @@ class Link {
             }
             else {
                 vscode.postMessage({ type: 'print', text: `Block ID does not exist, creating block: ${blockData.id}` });
-                createBlock(blockData.id, blockData.label, blockData.x, blockData.y);
+                createBlock(blockData.id, blockData.label, blockData.x, blockData.y, blockData.inputPorts, blockData.outputPorts);
             }
         });
         renderHTML(blocks);
-        renderLinks(json.links || []);
+        renderLinks((json.links || []).map(link => ({
+            sourceId: link.sourceId,
+            targetId: link.targetId,
+            sourcePort: link.sourcePort,
+            targetPort: link.targetPort,
+            intermediateNodes: link.intermediateNodes
+        })));
     }
     function setZoom(level) {
         // Clamp the zoom level between minZoom and maxZoom
@@ -486,4 +640,9 @@ class Link {
         updateBlocks(state.text);
     }
 })();
+
+})();
+
+/******/ })()
+;
 //# sourceMappingURL=blockEditor.js.map

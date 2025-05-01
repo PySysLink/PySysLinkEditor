@@ -25,13 +25,13 @@
       }
     ],
     "views": {
-    "explorer": [
-      {
-        "id": "pysyslink.blockProperties",
-        "name": "Block Properties",
-        "type": "webview"
-      }
-    ]
+      "explorer": [
+        {
+          "id": "pysyslink.blockProperties",
+          "name": "Block Properties",
+          "type": "webview"
+        }
+      ]
     },
     "commands": [
       {
@@ -49,22 +49,27 @@
     ]
   },
   "scripts": {
+    "webpack": "webpack",
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p tsconfig.server.json && tsc -p tsconfig.client.json", 
-    "watch": "tsc -w -p tsconfig.server.json & tsc -w -p tsconfig.client.json", 
+    "compile-server": "tsc -p tsconfig.server.json", 
+    "build": "npm run webpack && npm run compile-server",
+    "watch": "tsc -w -p tsconfig.server.json & webpack --watch",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.99.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
+    "@types/vscode": "^1.99.0",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
-    "eslint": "^9.23.0",
-    "typescript": "^5.8.2",
     "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.23.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.2",
+    "webpack": "^5.99.7",
+    "webpack-cli": "^6.0.1"
   }
 }

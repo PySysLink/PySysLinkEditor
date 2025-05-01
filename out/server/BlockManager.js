@@ -39,15 +39,25 @@ exports.moveBlocks = moveBlocks;
 exports.editBlockLabel = editBlockLabel;
 const vscode = __importStar(require("vscode"));
 const util_1 = require("./util");
+const BlockMetadata_1 = require("./BlockMetadata");
 function addBlock(document, getDocumentAsJson, updateTextDocument) {
     const json = getDocumentAsJson(document);
     const blocks = Array.isArray(json.blocks) ? json.blocks : [];
-    blocks.push({
+    // Define the new block
+    const newBlock = {
         id: (0, util_1.getNonce)(),
         label: 'New Block',
         x: 50,
-        y: 50
-    });
+        y: 50,
+        blockType: 'defaultType',
+        blockClass: 'defaultClass',
+        inputPorts: 0,
+        outputPorts: 0,
+        properties: {}
+    };
+    // Initialize ports and properties based on blockType and blockClass
+    (0, BlockMetadata_1.initializeBlockMetadata)(newBlock);
+    blocks.push(newBlock);
     json.blocks = blocks;
     updateTextDocument(document, json);
 }

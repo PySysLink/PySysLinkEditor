@@ -1,106 +1,73 @@
 {
   "blocks": [
     {
-      "id": "abc123",
-      "label": "Block Kaixo",
-      "x": 1024,
-      "y": 811
+      "id": "block1",
+      "label": "Block 1",
+      "x": 25.000000000000004,
+      "y": 82.15789473684211,
+      "blockType": "defaultType",
+      "blockClass": "defaultClass",
+      "inputPorts": 1,
+      "outputPorts": 2,
+      "properties": {
+        "value": 10
+      }
     },
     {
-      "id": "XfdCX4mrOpnY1bZQYG9yXORGQhBCkvwM",
-      "label": "New Block",
-      "x": 716.75,
-      "y": 654.75
+      "id": "block2",
+      "label": "Block 2",
+      "x": 190,
+      "y": 272,
+      "blockType": "defaultType",
+      "blockClass": "defaultClass",
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "gain": 2
+      }
     },
     {
-      "id": "QeUZPimZZWlXNc4QGqOsCA2cpVfBOceI",
-      "label": "Wololo",
-      "x": 637.6323529411765,
-      "y": 247.5
-    },
-    {
-      "id": "VjDwQJr8S7cmbkmtge8IMn6yGMM1CcnJ",
-      "label": "Zergatik?",
-      "x": 550.8928571428569,
-      "y": 625.5595238095227
-    },
-    {
-      "id": "BHxcx61Lih9jokiF3Yg08CVTCT29lUhv",
-      "label": "New Block",
-      "x": 756.8823529411765,
-      "y": 168.71428571428575
-    },
-    {
-      "id": "gnO34RBvd0WxUXhXkQLRt6obXqZYoNDG",
-      "label": "New Block",
-      "x": 620,
-      "y": 163
-    },
-    {
-      "id": "svcOIjWomtKm8tg0VgbMQiRXHaopdboy",
-      "label": "New Block",
-      "x": 1045.1176470588236,
-      "y": 49.00840336134461
-    },
-    {
-      "id": "FTuytLS8Ux9qlbZsPY13wawOHppqlU6Z",
-      "label": "New Block",
-      "x": 382,
-      "y": 240
-    },
-    {
-      "id": "UVUndPeZewkWFKnB5aSfPhycFFJ0eSoR",
-      "label": "New Block",
-      "x": 471,
-      "y": 127
-    },
-    {
-      "id": "MvCb5EEWK5zU6OFURYyQuacIBkVIvDqG",
-      "label": "New Block",
-      "x": 88,
-      "y": 371
-    },
-    {
-      "id": "41KMtEmQKo2mZzHP42DT5BnqFhHXOAxf",
-      "label": "New Block",
-      "x": 729,
-      "y": 8.55555555555543
-    },
-    {
-      "id": "Jqhx3XwVBgWeO05IaMN9xl9AaMtvmBn4",
-      "label": "New Block",
-      "x": 89.11111111111109,
-      "y": 303.33333333333337
-    },
-    {
-      "id": "ERHEhEoYxSA4icdOhN3s6ywYsQeZLaeh",
-      "label": "New Block",
-      "x": 629.9722222222222,
-      "y": 488.5277777777777
-    },
-    {
-      "id": "HXnIaDB0sWITXXvyncpBnnJgI5pElgu6",
-      "label": "New Block",
-      "x": 924.8888888888888,
-      "y": 253.8888888888891
+      "id": "block3",
+      "label": "Block 3",
+      "x": 585,
+      "y": 248,
+      "blockType": "advancedType",
+      "blockClass": "mathClass",
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "operation": "add"
+      }
     }
   ],
   "links": [
     {
       "sourceId": "block1",
-      "targetId": "block2"
+      "sourcePort": 0,
+      "targetId": "block2",
+      "targetPort": 0,
+      "intermediateNodes": [
+        {
+          "x": 200,
+          "y": 150
+        }
+      ]
     },
     {
-      "sourceId": "UVUndPeZewkWFKnB5aSfPhycFFJ0eSoR",
-      "targetId": "svcOIjWomtKm8tg0VgbMQiRXHaopdboy"
-    },
-    {
-      "sourceId": "HXnIaDB0sWITXXvyncpBnnJgI5pElgu6",
-      "targetId": "XfdCX4mrOpnY1bZQYG9yXORGQhBCkvwM"
-    },
-    {
-      "sourceId": "QeUZPimZZWlXNc4QGqOsCA2cpVfBOceI",
-      "targetId": "41KMtEmQKo2mZzHP42DT5BnqFhHXOAxf"
+      "sourceId": "block2",
+      "sourcePort": 0,
+      "targetId": "block3",
+      "targetPort": 1,
+      "intermediateNodes": [
+        {
+          "x": 400,
+          "y": 250
+        },
+        {
+          "x": 450,
+          "y": 275
+        }
+      ]
     }
   ]
 }

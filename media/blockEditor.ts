@@ -1,144 +1,8 @@
+import { Link } from './Link';
+import { Block } from './Block';
+
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
-
-class Block {
-    id: string;
-    label: string;
-    private x: number;
-    private y: number;
-    private element: HTMLElement;
-    _isSelected: boolean = false;
-
-
-    constructor(id: string, label: string, x: number, y: number, onClick: (block: Block, e: MouseEvent) => void, onMouseDown: (block: Block, e: MouseEvent) => void) {
-        this.id = id;
-        this.label = label;
-        this.x = x;
-        this.y = y;
-
-        // Create the DOM element for the block
-        this.element = this.createElement(onClick, onMouseDown);
-    }
-
-    public setPosition(x: number, y: number): void {
-        this.x = x;
-        this.y = y;
-        this.element.style.left = `${x}px`;
-        this.element.style.top = `${y}px`;
-        
-    }
-
-    public getState(): { type: string; id: string; x: number; y: number}[] {
-        return [{
-            type: 'move',
-            id: this.id,
-            x: this.x,
-            y: this.y
-        }];
-    }
-
-    public parseStateFromJson(blockData: { x: number; y: number; label: string }): void {
-        this.setPosition(blockData.x, blockData.y);
-        this.label = blockData.label;
-    }
-
-    public getPosition(): { x: number; y: number } {
-        return { x: this.x, y: this.y };
-    }
-
-    public select(): void {
-        this._isSelected = true;
-        this.element.classList.add('selected');
-    }
-
-    public unselect(): void {
-        if (this._isSelected) {
-            vscode.postMessage({ type: 'print', text: `block unselected: ${this.label}` });
-        }
-        this._isSelected = false;
-        this.element.classList.remove('selected');
-    }
-
-    public isSelected(): boolean {
-        return this._isSelected;
-    }
-
-    public toggleSelect(): void {
-        this._isSelected = !this._isSelected;
-        if (this._isSelected) {
-            this.select();
-        } else {
-            this.unselect();
-        }
-    }
-
-    private createElement(onClick: (block: Block, e: MouseEvent) => void, onMouseDown: (block: Block, e: MouseEvent) => void): HTMLElement {
-        const el = document.createElement('div');
-        el.className = 'block';
-        el.style.left = `${this.x}px`;
-        el.style.top = `${this.y}px`;
-        el.textContent = this.label;
-        el.dataset.id = this.id;
-
-        // Attach event listeners
-        el.addEventListener('click', (e: MouseEvent) => onClick(this, e));
-        el.addEventListener('mousedown', (e: MouseEvent) => onMouseDown(this, e));
-
-        return el;
-    }
-
-
-    public move(deltaX: number, deltaY: number): void {
-        this.setPosition(this.x + deltaX, this.y + deltaY);
-    }
-
-    getElement(): HTMLElement {
-        return this.element;
-    }
-
-    public addElementToCanvas(canvas: HTMLElement): void {
-        canvas.appendChild(this.element);
-    }
-}
-
-class Link {
-    sourceId: string;
-    targetId: string;
-    private lineElement: SVGLineElement;
-
-    constructor(sourceId: string, targetId: string) {
-        this.sourceId = sourceId;
-        this.targetId = targetId;
-
-        // Create the SVG line element
-        this.lineElement = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        this.lineElement.setAttribute("stroke", "#007acc");
-        this.lineElement.setAttribute("stroke-width", "2");
-    }
-
-    updatePosition(blocks: Block[]): void {
-        const sourceBlock = blocks.find(block => block.id === this.sourceId);
-        const targetBlock = blocks.find(block => block.id === this.targetId);
-
-        if (sourceBlock && targetBlock) {
-            const sourcePos = sourceBlock.getPosition();
-            const targetPos = targetBlock.getPosition();
-
-            this.lineElement.setAttribute("x1", `${sourcePos.x}`); // Adjust for block center
-            this.lineElement.setAttribute("y1", `${sourcePos.y}`);
-            this.lineElement.setAttribute("x2", `${targetPos.x}`);
-            this.lineElement.setAttribute("y2", `${targetPos.y}`);
-        }
-    }
-
-    addToSvg(svg: SVGSVGElement): void {
-        svg.appendChild(this.lineElement);
-    }
-
-    removeFromSvg(svg: SVGSVGElement): void {
-        svg.removeChild(this.lineElement);
-    }
-}
 
 
 (function () {
@@ -175,10 +39,10 @@ class Link {
         return zoomLevel/2;
     }
 
-    function createLink(sourceId: string, targetId: string): void {
-        const link = new Link(sourceId, targetId);
+    function createLink(sourceId: string, sourcePort: number, targetId: string, targetPort: number, intermediateNodes: { x: number; y: number }[]): void {
+        const link = new Link(sourceId, sourcePort, targetId, targetPort, intermediateNodes);
         links.push(link);
-        vscode.postMessage({ type: 'addLink', sourceId: link.sourceId, targetId: link.targetId });
+        vscode.postMessage({ type: 'addLink', sourceId: link.sourceId, sourcePort: link.sourcePort, targetId: link.targetId, targetPort: link.targetPort, intermediateNodes: link.intermediateNodes });
         link.addToSvg(linksSvg);
         updateLinks(canvas);
     }
@@ -208,8 +72,8 @@ class Link {
         }
     }
 
-    function createBlock(id: string, label: string, x: number, y: number): void {
-        const block = new Block(id, label, x, y, onClick, onMouseDown);
+    function createBlock(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number): void {
+        const block = new Block(id, label, x, y, inputPorts, outputPorts, onClick, onMouseDown);
         blocks.push(block);
     }
     
@@ -426,7 +290,7 @@ class Link {
         const targetBlock = blocks[targetIndex];
     
         // Create a link between the two blocks
-        createLink(sourceBlock.id, targetBlock.id);
+        createLink(sourceBlock.id, 0, targetBlock.id, 0, []);
     
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
@@ -482,8 +346,20 @@ class Link {
 
     }
 
-    function renderLinks(linksData: { sourceId: string; targetId: string }[]): void {
+    function renderLinks(linksData: { sourceId: string; sourcePort: number; targetId: string; targetPort: number; intermediateNodes: { x: number; y: number }[] }[]): void {
         vscode.postMessage({ type: 'print', text: `Render links` });
+
+        if (!linksSvg) {
+            linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            linksSvg.classList.add('links');
+            linksSvg.style.position = 'absolute';
+            linksSvg.style.top = '0';
+            linksSvg.style.left = '0';
+            linksSvg.style.width = '100%';
+            linksSvg.style.height = '100%';
+            linksSvg.style.pointerEvents = 'none';
+            canvasContainer.appendChild(linksSvg);
+        }
 
         // Clear existing links
         links.forEach(link => link.removeFromSvg(linksSvg));
@@ -491,7 +367,13 @@ class Link {
     
         // Create and render new links
         linksData.forEach(linkData => {
-            const link = new Link(linkData.sourceId, linkData.targetId);
+            const link = new Link(
+                linkData.sourceId,
+                linkData.sourcePort,
+                linkData.targetId,
+                linkData.targetPort,
+                linkData.intermediateNodes
+            );
             links.push(link);
             link.addToSvg(linksSvg);
             link.updatePosition(blocks);
@@ -506,7 +388,7 @@ class Link {
 
     function updateBlocks(jsonText: string): void {
         vscode.postMessage({ type: 'print', text: `Update blocks` });
-        let json: { blocks?: { id: string; label: string; x: number; y: number }[]; links?: { sourceId: string; targetId: string }[] };
+        let json: { blocks?: { id: string; label: string; x: number; y: number; inputPorts: number; outputPorts: number}[]; links?: { sourceId: string; sourcePort: number; targetId: string; targetPort: number; intermediateNodes: { x: number; y: number }[] }[] };
         try {
             json = JSON.parse(jsonText || '{}');
         } catch {
@@ -521,14 +403,20 @@ class Link {
                 block.parseStateFromJson(blockData);
             } else {
                 vscode.postMessage({ type: 'print', text: `Block ID does not exist, creating block: ${blockData.id}` });
-                createBlock(blockData.id, blockData.label, blockData.x, blockData.y);
+                createBlock(blockData.id, blockData.label, blockData.x, blockData.y, blockData.inputPorts, blockData.outputPorts);
             }
         });
 
 
         renderHTML(blocks);
 
-        renderLinks(json.links || []);
+        renderLinks((json.links || []).map(link => ({
+            sourceId: link.sourceId,
+            targetId: link.targetId,
+            sourcePort: link.sourcePort, 
+            targetPort: link.targetPort, 
+            intermediateNodes: link.intermediateNodes 
+        })));
 
     }
 
