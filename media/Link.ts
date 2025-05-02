@@ -7,6 +7,8 @@ export class Link {
     targetPort: number;
     intermediateNodes: { x: number; y: number }[];
     private polylineElement: SVGPolylineElement;
+    private nodeElements: SVGCircleElement[] = [];
+    private _isSelected: boolean = false;
 
     constructor(
         sourceId: string,
@@ -26,6 +28,10 @@ export class Link {
         this.polylineElement.setAttribute("stroke", "#007acc");
         this.polylineElement.setAttribute("stroke-width", "2");
         this.polylineElement.setAttribute("fill", "none");
+
+        // Add event listeners for interaction
+        this.polylineElement.addEventListener('click', this.onClick);
+        this.polylineElement.addEventListener('dblclick', this.onDoubleClick);
     }
 
     updatePosition(blocks: Block[]): void {
@@ -44,14 +50,99 @@ export class Link {
             ].join(" ");
 
             this.polylineElement.setAttribute("points", points);
+
+            this.nodeElements.forEach((nodeElement, index) => {
+                const node = this.intermediateNodes[index];
+                nodeElement.setAttribute('cx', `${node.x}`);
+                nodeElement.setAttribute('cy', `${node.y}`);
+            });
         }
     }
 
     addToSvg(svg: SVGSVGElement): void {
         svg.appendChild(this.polylineElement);
+
+        // Add intermediate node elements
+        this.intermediateNodes.forEach(node => {
+            const nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            nodeElement.setAttribute("r", "5");
+            nodeElement.setAttribute("fill", "#007acc");
+            nodeElement.setAttribute("cx", `${node.x}`);
+            nodeElement.setAttribute("cy", `${node.y}`);
+            nodeElement.addEventListener('mousedown', this.onNodeMouseDown(node));
+            svg.appendChild(nodeElement);
+            this.nodeElements.push(nodeElement);
+        });
     }
 
     removeFromSvg(svg: SVGSVGElement): void {
         svg.removeChild(this.polylineElement);
+    }
+
+    private onClick = (e: MouseEvent): void => {
+        this.toggleSelect();
+    };
+
+    private onDoubleClick = (e: MouseEvent): void => {
+        const rect = this.polylineElement.getBoundingClientRect();
+        const newNode = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        this.intermediateNodes.push(newNode);
+        this.updatePosition([]);
+    };
+
+    private onNodeMouseDown = (node: { x: number; y: number }) => (e: MouseEvent): void => {
+        const onMouseMove = (moveEvent: MouseEvent) => {
+            node.x = moveEvent.clientX;
+            node.y = moveEvent.clientY;
+            this.updatePosition([]);
+        };
+
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    };
+
+    public select() {
+        this._isSelected = true;
+        // this.element.classList.add('selected');
+        this.polylineElement.setAttribute("stroke", this._isSelected ? "#ff0000" : "#007acc");
+    }
+
+    public unselect(): void {
+        this._isSelected = false;
+        // this.element.classList.remove('selected');
+        this.polylineElement.setAttribute("stroke", this._isSelected ? "#ff0000" : "#007acc");
+    }
+
+    public isSelected(): boolean {
+        return this._isSelected;
+    }
+
+    public toggleSelect(): void {
+        this._isSelected = !this._isSelected;
+        if (this._isSelected) {
+            this.select();
+        } else {
+            this.unselect();
+        }
+    }
+
+    public getBoundingBox(): {top: number, bottom: number, right: number, left: number} {
+        const points = [
+            ...this.intermediateNodes,
+            { x: this.polylineElement.getBBox().x, y: this.polylineElement.getBBox().y }
+        ];
+    
+        // Calculate the bounding box
+        const left = Math.min(...points.map(point => point.x));
+        const right = Math.max(...points.map(point => point.x));
+        const top = Math.min(...points.map(point => point.y));
+        const bottom = Math.max(...points.map(point => point.y));
+    
+        return { top, bottom, right, left };
     }
 }

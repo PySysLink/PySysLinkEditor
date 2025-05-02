@@ -155,7 +155,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		return releaseLock;
 	}
 
-	private getDocumentAsJson =( document: vscode.TextDocument): any => {
+	private getDocumentAsJson = (document: vscode.TextDocument): any => {
 		console.log("Get document json");
 		const text = document.getText();
 		console.log("Text obtained");
@@ -172,7 +172,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			console.error('Error parsing document JSON:', error);
 			throw new Error('Could not get document as json. Content is not valid json');
 		}
-	}
+	};
 
 	private updateTextDocument = (document: vscode.TextDocument, json: any) => {
 		this.withDocumentLock(async () => {
@@ -189,6 +189,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 			return vscode.workspace.applyEdit(edit);
 		});
-	}
+	};
 
 }

@@ -126,6 +126,133 @@ class Block {
 
 /***/ }),
 
+/***/ "./media/BlockInteractionManager.ts":
+/*!******************************************!*\
+  !*** ./media/BlockInteractionManager.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   BlockInteractionManager: () => (/* binding */ BlockInteractionManager)
+/* harmony export */ });
+/* harmony import */ var _Block__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Block */ "./media/Block.ts");
+
+class BlockInteractionManager {
+    blocks = [];
+    dragStartX = 0;
+    dragStartY = 0;
+    dragThreshold = 5; // Minimum distance to detect a drag
+    isDragging = false;
+    vscode;
+    getZoomLevelReal;
+    updateLinks;
+    constructor(vscode, getZoomLevelReal, updateLinks) {
+        this.vscode = vscode;
+        this.getZoomLevelReal = getZoomLevelReal;
+        this.updateLinks = updateLinks;
+    }
+    createBlock(id, label, x, y, inputPorts, outputPorts) {
+        const block = new _Block__WEBPACK_IMPORTED_MODULE_0__.Block(id, label, x, y, inputPorts, outputPorts, this.onClick, this.onMouseDown);
+        this.blocks.push(block);
+    }
+    unselectAll() {
+        this.blocks.forEach(block => block.unselect());
+    }
+    getSelectedBlocks() {
+        return this.blocks.filter(block => block.isSelected());
+    }
+    onClick(block, e) {
+        this.vscode.postMessage({ type: 'print', text: `Block clicked: ${block.label}` });
+    }
+    onMouseDown = (block, e) => {
+        this.vscode.postMessage({ type: 'print', text: 'Block mouse down' });
+        if (e.button !== 1) {
+            this.vscode.postMessage({ type: 'print', text: `Mouse down on block: ${block.label}` });
+            if (!block.isSelected()) {
+                if (e.shiftKey) {
+                    // Toggle selection if Shift is pressed
+                    block.toggleSelect();
+                }
+                else {
+                    // Clear selection and select only this block
+                    this.unselectAll();
+                    block.select();
+                }
+            }
+            // Store the initial mouse position
+            this.dragStartX = e.clientX;
+            this.dragStartY = e.clientY;
+            this.isDragging = false; // Reset dragging state
+            // Add a temporary mousemove listener to detect drag threshold
+            const onMouseMoveThreshold = (moveEvent) => {
+                const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
+                const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
+                if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
+                    // Exceeded drag threshold, start dragging
+                    this.isDragging = true;
+                    document.removeEventListener('mousemove', onMouseMoveThreshold);
+                    // Start dragging selected blocks
+                    if (!block.isSelected()) {
+                        // If the block is not already selected, add it to the selection
+                        block.select();
+                    }
+                    document.addEventListener('mousemove', this.onMouseMove);
+                    document.addEventListener('mouseup', this.onMouseUp);
+                }
+            };
+            document.addEventListener('mousemove', onMouseMoveThreshold);
+            // Handle mouseup to detect a simple click
+            const onMouseUpThreshold = () => {
+                document.removeEventListener('mousemove', onMouseMoveThreshold);
+                document.removeEventListener('mouseup', onMouseUpThreshold);
+                if (!this.isDragging) {
+                    this.vscode.postMessage({ type: 'print', text: `As simple click on: ${block.label}` });
+                    // If no drag occurred, treat it as a simple click
+                    if (e.shiftKey) {
+                        // Toggle selection if Shift is pressed
+                        block.toggleSelect();
+                    }
+                    else {
+                        // Clear selection and select only this block
+                        this.unselectAll();
+                        block.select();
+                    }
+                }
+            };
+            document.addEventListener('mouseup', onMouseUpThreshold);
+        }
+    };
+    onMouseUp = () => {
+        this.vscode.postMessage({ type: 'print', text: `Mouse up` });
+        if (this.isDragging) {
+            this.isDragging = false;
+            const stateMessages = this.getSelectedBlocks().flatMap(block => block.getState());
+            stateMessages.forEach(message => {
+                this.vscode.postMessage({ type: 'print', text: message });
+            });
+            this.vscode.postMessage({ type: 'moveBatch', updates: stateMessages });
+        }
+        document.removeEventListener('mousemove', this.onMouseMove);
+        document.removeEventListener('mouseup', this.onMouseUp);
+    };
+    onMouseMove = (e) => {
+        const scaledDeltaX = (e.clientX - this.dragStartX) / this.getZoomLevelReal();
+        const scaledDeltaY = (e.clientY - this.dragStartY) / this.getZoomLevelReal();
+        if (this.isDragging) {
+            this.getSelectedBlocks().forEach(block => {
+                block.move(scaledDeltaX, scaledDeltaY);
+            });
+            this.dragStartX = e.clientX;
+            this.dragStartY = e.clientY;
+        }
+        this.updateLinks(this);
+    };
+}
+
+
+/***/ }),
+
 /***/ "./media/Link.ts":
 /*!***********************!*\
   !*** ./media/Link.ts ***!
@@ -143,6 +270,8 @@ class Link {
     targetPort;
     intermediateNodes;
     polylineElement;
+    nodeElements = [];
+    _isSelected = false;
     constructor(sourceId, sourcePort, targetId, targetPort, intermediateNodes = []) {
         this.sourceId = sourceId;
         this.sourcePort = sourcePort;
@@ -154,6 +283,9 @@ class Link {
         this.polylineElement.setAttribute("stroke", "#007acc");
         this.polylineElement.setAttribute("stroke-width", "2");
         this.polylineElement.setAttribute("fill", "none");
+        // Add event listeners for interaction
+        this.polylineElement.addEventListener('click', this.onClick);
+        this.polylineElement.addEventListener('dblclick', this.onDoubleClick);
     }
     updatePosition(blocks) {
         const sourceBlock = blocks.find(block => block.id === this.sourceId);
@@ -168,13 +300,168 @@ class Link {
                 `${targetPos.x},${targetPos.y}`
             ].join(" ");
             this.polylineElement.setAttribute("points", points);
+            this.nodeElements.forEach((nodeElement, index) => {
+                const node = this.intermediateNodes[index];
+                nodeElement.setAttribute('cx', `${node.x}`);
+                nodeElement.setAttribute('cy', `${node.y}`);
+            });
         }
     }
     addToSvg(svg) {
         svg.appendChild(this.polylineElement);
+        // Add intermediate node elements
+        this.intermediateNodes.forEach(node => {
+            const nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            nodeElement.setAttribute("r", "5");
+            nodeElement.setAttribute("fill", "#007acc");
+            nodeElement.setAttribute("cx", `${node.x}`);
+            nodeElement.setAttribute("cy", `${node.y}`);
+            nodeElement.addEventListener('mousedown', this.onNodeMouseDown(node));
+            svg.appendChild(nodeElement);
+            this.nodeElements.push(nodeElement);
+        });
     }
     removeFromSvg(svg) {
         svg.removeChild(this.polylineElement);
+    }
+    onClick = (e) => {
+        this.toggleSelect();
+    };
+    onDoubleClick = (e) => {
+        const rect = this.polylineElement.getBoundingClientRect();
+        const newNode = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        this.intermediateNodes.push(newNode);
+        this.updatePosition([]);
+    };
+    onNodeMouseDown = (node) => (e) => {
+        const onMouseMove = (moveEvent) => {
+            node.x = moveEvent.clientX;
+            node.y = moveEvent.clientY;
+            this.updatePosition([]);
+        };
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    };
+    select() {
+        this._isSelected = true;
+        // this.element.classList.add('selected');
+        this.polylineElement.setAttribute("stroke", this._isSelected ? "#ff0000" : "#007acc");
+    }
+    unselect() {
+        this._isSelected = false;
+        // this.element.classList.remove('selected');
+        this.polylineElement.setAttribute("stroke", this._isSelected ? "#ff0000" : "#007acc");
+    }
+    isSelected() {
+        return this._isSelected;
+    }
+    toggleSelect() {
+        this._isSelected = !this._isSelected;
+        if (this._isSelected) {
+            this.select();
+        }
+        else {
+            this.unselect();
+        }
+    }
+    getBoundingBox() {
+        const points = [
+            ...this.intermediateNodes,
+            { x: this.polylineElement.getBBox().x, y: this.polylineElement.getBBox().y }
+        ];
+        // Calculate the bounding box
+        const left = Math.min(...points.map(point => point.x));
+        const right = Math.max(...points.map(point => point.x));
+        const top = Math.min(...points.map(point => point.y));
+        const bottom = Math.max(...points.map(point => point.y));
+        return { top, bottom, right, left };
+    }
+}
+
+
+/***/ }),
+
+/***/ "./media/LinkInteractionManager.ts":
+/*!*****************************************!*\
+  !*** ./media/LinkInteractionManager.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   LinkInteractionManager: () => (/* binding */ LinkInteractionManager)
+/* harmony export */ });
+/* harmony import */ var _Link__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Link */ "./media/Link.ts");
+
+class LinkInteractionManager {
+    links = [];
+    linksSvg;
+    canvas;
+    vscode;
+    constructor(vscode, canvas, linksSvg) {
+        this.vscode = vscode;
+        this.canvas = canvas;
+        this.linksSvg = linksSvg;
+    }
+    createLink(sourceId, sourcePort, targetId, targetPort, intermediateNodes, blockInteractionManager) {
+        const link = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link(sourceId, sourcePort, targetId, targetPort, intermediateNodes);
+        this.links.push(link);
+        this.vscode.postMessage({ type: 'addLink', sourceId: link.sourceId, sourcePort: link.sourcePort, targetId: link.targetId, targetPort: link.targetPort, intermediateNodes: link.intermediateNodes });
+        link.addToSvg(this.linksSvg);
+        this.updateLinks(blockInteractionManager);
+    }
+    updateLinks = (blockInteractionManager) => {
+        this.linksSvg = document.querySelector('.links');
+        if (!this.linksSvg) {
+            this.linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            this.linksSvg.classList.add('links');
+        }
+        this.linksSvg.style.width = `${this.canvas.offsetWidth}px`;
+        this.linksSvg.style.height = `${this.canvas.offsetHeight}px`;
+        this.linksSvg.style.transform = this.canvas.style.transform; // Match the canvas transform (e.g., scale)
+        this.links.forEach(link => link.addToSvg(this.linksSvg));
+        this.links.forEach(link => link.updatePosition(blockInteractionManager.blocks));
+        this.canvas.appendChild(this.linksSvg);
+    };
+    unselectAll() {
+        this.links.forEach(link => {
+            link.unselect();
+        });
+    }
+    deleteLink(link) {
+        link.removeFromSvg(this.linksSvg);
+        const index = this.links.indexOf(link);
+        if (index !== -1) {
+            this.links.splice(index, 1);
+        }
+    }
+    renderLinks(linksData, blockInteractionManager) {
+        this.vscode.postMessage({ type: 'print', text: `Render links` });
+        if (!this.linksSvg) {
+            this.linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            this.linksSvg.classList.add('links');
+            this.linksSvg.style.position = 'absolute';
+            this.linksSvg.style.top = '0';
+            this.linksSvg.style.left = '0';
+            this.linksSvg.style.width = '100%';
+            this.linksSvg.style.height = '100%';
+            this.linksSvg.style.pointerEvents = 'all';
+        }
+        // Clear existing links
+        this.links.forEach(link => link.removeFromSvg(this.linksSvg));
+        this.links.length = 0;
+        // Create and render new links
+        linksData.forEach(linkData => {
+            const link = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link(linkData.sourceId, linkData.sourcePort, linkData.targetId, linkData.targetPort, linkData.intermediateNodes);
+            this.links.push(link);
+            link.addToSvg(this.linksSvg);
+            link.updatePosition(blockInteractionManager.blocks);
+        });
+        return this.linksSvg;
     }
 }
 
@@ -244,8 +531,8 @@ var __webpack_exports__ = {};
   !*** ./media/blockEditor.ts ***!
   \******************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Link__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Link */ "./media/Link.ts");
-/* harmony import */ var _Block__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Block */ "./media/Block.ts");
+/* harmony import */ var _BlockInteractionManager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./BlockInteractionManager */ "./media/BlockInteractionManager.ts");
+/* harmony import */ var _LinkInteractionManager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./LinkInteractionManager */ "./media/LinkInteractionManager.ts");
 
 
 const vscode = acquireVsCodeApi();
@@ -254,13 +541,8 @@ const vscode = acquireVsCodeApi();
     const zoomContainer = document.querySelector('.zoom-container');
     const topControls = document.querySelector('.top-controls');
     const canvasContainer = document.querySelector('.canvas-container');
-    var linksSvg = document.querySelector('.links');
-    let blocks = [];
-    const links = [];
     let dragStartX = 0;
     let dragStartY = 0;
-    let dragThreshold = 5; // Minimum distance to detect a drag
-    let isDragging = false;
     let selectionBox = null;
     let zoomLevel = 2; // Default zoom level
     const zoomStep = 0.1; // Step for zooming in/out
@@ -271,105 +553,10 @@ const vscode = acquireVsCodeApi();
     let panStartY = 0;
     let canvasHeigh = 4000;
     let canvasWidth = 8000;
+    let linkInteractionManager = new _LinkInteractionManager__WEBPACK_IMPORTED_MODULE_1__.LinkInteractionManager(vscode, canvas, document.querySelector('.links'));
+    let blockInteractionManager = new _BlockInteractionManager__WEBPACK_IMPORTED_MODULE_0__.BlockInteractionManager(vscode, getZoomLevelReal, linkInteractionManager.updateLinks);
     function getZoomLevelReal() {
         return zoomLevel / 2;
-    }
-    function createLink(sourceId, sourcePort, targetId, targetPort, intermediateNodes) {
-        const link = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link(sourceId, sourcePort, targetId, targetPort, intermediateNodes);
-        links.push(link);
-        vscode.postMessage({ type: 'addLink', sourceId: link.sourceId, sourcePort: link.sourcePort, targetId: link.targetId, targetPort: link.targetPort, intermediateNodes: link.intermediateNodes });
-        link.addToSvg(linksSvg);
-        updateLinks(canvas);
-    }
-    function updateLinks(container) {
-        linksSvg = document.querySelector('.links');
-        if (!linksSvg) {
-            linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            linksSvg.classList.add('links');
-        }
-        linksSvg.style.width = `${canvas.offsetWidth}px`;
-        linksSvg.style.height = `${canvas.offsetHeight}px`;
-        linksSvg.style.transform = canvas.style.transform; // Match the canvas transform (e.g., scale)
-        links.forEach(link => link.addToSvg(linksSvg));
-        links.forEach(link => link.updatePosition(blocks));
-        container.appendChild(linksSvg);
-    }
-    function deleteLink(link) {
-        link.removeFromSvg(linksSvg);
-        const index = links.indexOf(link);
-        if (index !== -1) {
-            links.splice(index, 1);
-        }
-    }
-    function createBlock(id, label, x, y, inputPorts, outputPorts) {
-        const block = new _Block__WEBPACK_IMPORTED_MODULE_1__.Block(id, label, x, y, inputPorts, outputPorts, onClick, onMouseDown);
-        blocks.push(block);
-    }
-    function unselectAll() {
-        blocks.forEach(block => block.unselect());
-    }
-    function getSelectedBlocks() {
-        return blocks.filter(block => block.isSelected());
-    }
-    function onClick(block, e) {
-        vscode.postMessage({ type: 'print', text: `Block clicked: ${block.label}` });
-    }
-    function onMouseDown(block, e) {
-        if (e.button !== 1) {
-            vscode.postMessage({ type: 'print', text: `Mouse down on block: ${block.label}` });
-            if (!block.isSelected()) {
-                if (e.shiftKey) {
-                    // Toggle selection if Shift is pressed
-                    block.toggleSelect();
-                }
-                else {
-                    // Clear selection and select only this block
-                    unselectAll();
-                    block.select();
-                }
-            }
-            // Store the initial mouse position
-            dragStartX = e.clientX;
-            dragStartY = e.clientY;
-            isDragging = false; // Reset dragging state
-            // Add a temporary mousemove listener to detect drag threshold
-            const onMouseMoveThreshold = (moveEvent) => {
-                const deltaX = Math.abs(moveEvent.clientX - dragStartX);
-                const deltaY = Math.abs(moveEvent.clientY - dragStartY);
-                if (deltaX > dragThreshold || deltaY > dragThreshold) {
-                    // Exceeded drag threshold, start dragging
-                    isDragging = true;
-                    document.removeEventListener('mousemove', onMouseMoveThreshold);
-                    // Start dragging selected blocks
-                    if (!block.isSelected()) {
-                        // If the block is not already selected, add it to the selection
-                        block.select();
-                    }
-                    document.addEventListener('mousemove', onMouseMove);
-                    document.addEventListener('mouseup', onMouseUp);
-                }
-            };
-            document.addEventListener('mousemove', onMouseMoveThreshold);
-            // Handle mouseup to detect a simple click
-            const onMouseUpThreshold = () => {
-                document.removeEventListener('mousemove', onMouseMoveThreshold);
-                document.removeEventListener('mouseup', onMouseUpThreshold);
-                if (!isDragging) {
-                    vscode.postMessage({ type: 'print', text: `As simple click on: ${block.label}` });
-                    // If no drag occurred, treat it as a simple click
-                    if (e.shiftKey) {
-                        // Toggle selection if Shift is pressed
-                        block.toggleSelect();
-                    }
-                    else {
-                        // Clear selection and select only this block
-                        unselectAll();
-                        block.select();
-                    }
-                }
-            };
-            document.addEventListener('mouseup', onMouseUpThreshold);
-        }
     }
     function onMouseDownInCanvas(e) {
         if (e.button !== 1) {
@@ -381,15 +568,7 @@ const vscode = acquireVsCodeApi();
     }
     function onMouseUp() {
         vscode.postMessage({ type: 'print', text: `Mouse up` });
-        if (isDragging) {
-            isDragging = false;
-            const stateMessages = getSelectedBlocks().flatMap(block => block.getState());
-            stateMessages.forEach(message => {
-                vscode.postMessage({ type: 'print', text: message });
-            });
-            vscode.postMessage({ type: 'moveBatch', updates: stateMessages });
-        }
-        else if (selectionBox) {
+        if (selectionBox) {
             // End box selection
             canvas.removeChild(selectionBox);
             selectionBox = null;
@@ -398,17 +577,8 @@ const vscode = acquireVsCodeApi();
         document.removeEventListener('mouseup', onMouseUp);
     }
     function onMouseMove(e) {
-        const scaledDeltaX = (e.clientX - dragStartX) / getZoomLevelReal();
-        const scaledDeltaY = (e.clientY - dragStartY) / getZoomLevelReal();
-        updateLinks(canvas);
-        if (isDragging) {
-            getSelectedBlocks().forEach(block => {
-                block.move(scaledDeltaX, scaledDeltaY);
-            });
-            dragStartX = e.clientX;
-            dragStartY = e.clientY;
-        }
-        else if (selectionBox) {
+        linkInteractionManager.updateLinks(blockInteractionManager);
+        if (selectionBox) {
             // Update selection box size
             const canvasRect = canvas.getBoundingClientRect();
             const adjustedX = (e.clientX - canvasRect.left) / getZoomLevelReal();
@@ -424,7 +594,8 @@ const vscode = acquireVsCodeApi();
         }
     }
     function startBoxSelection(e) {
-        unselectAll();
+        blockInteractionManager.unselectAll();
+        linkInteractionManager.unselectAll();
         vscode.postMessage({ type: 'print', text: `Start box selection at ${e.clientX}, ${e.clientY}` });
         // Get the canvas's bounding rectangle
         const canvasRect = canvas.getBoundingClientRect();
@@ -443,7 +614,7 @@ const vscode = acquireVsCodeApi();
     }
     function updateSelectionBox() {
         const boxRect = selectionBox.getBoundingClientRect();
-        blocks.forEach(block => {
+        blockInteractionManager.blocks.forEach(block => {
             const blockEl = block.getElement();
             const blockRect = blockEl.getBoundingClientRect();
             if (blockRect.left < boxRect.right &&
@@ -456,30 +627,42 @@ const vscode = acquireVsCodeApi();
                 block.unselect();
             }
         });
+        linkInteractionManager.links.forEach(link => {
+            const blockRect = link.getBoundingBox();
+            if (blockRect.left < boxRect.right &&
+                blockRect.right > boxRect.left &&
+                blockRect.top < boxRect.bottom &&
+                blockRect.bottom > boxRect.top) {
+                link.select();
+            }
+            else {
+                link.unselect();
+            }
+        });
     }
     function createRandomLink() {
-        if (blocks.length < 2) {
+        if (blockInteractionManager.blocks.length < 2) {
             vscode.postMessage({ type: 'print', text: 'Not enough blocks to create a link.' });
             return;
         }
         // Randomly select two different blocks
-        const sourceIndex = Math.floor(Math.random() * blocks.length);
-        let targetIndex = Math.floor(Math.random() * blocks.length);
+        const sourceIndex = Math.floor(Math.random() * blockInteractionManager.blocks.length);
+        let targetIndex = Math.floor(Math.random() * blockInteractionManager.blocks.length);
         // Ensure the source and target are not the same
         while (targetIndex === sourceIndex) {
-            targetIndex = Math.floor(Math.random() * blocks.length);
+            targetIndex = Math.floor(Math.random() * blockInteractionManager.blocks.length);
         }
-        const sourceBlock = blocks[sourceIndex];
-        const targetBlock = blocks[targetIndex];
+        const sourceBlock = blockInteractionManager.blocks[sourceIndex];
+        const targetBlock = blockInteractionManager.blocks[targetIndex];
         // Create a link between the two blocks
-        createLink(sourceBlock.id, 0, targetBlock.id, 0, []);
+        linkInteractionManager.createLink(sourceBlock.id, 0, targetBlock.id, 0, [], blockInteractionManager);
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
-    function renderHTML(blocks) {
+    function renderHTML(json) {
         vscode.postMessage({ type: 'print', text: `Render html` });
-        vscode.postMessage({ type: 'print', text: `Rendering ${blocks.length} blocks` });
+        vscode.postMessage({ type: 'print', text: `Rendering ${blockInteractionManager.blocks.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
-        blocks.forEach(block => block.addElementToCanvas(canvas));
+        blockInteractionManager.blocks.forEach(block => block.addElementToCanvas(canvas));
         canvas.addEventListener('mousedown', onMouseDownInCanvas);
         topControls.innerHTML = '';
         // Add button
@@ -506,40 +689,25 @@ const vscode = acquireVsCodeApi();
         topControls.appendChild(btnResetZoom);
         zoomContainer.addEventListener('wheel', handleMouseWheelZoom);
         canvasContainer.addEventListener('mousedown', onMouseDownForPanning);
-        updateLinks(canvas);
+        linkInteractionManager.updateLinks(blockInteractionManager);
         centerCanvas();
         setZoom(zoomLevel);
-    }
-    function renderLinks(linksData) {
-        vscode.postMessage({ type: 'print', text: `Render links` });
-        if (!linksSvg) {
-            linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            linksSvg.classList.add('links');
-            linksSvg.style.position = 'absolute';
-            linksSvg.style.top = '0';
-            linksSvg.style.left = '0';
-            linksSvg.style.width = '100%';
-            linksSvg.style.height = '100%';
-            linksSvg.style.pointerEvents = 'none';
-            canvasContainer.appendChild(linksSvg);
-        }
-        // Clear existing links
-        links.forEach(link => link.removeFromSvg(linksSvg));
-        links.length = 0;
-        // Create and render new links
-        linksData.forEach(linkData => {
-            const link = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link(linkData.sourceId, linkData.sourcePort, linkData.targetId, linkData.targetPort, linkData.intermediateNodes);
-            links.push(link);
-            link.addToSvg(linksSvg);
-            link.updatePosition(blocks);
-        });
+        let svgElement = linkInteractionManager.renderLinks((json.links || []).map(link => ({
+            sourceId: link.sourceId,
+            targetId: link.targetId,
+            sourcePort: link.sourcePort,
+            targetPort: link.targetPort,
+            intermediateNodes: link.intermediateNodes
+        })), blockInteractionManager);
+        canvasContainer.appendChild(svgElement);
+        linkInteractionManager.updateLinks(blockInteractionManager);
     }
     function centerCanvas() {
         // Scroll to the center of the canvas
         // canvasContainer.scrollLeft = (canvas.scrollWidth - canvasContainer.clientWidth) / 2;
         // canvasContainer.scrollTop = (canvas.scrollHeight - canvasContainer.clientHeight) / 2;
     }
-    function updateBlocks(jsonText) {
+    function updateWebView(jsonText) {
         vscode.postMessage({ type: 'print', text: `Update blocks` });
         let json;
         try {
@@ -550,24 +718,17 @@ const vscode = acquireVsCodeApi();
             return;
         }
         json.blocks?.forEach(blockData => {
-            blocks.find(b => b.id === blockData.id)?.move(blockData.x, blockData.y);
-            var block = blocks.find(b => b.id === blockData.id);
+            blockInteractionManager.blocks.find(b => b.id === blockData.id)?.move(blockData.x, blockData.y);
+            var block = blockInteractionManager.blocks.find(b => b.id === blockData.id);
             if (block) {
                 block.parseStateFromJson(blockData);
             }
             else {
                 vscode.postMessage({ type: 'print', text: `Block ID does not exist, creating block: ${blockData.id}` });
-                createBlock(blockData.id, blockData.label, blockData.x, blockData.y, blockData.inputPorts, blockData.outputPorts);
+                blockInteractionManager.createBlock(blockData.id, blockData.label, blockData.x, blockData.y, blockData.inputPorts, blockData.outputPorts);
             }
         });
-        renderHTML(blocks);
-        renderLinks((json.links || []).map(link => ({
-            sourceId: link.sourceId,
-            targetId: link.targetId,
-            sourcePort: link.sourcePort,
-            targetPort: link.targetPort,
-            intermediateNodes: link.intermediateNodes
-        })));
+        renderHTML(json);
     }
     function setZoom(level) {
         // Clamp the zoom level between minZoom and maxZoom
@@ -578,7 +739,7 @@ const vscode = acquireVsCodeApi();
         const scaledHeight = Math.min(canvasHeigh / 2 * zoomLevel, canvasHeigh / 2);
         zoomContainer.style.width = `${scaledWidth}px`;
         zoomContainer.style.height = `${scaledHeight}px`;
-        updateLinks(canvas); // Update the links to match the new zoom level
+        linkInteractionManager.updateLinks(blockInteractionManager); // Update the links to match the new zoom level
         vscode.postMessage({ type: 'print', text: `Zoom level: ${zoomLevel}` });
     }
     function handleMouseWheelZoom(e) {
@@ -605,8 +766,9 @@ const vscode = acquireVsCodeApi();
         }
     }
     function onMouseMoveForPanning(e) {
-        if (!isPanning)
+        if (!isPanning) {
             return;
+        }
         // Calculate the distance moved
         const deltaX = e.clientX - panStartX;
         const deltaY = e.clientY - panStartY;
@@ -616,7 +778,7 @@ const vscode = acquireVsCodeApi();
         // Update the starting position for the next movement
         panStartX = e.clientX;
         panStartY = e.clientY;
-        updateLinks(canvas);
+        linkInteractionManager.updateLinks(blockInteractionManager);
     }
     function onMouseUpForPanning(e) {
         if (e.button === 1) { // Middle mouse button
@@ -630,14 +792,14 @@ const vscode = acquireVsCodeApi();
     // Listen for messages from extension
     window.addEventListener('message', (e) => {
         if (e.data.type === 'update') {
-            updateBlocks(e.data.text);
+            updateWebView(e.data.text);
             vscode.setState({ text: e.data.text });
         }
     });
     // Restore state if reloaded
     const state = vscode.getState();
     if (state) {
-        updateBlocks(state.text);
+        updateWebView(state.text);
     }
 })();
 

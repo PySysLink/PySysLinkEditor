@@ -11,10 +11,12 @@ export class BlockInteractionManager {
     private vscode: any;
 
     private getZoomLevelReal: () => number;
+    private updateLinks: (blockInteractionManager: BlockInteractionManager) => void;
 
-    constructor(vscode: any, getZoomLevelReal: () => number) {
+    constructor(vscode: any, getZoomLevelReal: () => number, updateLinks: (blockInteractionManager: BlockInteractionManager) => void) {
         this.vscode = vscode;
         this.getZoomLevelReal = getZoomLevelReal;
+        this.updateLinks = updateLinks;
     }
 
     public createBlock(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number): void {
@@ -36,7 +38,8 @@ export class BlockInteractionManager {
         this.vscode.postMessage({ type: 'print', text: `Block clicked: ${block.label}` });
     }
 
-    public onMouseDown(block: Block, e: MouseEvent): void {
+    public onMouseDown = (block: Block, e: MouseEvent): void => {
+        this.vscode.postMessage({ type: 'print', text: 'Block mouse down'});
         if (e.button !== 1) {
             this.vscode.postMessage({ type: 'print', text: `Mouse down on block: ${block.label}` });
             if (!block.isSelected()) {
@@ -99,9 +102,9 @@ export class BlockInteractionManager {
         
             document.addEventListener('mouseup', onMouseUpThreshold);
         }
-    }
+    };
 
-    public onMouseUp(): void {
+    public onMouseUp = (): void => {
         this.vscode.postMessage({ type: 'print', text: `Mouse up` });
 
         if (this.isDragging) {
@@ -119,9 +122,9 @@ export class BlockInteractionManager {
 
         document.removeEventListener('mousemove', this.onMouseMove);
         document.removeEventListener('mouseup', this.onMouseUp);
-    }
+    };
 
-    public onMouseMove(e: MouseEvent): void {
+    public onMouseMove = (e: MouseEvent): void => {
         const scaledDeltaX = (e.clientX - this.dragStartX) / this.getZoomLevelReal();
         const scaledDeltaY = (e.clientY - this.dragStartY) / this.getZoomLevelReal();
         
@@ -136,6 +139,8 @@ export class BlockInteractionManager {
 
         }
 
-    }
+        this.updateLinks(this);
+
+    };
 
 }

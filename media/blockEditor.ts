@@ -1,6 +1,8 @@
 import { Link } from './Link';
 import { Block } from './Block';
 import { BlockInteractionManager } from './BlockInteractionManager';
+import { LinkInteractionManager } from './LinkInteractionManager';
+
 
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
@@ -11,16 +13,12 @@ const vscode = acquireVsCodeApi();
     const zoomContainer = document.querySelector('.zoom-container') as HTMLElement;
     const topControls = document.querySelector('.top-controls') as HTMLElement;
     const canvasContainer = document.querySelector('.canvas-container') as HTMLElement;
-    var linksSvg = document.querySelector('.links') as SVGSVGElement;
 
-    let blocks: Block[] = [];
-    const links: Link[] = [];
 
     let dragStartX = 0;
     let dragStartY = 0;
 
-    let dragThreshold = 5; // Minimum distance to detect a drag
-    let isDragging = false;
+
     let selectionBox: HTMLElement | null = null;
 
     let zoomLevel = 2; // Default zoom level
@@ -36,128 +34,14 @@ const vscode = acquireVsCodeApi();
     let canvasHeigh = 4000;
     let canvasWidth = 8000;
 
-    let blockInteractionManager = new BlockInteractionManager(vscode, getZoomLevelReal);
+    let linkInteractionManager = new LinkInteractionManager(vscode, canvas, document.querySelector('.links') as SVGSVGElement);
+    let blockInteractionManager = new BlockInteractionManager(vscode, getZoomLevelReal, linkInteractionManager.updateLinks);
 
     function getZoomLevelReal(): number {
         return zoomLevel/2;
     }
 
-    function createLink(sourceId: string, sourcePort: number, targetId: string, targetPort: number, intermediateNodes: { x: number; y: number }[]): void {
-        const link = new Link(sourceId, sourcePort, targetId, targetPort, intermediateNodes);
-        links.push(link);
-        vscode.postMessage({ type: 'addLink', sourceId: link.sourceId, sourcePort: link.sourcePort, targetId: link.targetId, targetPort: link.targetPort, intermediateNodes: link.intermediateNodes });
-        link.addToSvg(linksSvg);
-        updateLinks(canvas);
-    }
     
-    function updateLinks(container: HTMLElement): void {
-        linksSvg = document.querySelector('.links') as SVGSVGElement;
-        if (!linksSvg) {
-            linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            linksSvg.classList.add('links');
-        }
-        
-        linksSvg.style.width = `${canvas.offsetWidth}px`;
-        linksSvg.style.height = `${canvas.offsetHeight}px`;
-        linksSvg.style.transform = canvas.style.transform; // Match the canvas transform (e.g., scale)
-
-
-        links.forEach(link => link.addToSvg(linksSvg));
-        links.forEach(link => link.updatePosition(blocks));
-        container.appendChild(linksSvg);
-    }
-
-    function deleteLink(link: Link): void {
-        link.removeFromSvg(linksSvg);
-        const index = links.indexOf(link);
-        if (index !== -1) {
-            links.splice(index, 1);
-        }
-    }
-
-    function createBlock(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number): void {
-        const block = new Block(id, label, x, y, inputPorts, outputPorts, onClick, onMouseDown);
-        blocks.push(block);
-    }
-    
-
-    function unselectAll(): void {
-        blocks.forEach(block => block.unselect());
-    }
-    
-    function getSelectedBlocks(): Block[] {
-        return blocks.filter(block => block.isSelected());
-    }
-
-
-    function onClick(block: Block, e: MouseEvent): void {
-        vscode.postMessage({ type: 'print', text: `Block clicked: ${block.label}` });
-    }
-
-    function onMouseDown(block: Block, e: MouseEvent): void {
-        if (e.button !== 1) {
-            vscode.postMessage({ type: 'print', text: `Mouse down on block: ${block.label}` });
-            if (!block.isSelected()) {
-                if (e.shiftKey) {
-                    // Toggle selection if Shift is pressed
-                    block.toggleSelect();
-                } else {
-                    // Clear selection and select only this block
-                    unselectAll();
-                    block.select();
-                }
-            }
-
-            // Store the initial mouse position
-            dragStartX = e.clientX;
-            dragStartY = e.clientY;
-            isDragging = false; // Reset dragging state
-        
-            // Add a temporary mousemove listener to detect drag threshold
-            const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
-                const deltaX = Math.abs(moveEvent.clientX - dragStartX);
-                const deltaY = Math.abs(moveEvent.clientY - dragStartY);
-        
-                if (deltaX > dragThreshold || deltaY > dragThreshold) {
-                    // Exceeded drag threshold, start dragging
-                    isDragging = true;
-                    document.removeEventListener('mousemove', onMouseMoveThreshold);
-        
-                    // Start dragging selected blocks
-                    if (!block.isSelected()) {
-                        // If the block is not already selected, add it to the selection
-                        block.select();
-                    }
-                    document.addEventListener('mousemove', onMouseMove);
-                    document.addEventListener('mouseup', onMouseUp);
-                }
-            };
-        
-            document.addEventListener('mousemove', onMouseMoveThreshold);
-        
-            // Handle mouseup to detect a simple click
-            const onMouseUpThreshold = () => {
-                document.removeEventListener('mousemove', onMouseMoveThreshold);
-                document.removeEventListener('mouseup', onMouseUpThreshold);
-        
-                if (!isDragging) {
-                    vscode.postMessage({ type: 'print', text: `As simple click on: ${block.label}` });
-
-                    // If no drag occurred, treat it as a simple click
-                    if (e.shiftKey) {
-                        // Toggle selection if Shift is pressed
-                        block.toggleSelect();
-                    } else {
-                        // Clear selection and select only this block
-                        unselectAll();
-                        block.select();
-                    }
-                }
-            };
-        
-            document.addEventListener('mouseup', onMouseUpThreshold);
-        }
-    }
 
     function onMouseDownInCanvas(e: MouseEvent): void {
         if (e.button !== 1) {
@@ -171,18 +55,7 @@ const vscode = acquireVsCodeApi();
     function onMouseUp(): void {
         vscode.postMessage({ type: 'print', text: `Mouse up` });
 
-        if (isDragging) {
-            isDragging = false;
-            const stateMessages = getSelectedBlocks().flatMap(block => block.getState());
-
-            stateMessages.forEach(message => {
-                vscode.postMessage({ type: 'print', text: message});
-            }); 
-
-            
-            vscode.postMessage({ type: 'moveBatch', updates: stateMessages });
-
-        } else if (selectionBox) {
+        if (selectionBox) {
             // End box selection
             canvas.removeChild(selectionBox);
             selectionBox = null;
@@ -192,22 +65,10 @@ const vscode = acquireVsCodeApi();
         document.removeEventListener('mouseup', onMouseUp);
     }
 
-    function onMouseMove(e: MouseEvent): void {
-        const scaledDeltaX = (e.clientX - dragStartX) / getZoomLevelReal();
-        const scaledDeltaY = (e.clientY - dragStartY) / getZoomLevelReal();
-        
-        updateLinks(canvas);
+    function onMouseMove(e: MouseEvent): void {        
+        linkInteractionManager.updateLinks(blockInteractionManager);
 
-        if (isDragging) {
-            getSelectedBlocks().forEach(block => {
-                block.move(scaledDeltaX, scaledDeltaY);
-            });
-
-            dragStartX = e.clientX;
-            dragStartY = e.clientY;
-
-
-        } else if (selectionBox) {
+        if (selectionBox) {
             // Update selection box size
             const canvasRect = canvas.getBoundingClientRect();
 
@@ -229,7 +90,8 @@ const vscode = acquireVsCodeApi();
 
 
     function startBoxSelection(e: MouseEvent): void {
-        unselectAll();
+        blockInteractionManager.unselectAll();
+        linkInteractionManager.unselectAll();
     
         vscode.postMessage({ type: 'print', text: `Start box selection at ${e.clientX}, ${e.clientY}` });
     
@@ -257,7 +119,7 @@ const vscode = acquireVsCodeApi();
     function updateSelectionBox(): void {
         const boxRect = selectionBox!.getBoundingClientRect();
 
-        blocks.forEach(block => {
+        blockInteractionManager.blocks.forEach(block => {
             const blockEl = block.getElement();
             const blockRect = blockEl.getBoundingClientRect();
 
@@ -272,37 +134,71 @@ const vscode = acquireVsCodeApi();
                 block.unselect();
             }
         });
+        
+        linkInteractionManager.links.forEach(link => {
+            const blockRect = link.getBoundingBox();
+
+            if (
+                blockRect.left < boxRect.right &&
+                blockRect.right > boxRect.left &&
+                blockRect.top < boxRect.bottom &&
+                blockRect.bottom > boxRect.top
+            ) {
+                link.select();
+            } else {
+                link.unselect();
+            }
+        });
     }
 
     function createRandomLink(): void {
-        if (blocks.length < 2) {
+        if (blockInteractionManager.blocks.length < 2) {
             vscode.postMessage({ type: 'print', text: 'Not enough blocks to create a link.' });
             return;
         }
     
         // Randomly select two different blocks
-        const sourceIndex = Math.floor(Math.random() * blocks.length);
-        let targetIndex = Math.floor(Math.random() * blocks.length);
+        const sourceIndex = Math.floor(Math.random() * blockInteractionManager.blocks.length);
+        let targetIndex = Math.floor(Math.random() * blockInteractionManager.blocks.length);
     
         // Ensure the source and target are not the same
         while (targetIndex === sourceIndex) {
-            targetIndex = Math.floor(Math.random() * blocks.length);
+            targetIndex = Math.floor(Math.random() * blockInteractionManager.blocks.length);
         }
     
-        const sourceBlock = blocks[sourceIndex];
-        const targetBlock = blocks[targetIndex];
+        const sourceBlock = blockInteractionManager.blocks[sourceIndex];
+        const targetBlock = blockInteractionManager.blocks[targetIndex];
     
         // Create a link between the two blocks
-        createLink(sourceBlock.id, 0, targetBlock.id, 0, []);
+        linkInteractionManager.createLink(sourceBlock.id, 0, targetBlock.id, 0, [], blockInteractionManager);
     
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
 
-    function renderHTML(): void {
+    function renderHTML(json: {
+        blocks?: {
+            id: string;
+            label: string;
+            x: number;
+            y: number;
+            inputPorts: number;
+            outputPorts: number;
+        }[];
+        links?: {
+            sourceId: string;
+            sourcePort: number;
+            targetId: string;
+            targetPort: number;
+            intermediateNodes: {
+                x: number;
+                y: number;
+            }[];
+        }[];
+    }): void {
         vscode.postMessage({ type: 'print', text: `Render html` });
-        vscode.postMessage({ type: 'print', text: `Rendering ${blocks.length} blocks` });
+        vscode.postMessage({ type: 'print', text: `Rendering ${blockInteractionManager.blocks.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
-        blocks.forEach(block => block.addElementToCanvas(canvas));
+        blockInteractionManager.blocks.forEach(block => block.addElementToCanvas(canvas));
 
         canvas.addEventListener('mousedown', onMouseDownInCanvas);
 
@@ -339,49 +235,27 @@ const vscode = acquireVsCodeApi();
 
         
 
-        updateLinks(canvas);
+        linkInteractionManager.updateLinks(blockInteractionManager);
 
         centerCanvas();
 
         setZoom(zoomLevel);
 
+        let svgElement = linkInteractionManager.renderLinks((json.links || []).map(link => ({
+            sourceId: link.sourceId,
+            targetId: link.targetId,
+            sourcePort: link.sourcePort, 
+            targetPort: link.targetPort, 
+            intermediateNodes: link.intermediateNodes 
+        })), blockInteractionManager);
+
+        canvasContainer.appendChild(svgElement);
+        linkInteractionManager.updateLinks(blockInteractionManager);
         
 
     }
 
-    function renderLinks(linksData: { sourceId: string; sourcePort: number; targetId: string; targetPort: number; intermediateNodes: { x: number; y: number }[] }[]): void {
-        vscode.postMessage({ type: 'print', text: `Render links` });
-
-        if (!linksSvg) {
-            linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            linksSvg.classList.add('links');
-            linksSvg.style.position = 'absolute';
-            linksSvg.style.top = '0';
-            linksSvg.style.left = '0';
-            linksSvg.style.width = '100%';
-            linksSvg.style.height = '100%';
-            linksSvg.style.pointerEvents = 'none';
-            canvasContainer.appendChild(linksSvg);
-        }
-
-        // Clear existing links
-        links.forEach(link => link.removeFromSvg(linksSvg));
-        links.length = 0;
     
-        // Create and render new links
-        linksData.forEach(linkData => {
-            const link = new Link(
-                linkData.sourceId,
-                linkData.sourcePort,
-                linkData.targetId,
-                linkData.targetPort,
-                linkData.intermediateNodes
-            );
-            links.push(link);
-            link.addToSvg(linksSvg);
-            link.updatePosition(blocks);
-        });
-    }
 
     function centerCanvas(): void {
         // Scroll to the center of the canvas
@@ -389,7 +263,7 @@ const vscode = acquireVsCodeApi();
         // canvasContainer.scrollTop = (canvas.scrollHeight - canvasContainer.clientHeight) / 2;
     }
 
-    function updateBlocks(jsonText: string): void {
+    function updateWebView(jsonText: string): void {
         vscode.postMessage({ type: 'print', text: `Update blocks` });
         let json: { blocks?: { id: string; label: string; x: number; y: number; inputPorts: number; outputPorts: number}[]; links?: { sourceId: string; sourcePort: number; targetId: string; targetPort: number; intermediateNodes: { x: number; y: number }[] }[] };
         try {
@@ -400,27 +274,18 @@ const vscode = acquireVsCodeApi();
         }
 
         json.blocks?.forEach(blockData => {
-            blocks.find(b => b.id === blockData.id)?.move(blockData.x, blockData.y);
-            var block = blocks.find(b => b.id === blockData.id);
+            blockInteractionManager.blocks.find(b => b.id === blockData.id)?.move(blockData.x, blockData.y);
+            var block = blockInteractionManager.blocks.find(b => b.id === blockData.id);
             if (block) {
                 block.parseStateFromJson(blockData);
             } else {
                 vscode.postMessage({ type: 'print', text: `Block ID does not exist, creating block: ${blockData.id}` });
-                createBlock(blockData.id, blockData.label, blockData.x, blockData.y, blockData.inputPorts, blockData.outputPorts);
+                blockInteractionManager.createBlock(blockData.id, blockData.label, blockData.x, blockData.y, blockData.inputPorts, blockData.outputPorts);
             }
         });
 
 
-        renderHTML();
-
-        renderLinks((json.links || []).map(link => ({
-            sourceId: link.sourceId,
-            targetId: link.targetId,
-            sourcePort: link.sourcePort, 
-            targetPort: link.targetPort, 
-            intermediateNodes: link.intermediateNodes 
-        })));
-
+        renderHTML(json);
     }
 
 
@@ -437,7 +302,7 @@ const vscode = acquireVsCodeApi();
         zoomContainer.style.width = `${scaledWidth}px`;
         zoomContainer.style.height = `${scaledHeight}px`;
 
-        updateLinks(canvas); // Update the links to match the new zoom level
+        linkInteractionManager.updateLinks(blockInteractionManager); // Update the links to match the new zoom level
         vscode.postMessage({ type: 'print', text: `Zoom level: ${zoomLevel}` });
     }
 
@@ -469,7 +334,7 @@ const vscode = acquireVsCodeApi();
     }
 
     function onMouseMoveForPanning(e: MouseEvent): void {
-        if (!isPanning) return;
+        if (!isPanning) { return; }
     
         // Calculate the distance moved
         const deltaX = e.clientX - panStartX;
@@ -483,7 +348,7 @@ const vscode = acquireVsCodeApi();
         panStartX = e.clientX;
         panStartY = e.clientY;
 
-        updateLinks(canvas);
+        linkInteractionManager.updateLinks(blockInteractionManager);
     }
     
     function onMouseUpForPanning(e: MouseEvent): void {
@@ -501,7 +366,7 @@ const vscode = acquireVsCodeApi();
     // Listen for messages from extension
     window.addEventListener('message', (e: MessageEvent) => {
         if (e.data.type === 'update') {
-            updateBlocks(e.data.text);
+            updateWebView(e.data.text);
             vscode.setState({ text: e.data.text });
         }
     });
@@ -509,6 +374,6 @@ const vscode = acquireVsCodeApi();
     // Restore state if reloaded
     const state = vscode.getState();
     if (state) {
-        updateBlocks(state.text);
+        updateWebView(state.text);
     }
 })();
