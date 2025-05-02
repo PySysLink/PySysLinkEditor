@@ -34,9 +34,9 @@ export class BlockInteractionManager {
     }
 
 
-    public onClick(block: Block, e: MouseEvent): void {
+    public onClick = (block: Block, e: MouseEvent): void => {
         this.vscode.postMessage({ type: 'print', text: `Block clicked: ${block.label}` });
-    }
+    };
 
     public onMouseDown = (block: Block, e: MouseEvent): void => {
         this.vscode.postMessage({ type: 'print', text: 'Block mouse down'});

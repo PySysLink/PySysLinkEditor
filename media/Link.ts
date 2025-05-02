@@ -25,6 +25,7 @@ export class Link {
 
         // Create the SVG polyline element
         this.polylineElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        this.polylineElement.classList.add('link-line');
         this.polylineElement.setAttribute("stroke", "#007acc");
         this.polylineElement.setAttribute("stroke-width", "2");
         this.polylineElement.setAttribute("fill", "none");
@@ -45,16 +46,21 @@ export class Link {
             // Combine source, intermediate nodes, and target into a single points string
             const points = [
                 `${sourcePos.x},${sourcePos.y}`,
-                ...this.intermediateNodes.map(node => `${node.x},${node.y}`),
+                ...this.intermediateNodes
+                    .filter(node => node && typeof node.x === 'number' && typeof node.y === 'number') // Ensure valid nodes
+                    .map(node => `${node.x},${node.y}`),
                 `${targetPos.x},${targetPos.y}`
             ].join(" ");
-
+    
             this.polylineElement.setAttribute("points", points);
-
+    
+            // Update intermediate node positions
             this.nodeElements.forEach((nodeElement, index) => {
                 const node = this.intermediateNodes[index];
-                nodeElement.setAttribute('cx', `${node.x}`);
-                nodeElement.setAttribute('cy', `${node.y}`);
+                if (node) {
+                    nodeElement.setAttribute('cx', `${node.x}`);
+                    nodeElement.setAttribute('cy', `${node.y}`);
+                }
             });
         }
     }
@@ -62,11 +68,13 @@ export class Link {
     addToSvg(svg: SVGSVGElement): void {
         svg.appendChild(this.polylineElement);
 
+        // this.nodeElements.forEach(nodeElement => svg.removeChild(nodeElement));
+        // this.nodeElements = [];
+
         // Add intermediate node elements
         this.intermediateNodes.forEach(node => {
             const nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            nodeElement.setAttribute("r", "5");
-            nodeElement.setAttribute("fill", "#007acc");
+            nodeElement.classList.add('link-node');
             nodeElement.setAttribute("cx", `${node.x}`);
             nodeElement.setAttribute("cy", `${node.y}`);
             nodeElement.addEventListener('mousedown', this.onNodeMouseDown(node));
@@ -108,14 +116,12 @@ export class Link {
 
     public select() {
         this._isSelected = true;
-        // this.element.classList.add('selected');
-        this.polylineElement.setAttribute("stroke", this._isSelected ? "#ff0000" : "#007acc");
+        this.polylineElement.classList.add('selected');
     }
 
     public unselect(): void {
         this._isSelected = false;
-        // this.element.classList.remove('selected');
-        this.polylineElement.setAttribute("stroke", this._isSelected ? "#ff0000" : "#007acc");
+        this.polylineElement.classList.remove('selected');
     }
 
     public isSelected(): boolean {

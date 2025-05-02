@@ -34,7 +34,7 @@ const vscode = acquireVsCodeApi();
     let canvasHeigh = 4000;
     let canvasWidth = 8000;
 
-    let linkInteractionManager = new LinkInteractionManager(vscode, canvas, document.querySelector('.links') as SVGSVGElement);
+    let linkInteractionManager = new LinkInteractionManager(vscode, canvas, document.querySelector('.links') as SVGSVGElement, getZoomLevelReal);
     let blockInteractionManager = new BlockInteractionManager(vscode, getZoomLevelReal, linkInteractionManager.updateLinks);
 
     function getZoomLevelReal(): number {
@@ -44,10 +44,14 @@ const vscode = acquireVsCodeApi();
     
 
     function onMouseDownInCanvas(e: MouseEvent): void {
+        vscode.postMessage({ type: 'print', text: 'mouse down in canvas'});
+        vscode.postMessage({ type: 'print', text: `e button ${e.button}`});
         if (e.button !== 1) {
+            vscode.postMessage({ type: 'print', text: `e target ${e.target}`});
             if (e.target !== canvas) {
                 return; // Ignore clicks on child elements
             }
+            vscode.postMessage({ type: 'print', text: 'starting box selection'});
             startBoxSelection(e);
         }
     }

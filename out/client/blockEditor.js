@@ -162,9 +162,9 @@ class BlockInteractionManager {
     getSelectedBlocks() {
         return this.blocks.filter(block => block.isSelected());
     }
-    onClick(block, e) {
+    onClick = (block, e) => {
         this.vscode.postMessage({ type: 'print', text: `Block clicked: ${block.label}` });
-    }
+    };
     onMouseDown = (block, e) => {
         this.vscode.postMessage({ type: 'print', text: 'Block mouse down' });
         if (e.button !== 1) {
@@ -280,6 +280,7 @@ class Link {
         this.intermediateNodes = intermediateNodes;
         // Create the SVG polyline element
         this.polylineElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        this.polylineElement.classList.add('link-line');
         this.polylineElement.setAttribute("stroke", "#007acc");
         this.polylineElement.setAttribute("stroke-width", "2");
         this.polylineElement.setAttribute("fill", "none");
@@ -296,24 +297,30 @@ class Link {
             // Combine source, intermediate nodes, and target into a single points string
             const points = [
                 `${sourcePos.x},${sourcePos.y}`,
-                ...this.intermediateNodes.map(node => `${node.x},${node.y}`),
+                ...this.intermediateNodes
+                    .filter(node => node && typeof node.x === 'number' && typeof node.y === 'number') // Ensure valid nodes
+                    .map(node => `${node.x},${node.y}`),
                 `${targetPos.x},${targetPos.y}`
             ].join(" ");
             this.polylineElement.setAttribute("points", points);
+            // Update intermediate node positions
             this.nodeElements.forEach((nodeElement, index) => {
                 const node = this.intermediateNodes[index];
-                nodeElement.setAttribute('cx', `${node.x}`);
-                nodeElement.setAttribute('cy', `${node.y}`);
+                if (node) {
+                    nodeElement.setAttribute('cx', `${node.x}`);
+                    nodeElement.setAttribute('cy', `${node.y}`);
+                }
             });
         }
     }
     addToSvg(svg) {
         svg.appendChild(this.polylineElement);
+        // this.nodeElements.forEach(nodeElement => svg.removeChild(nodeElement));
+        // this.nodeElements = [];
         // Add intermediate node elements
         this.intermediateNodes.forEach(node => {
             const nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            nodeElement.setAttribute("r", "5");
-            nodeElement.setAttribute("fill", "#007acc");
+            nodeElement.classList.add('link-node');
             nodeElement.setAttribute("cx", `${node.x}`);
             nodeElement.setAttribute("cy", `${node.y}`);
             nodeElement.addEventListener('mousedown', this.onNodeMouseDown(node));
@@ -348,13 +355,11 @@ class Link {
     };
     select() {
         this._isSelected = true;
-        // this.element.classList.add('selected');
-        this.polylineElement.setAttribute("stroke", this._isSelected ? "#ff0000" : "#007acc");
+        this.polylineElement.classList.add('selected');
     }
     unselect() {
         this._isSelected = false;
-        // this.element.classList.remove('selected');
-        this.polylineElement.setAttribute("stroke", this._isSelected ? "#ff0000" : "#007acc");
+        this.polylineElement.classList.remove('selected');
     }
     isSelected() {
         return this._isSelected;
@@ -559,10 +564,14 @@ const vscode = acquireVsCodeApi();
         return zoomLevel / 2;
     }
     function onMouseDownInCanvas(e) {
+        vscode.postMessage({ type: 'print', text: 'mouse down in canvas' });
+        vscode.postMessage({ type: 'print', text: `e button ${e.button}` });
         if (e.button !== 1) {
+            vscode.postMessage({ type: 'print', text: `e target ${e.target}` });
             if (e.target !== canvas) {
                 return; // Ignore clicks on child elements
             }
+            vscode.postMessage({ type: 'print', text: 'starting box selection' });
             startBoxSelection(e);
         }
     }

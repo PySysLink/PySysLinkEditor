@@ -1,0 +1,99 @@
+{
+  "blocks": [
+    {
+      "id": "pTLCe9tHO8qfrdckPySWlWsX4wGyVCeO",
+      "label": "New Block",
+      "x": 487,
+      "y": 171,
+      "blockType": "defaultType",
+      "blockClass": "defaultClass",
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "value": 0,
+        "gain": 1
+      }
+    },
+    {
+      "id": "uzXEsB19TJGPSjqq2RTmivWx5v97Lpq6",
+      "label": "New Block",
+      "x": 107,
+      "y": 299,
+      "blockType": "defaultType",
+      "blockClass": "defaultClass",
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "value": 0,
+        "gain": 1
+      }
+    },
+    {
+      "id": "SMTUPZQ3FwH2EqSYA60ASZvH1byE5xKf",
+      "label": "New Block",
+      "x": 268,
+      "y": 115,
+      "blockType": "defaultType",
+      "blockClass": "defaultClass",
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "value": 0,
+        "gain": 1
+      }
+    },
+    {
+      "id": "yLQLMgWjYoaRdWZpgN0K1UqOcC0furq9",
+      "label": "New Block",
+      "x": 313,
+      "y": 354,
+      "blockType": "defaultType",
+      "blockClass": "defaultClass",
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "value": 0,
+        "gain": 1
+      }
+    }
+  ],
+  "links": [
+    {
+      "sourceId": "uzXEsB19TJGPSjqq2RTmivWx5v97Lpq6",
+      "sourcePort": 0,
+      "targetId": "pTLCe9tHO8qfrdckPySWlWsX4wGyVCeO",
+      "targetPort": 0,
+      "intermediateNodes": []
+    },
+    {
+      "sourceId": "uzXEsB19TJGPSjqq2RTmivWx5v97Lpq6",
+      "sourcePort": 0,
+      "targetId": "SMTUPZQ3FwH2EqSYA60ASZvH1byE5xKf",
+      "targetPort": 0,
+      "intermediateNodes": [
+        {
+          "x": 400,
+          "y": 250
+        },
+        {
+          "x": 450,
+          "y": 275
+        }
+      ]
+    },
+    {
+      "sourceId": "SMTUPZQ3FwH2EqSYA60ASZvH1byE5xKf",
+      "sourcePort": 0,
+      "targetId": "pTLCe9tHO8qfrdckPySWlWsX4wGyVCeO",
+      "targetPort": 0,
+      "intermediateNodes": []
+    },
+    {
+      "sourceId": "yLQLMgWjYoaRdWZpgN0K1UqOcC0furq9",
+      "sourcePort": 0,
+      "targetId": "pTLCe9tHO8qfrdckPySWlWsX4wGyVCeO",
+      "targetPort": 0,
+      "intermediateNodes": []
+    }
+  ]
+}
