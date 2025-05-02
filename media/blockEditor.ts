@@ -1,5 +1,6 @@
 import { Link } from './Link';
 import { Block } from './Block';
+import { BlockInteractionManager } from './BlockInteractionManager';
 
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
@@ -34,6 +35,8 @@ const vscode = acquireVsCodeApi();
 
     let canvasHeigh = 4000;
     let canvasWidth = 8000;
+
+    let blockInteractionManager = new BlockInteractionManager(vscode, getZoomLevelReal);
 
     function getZoomLevelReal(): number {
         return zoomLevel/2;
@@ -295,7 +298,7 @@ const vscode = acquireVsCodeApi();
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
 
-    function renderHTML(blocks: Block[]): void {
+    function renderHTML(): void {
         vscode.postMessage({ type: 'print', text: `Render html` });
         vscode.postMessage({ type: 'print', text: `Rendering ${blocks.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
@@ -408,7 +411,7 @@ const vscode = acquireVsCodeApi();
         });
 
 
-        renderHTML(blocks);
+        renderHTML();
 
         renderLinks((json.links || []).map(link => ({
             sourceId: link.sourceId,
