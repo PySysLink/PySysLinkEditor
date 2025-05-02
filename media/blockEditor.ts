@@ -34,8 +34,11 @@ const vscode = acquireVsCodeApi();
     let canvasHeigh = 4000;
     let canvasWidth = 8000;
 
-    let linkInteractionManager = new LinkInteractionManager(vscode, canvas, document.querySelector('.links') as SVGSVGElement, getZoomLevelReal);
-    let blockInteractionManager = new BlockInteractionManager(vscode, getZoomLevelReal, linkInteractionManager.updateLinks);
+    let linkInteractionManager: LinkInteractionManager;
+    let blockInteractionManager: BlockInteractionManager;
+
+    blockInteractionManager = new BlockInteractionManager(vscode, getZoomLevelReal, () => linkInteractionManager.updateLinks());
+    linkInteractionManager = new LinkInteractionManager(vscode, canvas, document.querySelector('.links') as SVGSVGElement, getZoomLevelReal, blockInteractionManager);
 
     function getZoomLevelReal(): number {
         return zoomLevel/2;
@@ -70,7 +73,7 @@ const vscode = acquireVsCodeApi();
     }
 
     function onMouseMove(e: MouseEvent): void {        
-        linkInteractionManager.updateLinks(blockInteractionManager);
+        linkInteractionManager.updateLinks();
 
         if (selectionBox) {
             // Update selection box size
@@ -174,7 +177,7 @@ const vscode = acquireVsCodeApi();
         const targetBlock = blockInteractionManager.blocks[targetIndex];
     
         // Create a link between the two blocks
-        linkInteractionManager.createLink(sourceBlock.id, 0, targetBlock.id, 0, [], blockInteractionManager);
+        linkInteractionManager.createLink(sourceBlock.id, 0, targetBlock.id, 0, []);
     
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
@@ -239,7 +242,7 @@ const vscode = acquireVsCodeApi();
 
         
 
-        linkInteractionManager.updateLinks(blockInteractionManager);
+        linkInteractionManager.updateLinks();
 
         centerCanvas();
 
@@ -251,10 +254,10 @@ const vscode = acquireVsCodeApi();
             sourcePort: link.sourcePort, 
             targetPort: link.targetPort, 
             intermediateNodes: link.intermediateNodes 
-        })), blockInteractionManager);
+        })));
 
         canvasContainer.appendChild(svgElement);
-        linkInteractionManager.updateLinks(blockInteractionManager);
+        linkInteractionManager.updateLinks();
         
 
     }
@@ -306,7 +309,7 @@ const vscode = acquireVsCodeApi();
         zoomContainer.style.width = `${scaledWidth}px`;
         zoomContainer.style.height = `${scaledHeight}px`;
 
-        linkInteractionManager.updateLinks(blockInteractionManager); // Update the links to match the new zoom level
+        linkInteractionManager.updateLinks(); // Update the links to match the new zoom level
         vscode.postMessage({ type: 'print', text: `Zoom level: ${zoomLevel}` });
     }
 
@@ -352,7 +355,7 @@ const vscode = acquireVsCodeApi();
         panStartX = e.clientX;
         panStartY = e.clientY;
 
-        linkInteractionManager.updateLinks(blockInteractionManager);
+        linkInteractionManager.updateLinks();
     }
     
     function onMouseUpForPanning(e: MouseEvent): void {

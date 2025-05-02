@@ -10,18 +10,22 @@ export class Link {
     private nodeElements: SVGCircleElement[] = [];
     private _isSelected: boolean = false;
 
+    private onMouseDown: (link: Link, e: MouseEvent) => void;
+
     constructor(
         sourceId: string,
         sourcePort: number,
         targetId: string,
         targetPort: number,
-        intermediateNodes: { x: number; y: number }[] = []
+        intermediateNodes: { x: number; y: number }[] = [],
+        onMouseDown: (link: Link, e: MouseEvent) => void
     ) {
         this.sourceId = sourceId;
         this.sourcePort = sourcePort;
         this.targetId = targetId;
         this.targetPort = targetPort;
         this.intermediateNodes = intermediateNodes;
+        this.onMouseDown = onMouseDown;
 
         // Create the SVG polyline element
         this.polylineElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
@@ -29,10 +33,7 @@ export class Link {
         this.polylineElement.setAttribute("stroke", "#007acc");
         this.polylineElement.setAttribute("stroke-width", "2");
         this.polylineElement.setAttribute("fill", "none");
-
-        // Add event listeners for interaction
-        this.polylineElement.addEventListener('click', this.onClick);
-        this.polylineElement.addEventListener('dblclick', this.onDoubleClick);
+        this.polylineElement.addEventListener('mousedown', (e: MouseEvent) => onMouseDown(this, e));
     }
 
     updatePosition(blocks: Block[]): void {
@@ -68,16 +69,20 @@ export class Link {
     addToSvg(svg: SVGSVGElement): void {
         svg.appendChild(this.polylineElement);
 
-        // this.nodeElements.forEach(nodeElement => svg.removeChild(nodeElement));
-        // this.nodeElements = [];
+        try {
+            this.nodeElements.forEach(nodeElement => svg.removeChild(nodeElement));
+            this.nodeElements = [];
+        } catch {
+            
+        }
+            
 
         // Add intermediate node elements
         this.intermediateNodes.forEach(node => {
-            const nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            var nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             nodeElement.classList.add('link-node');
             nodeElement.setAttribute("cx", `${node.x}`);
             nodeElement.setAttribute("cy", `${node.y}`);
-            nodeElement.addEventListener('mousedown', this.onNodeMouseDown(node));
             svg.appendChild(nodeElement);
             this.nodeElements.push(nodeElement);
         });
@@ -87,32 +92,6 @@ export class Link {
         svg.removeChild(this.polylineElement);
     }
 
-    private onClick = (e: MouseEvent): void => {
-        this.toggleSelect();
-    };
-
-    private onDoubleClick = (e: MouseEvent): void => {
-        const rect = this.polylineElement.getBoundingClientRect();
-        const newNode = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-        this.intermediateNodes.push(newNode);
-        this.updatePosition([]);
-    };
-
-    private onNodeMouseDown = (node: { x: number; y: number }) => (e: MouseEvent): void => {
-        const onMouseMove = (moveEvent: MouseEvent) => {
-            node.x = moveEvent.clientX;
-            node.y = moveEvent.clientY;
-            this.updatePosition([]);
-        };
-
-        const onMouseUp = () => {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-        };
-
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
-    };
 
     public select() {
         this._isSelected = true;
@@ -150,5 +129,29 @@ export class Link {
         const bottom = Math.max(...points.map(point => point.y));
     
         return { top, bottom, right, left };
+    }
+
+    public getState(): { type: string; sourceId: string; sourcePort: number; targetId: string; targetPort: number; nodeIndex: number, x: number, y: number }[] {
+        var result: { type: string; sourceId: string; sourcePort: number; targetId: string; targetPort: number; nodeIndex: number; x: number; y: number; }[] = [];
+        this.intermediateNodes.forEach((element, index) => {
+            result.push({
+                type: 'moveLinkNode',
+                sourceId: this.sourceId,
+                sourcePort: this.sourcePort,
+                targetId: this.targetId,
+                targetPort: this.targetPort,
+                nodeIndex: index,
+                x: element.x,
+                y: element.y
+            });
+        });
+        return result;
+    }
+
+    public moveAllNodes(deltaX: number, deltaY: number): void {
+        this.intermediateNodes.forEach(node => {
+            node.x += deltaX;
+            node.y += deltaY;
+        });
     }
 }

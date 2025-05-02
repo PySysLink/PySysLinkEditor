@@ -97,6 +97,9 @@ class PySysLinkBlockEditorProvider {
                 case 'print':
                     console.log(e.text);
                     return;
+                case 'moveLinkBatch':
+                    (0, LinkManager_1.moveLinkBatch)(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
+                    return;
                 default:
                     console.log(`Type of message not recognized: ${e.type}`);
             }

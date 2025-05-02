@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { addBlock, moveBlock, moveBlocks, editBlockLabel } from './BlockManager';
 import { getNonce } from './util';
-import { addLink} from './LinkManager';
+import { addLink, moveLinkBatch } from './LinkManager';
 
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
@@ -78,6 +78,9 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 					return;
 				case 'print':
 					console.log(e.text);
+					return;
+				case 'moveLinkBatch':
+					moveLinkBatch(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
 					return;
 				default:
 					console.log(`Type of message not recognized: ${e.type}`);
