@@ -270,7 +270,7 @@ class Link {
     targetPort;
     intermediateNodes;
     polylineElement;
-    nodeElements = [];
+    nodeElementsMap = new Map(); // Map to track node elements
     _isSelected = false;
     onMouseDown;
     constructor(sourceId, sourcePort, targetId, targetPort, intermediateNodes = [], onMouseDown) {
@@ -288,6 +288,9 @@ class Link {
         this.polylineElement.setAttribute("fill", "none");
         this.polylineElement.addEventListener('mousedown', (e) => onMouseDown(this, e));
     }
+    getId() {
+        return this.sourceId + this.sourcePort + this.targetId + this.targetPort;
+    }
     updatePosition(blocks) {
         const sourceBlock = blocks.find(block => block.id === this.sourceId);
         const targetBlock = blocks.find(block => block.id === this.targetId);
@@ -304,35 +307,39 @@ class Link {
             ].join(" ");
             this.polylineElement.setAttribute("points", points);
             // Update intermediate node positions
-            this.nodeElements.forEach((nodeElement, index) => {
-                const node = this.intermediateNodes[index];
-                if (node) {
-                    nodeElement.setAttribute('cx', `${node.x}`);
-                    nodeElement.setAttribute('cy', `${node.y}`);
+            this.intermediateNodes.forEach((intermediateNode, index) => {
+                const element = this.nodeElementsMap.get(index);
+                if (intermediateNode && element) {
+                    element.setAttribute('cx', `${intermediateNode.x}`);
+                    element.setAttribute('cy', `${intermediateNode.y}`);
                 }
             });
         }
     }
     addToSvg(svg) {
         svg.appendChild(this.polylineElement);
-        try {
-            this.nodeElements.forEach(nodeElement => svg.removeChild(nodeElement));
-            this.nodeElements = [];
-        }
-        catch {
-        }
         // Add intermediate node elements
-        this.intermediateNodes.forEach(node => {
-            var nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            nodeElement.classList.add('link-node');
+        this.intermediateNodes.forEach((node, index) => {
+            var nodeElement = this.nodeElementsMap.get(index);
+            if (!nodeElement) {
+                nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                nodeElement.classList.add('link-node');
+                this.nodeElementsMap.set(index, nodeElement);
+            }
             nodeElement.setAttribute("cx", `${node.x}`);
             nodeElement.setAttribute("cy", `${node.y}`);
             svg.appendChild(nodeElement);
-            this.nodeElements.push(nodeElement);
+            this.nodeElementsMap.set(index, nodeElement);
         });
     }
     removeFromSvg(svg) {
         svg.removeChild(this.polylineElement);
+        this.intermediateNodes.forEach((intermediateNode, index) => {
+            const element = this.nodeElementsMap.get(index);
+            if (element) {
+                svg.removeChild(element);
+            }
+        });
     }
     select() {
         this._isSelected = true;

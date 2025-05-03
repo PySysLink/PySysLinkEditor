@@ -3,8 +3,8 @@
     {
       "id": "pTLCe9tHO8qfrdckPySWlWsX4wGyVCeO",
       "label": "New Block",
-      "x": 580,
-      "y": 93,
+      "x": 592,
+      "y": 94,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -31,8 +31,8 @@
     {
       "id": "SMTUPZQ3FwH2EqSYA60ASZvH1byE5xKf",
       "label": "New Block",
-      "x": 257,
-      "y": 91,
+      "x": 274,
+      "y": 44,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -45,8 +45,8 @@
     {
       "id": "yLQLMgWjYoaRdWZpgN0K1UqOcC0furq9",
       "label": "New Block",
-      "x": 478,
-      "y": 369,
+      "x": 420,
+      "y": 349,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -72,12 +72,12 @@
       "targetPort": 0,
       "intermediateNodes": [
         {
-          "x": 133,
-          "y": 83
+          "x": 117,
+          "y": 133
         },
         {
-          "x": 183,
-          "y": 108
+          "x": 167,
+          "y": 158
         }
       ]
     },
