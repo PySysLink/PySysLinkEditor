@@ -7,34 +7,22 @@ export function addLink(
     sourcePort: number,
     targetId: string,
     targetPort: number,
-    intermediateNodes: { x: number; y: number }[] = [],
+    intermediateNodes: { id: string; x: number; y: number }[] = [],
     getDocumentAsJson: (doc: vscode.TextDocument) => any,
     updateTextDocument: (doc: vscode.TextDocument, json: any) => void
 ): void {
     const json = getDocumentAsJson(document);
     const links = Array.isArray(json.links) ? json.links : [];
 
-    // Check if the link already exists
-    const existingLink = links.find(
-        (link: any) =>
-            link.sourceId === sourceId &&
-            link.sourcePort === sourcePort &&
-            link.targetId === targetId &&
-            link.targetPort === targetPort
-    );
-    if (existingLink) {
-        console.log(`Link between ${sourceId}:${sourcePort} and ${targetId}:${targetPort} already exists.`);
-        return;
-    }
-
-    // Add the new link
-    links.push({
-        sourceId,
-        sourcePort,
-        targetId,
-        targetPort,
-        intermediateNodes
-    });
+    const newLink = {
+        id: getNonce(),
+        sourceId: sourceId,
+        sourcePort: sourcePort,
+        targetId: targetId,
+        targetPort: targetPort, 
+        intermediateNodes: intermediateNodes 
+    };
+    links.push(newLink);
     json.links = links;
 
     console.log(`Added link between ${sourceId}:${sourcePort} and ${targetId}:${targetPort}`);
@@ -42,11 +30,8 @@ export function addLink(
 }
 
 export function moveLinkBatch(document: vscode.TextDocument, updates: { 
-    sourceId: string; 
-    sourcePort: number; 
-    targetId: string; 
-    targetPort: number; 
-    nodeIndex: number; 
+    id: string;
+    nodeIndex: number;
     x: number; 
     y: number; }[],
     getDocumentAsJson: (doc: vscode.TextDocument) => any,
@@ -56,12 +41,15 @@ export function moveLinkBatch(document: vscode.TextDocument, updates: {
     // Iterate over each update and apply the changes
     updates.forEach(update => {
         const link = json.links.find((link: any) =>
-            link.sourceId === update.sourceId &&
-            link.sourcePort === update.sourcePort &&
-            link.targetId === update.targetId &&
-            link.targetPort === update.targetPort
+            link.id === update.id
         );
 
+        console.log("Link and intermediate nodes:");
+        console.log(link);
+        console.log(link?.intermediateNodes);
+        console.log(json.links);
+        console.log(update.id);
+        
         if (link && Array.isArray(link.intermediateNodes) && link.intermediateNodes[update.nodeIndex]) {
             // Update the position of the intermediate node
             link.intermediateNodes[update.nodeIndex].x = update.x;

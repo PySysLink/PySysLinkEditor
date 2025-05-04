@@ -1,4 +1,4 @@
-import { Link } from './Link';
+import { Link, SourceNode, TargetNode } from './Link';
 import { Block } from './Block';
 import { BlockInteractionManager } from './BlockInteractionManager';
 import { LinkInteractionManager } from './LinkInteractionManager';
@@ -142,20 +142,22 @@ const vscode = acquireVsCodeApi();
             }
         });
         
-        linkInteractionManager.links.forEach(link => {
-            const blockRect = link.getBoundingBox();
+        // linkInteractionManager.links.forEach(link => {
+        //     link.segments.forEach((segment, index) => {
+        //         const blockRect = link.getBoundingBox(index);
 
-            if (
-                blockRect.left < boxRect.right &&
-                blockRect.right > boxRect.left &&
-                blockRect.top < boxRect.bottom &&
-                blockRect.bottom > boxRect.top
-            ) {
-                link.select();
-            } else {
-                link.unselect();
-            }
-        });
+        //         if (
+        //             blockRect.left < boxRect.right &&
+        //             blockRect.right > boxRect.left &&
+        //             blockRect.top < boxRect.bottom &&
+        //             blockRect.bottom > boxRect.top
+        //         ) {
+        //             link.select(index);
+        //         } else {
+        //             link.unselect(index);
+        //         }
+        //     });
+        // });
     }
 
     function createRandomLink(): void {
@@ -177,7 +179,9 @@ const vscode = acquireVsCodeApi();
         const targetBlock = blockInteractionManager.blocks[targetIndex];
     
         // Create a link between the two blocks
-        linkInteractionManager.createLink(sourceBlock.id, 0, targetBlock.id, 0, []);
+        let sourceNode = new SourceNode(sourceBlock, 0);
+        let targetNode = new TargetNode(targetBlock, 0);
+        linkInteractionManager.createLink(sourceNode, targetNode, []);
     
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
@@ -192,11 +196,13 @@ const vscode = acquireVsCodeApi();
             outputPorts: number;
         }[];
         links?: {
+            id: string;
             sourceId: string;
             sourcePort: number;
             targetId: string;
             targetPort: number;
             intermediateNodes: {
+                id: string
                 x: number;
                 y: number;
             }[];
@@ -249,6 +255,7 @@ const vscode = acquireVsCodeApi();
         setZoom(zoomLevel);
 
         let svgElement = linkInteractionManager.renderLinks((json.links || []).map(link => ({
+            id: link.id,
             sourceId: link.sourceId,
             targetId: link.targetId,
             sourcePort: link.sourcePort, 
@@ -272,7 +279,8 @@ const vscode = acquireVsCodeApi();
 
     function updateWebView(jsonText: string): void {
         vscode.postMessage({ type: 'print', text: `Update blocks` });
-        let json: { blocks?: { id: string; label: string; x: number; y: number; inputPorts: number; outputPorts: number}[]; links?: { sourceId: string; sourcePort: number; targetId: string; targetPort: number; intermediateNodes: { x: number; y: number }[] }[] };
+        let json: { blocks?: { id: string; label: string; x: number; y: number; inputPorts: number; outputPorts: number}[]; 
+                    links?: { id: string, sourceId: string; sourcePort: number; targetId: string; targetPort: number; intermediateNodes: { id: string; x: number; y: number }[] }[] };
         try {
             json = JSON.parse(jsonText || '{}');
         } catch {

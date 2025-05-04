@@ -109,6 +109,10 @@
     pointer-events: all; /* Allow interaction with the line */
 }
 
+.link-line.selected {
+    stroke: #ff0000; /* Highlight color for selected links */
+}
+
 .link-node {
     r: 5; /* Radius of the circle */
     fill: #007acc; /* Node color */
@@ -116,9 +120,7 @@
     cursor: pointer; /* Show pointer cursor on hover */
 }
 
-.link-line.selected {
-    stroke: #ff0000; /* Highlight color for selected links */
-}
+
 
 .link-node.selected {
     fill: #ff0000; /* Highlight color for selected nodes */
