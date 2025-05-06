@@ -1,6 +1,7 @@
 import { link } from 'fs';
 import { BlockInteractionManager } from './BlockInteractionManager';
 import { Link, LinkNode, LinkSegment, SourceNode, TargetNode } from './Link';
+import { Block } from './Block';
 
 export class LinkInteractionManager {
     public links: Link[] = [];
@@ -82,6 +83,8 @@ export class LinkInteractionManager {
                     result.push(node);
                 }
             });
+            if (link.sourceNode.isSelected) {result.push(link.sourceNode);}
+            if (link.targetNode.isSelected) {result.push(link.targetNode);}
         });
         return result;
     }
@@ -109,7 +112,8 @@ export class LinkInteractionManager {
     }
 
     public renderLinks(
-            linksData: { id: string, sourceId: string; sourcePort: number; targetId: string; targetPort: number; intermediateNodes: { id: string; x: number; y: number }[] }[]): SVGSVGElement {
+            linksData: { id: string, sourceId: string; sourcePort: number; targetId: string; targetPort: number; 
+                sourceX: number; sourceY: number; targetX: number; targetY: number; intermediateNodes: { id: string; x: number; y: number }[] }[]): SVGSVGElement {
         
         this.vscode.postMessage({ type: 'print', text: `Render links` });
 
@@ -134,16 +138,27 @@ export class LinkInteractionManager {
                 });
             } else {
                 this.vscode.postMessage({ type: 'print', text: `Link ID does not exist, creating link: ${linkData.id}` });
-                let sourceBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.sourceId);
-                if (!sourceBlock) {
-                    throw RangeError(`Source block of id: ${linkData.sourceId} not found`);
+                let sourceNode;
+                let targetNode;
+                if (linkData.sourceId !== 'undefined') {
+                    let sourceBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.sourceId);
+                    if (!sourceBlock) {
+                        throw RangeError(`Source block of id: ${linkData.sourceId} not found`);
+                    }
+                    sourceNode = new SourceNode(sourceBlock, linkData.sourcePort);
+                } else {
+                    sourceNode = new SourceNode(linkData.sourceX, linkData.sourceY);
                 }
-                let targetBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.targetId);
-                if (!targetBlock) {
-                    throw RangeError(`Target block of id: ${linkData.targetId} not found`);
+
+                if (linkData.targetId !== 'undefined') {
+                    let targetBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.targetId);
+                    if (!targetBlock) {
+                        throw RangeError(`Target block of id: ${linkData.targetId} not found`);
+                    }
+                    targetNode = new TargetNode(targetBlock, linkData.targetPort);
+                } else {
+                    targetNode = new TargetNode(linkData.targetX, linkData.targetY);
                 }
-                let sourceNode = new SourceNode(sourceBlock, linkData.sourcePort);
-                let targetNode = new TargetNode(targetBlock, linkData.targetPort);
 
                 let intermediateNodes: LinkNode[] = [];
                 linkData.intermediateNodes.forEach(intermediateData => {
@@ -158,11 +173,12 @@ export class LinkInteractionManager {
                     this.onMouseDownSegment,
                     this.onMouseDownNode
                 );
+
+                this.links.push(currentLink);
             }
-            this.links.push(currentLink);
             currentLink.addToSvg(this.linksSvg);
             currentLink.updatePosition();
-            
+            console.log(`Total links: ${this.links.length}`); 
         });
 
         return this.linksSvg;
@@ -310,12 +326,31 @@ export class LinkInteractionManager {
 
         if (this.isDragging) {
             this.isDragging = false;
+
+            let nodesToMove = new Set<LinkNode>();
+
+            this.getSelectedLinkSegments().forEach(linkSegment => {
+                nodesToMove.add(linkSegment.sourceLinkNode);
+                nodesToMove.add(linkSegment.targetLinkNode);
+            });
+
+            this.getSelectedLinkNodes().forEach(node => nodesToMove.add(node));
+
+            nodesToMove.forEach(node => {
+                const port = this.detectPort(node);
+                if (port) {
+                    node.unhighlight();
+                    if (port.portType === "input" && node instanceof TargetNode) {
+                        node.attachToPort(port.block, port.portIndex);
+                    } else if (port.portType === "output" && node instanceof SourceNode) {
+                        node.attachToPort(port.block, port.portIndex);
+                    }
+                } else {
+                    node.unhighlight();
+                }
+            });
+            
             const stateMessages = this.links.flatMap(link => link.getState());
-
-            stateMessages.forEach(message => {
-                this.vscode.postMessage({ type: 'print', text: message});
-            }); 
-
             
             this.vscode.postMessage({ type: 'moveLinkBatch', updates: stateMessages });
 
@@ -342,11 +377,44 @@ export class LinkInteractionManager {
 
             nodesToMove.forEach(node => {
                 node.moveTo(node.x + scaledDeltaX, node.y + scaledDeltaY);
+    
+                // Detect if the node is over a port
+                const port = this.detectPort(node);
+                
+                if (port) {
+                    if (port.portType === "input" && node instanceof TargetNode) {
+                        node.highlight();
+                    } else if (port.portType === "output" && node instanceof SourceNode) {
+                        node.highlight();
+                    } else {
+                        node.unhighlight();
+                    }
+                } else {
+                    node.unhighlight();
+                }
             });
 
             this.dragStartX = e.clientX;
             this.dragStartY = e.clientY;
         }  
         this.updateLinks();  
-    };        
+    };  
+    
+    private detectPort(node: LinkNode): { block: Block; portIndex: number; portType: "input" | "output" } | null {
+        for (const block of this.blockInteractionManager.blocks) {
+            for (let i = 0; i < block.inputPorts; i++) {
+                const portPosition = block.getPortPosition(i, "input");
+                if (Math.abs(node.x - portPosition.x) < 10 && Math.abs(node.y - portPosition.y) < 10) {
+                    return { block, portIndex: i, portType: "input" };
+                }
+            }
+            for (let i = 0; i < block.outputPorts; i++) {
+                const portPosition = block.getPortPosition(i, "output");
+                if (Math.abs(node.x - portPosition.x) < 10 && Math.abs(node.y - portPosition.y) < 10) {
+                    return { block, portIndex: i, portType: "output" };
+                }
+            }
+        }
+        return null;
+    }
 }

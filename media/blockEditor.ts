@@ -201,6 +201,10 @@ const vscode = acquireVsCodeApi();
             sourcePort: number;
             targetId: string;
             targetPort: number;
+            sourceX: number;
+            sourceY: number;
+            targetX: number;
+            targetY: number;
             intermediateNodes: {
                 id: string
                 x: number;
@@ -260,6 +264,10 @@ const vscode = acquireVsCodeApi();
             targetId: link.targetId,
             sourcePort: link.sourcePort, 
             targetPort: link.targetPort, 
+            sourceX: link.sourceX,
+            sourceY: link.sourceY,
+            targetX: link.targetX,
+            targetY: link.targetY,
             intermediateNodes: link.intermediateNodes 
         })));
 
@@ -280,7 +288,8 @@ const vscode = acquireVsCodeApi();
     function updateWebView(jsonText: string): void {
         vscode.postMessage({ type: 'print', text: `Update blocks` });
         let json: { blocks?: { id: string; label: string; x: number; y: number; inputPorts: number; outputPorts: number}[]; 
-                    links?: { id: string, sourceId: string; sourcePort: number; targetId: string; targetPort: number; intermediateNodes: { id: string; x: number; y: number }[] }[] };
+                    links?: { id: string, sourceId: string; sourcePort: number; targetId: string; targetPort: number; 
+                        sourceX: number; sourceY: number; targetX: number; targetY: number; intermediateNodes: { id: string; x: number; y: number }[] }[] };
         try {
             json = JSON.parse(jsonText || '{}');
         } catch {

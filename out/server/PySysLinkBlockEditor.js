@@ -92,7 +92,7 @@ class PySysLinkBlockEditorProvider {
                     await (0, BlockManager_1.editBlockLabel)(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
                     return;
                 case 'addLink':
-                    (0, LinkManager_1.addLink)(document, e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.intermediateNodes, this.getDocumentAsJson, this.updateTextDocument);
+                    (0, LinkManager_1.addLink)(document, e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.sourceX, e.sourceY, e.targetX, e.targetY, e.intermediateNodes, this.getDocumentAsJson, this.updateTextDocument);
                     return;
                 case 'print':
                     console.log(e.text);

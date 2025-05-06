@@ -7,6 +7,7 @@ export class LinkNode {
     y: number;
     nodeElement: SVGCircleElement | undefined;
     isSelected: boolean = false;
+    isHighlighted: boolean = false;
 
     private moveCallbacks: { (x: number, y: number) : void; }[] = [];
 
@@ -24,6 +25,9 @@ export class LinkNode {
         this.nodeElement.addEventListener('mousedown', (e: MouseEvent) => onMouseDown(this, e));
         if (this.isSelected) {
             this.nodeElement.classList.add('selected');
+        }
+        if (this.isHighlighted) {
+            this.nodeElement.classList.add('highlighted');
         }
         this.moveCallbacks.forEach(callback => callback(this.x, this.y));
     }
@@ -60,6 +64,20 @@ export class LinkNode {
             this.unselect();
         } else {
             this.select();
+        }
+    }
+
+    public highlight(): void {
+        this.isHighlighted = true;
+        if (this.nodeElement) {
+            this.nodeElement.classList.add('highlighted');
+        }
+    }
+    
+    public unhighlight(): void {
+        this.isHighlighted = false;
+        if (this.nodeElement) {
+            this.nodeElement.classList.remove('highlighted');
         }
     }
 }
@@ -288,6 +306,7 @@ export class Link {
         this.updateSegments();
         this.segments.forEach(segment => {
             segment.createSegmentElement(this.onMouseDownSegment);
+            console.log(`Total segment amount: ${this.segments.length}`);
             if (segment.segmentElement) {
                 svg.appendChild(segment.segmentElement);
             }
@@ -351,64 +370,50 @@ export class Link {
         this.targetNode.unselect();
     }
 
-    // public isSelected(): boolean {
-    //     return this.segments[index].isSelected;
-    // }
-
-    // public toggleSelect(index: number): void {
-    //     this.segments[index].isSelected = !this.segments[index].isSelected;
-    //     if (this.segments[index].isSelected) {
-    //         this.select(index);
-    //     } else {
-    //         this.unselect(index);
-    //     }
-    // }
-
-    // public getBoundingBox(index: number): {top: number, bottom: number, right: number, left: number} {
-    //     const points = [
-    //         { x: this.segments[index].element.getBBox().x, y: this.segments[index].element.getBBox().y }
-    //     ];
-    
-    //     // Calculate the bounding box
-    //     const left = Math.min(...points.map(point => point.x));
-    //     const right = Math.max(...points.map(point => point.x));
-    //     const top = Math.min(...points.map(point => point.y));
-    //     const bottom = Math.max(...points.map(point => point.y));
-    
-    //     return { top, bottom, right, left };
-    // }
-
-    public getState(): { type: string; id: string; sourceId: string; sourcePort: number; targetId: string; targetPort: number; nodeIndex: number, x: number, y: number }[] {
-        var result: { type: string; id: string; sourceId: string; sourcePort: number; targetId: string; targetPort: number; nodeIndex: number; x: number; y: number; }[] = [];
+    public getState(): { type: string; id: string; sourceId: string; sourcePort: number; targetId: string; targetPort: number; nodeIndex: number, nodeId: string; x: number, y: number }[] {
+        var result: { type: string; id: string; sourceId: string; sourcePort: number; targetId: string; targetPort: number; nodeIndex: number; nodeId: string; x: number; y: number; }[] = [];
         let sourcePort = this.sourceNode.connectedPort;
-        if (!sourcePort) {
-            throw RangeError("Source port not found");
-        }
         let targetPort = this.targetNode.connectedPort;
-        if (!targetPort) {
-            throw RangeError("Target port not found");
-        }
 
-        this.intermediateNodes.forEach((element, index) => {
+        this.intermediateNodes.forEach((node, index) => {
             result.push({
                 type: 'moveLinkNode',
                 id: this.id,
-                sourceId: sourcePort.block.id,
-                sourcePort: sourcePort.index,
-                targetId: targetPort.block.id,
-                targetPort: targetPort.index,
+                sourceId: sourcePort? sourcePort.block.id : 'undefined',
+                sourcePort: sourcePort? sourcePort.index : -1,
+                targetId: targetPort? targetPort.block.id : 'undefined',
+                targetPort: targetPort? targetPort.index : -1,
                 nodeIndex: index,
-                x: element.x,
-                y: element.y
+                nodeId: node.id,
+                x: node.x,
+                y: node.y
             });
         });
+
+        result.push({type: 'moveLinkNode', 
+            id: this.id,
+            sourceId: sourcePort? sourcePort.block.id : 'undefined',
+            sourcePort: sourcePort? sourcePort.index : -1,
+            targetId: targetPort? targetPort.block.id : 'undefined',
+            targetPort: targetPort? targetPort.index : -1,
+            nodeIndex: -1, // -1 for sourceNode
+            nodeId: this.sourceNode.id,
+            x: this.sourceNode.x,
+            y: this.sourceNode.y
+         });
+        
+        result.push({type: 'moveLinkNode', 
+            id: this.id,
+            sourceId: sourcePort? sourcePort.block.id : 'undefined',
+            sourcePort: sourcePort? sourcePort.index : -1,
+            targetId: targetPort? targetPort.block.id : 'undefined',
+            targetPort: targetPort? targetPort.index : -1,
+            nodeIndex: -2, // -2 for targetNode
+            nodeId: this.targetNode.id,
+            x: this.targetNode.x,
+            y: this.targetNode.y
+         });
+
         return result;
     }
-
-    // public moveAllNodes(deltaX: number, deltaY: number): void {
-    //     this.intermediateNodes.forEach(node => {
-    //         node.x += deltaX;
-    //         node.y += deltaY;
-    //     });
-    // }
 }
