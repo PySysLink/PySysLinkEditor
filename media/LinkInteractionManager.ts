@@ -232,13 +232,13 @@ export class LinkInteractionManager {
     
     private detectPort(node: LinkNode): { block: Block; portIndex: number; portType: "input" | "output" } | null {
         for (const block of this.blockInteractionManager.blocks) {
-            for (let i = 0; i < block.inputPorts; i++) {
+            for (let i = 0; i < block.inputPortNumber; i++) {
                 const portPosition = block.getPortPosition(i, "input");
                 if (Math.abs(node.getPosition().x - portPosition.x) < 10 && Math.abs(node.getPosition().y - portPosition.y) < 10) {
                     return { block, portIndex: i, portType: "input" };
                 }
             }
-            for (let i = 0; i < block.outputPorts; i++) {
+            for (let i = 0; i < block.outputPortNumber; i++) {
                 const portPosition = block.getPortPosition(i, "output");
                 if (Math.abs(node.getPosition().x - portPosition.x) < 10 && Math.abs(node.getPosition().y - portPosition.y) < 10) {
                     return { block, portIndex: i, portType: "output" };

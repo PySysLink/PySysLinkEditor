@@ -131,18 +131,13 @@
 
 
 .input-port, .output-port {
+    position: relative; /* Ensure ports are positioned relative to the block */
     width: 20px;
     height: 20px;
     background: #00cc33;
     color: white;
     text-align: center;
     line-height: 20px;
-    border-radius: 20%;
-    margin: 5px;
-}
-.input-port {
-    float: left;
-}
-.output-port {
-    float: right;
+    border-radius: 50%; /* Make ports circular */
+    margin: 0; /* Remove default margins */
 }

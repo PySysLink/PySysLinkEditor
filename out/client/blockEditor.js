@@ -24,18 +24,49 @@ class Block extends _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable {
         return this.element;
     }
     element;
-    inputPorts;
-    outputPorts;
+    inputPortNumber;
+    outputPortNumber;
+    inputPorts = [];
+    outputPorts = [];
     constructor(id, label, x, y, inputPorts, outputPorts) {
         super();
         this.id = id;
         this.label = label;
         this.x = x;
         this.y = y;
-        this.inputPorts = inputPorts;
-        this.outputPorts = outputPorts;
-        // Create the DOM element for the block
-        this.element = this.createElement();
+        this.inputPortNumber = inputPorts;
+        this.outputPortNumber = outputPorts;
+        const blockElement = document.createElement('div');
+        this.element = blockElement;
+        blockElement.classList.add('block');
+        blockElement.style.left = `${this.x}px`;
+        blockElement.style.top = `${this.y}px`;
+        const labelElement = document.createElement('div');
+        labelElement.textContent = this.label;
+        blockElement.appendChild(labelElement);
+        for (let j = 0; j < this.inputPortNumber; j++) {
+            const inputPort = document.createElement('div');
+            inputPort.classList.add('input-port');
+            inputPort.textContent = `In ${j + 1}`;
+            const position = this.getPortPosition(j, "input");
+            inputPort.style.position = "relative";
+            inputPort.style.left = `${position.x - this.x}px`;
+            inputPort.style.top = `${position.y - this.y}px`;
+            blockElement.appendChild(inputPort);
+            this.inputPorts.push(inputPort);
+        }
+        // Add output ports
+        for (let i = 0; i < this.outputPortNumber; i++) {
+            const outputPort = document.createElement('div');
+            outputPort.classList.add('output-port');
+            outputPort.textContent = `Out ${i + 1}`;
+            const position = this.getPortPosition(i, "output");
+            outputPort.style.position = "relative";
+            outputPort.style.left = `${position.x - this.x}px`;
+            outputPort.style.top = `${position.y - this.y}px`;
+            blockElement.appendChild(outputPort);
+            this.outputPorts.push(outputPort);
+        }
     }
     moveTo(x, y) {
         this.x = x;
@@ -60,29 +91,6 @@ class Block extends _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable {
     getPosition() {
         return { x: this.x, y: this.y };
     }
-    createElement() {
-        const blockElement = document.createElement('div');
-        blockElement.classList.add('block');
-        blockElement.style.left = `${this.x}px`;
-        blockElement.style.top = `${this.y}px`;
-        const label = document.createElement('div');
-        label.textContent = this.label;
-        blockElement.appendChild(label);
-        for (let i = 0; i < this.inputPorts; i++) {
-            const inputPort = document.createElement('div');
-            inputPort.classList.add('input-port');
-            inputPort.textContent = `In ${i + 1}`;
-            blockElement.appendChild(inputPort);
-        }
-        // Add output ports
-        for (let i = 0; i < this.outputPorts; i++) {
-            const outputPort = document.createElement('div');
-            outputPort.classList.add('output-port');
-            outputPort.textContent = `Out ${i + 1}`;
-            blockElement.appendChild(outputPort);
-        }
-        return blockElement;
-    }
     moveDelta(deltaX, deltaY) {
         this.moveTo(this.x + deltaX, this.y + deltaY);
     }
@@ -94,15 +102,16 @@ class Block extends _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable {
         const blockY = this.y;
         // Adjust for the port type
         if (portType === "input") {
-            return { x: blockX, y: blockY + portOffset };
+            return {
+                x: blockX - 5, // Position input ports slightly to the left of the block
+                y: blockY + portOffset + 5 // Offset vertically based on the index
+            };
         }
         else {
-            if (this.element) {
-                return { x: blockX + this.element.offsetWidth, y: blockY + portOffset };
-            }
-            else {
-                return { x: blockX + 20, y: blockY + portOffset };
-            }
+            return {
+                x: blockX + 140 + 5, // Position output ports slightly to the right of the block
+                y: blockY + portOffset + 5 // Offset vertically based on the index
+            };
         }
     }
 }
@@ -777,13 +786,13 @@ class LinkInteractionManager {
     };
     detectPort(node) {
         for (const block of this.blockInteractionManager.blocks) {
-            for (let i = 0; i < block.inputPorts; i++) {
+            for (let i = 0; i < block.inputPortNumber; i++) {
                 const portPosition = block.getPortPosition(i, "input");
                 if (Math.abs(node.getPosition().x - portPosition.x) < 10 && Math.abs(node.getPosition().y - portPosition.y) < 10) {
                     return { block, portIndex: i, portType: "input" };
                 }
             }
-            for (let i = 0; i < block.outputPorts; i++) {
+            for (let i = 0; i < block.outputPortNumber; i++) {
                 const portPosition = block.getPortPosition(i, "output");
                 if (Math.abs(node.getPosition().x - portPosition.x) < 10 && Math.abs(node.getPosition().y - portPosition.y) < 10) {
                     return { block, portIndex: i, portType: "output" };

@@ -3,8 +3,8 @@
     {
       "id": "ydmepe7inGWyxCUq6IAh255uS2MUcQ5s",
       "label": "Hau naiz",
-      "x": 618,
-      "y": 272,
+      "x": 518.4396284829718,
+      "y": 231.06614128905122,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -17,8 +17,8 @@
     {
       "id": "hxURUDPxG4B1YNTY0JTokZCWofHRstzk",
       "label": "New Block",
-      "x": 335.0952380952381,
-      "y": 243.28571428571422,
+      "x": 268.3583959899749,
+      "y": 473.28571428571394,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -31,8 +31,8 @@
     {
       "id": "SeMAoPZySHb1zWkOS6w4cGjpZnXcHlF2",
       "label": "New Block",
-      "x": 106,
-      "y": 244,
+      "x": 266.5263157894741,
+      "y": 279.89473684210543,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -45,8 +45,8 @@
     {
       "id": "1OQBXS9iMwogKmvYaVDLBa8D1pY3FqPV",
       "label": "New Block",
-      "x": 476,
-      "y": 405,
+      "x": 739.5851393188854,
+      "y": 399.02476780185765,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -65,28 +65,28 @@
       "targetId": "ydmepe7inGWyxCUq6IAh255uS2MUcQ5s",
       "targetPort": 0,
       "intermediateNodes": [],
-      "sourceX": 455.0952380952381,
-      "sourceY": 243.28571428571422,
-      "targetX": 618,
-      "targetY": 272
+      "sourceX": 413.3583959899749,
+      "sourceY": 478.28571428571394,
+      "targetX": 513.4396284829718,
+      "targetY": 236.06614128905122
     },
     {
       "id": "A8oKnIYm17LcECUYO9mZGUvwHPDa4l84",
       "sourceId": "SeMAoPZySHb1zWkOS6w4cGjpZnXcHlF2",
       "sourcePort": 0,
-      "targetId": "hxURUDPxG4B1YNTY0JTokZCWofHRstzk",
+      "targetId": "ydmepe7inGWyxCUq6IAh255uS2MUcQ5s",
       "targetPort": 0,
       "intermediateNodes": [],
-      "sourceX": 226,
-      "sourceY": 244,
-      "targetX": 335.0952380952381,
-      "targetY": 243.28571428571422
+      "sourceX": 411.5263157894741,
+      "sourceY": 284.89473684210543,
+      "targetX": 513.4396284829718,
+      "targetY": 236.06614128905122
     },
     {
       "id": "EFHvtH9sjFdxuwi9uL8iwv3tr2rKpo4W",
       "sourceId": "ydmepe7inGWyxCUq6IAh255uS2MUcQ5s",
       "sourcePort": 0,
-      "targetId": "SeMAoPZySHb1zWkOS6w4cGjpZnXcHlF2",
+      "targetId": "ydmepe7inGWyxCUq6IAh255uS2MUcQ5s",
       "targetPort": 0,
       "intermediateNodes": [
         {
@@ -96,14 +96,14 @@
         },
         {
           "id": "kaixo2",
-          "x": 106.29621212121245,
-          "y": 66.49393939394024
+          "x": 378.06091800356535,
+          "y": 64.14099821746964
         }
       ],
-      "sourceX": 738,
-      "sourceY": 272,
-      "targetX": 106,
-      "targetY": 244
+      "sourceX": 663.4396284829718,
+      "sourceY": 236.06614128905122,
+      "targetX": 513.4396284829718,
+      "targetY": 236.06614128905122
     }
   ]
 }
