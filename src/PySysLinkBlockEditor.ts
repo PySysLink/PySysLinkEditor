@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { addBlock, moveBlock, moveBlocks, editBlockLabel } from './BlockManager';
 import { getNonce } from './util';
 import { addLink, moveLinkBatch } from './LinkManager';
-
+import { moveMovables } from './MovableManager';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private documentLock: Promise<void> = Promise.resolve();
@@ -69,6 +69,9 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 					return;
 				case 'moveBatch':
 					moveBlocks(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
+					return;
+				case 'moveMovableBatch': // New case for moveMovableBatch
+					moveMovables(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
 					return;
 				case 'edit':
 					await editBlockLabel(document, e.id, this.getDocumentAsJson, this.updateTextDocument);

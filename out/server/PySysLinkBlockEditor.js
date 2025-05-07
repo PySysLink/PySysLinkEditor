@@ -38,6 +38,7 @@ const vscode = __importStar(require("vscode"));
 const BlockManager_1 = require("./BlockManager");
 const util_1 = require("./util");
 const LinkManager_1 = require("./LinkManager");
+const MovableManager_1 = require("./MovableManager");
 class PySysLinkBlockEditorProvider {
     context;
     documentLock = Promise.resolve();
@@ -87,6 +88,9 @@ class PySysLinkBlockEditorProvider {
                     return;
                 case 'moveBatch':
                     (0, BlockManager_1.moveBlocks)(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
+                    return;
+                case 'moveMovableBatch': // New case for moveMovableBatch
+                    (0, MovableManager_1.moveMovables)(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
                     return;
                 case 'edit':
                     await (0, BlockManager_1.editBlockLabel)(document, e.id, this.getDocumentAsJson, this.updateTextDocument);

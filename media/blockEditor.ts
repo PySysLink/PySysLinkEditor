@@ -2,6 +2,8 @@ import { Link, SourceNode, TargetNode } from './Link';
 import { Block } from './Block';
 import { BlockInteractionManager } from './BlockInteractionManager';
 import { LinkInteractionManager } from './LinkInteractionManager';
+import { Selectable } from './Selectable';
+import { SelectableManager } from './SelectableManager';
 
 
 declare const acquireVsCodeApi: () => any;
@@ -14,12 +16,6 @@ const vscode = acquireVsCodeApi();
     const topControls = document.querySelector('.top-controls') as HTMLElement;
     const canvasContainer = document.querySelector('.canvas-container') as HTMLElement;
 
-
-    let dragStartX = 0;
-    let dragStartY = 0;
-
-
-    let selectionBox: HTMLElement | null = null;
 
     let zoomLevel = 2; // Default zoom level
     const zoomStep = 0.1; // Step for zooming in/out
@@ -36,129 +32,24 @@ const vscode = acquireVsCodeApi();
 
     let linkInteractionManager: LinkInteractionManager;
     let blockInteractionManager: BlockInteractionManager;
+    let selectableManager: SelectableManager;
 
-    blockInteractionManager = new BlockInteractionManager(vscode, getZoomLevelReal, () => linkInteractionManager.updateLinks());
-    linkInteractionManager = new LinkInteractionManager(vscode, canvas, document.querySelector('.links') as SVGSVGElement, getZoomLevelReal, blockInteractionManager);
+    blockInteractionManager = new BlockInteractionManager(vscode);
+    linkInteractionManager = new LinkInteractionManager(vscode, canvas, document.querySelector('.links') as SVGSVGElement, blockInteractionManager);
+    selectableManager = new SelectableManager(vscode, canvas, getZoomLevelReal);
+
+    selectableManager.registerSelectableList(() => blockInteractionManager.blocks);
+    selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkSegments());
+    selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkNodes());
+    selectableManager.updateSelectables();
+    selectableManager.addOnMouseMoveListener(linkInteractionManager.updateLinks);
+
 
     function getZoomLevelReal(): number {
         return zoomLevel/2;
     }
 
     
-
-    function onMouseDownInCanvas(e: MouseEvent): void {
-        vscode.postMessage({ type: 'print', text: 'mouse down in canvas'});
-        vscode.postMessage({ type: 'print', text: `e button ${e.button}`});
-        if (e.button !== 1) {
-            vscode.postMessage({ type: 'print', text: `e target ${e.target}`});
-            if (e.target !== canvas) {
-                return; // Ignore clicks on child elements
-            }
-            vscode.postMessage({ type: 'print', text: 'starting box selection'});
-            startBoxSelection(e);
-        }
-    }
-
-    function onMouseUp(): void {
-        vscode.postMessage({ type: 'print', text: `Mouse up` });
-
-        if (selectionBox) {
-            // End box selection
-            canvas.removeChild(selectionBox);
-            selectionBox = null;
-        }
-
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-    }
-
-    function onMouseMove(e: MouseEvent): void {        
-        linkInteractionManager.updateLinks();
-
-        if (selectionBox) {
-            // Update selection box size
-            const canvasRect = canvas.getBoundingClientRect();
-
-            const adjustedX = (e.clientX - canvasRect.left) / getZoomLevelReal();
-            const adjustedY = (e.clientY - canvasRect.top) / getZoomLevelReal();
-
-            const scaledWidth = (adjustedX - dragStartX);
-            const scaledHeight = (adjustedY - dragStartY);
-
-            selectionBox.style.left = `${Math.min(dragStartX, adjustedX)}px`;
-            selectionBox.style.top = `${Math.min(dragStartY, adjustedY)}px`;
-            selectionBox.style.width = `${Math.abs(scaledWidth)}px`;
-            selectionBox.style.height = `${Math.abs(scaledHeight)}px`;
-    
-            // Update selected blocks based on the selection box
-            updateSelectionBox();
-        }
-    }
-
-
-    function startBoxSelection(e: MouseEvent): void {
-        blockInteractionManager.unselectAll();
-        linkInteractionManager.unselectAll();
-    
-        vscode.postMessage({ type: 'print', text: `Start box selection at ${e.clientX}, ${e.clientY}` });
-    
-        // Get the canvas's bounding rectangle
-        const canvasRect = canvas.getBoundingClientRect();
-    
-        // Adjust mouse coordinates to be relative to the canvas
-        const adjustedX = (e.clientX - canvasRect.left) / getZoomLevelReal();
-        const adjustedY = (e.clientY - canvasRect.top) / getZoomLevelReal();
-    
-        selectionBox = document.createElement('div');
-        selectionBox.className = 'selection-box';
-        canvas.appendChild(selectionBox);
-    
-        dragStartX = adjustedX;
-        dragStartY = adjustedY;
-    
-        selectionBox.style.left = `${dragStartX}px`;
-        selectionBox.style.top = `${dragStartY}px`;
-    
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
-    }
-
-    function updateSelectionBox(): void {
-        const boxRect = selectionBox!.getBoundingClientRect();
-
-        blockInteractionManager.blocks.forEach(block => {
-            const blockEl = block.getElement();
-            const blockRect = blockEl.getBoundingClientRect();
-
-            if (
-                blockRect.left < boxRect.right &&
-                blockRect.right > boxRect.left &&
-                blockRect.top < boxRect.bottom &&
-                blockRect.bottom > boxRect.top
-            ) {
-                block.select();
-            } else {
-                block.unselect();
-            }
-        });
-        
-        // linkInteractionManager.links.forEach(link => {
-        //     link.segments.forEach((segment, index) => {
-        //         const blockRect = link.getBoundingBox(index);
-
-        //         if (
-        //             blockRect.left < boxRect.right &&
-        //             blockRect.right > boxRect.left &&
-        //             blockRect.top < boxRect.bottom &&
-        //             blockRect.bottom > boxRect.top
-        //         ) {
-        //             link.select(index);
-        //         } else {
-        //             link.unselect(index);
-        //         }
-        //     });
-        // });
-    }
 
     function createRandomLink(): void {
         if (blockInteractionManager.blocks.length < 2) {
@@ -217,7 +108,6 @@ const vscode = acquireVsCodeApi();
         canvas.innerHTML = ''; // Clear canvas
         blockInteractionManager.blocks.forEach(block => block.addElementToCanvas(canvas));
 
-        canvas.addEventListener('mousedown', onMouseDownInCanvas);
 
         topControls.innerHTML = '';
         // Add button
@@ -273,8 +163,7 @@ const vscode = acquireVsCodeApi();
 
         canvasContainer.appendChild(svgElement);
         linkInteractionManager.updateLinks();
-        
-
+        selectableManager.updateSelectables();      
     }
 
     

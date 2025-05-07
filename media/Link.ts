@@ -7,8 +7,12 @@ export class LinkNode extends Selectable implements Movable {
     id: string;
     private x: number; 
     private y: number;
-    nodeElement: SVGCircleElement | undefined;
+    nodeElement: SVGCircleElement;
     isHighlighted: boolean = false;
+
+    public getElement(): HTMLElement | SVGElement {
+        return this.nodeElement;
+    }
 
     private moveCallbacks: { (x: number, y: number) : void; }[] = [];
 
@@ -17,14 +21,11 @@ export class LinkNode extends Selectable implements Movable {
         this.id = id;
         this.x = x;
         this.y = y;
-    }
 
-    public createNodeElement(onMouseDown: (link: LinkNode, e: MouseEvent) => void) {
         this.nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         this.nodeElement.classList.add('link-node');
         this.nodeElement.setAttribute("cx", `${this.x}`);
         this.nodeElement.setAttribute("cy", `${this.y}`);
-        this.nodeElement.addEventListener('mousedown', (e: MouseEvent) => onMouseDown(this, e));
         if (this._isSelected) {
             this.nodeElement.classList.add('selected');
         }
@@ -46,6 +47,15 @@ export class LinkNode extends Selectable implements Movable {
 
     public moveDelta(deltaX: number, deltaY: number): void {
         this.moveTo(this.x + deltaX, this.y + deltaY);
+    }
+
+    public getUpdatePositionMessages(): { type: string; id: string; x: number; y: number }[] {
+        return [{
+            type: 'moveLinkNode',
+            id: this.id,
+            x: this.x,
+            y: this.y
+        }];
     }
 
     public getPosition(): { x: number; y: number; } {
@@ -108,8 +118,7 @@ export class SourceNode extends LinkNode {
         }
     }
 
-    public createNodeElement(onMouseDown: (link: LinkNode, e: MouseEvent) => void): void {
-        super.createNodeElement(onMouseDown);
+    public createNodeElement(): void {
         if (this.nodeElement) {
             this.nodeElement.classList.add('source-node');
         }
@@ -151,8 +160,7 @@ export class TargetNode extends LinkNode {
         }
     }
 
-    public createNodeElement(onMouseDown: (link: LinkNode, e: MouseEvent) => void): void {
-        super.createNodeElement(onMouseDown);
+    public createNodeElement(): void {
         if (this.nodeElement) {
             this.nodeElement.classList.add('target-node');
         }
@@ -181,7 +189,11 @@ export class TargetNode extends LinkNode {
 export class LinkSegment extends Selectable implements Movable {
     sourceLinkNode: LinkNode;
     targetLinkNode: LinkNode;
-    segmentElement: SVGPolylineElement | undefined;
+    segmentElement: SVGPolylineElement;
+
+    public getElement(): HTMLElement | SVGElement {
+        return this.segmentElement;
+    }
 
     constructor (sourceLinkNode: LinkNode, targetLinkNode: LinkNode) {
         super();
@@ -190,9 +202,7 @@ export class LinkSegment extends Selectable implements Movable {
         this.targetLinkNode = targetLinkNode;
         this.targetLinkNode.addCallback(this.updateTargetLinkNodePosition);
         console.log(`link created: ${this.sourceLinkNode.id}`);
-    }
-
-    public createSegmentElement(onMouseDown: (link: LinkSegment, e: MouseEvent) => void) {
+        
         console.log(`segment element created: ${this.sourceLinkNode.id}`);
 
         this.segmentElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
@@ -200,14 +210,13 @@ export class LinkSegment extends Selectable implements Movable {
         if (this._isSelected) {
             this.segmentElement.classList.add('selected');
         }
-        this.segmentElement.addEventListener('mousedown', (e: MouseEvent) => onMouseDown(this, e));
         this.updatePosition();
     }
 
     public updatePosition() { 
         const segmentPoints = [
-            {x: this.sourceLinkNode.x, y: this.sourceLinkNode.y},
-            {x: this.targetLinkNode.x, y: this.targetLinkNode.y}
+            {x: this.sourceLinkNode.getPosition().x, y: this.sourceLinkNode.getPosition().y},
+            {x: this.targetLinkNode.getPosition().x, y: this.targetLinkNode.getPosition().y}
         ];
         const pointsString = segmentPoints.map(p => `${p.x},${p.y}`).join(" ");
         this.segmentElement?.setAttribute("points", pointsString);
@@ -221,26 +230,34 @@ export class LinkSegment extends Selectable implements Movable {
         this.updatePosition();
     };
 
-    public select() {
-        this.isSelected = true;
-        if (this.segmentElement) {
-            this.segmentElement.classList.add('selected');
+    public moveTo(x: number, y: number): void {
+        let deltaX = x - this.sourceLinkNode.getPosition().x;
+        let deltaY = y - this.sourceLinkNode.getPosition().y;
+        if (!this.sourceLinkNode.isSelected()) {
+            this.sourceLinkNode.moveTo(x, y);
         }
-    }
-    public unselect() {
-        console.log("unselected");
-        this.isSelected = false;
-        if (this.segmentElement) {
-            this.segmentElement.classList.remove('selected');
+        if (!this.targetLinkNode.isSelected()) {
+            this.targetLinkNode.moveDelta(deltaX, deltaY);
         }
+        this.updatePosition();
     }
 
-    public toggleSelect() {
-        if (this.isSelected) {
-            this.unselect();
-        } else {
-            this.select();
+    public getPosition(): { x: number; y: number; } {
+        return this.sourceLinkNode.getPosition();
+    }
+
+    public moveDelta(deltaX: number, deltaY: number): void {
+        if (!this.sourceLinkNode.isSelected()) {
+            this.sourceLinkNode.moveDelta(deltaX, deltaY);
         }
+        if (!this.targetLinkNode.isSelected()) {
+            this.targetLinkNode.moveDelta(deltaX, deltaY);
+        }
+        this.updatePosition();
+    }
+
+    public getUpdatePositionMessages(): { type: string; id: string; x: number; y: number }[] {
+        return [];
     }
 }
 
@@ -251,23 +268,17 @@ export class Link {
     segments: LinkSegment[] = [];
     id: string;
 
-    private onMouseDownSegment: (link: LinkSegment, e: MouseEvent) => void;
-    private onMouseDownNode: (link: LinkNode, e: MouseEvent) => void;
-
     constructor(
         id: string,
         sourceNode: SourceNode,
         targetNode: TargetNode,
         intermediateNodes: LinkNode[] = [],
-        onMouseDownSegment: (link: LinkSegment, e: MouseEvent) => void,
-        onMouseDownNode: (link: LinkNode, e: MouseEvent) => void
     ) {
         this.id = id;
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
         this.intermediateNodes = intermediateNodes;
-        this.onMouseDownSegment = onMouseDownSegment;
-        this.onMouseDownNode = onMouseDownNode;
+
     }
 
     public updateSegments() {
@@ -315,8 +326,6 @@ export class Link {
     public addToSvg(svg: SVGSVGElement): void {
         this.updateSegments();
         this.segments.forEach(segment => {
-            segment.createSegmentElement(this.onMouseDownSegment);
-            console.log(`Total segment amount: ${this.segments.length}`);
             if (segment.segmentElement) {
                 svg.appendChild(segment.segmentElement);
             }
@@ -327,17 +336,16 @@ export class Link {
         });
 
         this.intermediateNodes.forEach(node => {
-            node.createNodeElement(this.onMouseDownNode);
             if (node.nodeElement) {
                 svg.appendChild(node.nodeElement);
             }
         });
 
-        this.sourceNode.createNodeElement(this.onMouseDownNode);
+        this.sourceNode.createNodeElement();
         if (this.sourceNode.nodeElement) {
             svg.appendChild(this.sourceNode.nodeElement);
         }
-        this.targetNode.createNodeElement(this.onMouseDownNode);
+        this.targetNode.createNodeElement();
         if (this.targetNode.nodeElement) {
             svg.appendChild(this.targetNode.nodeElement);
         }
@@ -395,8 +403,8 @@ export class Link {
                 targetPort: targetPort? targetPort.index : -1,
                 nodeIndex: index,
                 nodeId: node.id,
-                x: node.x,
-                y: node.y
+                x: node.getPosition().x,
+                y: node.getPosition().y
             });
         });
 
@@ -408,8 +416,8 @@ export class Link {
             targetPort: targetPort? targetPort.index : -1,
             nodeIndex: -1, // -1 for sourceNode
             nodeId: this.sourceNode.id,
-            x: this.sourceNode.x,
-            y: this.sourceNode.y
+            x: this.sourceNode.getPosition().x,
+            y: this.sourceNode.getPosition().y
          });
         
         result.push({type: 'moveLinkNode', 
@@ -420,8 +428,8 @@ export class Link {
             targetPort: targetPort? targetPort.index : -1,
             nodeIndex: -2, // -2 for targetNode
             nodeId: this.targetNode.id,
-            x: this.targetNode.x,
-            y: this.targetNode.y
+            x: this.targetNode.getPosition().x,
+            y: this.targetNode.getPosition().y
          });
 
         return result;

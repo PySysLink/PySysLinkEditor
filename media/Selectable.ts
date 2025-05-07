@@ -1,16 +1,16 @@
 import { CanvasElement } from "./CanvasElement";
 
-export class Selectable extends CanvasElement {
+export abstract class Selectable extends CanvasElement {
     _isSelected: boolean = false;
 
     public select(): void {
         this._isSelected = true;
-        this.element?.classList.add('selected');
+        this.getElement().classList.add('selected');
     }
 
     public unselect(): void {
         this._isSelected = false;
-        this.element?.classList.remove('selected');
+        this.getElement().classList.remove('selected');
     }
 
     public isSelected(): boolean {
@@ -24,5 +24,5 @@ export class Selectable extends CanvasElement {
         } else {
             this.unselect();
         }
-    }
+    }    
 }

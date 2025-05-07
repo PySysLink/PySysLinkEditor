@@ -10,26 +10,39 @@ export class LinkInteractionManager {
     private canvas: HTMLElement;
     private vscode: any;
 
-    private dragStartX: number = 0;
-    private dragStartY: number = 0;
-    private isDragging: boolean = false;
-    private dragThreshold: number = 5;
-
-    private getZoomLevelReal: () => number;
-
     private blockInteractionManager: BlockInteractionManager;
 
-    constructor (vscode: any, canvas: HTMLElement, linksSvg: SVGSVGElement, getZoomLevelReal: () => number, blockInteractionManager: BlockInteractionManager) {
+    constructor (vscode: any, canvas: HTMLElement, linksSvg: SVGSVGElement, blockInteractionManager: BlockInteractionManager) {
         this.vscode = vscode;
         this.canvas = canvas;
         this.linksSvg = linksSvg;
-        this.getZoomLevelReal = getZoomLevelReal;
         this.blockInteractionManager = blockInteractionManager;
+    }
+
+    public getAllLinkSegments(): LinkSegment[] {
+        let result: LinkSegment[] = [];
+        this.links.forEach(link => {
+            link.segments.forEach(segment => {
+                result.push(segment);
+            });
+        });
+        return result;
+    }
+    public getAllLinkNodes(): LinkNode[] {
+        let result: LinkNode[] = [];
+        this.links.forEach(link => {
+            link.intermediateNodes.forEach(node => {
+                result.push(node);
+            });
+            result.push(link.sourceNode);
+            result.push(link.targetNode);
+        });
+        return result;
     }
 
     public createLink(sourceNode: SourceNode, targetNode: TargetNode, intermediateNodes: LinkNode[] = []): void {
         let intermediateNodesData: {x: number, y: number}[] = [];
-        intermediateNodes.forEach(node => intermediateNodesData.push({x: node.x, y: node.y}));
+        intermediateNodes.forEach(node => intermediateNodesData.push({x: node.getPosition().x, y: node.getPosition().y}));
         this.vscode.postMessage({ type: 'addLink', 
                                     sourceId: sourceNode.connectedPort?.block.id, 
                                     sourcePort: sourceNode.connectedPort?.index, 
@@ -59,15 +72,12 @@ export class LinkInteractionManager {
         this.canvas.appendChild(this.linksSvg);
     };
 
-    public unselectAll(): void {
-        this.links.forEach(link => link.unselect());
-    }
 
     public getSelectedLinkSegments(): LinkSegment[] {
         var result: LinkSegment[] = [];
         this.links.forEach(link => {
             link.segments.forEach(segment => {
-                if (segment.isSelected) {
+                if (segment.isSelected()) {
                     result.push(segment);
                 }
             });
@@ -79,12 +89,12 @@ export class LinkInteractionManager {
         var result: LinkNode[] = [];
         this.links.forEach(link => {
             link.intermediateNodes.forEach(node => {
-                if (node.isSelected) {
+                if (node.isSelected()) {
                     result.push(node);
                 }
             });
-            if (link.sourceNode.isSelected) {result.push(link.sourceNode);}
-            if (link.targetNode.isSelected) {result.push(link.targetNode);}
+            if (link.sourceNode.isSelected()) {result.push(link.sourceNode);}
+            if (link.targetNode.isSelected()) {result.push(link.targetNode);}
         });
         return result;
     }
@@ -94,7 +104,7 @@ export class LinkInteractionManager {
         var result: Link[] = [];
         this.links.forEach(link => {
             for (let segment of link.segments) {
-                if (segment.isSelected) {
+                if (segment.isSelected()) {
                     result.push(link);
                     break;
                 }
@@ -133,8 +143,7 @@ export class LinkInteractionManager {
             let currentLink = this.links.find(link => link.id === linkData.id);
             if (currentLink) {
                 currentLink.intermediateNodes.forEach((node, index) => {
-                    node.x = linkData.intermediateNodes[index].x;
-                    node.y = linkData.intermediateNodes[index].y;
+                    node.moveTo(linkData.intermediateNodes[index].x, linkData.intermediateNodes[index].y);
                 });
             } else {
                 this.vscode.postMessage({ type: 'print', text: `Link ID does not exist, creating link: ${linkData.id}` });
@@ -169,248 +178,30 @@ export class LinkInteractionManager {
                     linkData.id,
                     sourceNode,
                     targetNode,
-                    intermediateNodes,
-                    this.onMouseDownSegment,
-                    this.onMouseDownNode
+                    intermediateNodes
                 );
 
                 this.links.push(currentLink);
             }
             currentLink.addToSvg(this.linksSvg);
             currentLink.updatePosition();
-            console.log(`Total links: ${this.links.length}`); 
         });
 
         return this.linksSvg;
     }
 
-
-    public onMouseDownSegment = (linkSegment: LinkSegment, e: MouseEvent): void => {
-        this.vscode.postMessage({ type: 'print', text: 'Link mouse down'});
-        if (e.button !== 1) {
-            this.vscode.postMessage({ type: 'print', text: `Mouse down on link segment: ${linkSegment.sourceLinkNode.x}` });
-            if (!linkSegment.isSelected) {
-                if (e.shiftKey) {
-                    // Toggle selection if Shift is pressed
-                    linkSegment.toggleSelect();
-                } else {
-                    // Clear selection and select only this block
-                    this.unselectAll();
-                    linkSegment.select();
-                }
-            }
-
-            // Store the initial mouse position
-            this.dragStartX = e.clientX;
-            this.dragStartY = e.clientY;
-            this.isDragging = false; // Reset dragging state
-        
-            // Add a temporary mousemove listener to detect drag threshold
-            const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
-                const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
-                const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
-        
-                if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
-                    // Exceeded drag threshold, start dragging
-                    this.isDragging = true;
-                    this.vscode.postMessage({ type: 'print', text: `Mouse drag start: ${linkSegment.sourceLinkNode.x}` });
-                    document.removeEventListener('mousemove', onMouseMoveThreshold);
-                    document.removeEventListener('mouseup', onMouseUpThreshold);
-
-                    // Start dragging selected blocks
-                    if (!linkSegment.isSelected) {
-                        // If the block is not already selected, add it to the selection
-                        linkSegment.select();
-                    }
-                    document.addEventListener('mousemove', this.onMouseMove);
-                    document.addEventListener('mouseup', this.onMouseUp);
-                }
-            };
-        
-            document.addEventListener('mousemove', onMouseMoveThreshold);
-        
-            // Handle mouseup to detect a simple click
-            const onMouseUpThreshold = () => {
-                document.removeEventListener('mousemove', onMouseMoveThreshold);
-                document.removeEventListener('mouseup', onMouseUpThreshold);
-        
-                if (!this.isDragging) {
-                    this.vscode.postMessage({ type: 'print', text: `As simple click on link segment: ${linkSegment.sourceLinkNode.x}` });
-
-                    // If no drag occurred, treat it as a simple click
-                    if (e.shiftKey) {
-                        // Toggle selection if Shift is pressed
-                        linkSegment.toggleSelect();
-                    } else {
-                        // Clear selection and select only this block
-                        this.unselectAll();
-                        linkSegment.select();
-                    }
-                }
-            };
-        
-            document.addEventListener('mouseup', onMouseUpThreshold);
-        }
-    };
-    
-    public onMouseDownNode = (linkNode: LinkNode, e: MouseEvent): void => {
-        this.vscode.postMessage({ type: 'print', text: 'Link mouse down'});
-        if (e.button !== 1) {
-            this.vscode.postMessage({ type: 'print', text: `Mouse down on link segment: ${linkNode.id}` });
-            if (!linkNode.isSelected) {
-                if (e.shiftKey) {
-                    // Toggle selection if Shift is pressed
-                    linkNode.toggleSelect();
-                } else {
-                    // Clear selection and select only this block
-                    this.unselectAll();
-                    linkNode.select();
-                }
-            }
-
-            // Store the initial mouse position
-            this.dragStartX = e.clientX;
-            this.dragStartY = e.clientY;
-            this.isDragging = false; // Reset dragging state
-        
-            // Add a temporary mousemove listener to detect drag threshold
-            const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
-                const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
-                const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
-        
-                if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
-                    // Exceeded drag threshold, start dragging
-                    this.isDragging = true;
-                    this.vscode.postMessage({ type: 'print', text: `Mouse drag start: ${linkNode.id}` });
-                    document.removeEventListener('mousemove', onMouseMoveThreshold);
-                    document.removeEventListener('mouseup', onMouseUpThreshold);
-
-                    // Start dragging selected blocks
-                    if (!linkNode.isSelected) {
-                        // If the block is not already selected, add it to the selection
-                        linkNode.select();
-                    }
-                    document.addEventListener('mousemove', this.onMouseMove);
-                    document.addEventListener('mouseup', this.onMouseUp);
-                }
-            };
-        
-            document.addEventListener('mousemove', onMouseMoveThreshold);
-        
-            // Handle mouseup to detect a simple click
-            const onMouseUpThreshold = () => {
-                document.removeEventListener('mousemove', onMouseMoveThreshold);
-                document.removeEventListener('mouseup', onMouseUpThreshold);
-        
-                if (!this.isDragging) {
-                    this.vscode.postMessage({ type: 'print', text: `As simple click on link segment: ${linkNode.id}` });
-
-                    // If no drag occurred, treat it as a simple click
-                    if (e.shiftKey) {
-                        // Toggle selection if Shift is pressed
-                        linkNode.toggleSelect();
-                    } else {
-                        // Clear selection and select only this block
-                        this.unselectAll();
-                        linkNode.select();
-                    }
-                }
-            };
-        
-            document.addEventListener('mouseup', onMouseUpThreshold);
-        }
-    };
-    
-    public onMouseUp = (): void => {
-        this.vscode.postMessage({ type: 'print', text: `Mouse up links` });
-
-        if (this.isDragging) {
-            this.isDragging = false;
-
-            let nodesToMove = new Set<LinkNode>();
-
-            this.getSelectedLinkSegments().forEach(linkSegment => {
-                nodesToMove.add(linkSegment.sourceLinkNode);
-                nodesToMove.add(linkSegment.targetLinkNode);
-            });
-
-            this.getSelectedLinkNodes().forEach(node => nodesToMove.add(node));
-
-            nodesToMove.forEach(node => {
-                const port = this.detectPort(node);
-                if (port) {
-                    node.unhighlight();
-                    if (port.portType === "input" && node instanceof TargetNode) {
-                        node.attachToPort(port.block, port.portIndex);
-                    } else if (port.portType === "output" && node instanceof SourceNode) {
-                        node.attachToPort(port.block, port.portIndex);
-                    }
-                } else {
-                    node.unhighlight();
-                }
-            });
-            
-            const stateMessages = this.links.flatMap(link => link.getState());
-            
-            this.vscode.postMessage({ type: 'moveLinkBatch', updates: stateMessages });
-
-        }
-
-        document.removeEventListener('mousemove', this.onMouseMove);
-        document.removeEventListener('mouseup', this.onMouseUp);
-    };
-    
-    public onMouseMove = (e: MouseEvent): void => {
-        const scaledDeltaX = (e.clientX - this.dragStartX) / this.getZoomLevelReal();
-        const scaledDeltaY = (e.clientY - this.dragStartY) / this.getZoomLevelReal();
-        
-        this.vscode.postMessage({ type: 'print', text: `Move links x: ${scaledDeltaX} y: ${scaledDeltaY}`});
-        if (this.isDragging) {
-            let nodesToMove = new Set<LinkNode>();
-
-            this.getSelectedLinkSegments().forEach(linkSegment => {
-                nodesToMove.add(linkSegment.sourceLinkNode);
-                nodesToMove.add(linkSegment.targetLinkNode);
-            });
-
-            this.getSelectedLinkNodes().forEach(node => nodesToMove.add(node));
-
-            nodesToMove.forEach(node => {
-                node.moveTo(node.x + scaledDeltaX, node.y + scaledDeltaY);
-    
-                // Detect if the node is over a port
-                const port = this.detectPort(node);
-                
-                if (port) {
-                    if (port.portType === "input" && node instanceof TargetNode) {
-                        node.highlight();
-                    } else if (port.portType === "output" && node instanceof SourceNode) {
-                        node.highlight();
-                    } else {
-                        node.unhighlight();
-                    }
-                } else {
-                    node.unhighlight();
-                }
-            });
-
-            this.dragStartX = e.clientX;
-            this.dragStartY = e.clientY;
-        }  
-        this.updateLinks();  
-    };  
     
     private detectPort(node: LinkNode): { block: Block; portIndex: number; portType: "input" | "output" } | null {
         for (const block of this.blockInteractionManager.blocks) {
             for (let i = 0; i < block.inputPorts; i++) {
                 const portPosition = block.getPortPosition(i, "input");
-                if (Math.abs(node.x - portPosition.x) < 10 && Math.abs(node.y - portPosition.y) < 10) {
+                if (Math.abs(node.getPosition().x - portPosition.x) < 10 && Math.abs(node.getPosition().y - portPosition.y) < 10) {
                     return { block, portIndex: i, portType: "input" };
                 }
             }
             for (let i = 0; i < block.outputPorts; i++) {
                 const portPosition = block.getPortPosition(i, "output");
-                if (Math.abs(node.x - portPosition.x) < 10 && Math.abs(node.y - portPosition.y) < 10) {
+                if (Math.abs(node.getPosition().x - portPosition.x) < 10 && Math.abs(node.getPosition().y - portPosition.y) < 10) {
                     return { block, portIndex: i, portType: "output" };
                 }
             }

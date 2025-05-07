@@ -8,11 +8,16 @@ export class Block extends Selectable implements Movable {
     private y: number;
     _isSelected: boolean = false;
 
+    public getElement(): HTMLElement | SVGElement {
+        return this.element;
+    }
+    private element: HTMLElement;
+
     inputPorts: number;
     outputPorts: number;
 
 
-    constructor(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number, onClick: (block: Block, e: MouseEvent) => void, onMouseDown: (block: Block, e: MouseEvent) => void) {
+    constructor(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number) {
         super();
         this.id = id;
         this.label = label;
@@ -22,7 +27,7 @@ export class Block extends Selectable implements Movable {
         this.outputPorts = outputPorts;
 
         // Create the DOM element for the block
-        this.element = this.createElement(onClick, onMouseDown);
+        this.element = this.createElement();
     }
 
     public moveTo(x: number, y: number): void {
@@ -52,7 +57,16 @@ export class Block extends Selectable implements Movable {
         return { x: this.x, y: this.y };
     }
 
-    private createElement(onClick: (block: Block, e: MouseEvent) => void, onMouseDown: (block: Block, e: MouseEvent) => void): HTMLElement {
+    public getUpdatePositionMessages(): { type: string; id: string; x: number; y: number }[] {
+        return [{
+            type: 'moveBlock',
+            id: this.id,
+            x: this.x,
+            y: this.y
+        }];
+    }
+
+    private createElement(): HTMLElement {
         const blockElement = document.createElement('div');
         blockElement.classList.add('block');
         blockElement.style.left = `${this.x}px`;
@@ -77,10 +91,6 @@ export class Block extends Selectable implements Movable {
             blockElement.appendChild(outputPort);
         }
 
-        // Attach event listeners
-        blockElement.addEventListener('click', (e: MouseEvent) => onClick(this, e));
-        blockElement.addEventListener('mousedown', (e: MouseEvent) => onMouseDown(this, e));
-
         return blockElement;
     }
 
@@ -102,7 +112,12 @@ export class Block extends Selectable implements Movable {
         if (portType === "input") {
             return { x: blockX, y: blockY + portOffset };
         } else {
-            return { x: blockX + this.element.offsetWidth, y: blockY + portOffset };
+            if (this.element) {
+                return { x: blockX + this.element.offsetWidth, y: blockY + portOffset };
+            }
+            else {
+                return { x: blockX + 20, y: blockY + portOffset };
+            }
         }
     }
 }
