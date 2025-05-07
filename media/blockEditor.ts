@@ -298,7 +298,7 @@ const vscode = acquireVsCodeApi();
         }
 
         json.blocks?.forEach(blockData => {
-            blockInteractionManager.blocks.find(b => b.id === blockData.id)?.move(blockData.x, blockData.y);
+            blockInteractionManager.blocks.find(b => b.id === blockData.id)?.moveTo(blockData.x, blockData.y);
             var block = blockInteractionManager.blocks.find(b => b.id === blockData.id);
             if (block) {
                 block.parseStateFromJson(blockData);

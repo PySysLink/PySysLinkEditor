@@ -1,9 +1,11 @@
-export class Block {
+import { Movable } from "./Movable";
+import { Selectable } from "./Selectable";
+
+export class Block extends Selectable implements Movable {
     id: string;
     label: string;
     private x: number;
     private y: number;
-    private element: HTMLElement;
     _isSelected: boolean = false;
 
     inputPorts: number;
@@ -11,6 +13,7 @@ export class Block {
 
 
     constructor(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number, onClick: (block: Block, e: MouseEvent) => void, onMouseDown: (block: Block, e: MouseEvent) => void) {
+        super();
         this.id = id;
         this.label = label;
         this.x = x;
@@ -22,12 +25,13 @@ export class Block {
         this.element = this.createElement(onClick, onMouseDown);
     }
 
-    public setPosition(x: number, y: number): void {
+    public moveTo(x: number, y: number): void {
         this.x = x;
         this.y = y;
-        this.element.style.left = `${x}px`;
-        this.element.style.top = `${y}px`;
-        
+        if (this.element) {
+            this.element.style.left = `${x}px`;
+            this.element.style.top = `${y}px`;
+        }
     }
 
     public getState(): { type: string; id: string; x: number; y: number}[] {
@@ -40,35 +44,12 @@ export class Block {
     }
 
     public parseStateFromJson(blockData: { x: number; y: number; label: string }): void {
-        this.setPosition(blockData.x, blockData.y);
+        this.moveTo(blockData.x, blockData.y);
         this.label = blockData.label;
     }
 
     public getPosition(): { x: number; y: number } {
         return { x: this.x, y: this.y };
-    }
-
-    public select(): void {
-        this._isSelected = true;
-        this.element.classList.add('selected');
-    }
-
-    public unselect(): void {
-        this._isSelected = false;
-        this.element.classList.remove('selected');
-    }
-
-    public isSelected(): boolean {
-        return this._isSelected;
-    }
-
-    public toggleSelect(): void {
-        this._isSelected = !this._isSelected;
-        if (this._isSelected) {
-            this.select();
-        } else {
-            this.unselect();
-        }
     }
 
     private createElement(onClick: (block: Block, e: MouseEvent) => void, onMouseDown: (block: Block, e: MouseEvent) => void): HTMLElement {
@@ -104,17 +85,10 @@ export class Block {
     }
 
 
-    public move(deltaX: number, deltaY: number): void {
-        this.setPosition(this.x + deltaX, this.y + deltaY);
+    public moveDelta(deltaX: number, deltaY: number): void {
+        this.moveTo(this.x + deltaX, this.y + deltaY);
     }
 
-    getElement(): HTMLElement {
-        return this.element;
-    }
-
-    public addElementToCanvas(canvas: HTMLElement): void {
-        canvas.appendChild(this.element);
-    }
 
     public getPortPosition(portIndex: number, portType: "input" | "output"): { x: number; y: number } {
         const portSpacing = 20; // Spacing between ports

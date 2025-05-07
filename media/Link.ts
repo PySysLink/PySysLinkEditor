@@ -1,17 +1,19 @@
 import { debug } from 'console';
 import { Block } from './Block';
+import { Movable } from './Movable';
+import { Selectable } from './Selectable';
 
-export class LinkNode {
+export class LinkNode extends Selectable implements Movable {
     id: string;
-    x: number; 
-    y: number;
+    private x: number; 
+    private y: number;
     nodeElement: SVGCircleElement | undefined;
-    isSelected: boolean = false;
     isHighlighted: boolean = false;
 
     private moveCallbacks: { (x: number, y: number) : void; }[] = [];
 
     constructor (id: string, x: number, y: number) {
+        super();
         this.id = id;
         this.x = x;
         this.y = y;
@@ -23,7 +25,7 @@ export class LinkNode {
         this.nodeElement.setAttribute("cx", `${this.x}`);
         this.nodeElement.setAttribute("cy", `${this.y}`);
         this.nodeElement.addEventListener('mousedown', (e: MouseEvent) => onMouseDown(this, e));
-        if (this.isSelected) {
+        if (this._isSelected) {
             this.nodeElement.classList.add('selected');
         }
         if (this.isHighlighted) {
@@ -42,25 +44,33 @@ export class LinkNode {
         this.moveCallbacks.forEach(callback => callback(this.x, this.y));
     }
 
+    public moveDelta(deltaX: number, deltaY: number): void {
+        this.moveTo(this.x + deltaX, this.y + deltaY);
+    }
+
+    public getPosition(): { x: number; y: number; } {
+        return { x: this.x, y: this.y };
+    }
+
     public addCallback(callback: (x: number, y: number) => void) {
         this.moveCallbacks.push(callback);
     }
 
     public select() {
-        this.isSelected = true;
+        this._isSelected = true;
         if (this.nodeElement) {
             this.nodeElement.classList.add('selected');
         }
     }
 
     public unselect() {
-        this.isSelected = false;
+        this._isSelected = false;
         if (this.nodeElement) {
             this.nodeElement.classList.remove('selected');
         }
     }
     public toggleSelect() {
-        if (this.isSelected) {
+        if (this._isSelected) {
             this.unselect();
         } else {
             this.select();
@@ -168,26 +178,26 @@ export class TargetNode extends LinkNode {
     }
 }
 
-export class LinkSegment {
+export class LinkSegment extends Selectable implements Movable {
     sourceLinkNode: LinkNode;
     targetLinkNode: LinkNode;
     segmentElement: SVGPolylineElement | undefined;
-    isSelected: boolean = false;
 
     constructor (sourceLinkNode: LinkNode, targetLinkNode: LinkNode) {
+        super();
         this.sourceLinkNode = sourceLinkNode;
         this.sourceLinkNode.addCallback(this.updateSourceLinkNodePosition);
         this.targetLinkNode = targetLinkNode;
         this.targetLinkNode.addCallback(this.updateTargetLinkNodePosition);
-        console.log(`link created: ${this.sourceLinkNode.x}`);
+        console.log(`link created: ${this.sourceLinkNode.id}`);
     }
 
     public createSegmentElement(onMouseDown: (link: LinkSegment, e: MouseEvent) => void) {
-        console.log(`segment element created: ${this.sourceLinkNode.x}`);
+        console.log(`segment element created: ${this.sourceLinkNode.id}`);
 
         this.segmentElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
         this.segmentElement.classList.add('link-line');
-        if (this.isSelected) {
+        if (this._isSelected) {
             this.segmentElement.classList.add('selected');
         }
         this.segmentElement.addEventListener('mousedown', (e: MouseEvent) => onMouseDown(this, e));

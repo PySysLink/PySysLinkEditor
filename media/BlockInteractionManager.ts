@@ -130,7 +130,7 @@ export class BlockInteractionManager {
         
         if (this.isDragging) {
             this.getSelectedBlocks().forEach(block => {
-                block.move(scaledDeltaX, scaledDeltaY);
+                block.moveDelta(scaledDeltaX, scaledDeltaY);
             });
 
             this.dragStartX = e.clientX;
