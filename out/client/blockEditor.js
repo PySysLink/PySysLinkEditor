@@ -382,9 +382,11 @@ class LinkSegment extends _Selectable__WEBPACK_IMPORTED_MODULE_1__.Selectable {
         let deltaX = x - this.sourceLinkNode.getPosition().x;
         let deltaY = y - this.sourceLinkNode.getPosition().y;
         if (!this.sourceLinkNode.isSelected()) {
+            this.sourceLinkNode.select();
             this.sourceLinkNode.moveTo(x, y);
         }
         if (!this.targetLinkNode.isSelected()) {
+            this.targetLinkNode.select();
             this.targetLinkNode.moveDelta(deltaX, deltaY);
         }
         this.updatePosition();
@@ -394,9 +396,11 @@ class LinkSegment extends _Selectable__WEBPACK_IMPORTED_MODULE_1__.Selectable {
     }
     moveDelta(deltaX, deltaY) {
         if (!this.sourceLinkNode.isSelected()) {
+            this.sourceLinkNode.select();
             this.sourceLinkNode.moveDelta(deltaX, deltaY);
         }
         if (!this.targetLinkNode.isSelected()) {
+            this.targetLinkNode.select();
             this.targetLinkNode.moveDelta(deltaX, deltaY);
         }
         this.updatePosition();
@@ -730,6 +734,47 @@ class LinkInteractionManager {
         });
         return this.linksSvg;
     }
+    connectNodesToPorts = () => {
+        this.getAllLinkNodes().forEach(node => {
+            const port = this.detectPort(node);
+            if (port) {
+                node.unhighlight();
+                if (port.portType === "input" && node instanceof _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode) {
+                    node.attachToPort(port.block, port.portIndex);
+                }
+                else if (port.portType === "output" && node instanceof _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode) {
+                    node.attachToPort(port.block, port.portIndex);
+                }
+            }
+            else {
+                node.unhighlight();
+            }
+        });
+    };
+    highlightNodesNearPorts = (e) => {
+        this.getAllLinkNodes().forEach(node => {
+            // Detect if the node is over a port
+            const port = this.detectPort(node);
+            if (port) {
+                if (port.portType === "input" && node instanceof _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode) {
+                    if (!node.connectedPort) {
+                        node.highlight();
+                    }
+                }
+                else if (port.portType === "output" && node instanceof _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode) {
+                    if (!node.connectedPort) {
+                        node.highlight();
+                    }
+                }
+                else {
+                    node.unhighlight();
+                }
+            }
+            else {
+                node.unhighlight();
+            }
+        });
+    };
     detectPort(node) {
         for (const block of this.blockInteractionManager.blocks) {
             for (let i = 0; i < block.inputPorts; i++) {
@@ -832,6 +877,7 @@ class SelectableManager {
     canvas;
     getZoomLevelReal;
     registeredSelectableLists = [];
+    onMouseUpCallbacks = [];
     onMouseMoveCallbacks = [];
     registeredStateLists = [];
     constructor(vscode, canvas, getZoomLevelReal) {
@@ -959,6 +1005,7 @@ class SelectableManager {
         }
         document.removeEventListener('mousemove', this.onMouseMoveDrag);
         document.removeEventListener('mouseup', this.onMouseUpDrag);
+        this.onMouseUpCallbacks.forEach(callback => callback());
     };
     onMouseUpSelectionBox = () => {
         if (this.selectionBox) {
@@ -1022,6 +1069,9 @@ class SelectableManager {
     };
     addOnMouseMoveListener(callback) {
         this.onMouseMoveCallbacks.push(callback);
+    }
+    addOnMouseUpListener(callback) {
+        this.onMouseUpCallbacks.push(callback);
     }
 }
 
@@ -1128,6 +1178,8 @@ const vscode = acquireVsCodeApi();
         const stateMessages = linkInteractionManager.links.flatMap(link => link.getState());
         return [{ type: 'moveLinkBatch', updates: stateMessages }];
     });
+    selectableManager.addOnMouseMoveListener(linkInteractionManager.highlightNodesNearPorts);
+    selectableManager.addOnMouseUpListener(linkInteractionManager.connectNodesToPorts);
     selectableManager.updateSelectables();
     selectableManager.addOnMouseMoveListener(linkInteractionManager.updateLinks);
     function getZoomLevelReal() {

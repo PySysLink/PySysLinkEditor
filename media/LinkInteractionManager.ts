@@ -190,6 +190,45 @@ export class LinkInteractionManager {
         return this.linksSvg;
     }
 
+    public connectNodesToPorts = () : void => {
+        this.getAllLinkNodes().forEach(node => {
+            const port = this.detectPort(node);
+            if (port) {
+                node.unhighlight();
+                if (port.portType === "input" && node instanceof TargetNode) {
+                    node.attachToPort(port.block, port.portIndex);
+                } else if (port.portType === "output" && node instanceof SourceNode) {
+                    node.attachToPort(port.block, port.portIndex);
+                }
+            } else {
+                node.unhighlight();
+            }
+        });
+    };
+
+    public highlightNodesNearPorts = (e: MouseEvent) : void => {
+        this.getAllLinkNodes().forEach(node => {
+            // Detect if the node is over a port
+            const port = this.detectPort(node);
+            
+            if (port) {
+                if (port.portType === "input" && node instanceof TargetNode) {
+                    if (!node.connectedPort) {
+                        node.highlight();
+                    }
+                } else if (port.portType === "output" && node instanceof SourceNode) {
+                    if (!node.connectedPort) {
+                        node.highlight();
+                    }
+                } else {
+                    node.unhighlight();
+                }
+            } else {
+                node.unhighlight();
+            }
+        });
+    }
+
     
     private detectPort(node: LinkNode): { block: Block; portIndex: number; portType: "input" | "output" } | null {
         for (const block of this.blockInteractionManager.blocks) {

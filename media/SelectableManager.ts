@@ -18,6 +18,7 @@ export class SelectableManager {
 
     private registeredSelectableLists: (() => Selectable[])[] = [];
 
+    private onMouseUpCallbacks: (() => void)[] = [];
     private onMouseMoveCallbacks: ((e: MouseEvent) => void)[] = [];
     private registeredStateLists: (() => any[])[] = [];
 
@@ -176,6 +177,8 @@ export class SelectableManager {
 
         document.removeEventListener('mousemove', this.onMouseMoveDrag);
         document.removeEventListener('mouseup', this.onMouseUpDrag);
+
+        this.onMouseUpCallbacks.forEach(callback => callback());
     };
 
     private onMouseUpSelectionBox = (): void => {
@@ -255,6 +258,10 @@ export class SelectableManager {
 
     public addOnMouseMoveListener(callback: (e: MouseEvent) => void): void {
         this.onMouseMoveCallbacks.push(callback);
+    }
+    
+    public addOnMouseUpListener(callback: () => void): void {
+        this.onMouseUpCallbacks.push(callback);
     }
 
 }

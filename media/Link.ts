@@ -1,4 +1,4 @@
-import { debug } from 'console';
+import { debug, timeStamp } from 'console';
 import { Block } from './Block';
 import { Movable } from './Movable';
 import { Selectable } from './Selectable';
@@ -225,9 +225,11 @@ export class LinkSegment extends Selectable implements Movable {
         let deltaX = x - this.sourceLinkNode.getPosition().x;
         let deltaY = y - this.sourceLinkNode.getPosition().y;
         if (!this.sourceLinkNode.isSelected()) {
+            this.sourceLinkNode.select();
             this.sourceLinkNode.moveTo(x, y);
         }
         if (!this.targetLinkNode.isSelected()) {
+            this.targetLinkNode.select();
             this.targetLinkNode.moveDelta(deltaX, deltaY);
         }
         this.updatePosition();
@@ -239,9 +241,11 @@ export class LinkSegment extends Selectable implements Movable {
 
     public moveDelta(deltaX: number, deltaY: number): void {
         if (!this.sourceLinkNode.isSelected()) {
+            this.sourceLinkNode.select();
             this.sourceLinkNode.moveDelta(deltaX, deltaY);
         }
         if (!this.targetLinkNode.isSelected()) {
+            this.targetLinkNode.select();
             this.targetLinkNode.moveDelta(deltaX, deltaY);
         }
         this.updatePosition();

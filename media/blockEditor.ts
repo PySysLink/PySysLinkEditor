@@ -4,6 +4,7 @@ import { BlockInteractionManager } from './BlockInteractionManager';
 import { LinkInteractionManager } from './LinkInteractionManager';
 import { Selectable } from './Selectable';
 import { SelectableManager } from './SelectableManager';
+import { link } from 'fs';
 
 
 declare const acquireVsCodeApi: () => any;
@@ -46,6 +47,8 @@ const vscode = acquireVsCodeApi();
             const stateMessages = linkInteractionManager.links.flatMap(link => link.getState());
             return [{ type: 'moveLinkBatch', updates: stateMessages }];
     });
+    selectableManager.addOnMouseMoveListener(linkInteractionManager.highlightNodesNearPorts);
+    selectableManager.addOnMouseUpListener(linkInteractionManager.connectNodesToPorts);
     selectableManager.updateSelectables();
     selectableManager.addOnMouseMoveListener(linkInteractionManager.updateLinks);
 
