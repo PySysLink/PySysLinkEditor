@@ -3,11 +3,8 @@ import { getNonce } from './util';
 import { initializeBlockMetadata } from './BlockMetadata';
 
 export function addBlock(
-    document: vscode.TextDocument,
-    getDocumentAsJson: (doc: vscode.TextDocument) => any,
-    updateTextDocument: (doc: vscode.TextDocument, json: any) => void
-): void {
-    const json = getDocumentAsJson(document);
+    json: any
+): any {
     const blocks = Array.isArray(json.blocks) ? json.blocks : [];
 
     // Define the new block
@@ -28,34 +25,19 @@ export function addBlock(
 
     blocks.push(newBlock);
     json.blocks = blocks;
-    updateTextDocument(document, json);
+    return json;
 }
 
-export function moveBlock(document: vscode.TextDocument, id: string, x: number, y: number, getDocumentAsJson: (doc: vscode.TextDocument) => any, updateTextDocument: (doc: vscode.TextDocument, json: any) => void): void {
-    const json = getDocumentAsJson(document);
+export function moveBlock(id: string, x: number, y: number, json: any): any {
     const block = (json.blocks || []).find((b: any) => b.id === id);
     if (block) {
         block.x = x;
         block.y = y;
         console.log(`Block ${block.label} updated to position x: ${block.x}, y: ${block.y}`);
-        updateTextDocument(document, json);
     }
+    return json;
 }
 
-export function moveBlocks(document: vscode.TextDocument, updates: { id: string; x: number; y: number }[], getDocumentAsJson: (doc: vscode.TextDocument) => any, updateTextDocument: (doc: vscode.TextDocument, json: any) => void): void {
-    const json = getDocumentAsJson(document);
-
-    updates.forEach(update => {
-        const block = (json.blocks || []).find((b: any) => b.id === update.id);
-        if (block) {
-            block.x = update.x;
-            block.y = update.y;
-            console.log(`Block ${block.label} updated to position x: ${block.x}, y: ${block.y}`);
-        }
-    });
-
-    updateTextDocument(document, json);
-}
 
 export async function editBlockLabel(document: vscode.TextDocument, id: string, getDocumentAsJson: (doc: vscode.TextDocument) => any, updateTextDocument: (doc: vscode.TextDocument, json: any) => void): Promise<void> {
     const json = getDocumentAsJson(document);

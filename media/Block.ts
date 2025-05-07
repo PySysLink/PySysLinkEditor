@@ -57,15 +57,6 @@ export class Block extends Selectable implements Movable {
         return { x: this.x, y: this.y };
     }
 
-    public getUpdatePositionMessages(): { type: string; id: string; x: number; y: number }[] {
-        return [{
-            type: 'moveBlock',
-            id: this.id,
-            x: this.x,
-            y: this.y
-        }];
-    }
-
     private createElement(): HTMLElement {
         const blockElement = document.createElement('div');
         blockElement.classList.add('block');

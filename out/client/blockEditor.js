@@ -60,14 +60,6 @@ class Block extends _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable {
     getPosition() {
         return { x: this.x, y: this.y };
     }
-    getUpdatePositionMessages() {
-        return [{
-                type: 'moveBlock',
-                id: this.id,
-                x: this.x,
-                y: this.y
-            }];
-    }
     createElement() {
         const blockElement = document.createElement('div');
         blockElement.classList.add('block');
@@ -234,14 +226,6 @@ class LinkNode extends _Selectable__WEBPACK_IMPORTED_MODULE_1__.Selectable {
     }
     moveDelta(deltaX, deltaY) {
         this.moveTo(this.x + deltaX, this.y + deltaY);
-    }
-    getUpdatePositionMessages() {
-        return [{
-                type: 'moveLinkNode',
-                id: this.id,
-                x: this.x,
-                y: this.y
-            }];
     }
     getPosition() {
         return { x: this.x, y: this.y };
@@ -416,9 +400,6 @@ class LinkSegment extends _Selectable__WEBPACK_IMPORTED_MODULE_1__.Selectable {
             this.targetLinkNode.moveDelta(deltaX, deltaY);
         }
         this.updatePosition();
-    }
-    getUpdatePositionMessages() {
-        return [];
     }
 }
 class Link {
@@ -852,6 +833,7 @@ class SelectableManager {
     getZoomLevelReal;
     registeredSelectableLists = [];
     onMouseMoveCallbacks = [];
+    registeredStateLists = [];
     constructor(vscode, canvas, getZoomLevelReal) {
         this.vscode = vscode;
         this.canvas = canvas;
@@ -866,6 +848,9 @@ class SelectableManager {
     getSelectableList() {
         return this.registeredSelectableLists.flatMap(getSelectableList => getSelectableList());
     }
+    getStateList() {
+        return this.registeredStateLists.flatMap(getStateList => getStateList()).flat();
+    }
     unselectAll() {
         this.getSelectableList().forEach(selectable => selectable.unselect());
     }
@@ -875,13 +860,16 @@ class SelectableManager {
     registerSelectableList(getSelectableList) {
         this.registeredSelectableLists.push(getSelectableList);
     }
-    onMouseDownInSelectable = (canvaselement, e) => {
+    registerStateList(getStateList) {
+        this.registeredStateLists.push(getStateList);
+    }
+    onMouseDownInSelectable = (canvasElement, e) => {
         let selectable;
-        if (!(canvaselement instanceof _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable)) {
+        if (!(canvasElement instanceof _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable)) {
             return;
         }
         else {
-            selectable = canvaselement;
+            selectable = canvasElement;
         }
         if (e.button !== 1) {
             if (!selectable.isSelected()) {
@@ -965,16 +953,9 @@ class SelectableManager {
     onMouseUpDrag = () => {
         this.vscode.postMessage({ type: 'print', text: `Mouse up` });
         if (this.isDragging) {
-            let updatePositionMessages = [];
-            this.getSelectableList().forEach(selectable => {
-                if ((0,_Movable__WEBPACK_IMPORTED_MODULE_1__.isMovable)(selectable)) {
-                    selectable.getUpdatePositionMessages().forEach(update => {
-                        updatePositionMessages.push(update);
-                    });
-                }
-            });
-            this.vscode.postMessage({ type: 'print', text: updatePositionMessages });
-            this.vscode.postMessage({ type: 'moveMovableBatch', updates: updatePositionMessages });
+            let stateMessages = this.getStateList();
+            this.vscode.postMessage({ type: 'print', text: stateMessages });
+            this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
         }
         document.removeEventListener('mousemove', this.onMouseMoveDrag);
         document.removeEventListener('mouseup', this.onMouseUpDrag);
@@ -1142,6 +1123,11 @@ const vscode = acquireVsCodeApi();
     selectableManager.registerSelectableList(() => blockInteractionManager.blocks);
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkSegments());
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkNodes());
+    selectableManager.registerStateList(() => blockInteractionManager.blocks.map(block => block.getState()));
+    selectableManager.registerStateList(() => {
+        const stateMessages = linkInteractionManager.links.flatMap(link => link.getState());
+        return [{ type: 'moveLinkBatch', updates: stateMessages }];
+    });
     selectableManager.updateSelectables();
     selectableManager.addOnMouseMoveListener(linkInteractionManager.updateLinks);
     function getZoomLevelReal() {

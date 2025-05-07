@@ -19,6 +19,7 @@ export class SelectableManager {
     private registeredSelectableLists: (() => Selectable[])[] = [];
 
     private onMouseMoveCallbacks: ((e: MouseEvent) => void)[] = [];
+    private registeredStateLists: (() => any[])[] = [];
 
 
     constructor(vscode: any, canvas: HTMLElement, getZoomLevelReal: () => number) {
@@ -39,6 +40,10 @@ export class SelectableManager {
         return this.registeredSelectableLists.flatMap(getSelectableList => getSelectableList());
     }
 
+    private getStateList(): any[] {
+        return this.registeredStateLists.flatMap(getStateList => getStateList()).flat();
+    }
+
     private unselectAll(): void {
         this.getSelectableList().forEach(selectable => selectable.unselect());
     }
@@ -51,13 +56,17 @@ export class SelectableManager {
         this.registeredSelectableLists.push(getSelectableList);
     }
 
-    private onMouseDownInSelectable = (canvaselement: CanvasElement, e: MouseEvent): void => {
+    public registerStateList(getStateList: () => any[]): void {
+        this.registeredStateLists.push(getStateList);
+    }
+
+    private onMouseDownInSelectable = (canvasElement: CanvasElement, e: MouseEvent): void => {
         let selectable: Selectable;
-        if (!(canvaselement instanceof Selectable)) {
+        if (!(canvasElement instanceof Selectable)) {
             return;
         }
         else {
-            selectable = canvaselement as Selectable;
+            selectable = canvasElement as Selectable;
         }
         if (e.button !== 1) {
             if (!selectable.isSelected()) {
@@ -158,17 +167,11 @@ export class SelectableManager {
         this.vscode.postMessage({ type: 'print', text: `Mouse up` });
 
         if (this.isDragging) {
-            let updatePositionMessages : { type: string; id: string; x: number; y: number }[] = [];
-            this.getSelectableList().forEach(selectable => {
-                if (isMovable(selectable)) { 
-                    selectable.getUpdatePositionMessages().forEach(update => {
-                        updatePositionMessages.push(update);
-                    });
-                }
-            });
-            this.vscode.postMessage({ type: 'print', text: updatePositionMessages });
+            let stateMessages = this.getStateList();
 
-            this.vscode.postMessage({ type: 'moveMovableBatch', updates: updatePositionMessages });
+            this.vscode.postMessage({ type: 'print', text: stateMessages });
+
+            this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
         }
 
         document.removeEventListener('mousemove', this.onMouseMoveDrag);

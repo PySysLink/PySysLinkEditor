@@ -3,8 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.addLink = addLink;
 exports.moveLinkBatch = moveLinkBatch;
 const util_1 = require("./util");
-function addLink(document, sourceId, sourcePort, targetId, targetPort, sourceX, sourceY, targetX, targetY, intermediateNodes = [], getDocumentAsJson, updateTextDocument) {
-    const json = getDocumentAsJson(document);
+function addLink(sourceId, sourcePort, targetId, targetPort, sourceX, sourceY, targetX, targetY, intermediateNodes = [], json) {
     const links = Array.isArray(json.links) ? json.links : [];
     const newLink = {
         id: (0, util_1.getNonce)(),
@@ -21,10 +20,9 @@ function addLink(document, sourceId, sourcePort, targetId, targetPort, sourceX, 
     links.push(newLink);
     json.links = links;
     console.log(`Added link between ${sourceId}:${sourcePort} and ${targetId}:${targetPort}`);
-    updateTextDocument(document, json);
+    return json;
 }
-function moveLinkBatch(document, updates, getDocumentAsJson, updateTextDocument) {
-    const json = getDocumentAsJson(document);
+function moveLinkBatch(updates, json) {
     // Iterate over each update and apply the changes
     updates.forEach(update => {
         const link = json.links.find((link) => link.id === update.id);
@@ -72,6 +70,6 @@ function moveLinkBatch(document, updates, getDocumentAsJson, updateTextDocument)
         }
     });
     // Save the updated JSON back to the document
-    updateTextDocument(document, json);
+    return json;
 }
 //# sourceMappingURL=LinkManager.js.map

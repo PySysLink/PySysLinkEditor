@@ -49,15 +49,6 @@ export class LinkNode extends Selectable implements Movable {
         this.moveTo(this.x + deltaX, this.y + deltaY);
     }
 
-    public getUpdatePositionMessages(): { type: string; id: string; x: number; y: number }[] {
-        return [{
-            type: 'moveLinkNode',
-            id: this.id,
-            x: this.x,
-            y: this.y
-        }];
-    }
-
     public getPosition(): { x: number; y: number; } {
         return { x: this.x, y: this.y };
     }
@@ -254,10 +245,6 @@ export class LinkSegment extends Selectable implements Movable {
             this.targetLinkNode.moveDelta(deltaX, deltaY);
         }
         this.updatePosition();
-    }
-
-    public getUpdatePositionMessages(): { type: string; id: string; x: number; y: number }[] {
-        return [];
     }
 }
 

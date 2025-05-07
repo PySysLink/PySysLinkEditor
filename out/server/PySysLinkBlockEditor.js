@@ -38,7 +38,6 @@ const vscode = __importStar(require("vscode"));
 const BlockManager_1 = require("./BlockManager");
 const util_1 = require("./util");
 const LinkManager_1 = require("./LinkManager");
-const MovableManager_1 = require("./MovableManager");
 class PySysLinkBlockEditorProvider {
     context;
     documentLock = Promise.resolve();
@@ -80,35 +79,45 @@ class PySysLinkBlockEditorProvider {
         });
         webviewPanel.webview.onDidReceiveMessage(async (e) => {
             switch (e.type) {
-                case 'addBlock':
-                    (0, BlockManager_1.addBlock)(document, this.getDocumentAsJson, this.updateTextDocument);
-                    return;
-                case 'move':
-                    (0, BlockManager_1.moveBlock)(document, e.id, e.x, e.y, this.getDocumentAsJson, this.updateTextDocument);
-                    return;
-                case 'moveBatch':
-                    (0, BlockManager_1.moveBlocks)(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
-                    return;
-                case 'moveMovableBatch': // New case for moveMovableBatch
-                    (0, MovableManager_1.moveMovables)(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
-                    return;
                 case 'edit':
-                    await (0, BlockManager_1.editBlockLabel)(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
+                    (0, BlockManager_1.editBlockLabel)(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
                     return;
-                case 'addLink':
-                    (0, LinkManager_1.addLink)(document, e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.sourceX, e.sourceY, e.targetX, e.targetY, e.intermediateNodes, this.getDocumentAsJson, this.updateTextDocument);
+                case 'updateStates':
+                    let json = this.getDocumentAsJson(document);
+                    e.updates.forEach((update) => {
+                        json = this.handleMessage(json, update);
+                    });
+                    this.updateTextDocument(document, json);
                     return;
                 case 'print':
                     console.log(e.text);
                     return;
-                case 'moveLinkBatch':
-                    (0, LinkManager_1.moveLinkBatch)(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
-                    return;
                 default:
-                    console.log(`Type of message not recognized: ${e.type}`);
+                    let json2 = this.getDocumentAsJson(document);
+                    this.handleMessage(json2, e);
+                    this.updateTextDocument(document, json2);
+                    return;
             }
         });
         updateWebview();
+    }
+    handleMessage(json, e) {
+        switch (e.type) {
+            case 'addBlock':
+                return (0, BlockManager_1.addBlock)(json);
+            case 'move':
+                return (0, BlockManager_1.moveBlock)(e.id, e.x, e.y, json);
+            case 'addLink':
+                (0, LinkManager_1.addLink)(e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.sourceX, e.sourceY, e.targetX, e.targetY, e.intermediateNodes, json);
+                return;
+            case 'moveLinkBatch':
+                return (0, LinkManager_1.moveLinkBatch)(e.updates, json);
+            case 'moveLinkNode':
+                return (0, LinkManager_1.moveLinkBatch)([e], json);
+            default:
+                console.log(`Type of message not recognized: ${e.type}`);
+                return json;
+        }
     }
     /**
      * Get the static html used for the editor webviews.

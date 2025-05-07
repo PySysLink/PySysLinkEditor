@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { getNonce } from './util';
 
 export function addLink(
-    document: vscode.TextDocument,
     sourceId: string,
     sourcePort: number,
     targetId: string,
@@ -12,10 +11,8 @@ export function addLink(
     targetX: number,
     targetY: number,
     intermediateNodes: { id: string; x: number; y: number }[] = [],
-    getDocumentAsJson: (doc: vscode.TextDocument) => any,
-    updateTextDocument: (doc: vscode.TextDocument, json: any) => void
-): void {
-    const json = getDocumentAsJson(document);
+    json: any
+): any {
     const links = Array.isArray(json.links) ? json.links : [];
 
     const newLink = {
@@ -34,10 +31,10 @@ export function addLink(
     json.links = links;
 
     console.log(`Added link between ${sourceId}:${sourcePort} and ${targetId}:${targetPort}`);
-    updateTextDocument(document, json);
+    return json;
 }
 
-export function moveLinkBatch(document: vscode.TextDocument, updates: { type: string;
+export function moveLinkBatch(updates: { type: string;
     id: string;
     sourceId: string;
     sourcePort: number;
@@ -48,9 +45,7 @@ export function moveLinkBatch(document: vscode.TextDocument, updates: { type: st
     x: number;
     y: number;
     }[],
-    getDocumentAsJson: (doc: vscode.TextDocument) => any,
-    updateTextDocument: (doc: vscode.TextDocument, json: any) => void): void {
-    const json = getDocumentAsJson(document);
+    json: any): any {
 
     // Iterate over each update and apply the changes
     updates.forEach(update => {
@@ -100,6 +95,6 @@ export function moveLinkBatch(document: vscode.TextDocument, updates: { type: st
     });
 
     // Save the updated JSON back to the document
-    updateTextDocument(document, json);
+    return json;
 }
 

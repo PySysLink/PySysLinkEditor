@@ -41,6 +41,11 @@ const vscode = acquireVsCodeApi();
     selectableManager.registerSelectableList(() => blockInteractionManager.blocks);
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkSegments());
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkNodes());
+    selectableManager.registerStateList(() => blockInteractionManager.blocks.map(block => block.getState()));
+    selectableManager.registerStateList(() => { 
+            const stateMessages = linkInteractionManager.links.flatMap(link => link.getState());
+            return [{ type: 'moveLinkBatch', updates: stateMessages }];
+    });
     selectableManager.updateSelectables();
     selectableManager.addOnMouseMoveListener(linkInteractionManager.updateLinks);
 

@@ -35,13 +35,11 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addBlock = addBlock;
 exports.moveBlock = moveBlock;
-exports.moveBlocks = moveBlocks;
 exports.editBlockLabel = editBlockLabel;
 const vscode = __importStar(require("vscode"));
 const util_1 = require("./util");
 const BlockMetadata_1 = require("./BlockMetadata");
-function addBlock(document, getDocumentAsJson, updateTextDocument) {
-    const json = getDocumentAsJson(document);
+function addBlock(json) {
     const blocks = Array.isArray(json.blocks) ? json.blocks : [];
     // Define the new block
     const newBlock = {
@@ -59,29 +57,16 @@ function addBlock(document, getDocumentAsJson, updateTextDocument) {
     (0, BlockMetadata_1.initializeBlockMetadata)(newBlock);
     blocks.push(newBlock);
     json.blocks = blocks;
-    updateTextDocument(document, json);
+    return json;
 }
-function moveBlock(document, id, x, y, getDocumentAsJson, updateTextDocument) {
-    const json = getDocumentAsJson(document);
+function moveBlock(id, x, y, json) {
     const block = (json.blocks || []).find((b) => b.id === id);
     if (block) {
         block.x = x;
         block.y = y;
         console.log(`Block ${block.label} updated to position x: ${block.x}, y: ${block.y}`);
-        updateTextDocument(document, json);
     }
-}
-function moveBlocks(document, updates, getDocumentAsJson, updateTextDocument) {
-    const json = getDocumentAsJson(document);
-    updates.forEach(update => {
-        const block = (json.blocks || []).find((b) => b.id === update.id);
-        if (block) {
-            block.x = update.x;
-            block.y = update.y;
-            console.log(`Block ${block.label} updated to position x: ${block.x}, y: ${block.y}`);
-        }
-    });
-    updateTextDocument(document, json);
+    return json;
 }
 async function editBlockLabel(document, id, getDocumentAsJson, updateTextDocument) {
     const json = getDocumentAsJson(document);

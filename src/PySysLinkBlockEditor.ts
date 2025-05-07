@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
-import { addBlock, moveBlock, moveBlocks, editBlockLabel } from './BlockManager';
+import { addBlock, moveBlock, editBlockLabel } from './BlockManager';
 import { getNonce } from './util';
 import { addLink, moveLinkBatch } from './LinkManager';
-import { moveMovables } from './MovableManager';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private documentLock: Promise<void> = Promise.resolve();
@@ -59,39 +58,51 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			changeDocumentSubscription.dispose();
 		});
 
+		
+
 		webviewPanel.webview.onDidReceiveMessage(async e => {
 			switch (e.type) {
-				case 'addBlock':
-					addBlock(document, this.getDocumentAsJson, this.updateTextDocument);
-					return;
-				case 'move':
-					moveBlock(document, e.id, e.x, e.y, this.getDocumentAsJson, this.updateTextDocument);
-					return;
-				case 'moveBatch':
-					moveBlocks(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
-					return;
-				case 'moveMovableBatch': // New case for moveMovableBatch
-					moveMovables(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
-					return;
 				case 'edit':
-					await editBlockLabel(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
+					editBlockLabel(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
 					return;
-				case 'addLink':
-					addLink(document, e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.sourceX, e.sourceY, e.targetX, e.targetY, e.intermediateNodes, this.getDocumentAsJson, this.updateTextDocument);
+				case 'updateStates':
+					let json = this.getDocumentAsJson(document);
+					e.updates.forEach((update: any) => {
+						json = this.handleMessage(json, update);
+					});
+					this.updateTextDocument(document, json);
 					return;
 				case 'print':
 					console.log(e.text);
 					return;
-				case 'moveLinkBatch':
-					moveLinkBatch(document, e.updates, this.getDocumentAsJson, this.updateTextDocument);
-					return;
 				default:
-					console.log(`Type of message not recognized: ${e.type}`);
-				
+					let json2 = this.getDocumentAsJson(document);
+					this.handleMessage(json2, e);
+					this.updateTextDocument(document, json2);
+					return;
 			}
 		});
 
 		updateWebview();
+	}
+
+	private handleMessage(json: any, e: any) : any {
+		switch (e.type) {
+			case 'addBlock':
+				return addBlock(json);
+			case 'move':
+				return moveBlock(e.id, e.x, e.y, json);
+			case 'addLink':
+				addLink(e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.sourceX, e.sourceY, e.targetX, e.targetY, e.intermediateNodes, json);
+				return;
+			case 'moveLinkBatch':
+				return moveLinkBatch(e.updates, json);
+			case 'moveLinkNode':
+				return moveLinkBatch([e], json);
+			default:
+				console.log(`Type of message not recognized: ${e.type}`);
+				return json;
+		}
 	}
     
 
