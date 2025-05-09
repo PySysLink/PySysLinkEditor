@@ -24,5 +24,7 @@ export abstract class Selectable extends CanvasElement {
         } else {
             this.unselect();
         }
-    }    
+    }   
+    
+    public abstract delete();
 }

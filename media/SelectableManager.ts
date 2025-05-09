@@ -71,16 +71,25 @@ export class SelectableManager {
             selectable = canvasElement as Selectable;
         }
         if (e.button !== 1) {
+            this.vscode.postMessage({ type: 'print', text: `button not 1` });
+
             if (!selectable.isSelected()) {
                 if (e.shiftKey) {
                     // Toggle selection if Shift is pressed
+                    this.vscode.postMessage({ type: 'print', text: `Toggle` });
+
                     selectable.toggleSelect();
                 } else {
                     // Clear selection and select only this block
+                    this.vscode.postMessage({ type: 'print', text: `Select only selectable: ${selectable}` });
+
                     this.unselectAll();
                     selectable.select();
                 }
             }
+
+            this.vscode.postMessage({ type: 'print', text: `Selectable selected: ${selectable.isSelected()}` });
+
 
             // Store the initial mouse position
             this.dragStartX = e.clientX;
@@ -91,10 +100,14 @@ export class SelectableManager {
             const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
                 const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
                 const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
+
+                this.vscode.postMessage({ type: 'print', text: `Let see if drag: deltaX ${deltaX} deltaY ${deltaY}` });
         
                 if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
                     // Exceeded drag threshold, start dragging
                     this.isDragging = true;
+                    this.vscode.postMessage({ type: 'print', text: `Drag started` });
+
                     document.removeEventListener('mousemove', onMouseMoveThreshold);
         
                     // Start dragging selected blocks
@@ -238,6 +251,8 @@ export class SelectableManager {
     }
 
     public onMouseMoveDrag = (e: MouseEvent): void => {
+        this.vscode.postMessage({ type: 'print', text: `Drag move` });
+
         const scaledDeltaX = (e.clientX - this.dragStartX) / this.getZoomLevelReal();
         const scaledDeltaY = (e.clientY - this.dragStartY) / this.getZoomLevelReal();
         

@@ -21,8 +21,9 @@ export class Block extends Selectable implements Movable {
 
     onMouseDownOnPortCallbacks: ((e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
 
+    private onDelete: (block: Block) => void;
 
-    constructor(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number) {
+    constructor(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number, onDelete: (block: Block) => void) {
         super();
         this.id = id;
         this.label = label;
@@ -30,6 +31,7 @@ export class Block extends Selectable implements Movable {
         this.y = y;
         this.inputPortNumber = inputPorts;
         this.outputPortNumber = outputPorts;
+        this.onDelete = onDelete;
 
         this.element = document.createElement('div');
         
@@ -148,5 +150,20 @@ export class Block extends Selectable implements Movable {
                 return { x: blockX + 20, y: blockY + portOffset + 20};
             }
         }
+    }
+
+    public delete(): void {
+        // Remove the block's DOM element from the canvas
+        if (this.element && this.element.parentElement) {
+            this.element.parentElement.removeChild(this.element);
+        }
+
+        // Clean up references to input and output ports
+        this.inputPorts = [];
+        this.outputPorts = [];
+
+        // Notify any managers or listeners that the block has been deleted
+        // (e.g., remove it from a block manager or update links)
+        this.onDelete(this);
     }
 }

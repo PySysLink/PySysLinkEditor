@@ -17,7 +17,7 @@ export class BlockInteractionManager {
     }
 
     public createBlock(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number): void {
-        const block = new Block(id, label, x, y, inputPorts, outputPorts);
+        const block = new Block(id, label, x, y, inputPorts, outputPorts, this.deleteBlock);
         block.registerOnMouseDownOnPortCallback((e: any, portType: "input" | "output", portIndex: number) => {
             this.onMouseDownOnPort(block, e, portType, portIndex);
         });
@@ -40,4 +40,7 @@ export class BlockInteractionManager {
         return this.blocks.filter(block => block.isSelected());
     }
 
+    public deleteBlock(block: Block) {
+        this.vscode.postMessage({ type: 'deleteBlock', id: block.id});
+    }
 }

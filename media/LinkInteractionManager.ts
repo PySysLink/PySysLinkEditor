@@ -7,6 +7,13 @@ import { getNonce } from './util';
 export class LinkInteractionManager {
     public links: Link[] = [];
     public linksSvg: SVGSVGElement;
+    
+
+    private dragStartX = 0;
+    private dragStartY = 0;
+
+    private dragThreshold = 50; // Minimum distance to detect a drag
+    private isDragging = false;
 
     private canvas: HTMLElement;
     private vscode: any;
@@ -50,7 +57,8 @@ export class LinkInteractionManager {
             getNonce(),
             sourceNode,
             targetNode,
-            intermediateNodes
+            intermediateNodes,
+            this.deleteLink
         );
 
         this.links.push(newLink);
@@ -88,23 +96,59 @@ export class LinkInteractionManager {
         
         if (!isLinkOnNode) {
             this.vscode.postMessage({ type: 'print', text: `Mouse down on non connected port, creating link` });
-            let elementToClick;
+            let newLink: Link;
             if (portType === "output") {
-                let newLink = this.createLink(new SourceNode(block, portIndex), 
+                newLink = this.createLink(new SourceNode(block, portIndex), 
                                 new TargetNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y));
-                newLink.targetNode.unselect();
-                block.select();
-                elementToClick = newLink.targetNode;
+                e.stopPropagation();
             } else if (portType === "input") {
-                let newLink = this.createLink(new SourceNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y),
-                                new TargetNode(block, portIndex), );
-                newLink.sourceNode.unselect();
-                block.select();
-                elementToClick = newLink.sourceNode;
+                newLink = this.createLink(new SourceNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y),
+                                new TargetNode(block, portIndex));
+                e.stopPropagation();
             }
-            // e.stopPropagation();
-            // elementToClick?.triggerOnMouseDown();
 
+            // Add a temporary mousemove listener to detect drag threshold
+            const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
+                const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
+                const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
+        
+                if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
+                    // Exceeded drag threshold, start dragging
+                    this.isDragging = true;
+                    document.removeEventListener('mousemove', onMouseMoveThreshold);
+                    this.vscode.postMessage({ type: 'print', text: `Threshold revased, trigger on mouse down` });
+
+                    if (portType === "input") {
+                        newLink.sourceNode.unselect();
+                        newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
+                    } else {
+                        newLink.targetNode.unselect();
+                        newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+
+                    }
+                }   
+            };
+        
+            document.addEventListener('mousemove', onMouseMoveThreshold);
+        
+            // Handle mouseup to detect a simple click
+            const onMouseUpThreshold = () => {
+                document.removeEventListener('mousemove', onMouseMoveThreshold);
+                document.removeEventListener('mouseup', onMouseUpThreshold);
+        
+                if (!this.isDragging) {
+                    // If no drag occurred, treat it as a simple click
+                    if (e.shiftKey) {
+                        // Toggle selection if Shift is pressed
+                        block.toggleSelect();
+                    } else {
+                        // Clear selection and select only this block
+                        block.select();
+                    }
+                }
+            };
+        
+            document.addEventListener('mouseup', onMouseUpThreshold);
         }
     };
     
@@ -176,6 +220,7 @@ export class LinkInteractionManager {
         if (index !== -1) {
             this.links.splice(index, 1);
         }
+        this.vscode.postMessage({ type: 'deleteLink', id: link.id});
     }
 
     public renderLinks(
@@ -235,7 +280,8 @@ export class LinkInteractionManager {
                     linkData.id,
                     sourceNode,
                     targetNode,
-                    intermediateNodes
+                    intermediateNodes,
+                    this.deleteLink
                 );
 
                 this.links.push(currentLink);

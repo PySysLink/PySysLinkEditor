@@ -259,17 +259,20 @@ export class Link {
     segments: LinkSegment[] = [];
     id: string;
 
+    private onDelete: (link: Link) => void;
+
     constructor(
         id: string,
         sourceNode: SourceNode,
         targetNode: TargetNode,
         intermediateNodes: LinkNode[] = [],
+        onDelete: (link: Link) => void
     ) {
         this.id = id;
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
         this.intermediateNodes = intermediateNodes;
-
+        this.onDelete = onDelete;
     }
 
     public updateSegments() {

@@ -204,8 +204,9 @@ class CanvasElement {
             canvas.appendChild(this.getElement());
         }
     }
-    triggerOnMouseDown() {
-        this.onMouseDownListeners.forEach(listener => listener(this, new Event('mousedown')));
+    triggerOnMouseDown(x, y) {
+        let event = new MouseEvent('mousedown', { clientX: x, clientY: y });
+        this.onMouseDownListeners.forEach(listener => listener(this, event));
     }
     addOnMouseDownListener(onMouseDown) {
         this.onMouseDownListeners.push(onMouseDown);
@@ -628,6 +629,10 @@ __webpack_require__.r(__webpack_exports__);
 class LinkInteractionManager {
     links = [];
     linksSvg;
+    dragStartX = 0;
+    dragStartY = 0;
+    dragThreshold = 50; // Minimum distance to detect a drag
+    isDragging = false;
     canvas;
     vscode;
     blockInteractionManager;
@@ -693,21 +698,52 @@ class LinkInteractionManager {
         }
         if (!isLinkOnNode) {
             this.vscode.postMessage({ type: 'print', text: `Mouse down on non connected port, creating link` });
-            let elementToClick;
+            let newLink;
             if (portType === "output") {
-                let newLink = this.createLink(new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(block, portIndex), new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y));
-                newLink.targetNode.unselect();
-                block.select();
-                elementToClick = newLink.targetNode;
+                newLink = this.createLink(new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(block, portIndex), new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y));
+                e.stopPropagation();
             }
             else if (portType === "input") {
-                let newLink = this.createLink(new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y), new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(block, portIndex));
-                newLink.sourceNode.unselect();
-                block.select();
-                elementToClick = newLink.sourceNode;
+                newLink = this.createLink(new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y), new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(block, portIndex));
+                e.stopPropagation();
             }
-            // e.stopPropagation();
-            // elementToClick?.triggerOnMouseDown();
+            // Add a temporary mousemove listener to detect drag threshold
+            const onMouseMoveThreshold = (moveEvent) => {
+                const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
+                const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
+                if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
+                    // Exceeded drag threshold, start dragging
+                    this.isDragging = true;
+                    document.removeEventListener('mousemove', onMouseMoveThreshold);
+                    this.vscode.postMessage({ type: 'print', text: `Threshold revased, trigger on mouse down` });
+                    if (portType === "input") {
+                        newLink.sourceNode.unselect();
+                        newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
+                    }
+                    else {
+                        newLink.targetNode.unselect();
+                        newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                    }
+                }
+            };
+            document.addEventListener('mousemove', onMouseMoveThreshold);
+            // Handle mouseup to detect a simple click
+            const onMouseUpThreshold = () => {
+                document.removeEventListener('mousemove', onMouseMoveThreshold);
+                document.removeEventListener('mouseup', onMouseUpThreshold);
+                if (!this.isDragging) {
+                    // If no drag occurred, treat it as a simple click
+                    if (e.shiftKey) {
+                        // Toggle selection if Shift is pressed
+                        block.toggleSelect();
+                    }
+                    else {
+                        // Clear selection and select only this block
+                        block.select();
+                    }
+                }
+            };
+            document.addEventListener('mouseup', onMouseUpThreshold);
         }
     };
     updateLinks = () => {
@@ -1012,17 +1048,21 @@ class SelectableManager {
             selectable = canvasElement;
         }
         if (e.button !== 1) {
+            this.vscode.postMessage({ type: 'print', text: `button not 1` });
             if (!selectable.isSelected()) {
                 if (e.shiftKey) {
                     // Toggle selection if Shift is pressed
+                    this.vscode.postMessage({ type: 'print', text: `Toggle` });
                     selectable.toggleSelect();
                 }
                 else {
                     // Clear selection and select only this block
+                    this.vscode.postMessage({ type: 'print', text: `Select only selectable: ${selectable}` });
                     this.unselectAll();
                     selectable.select();
                 }
             }
+            this.vscode.postMessage({ type: 'print', text: `Selectable selected: ${selectable.isSelected()}` });
             // Store the initial mouse position
             this.dragStartX = e.clientX;
             this.dragStartY = e.clientY;
@@ -1031,9 +1071,11 @@ class SelectableManager {
             const onMouseMoveThreshold = (moveEvent) => {
                 const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
                 const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
+                this.vscode.postMessage({ type: 'print', text: `Let see if drag: deltaX ${deltaX} deltaY ${deltaY}` });
                 if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
                     // Exceeded drag threshold, start dragging
                     this.isDragging = true;
+                    this.vscode.postMessage({ type: 'print', text: `Drag started` });
                     document.removeEventListener('mousemove', onMouseMoveThreshold);
                     // Start dragging selected blocks
                     if (!selectable.isSelected()) {
@@ -1146,6 +1188,7 @@ class SelectableManager {
         });
     }
     onMouseMoveDrag = (e) => {
+        this.vscode.postMessage({ type: 'print', text: `Drag move` });
         const scaledDeltaX = (e.clientX - this.dragStartX) / this.getZoomLevelReal();
         const scaledDeltaY = (e.clientY - this.dragStartY) / this.getZoomLevelReal();
         if (this.isDragging) {

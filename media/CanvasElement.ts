@@ -10,9 +10,10 @@ export abstract class CanvasElement {
         }
     }
 
-    public triggerOnMouseDown()
+    public triggerOnMouseDown(x: number, y: number)
     {
-        this.onMouseDownListeners.forEach(listener => listener(this, new Event('mousedown')));
+        let event = new MouseEvent('mousedown', {clientX: x, clientY: y});
+        this.onMouseDownListeners.forEach(listener => listener(this, event));
     }
 
     public addOnMouseDownListener(onMouseDown: (canvasElement: CanvasElement, e: any) => void): void {
