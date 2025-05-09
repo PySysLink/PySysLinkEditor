@@ -29,6 +29,7 @@ class Block extends _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable {
     outputPortNumber;
     inputPorts = [];
     outputPorts = [];
+    onMouseDownOnPortCallbacks = [];
     constructor(id, label, x, y, inputPorts, outputPorts) {
         super();
         this.id = id;
@@ -48,6 +49,9 @@ class Block extends _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable {
             const inputPort = document.createElement('div');
             inputPort.classList.add('input-port');
             inputPort.textContent = `In ${j + 1}`;
+            inputPort.addEventListener('mousedown', (e) => {
+                this.onMouseDownInPort(e, "input", j);
+            });
             this.element.appendChild(inputPort);
             this.inputPorts.push(inputPort);
         }
@@ -56,9 +60,20 @@ class Block extends _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable {
             const outputPort = document.createElement('div');
             outputPort.classList.add('output-port');
             outputPort.textContent = `Out ${i + 1}`;
+            outputPort.addEventListener('mousedown', (e) => {
+                this.onMouseDownInPort(e, "output", i);
+            });
             this.element.appendChild(outputPort);
             this.outputPorts.push(outputPort);
         }
+    }
+    onMouseDownInPort(e, portType, portIndex) {
+        this.onMouseDownOnPortCallbacks.forEach(callback => {
+            callback(e, portType, portIndex);
+        });
+    }
+    registerOnMouseDownOnPortCallback(callback) {
+        this.onMouseDownOnPortCallbacks.push(callback);
     }
     moveTo(x, y) {
         this.x = x;
@@ -144,12 +159,25 @@ class BlockInteractionManager {
     dragThreshold = 5; // Minimum distance to detect a drag
     isDragging = false;
     vscode;
+    onMouseDownOnPortCallbacks = [];
     constructor(vscode) {
         this.vscode = vscode;
     }
     createBlock(id, label, x, y, inputPorts, outputPorts) {
         const block = new _Block__WEBPACK_IMPORTED_MODULE_0__.Block(id, label, x, y, inputPorts, outputPorts);
+        block.registerOnMouseDownOnPortCallback((e, portType, portIndex) => {
+            this.onMouseDownOnPort(block, e, portType, portIndex);
+        });
         this.blocks.push(block);
+    }
+    onMouseDownOnPort(block, e, portType, portIndex) {
+        this.vscode.postMessage({ type: 'print', text: `Mouse down on ${portType} port ${portIndex} of block ${block.id}` });
+        this.onMouseDownOnPortCallbacks.forEach(callback => {
+            callback(block, e, portType, portIndex);
+        });
+    }
+    registerOnMouseDownOnPortCallback(callback) {
+        this.onMouseDownOnPortCallbacks.push(callback);
     }
     getSelectedBlocks() {
         return this.blocks.filter(block => block.isSelected());
@@ -170,12 +198,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   CanvasElement: () => (/* binding */ CanvasElement)
 /* harmony export */ });
 class CanvasElement {
+    onMouseDownListeners = [];
     addElementToCanvas(canvas) {
         if (this.getElement()) {
             canvas.appendChild(this.getElement());
         }
     }
+    triggerOnMouseDown() {
+        this.onMouseDownListeners.forEach(listener => listener(this, new Event('mousedown')));
+    }
     addOnMouseDownListener(onMouseDown) {
+        this.onMouseDownListeners.push(onMouseDown);
         this.getElement().addEventListener('mousedown', (e) => {
             onMouseDown(this, e);
         });
@@ -589,6 +622,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   LinkInteractionManager: () => (/* binding */ LinkInteractionManager)
 /* harmony export */ });
 /* harmony import */ var _Link__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Link */ "./media/Link.ts");
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./util */ "./media/util.ts");
+
 
 class LinkInteractionManager {
     links = [];
@@ -601,6 +636,7 @@ class LinkInteractionManager {
         this.canvas = canvas;
         this.linksSvg = linksSvg;
         this.blockInteractionManager = blockInteractionManager;
+        this.blockInteractionManager.registerOnMouseDownOnPortCallback(this.onMouseDownOnPort);
     }
     getAllLinkSegments() {
         let result = [];
@@ -625,13 +661,55 @@ class LinkInteractionManager {
     createLink(sourceNode, targetNode, intermediateNodes = []) {
         let intermediateNodesData = [];
         intermediateNodes.forEach(node => intermediateNodesData.push({ x: node.getPosition().x, y: node.getPosition().y }));
+        let newLink = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link((0,_util__WEBPACK_IMPORTED_MODULE_1__.getNonce)(), sourceNode, targetNode, intermediateNodes);
+        this.links.push(newLink);
         this.vscode.postMessage({ type: 'addLink',
+            id: newLink.id,
             sourceId: sourceNode.connectedPort?.block.id,
             sourcePort: sourceNode.connectedPort?.index,
             targetId: targetNode.connectedPort?.block.id,
             targetPort: targetNode.connectedPort?.index,
             intermediateNodes: intermediateNodesData });
+        return newLink;
     }
+    onMouseDownOnPort = (block, e, portType, portIndex) => {
+        let isLinkOnNode = false;
+        this.vscode.postMessage({ type: 'print', text: `Checking if block already have connection` });
+        if (portType === "input") {
+            this.links.forEach(link => {
+                if (link.targetNode.connectedPort?.block.id === block.id && link.targetNode.connectedPort?.index === portIndex) {
+                    this.vscode.postMessage({ type: 'print', text: `Connected link found ${link.id}` });
+                    isLinkOnNode = true;
+                }
+            });
+        }
+        else {
+            this.links.forEach(link => {
+                if (link.sourceNode.connectedPort?.block.id === block.id && link.sourceNode.connectedPort?.index === portIndex) {
+                    this.vscode.postMessage({ type: 'print', text: `Connected link found ${link.id}` });
+                    isLinkOnNode = true;
+                }
+            });
+        }
+        if (!isLinkOnNode) {
+            this.vscode.postMessage({ type: 'print', text: `Mouse down on non connected port, creating link` });
+            let elementToClick;
+            if (portType === "output") {
+                let newLink = this.createLink(new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(block, portIndex), new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y));
+                newLink.targetNode.unselect();
+                block.select();
+                elementToClick = newLink.targetNode;
+            }
+            else if (portType === "input") {
+                let newLink = this.createLink(new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y), new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(block, portIndex));
+                newLink.sourceNode.unselect();
+                block.select();
+                elementToClick = newLink.sourceNode;
+            }
+            // e.stopPropagation();
+            // elementToClick?.triggerOnMouseDown();
+        }
+    };
     updateLinks = () => {
         this.linksSvg = document.querySelector('.links');
         if (!this.linksSvg) {
@@ -925,6 +1003,7 @@ class SelectableManager {
         this.registeredStateLists.push(getStateList);
     }
     onMouseDownInSelectable = (canvasElement, e) => {
+        this.vscode.postMessage({ type: 'print', text: `Mouse down event happened` });
         let selectable;
         if (!(canvasElement instanceof _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable)) {
             return;
@@ -1088,6 +1167,28 @@ class SelectableManager {
     addOnMouseUpListener(callback) {
         this.onMouseUpCallbacks.push(callback);
     }
+}
+
+
+/***/ }),
+
+/***/ "./media/util.ts":
+/*!***********************!*\
+  !*** ./media/util.ts ***!
+  \***********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   getNonce: () => (/* binding */ getNonce)
+/* harmony export */ });
+function getNonce() {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0; i < 32; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
 }
 
 

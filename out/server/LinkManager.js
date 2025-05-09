@@ -2,11 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addLink = addLink;
 exports.moveLinkBatch = moveLinkBatch;
-const util_1 = require("./util");
-function addLink(sourceId, sourcePort, targetId, targetPort, sourceX, sourceY, targetX, targetY, intermediateNodes = [], json) {
+function addLink(id, sourceId, sourcePort, targetId, targetPort, sourceX, sourceY, targetX, targetY, intermediateNodes = [], json) {
     const links = Array.isArray(json.links) ? json.links : [];
     const newLink = {
-        id: (0, util_1.getNonce)(),
+        id: id,
         sourceId: sourceId,
         sourcePort: sourcePort,
         targetId: targetId,

@@ -2,6 +2,7 @@ import { link } from 'fs';
 import { BlockInteractionManager } from './BlockInteractionManager';
 import { Link, LinkNode, LinkSegment, SourceNode, TargetNode } from './Link';
 import { Block } from './Block';
+import { getNonce } from './util';
 
 export class LinkInteractionManager {
     public links: Link[] = [];
@@ -17,6 +18,7 @@ export class LinkInteractionManager {
         this.canvas = canvas;
         this.linksSvg = linksSvg;
         this.blockInteractionManager = blockInteractionManager;
+        this.blockInteractionManager.registerOnMouseDownOnPortCallback(this.onMouseDownOnPort);
     }
 
     public getAllLinkSegments(): LinkSegment[] {
@@ -40,16 +42,71 @@ export class LinkInteractionManager {
         return result;
     }
 
-    public createLink(sourceNode: SourceNode, targetNode: TargetNode, intermediateNodes: LinkNode[] = []): void {
+    public createLink(sourceNode: SourceNode, targetNode: TargetNode, intermediateNodes: LinkNode[] = []): Link {
         let intermediateNodesData: {x: number, y: number}[] = [];
         intermediateNodes.forEach(node => intermediateNodesData.push({x: node.getPosition().x, y: node.getPosition().y}));
+
+        let newLink = new Link(
+            getNonce(),
+            sourceNode,
+            targetNode,
+            intermediateNodes
+        );
+
+        this.links.push(newLink);
+
         this.vscode.postMessage({ type: 'addLink', 
+                                    id: newLink.id,
                                     sourceId: sourceNode.connectedPort?.block.id, 
                                     sourcePort: sourceNode.connectedPort?.index, 
                                     targetId: targetNode.connectedPort?.block.id, 
                                     targetPort: targetNode.connectedPort?.index, 
                                     intermediateNodes: intermediateNodesData});
+        
+        return newLink;
     }
+
+    private onMouseDownOnPort = (block: Block, e: any, portType: "input" | "output", portIndex: number): void => {
+        let isLinkOnNode = false;
+        this.vscode.postMessage({ type: 'print', text: `Checking if block already have connection` });
+
+        if (portType === "input") {
+            this.links.forEach(link => {
+                if (link.targetNode.connectedPort?.block.id === block.id && link.targetNode.connectedPort?.index === portIndex) {
+                    this.vscode.postMessage({ type: 'print', text: `Connected link found ${link.id}` });
+                    isLinkOnNode = true;
+                }
+            });
+        } else {
+            this.links.forEach(link => {
+                if (link.sourceNode.connectedPort?.block.id === block.id && link.sourceNode.connectedPort?.index === portIndex) {
+                    this.vscode.postMessage({ type: 'print', text: `Connected link found ${link.id}` });
+                    isLinkOnNode = true;
+                }
+            });
+        }
+        
+        if (!isLinkOnNode) {
+            this.vscode.postMessage({ type: 'print', text: `Mouse down on non connected port, creating link` });
+            let elementToClick;
+            if (portType === "output") {
+                let newLink = this.createLink(new SourceNode(block, portIndex), 
+                                new TargetNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y));
+                newLink.targetNode.unselect();
+                block.select();
+                elementToClick = newLink.targetNode;
+            } else if (portType === "input") {
+                let newLink = this.createLink(new SourceNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y),
+                                new TargetNode(block, portIndex), );
+                newLink.sourceNode.unselect();
+                block.select();
+                elementToClick = newLink.sourceNode;
+            }
+            // e.stopPropagation();
+            // elementToClick?.triggerOnMouseDown();
+
+        }
+    };
     
     public updateLinks = (): void => {
         this.linksSvg = document.querySelector('.links') as SVGSVGElement;
@@ -227,7 +284,7 @@ export class LinkInteractionManager {
                 node.unhighlight();
             }
         });
-    }
+    };
 
     
     private detectPort(node: LinkNode): { block: Block; portIndex: number; portType: "input" | "output" } | null {

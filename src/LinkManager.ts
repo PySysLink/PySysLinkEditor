@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { getNonce } from './util';
 
 export function addLink(
+    id: string,
     sourceId: string,
     sourcePort: number,
     targetId: string,
@@ -16,7 +17,7 @@ export function addLink(
     const links = Array.isArray(json.links) ? json.links : [];
 
     const newLink = {
-        id: getNonce(),
+        id: id,
         sourceId: sourceId,
         sourcePort: sourcePort,
         targetId: targetId,

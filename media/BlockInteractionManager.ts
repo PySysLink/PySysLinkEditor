@@ -10,13 +10,29 @@ export class BlockInteractionManager {
 
     private vscode: any;
 
+    private onMouseDownOnPortCallbacks: ((block: Block, e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
+
     constructor(vscode: any) {
         this.vscode = vscode;
     }
 
     public createBlock(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number): void {
         const block = new Block(id, label, x, y, inputPorts, outputPorts);
+        block.registerOnMouseDownOnPortCallback((e: any, portType: "input" | "output", portIndex: number) => {
+            this.onMouseDownOnPort(block, e, portType, portIndex);
+        });
         this.blocks.push(block);
+    }
+
+    private onMouseDownOnPort(block: Block, e: any, portType: "input" | "output", portIndex: number): void {
+        this.vscode.postMessage({ type: 'print', text: `Mouse down on ${portType} port ${portIndex} of block ${block.id}` });
+        this.onMouseDownOnPortCallbacks.forEach(callback => {
+            callback(block, e, portType, portIndex);
+        });
+    }
+
+    public registerOnMouseDownOnPortCallback(callback: (block: Block, e: any, portType: "input" | "output", portIndex: number) => void): void {
+        this.onMouseDownOnPortCallbacks.push(callback);
     }
     
     

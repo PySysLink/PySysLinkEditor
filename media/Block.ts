@@ -19,6 +19,8 @@ export class Block extends Selectable implements Movable {
     inputPorts: HTMLElement[] = [];
     outputPorts: HTMLElement[] = [];
 
+    onMouseDownOnPortCallbacks: ((e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
+
 
     constructor(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number) {
         super();
@@ -44,6 +46,10 @@ export class Block extends Selectable implements Movable {
             inputPort.classList.add('input-port');
             inputPort.textContent = `In ${j + 1}`;
 
+            inputPort.addEventListener('mousedown', (e: any) => {
+                this.onMouseDownInPort(e, "input", j);
+            });
+
             this.element.appendChild(inputPort);
             this.inputPorts.push(inputPort);
         }
@@ -53,10 +59,24 @@ export class Block extends Selectable implements Movable {
             const outputPort = document.createElement('div');
             outputPort.classList.add('output-port');
             outputPort.textContent = `Out ${i + 1}`;
-           
+            
+            outputPort.addEventListener('mousedown', (e: any) => {
+                this.onMouseDownInPort(e, "output", i);
+            });
+
             this.element.appendChild(outputPort);
             this.outputPorts.push(outputPort);
         }
+    }
+
+    private onMouseDownInPort(e: any, portType: "input" | "output", portIndex: number): void {
+        this.onMouseDownOnPortCallbacks.forEach(callback => {
+            callback(e, portType, portIndex);
+        });
+    }
+
+    public registerOnMouseDownOnPortCallback(callback: (e: any, portType: "input" | "output", portIndex: number) => void): void {
+        this.onMouseDownOnPortCallbacks.push(callback);
     }
 
     public moveTo(x: number, y: number): void {

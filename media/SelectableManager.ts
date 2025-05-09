@@ -62,6 +62,7 @@ export class SelectableManager {
     }
 
     private onMouseDownInSelectable = (canvasElement: CanvasElement, e: MouseEvent): void => {
+        this.vscode.postMessage({ type: 'print', text: `Mouse down event happened` });
         let selectable: Selectable;
         if (!(canvasElement instanceof Selectable)) {
             return;

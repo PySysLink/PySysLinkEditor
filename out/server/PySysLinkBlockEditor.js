@@ -108,7 +108,7 @@ class PySysLinkBlockEditorProvider {
             case 'move':
                 return (0, BlockManager_1.moveBlock)(e.id, e.x, e.y, json);
             case 'addLink':
-                (0, LinkManager_1.addLink)(e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.sourceX, e.sourceY, e.targetX, e.targetY, e.intermediateNodes, json);
+                (0, LinkManager_1.addLink)(e.id, e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.sourceX, e.sourceY, e.targetX, e.targetY, e.intermediateNodes, json);
                 return;
             case 'moveLinkBatch':
                 return (0, LinkManager_1.moveLinkBatch)(e.updates, json);

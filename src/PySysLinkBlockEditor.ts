@@ -93,7 +93,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			case 'move':
 				return moveBlock(e.id, e.x, e.y, json);
 			case 'addLink':
-				addLink(e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.sourceX, e.sourceY, e.targetX, e.targetY, e.intermediateNodes, json);
+				addLink(e.id, e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.sourceX, e.sourceY, e.targetX, e.targetY, e.intermediateNodes, json);
 				return;
 			case 'moveLinkBatch':
 				return moveLinkBatch(e.updates, json);
