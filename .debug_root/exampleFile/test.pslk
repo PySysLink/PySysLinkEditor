@@ -3,8 +3,8 @@
     {
       "id": "ydmepe7inGWyxCUq6IAh255uS2MUcQ5s",
       "label": "Hau naiz",
-      "x": 518.4396284829718,
-      "y": 231.06614128905122,
+      "x": 889.4396284829718,
+      "y": 311.5398254995775,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -17,8 +17,8 @@
     {
       "id": "hxURUDPxG4B1YNTY0JTokZCWofHRstzk",
       "label": "New Block",
-      "x": 268.3583959899749,
-      "y": 473.28571428571394,
+      "x": 230.3583959899749,
+      "y": 265.28571428571394,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -31,8 +31,8 @@
     {
       "id": "SeMAoPZySHb1zWkOS6w4cGjpZnXcHlF2",
       "label": "New Block",
-      "x": 266.5263157894741,
-      "y": 279.89473684210543,
+      "x": 404.5263157894741,
+      "y": 119.89473684210543,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -45,8 +45,8 @@
     {
       "id": "1OQBXS9iMwogKmvYaVDLBa8D1pY3FqPV",
       "label": "New Block",
-      "x": 739.5851393188854,
-      "y": 399.02476780185765,
+      "x": 47.58513931888535,
+      "y": 79.02476780185765,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -65,10 +65,10 @@
       "targetId": "ydmepe7inGWyxCUq6IAh255uS2MUcQ5s",
       "targetPort": 0,
       "intermediateNodes": [],
-      "sourceX": 413.3583959899749,
-      "sourceY": 478.28571428571394,
-      "targetX": 513.4396284829718,
-      "targetY": 236.06614128905122
+      "sourceX": 350.3583959899749,
+      "sourceY": 285.28571428571394,
+      "targetX": 889.4396284829718,
+      "targetY": 331.5398254995775
     },
     {
       "id": "A8oKnIYm17LcECUYO9mZGUvwHPDa4l84",
@@ -77,33 +77,33 @@
       "targetId": "ydmepe7inGWyxCUq6IAh255uS2MUcQ5s",
       "targetPort": 0,
       "intermediateNodes": [],
-      "sourceX": 411.5263157894741,
-      "sourceY": 284.89473684210543,
-      "targetX": 513.4396284829718,
-      "targetY": 236.06614128905122
+      "sourceX": 524.5263157894741,
+      "sourceY": 139.89473684210543,
+      "targetX": 889.4396284829718,
+      "targetY": 331.5398254995775
     },
     {
       "id": "EFHvtH9sjFdxuwi9uL8iwv3tr2rKpo4W",
-      "sourceId": "ydmepe7inGWyxCUq6IAh255uS2MUcQ5s",
+      "sourceId": "1OQBXS9iMwogKmvYaVDLBa8D1pY3FqPV",
       "sourcePort": 0,
       "targetId": "ydmepe7inGWyxCUq6IAh255uS2MUcQ5s",
       "targetPort": 0,
       "intermediateNodes": [
         {
           "id": "kaixo1",
-          "x": 933.1446969696974,
-          "y": 129.978787878788
+          "x": 662.1446969696974,
+          "y": 84.97878787878801
         },
         {
           "id": "kaixo2",
-          "x": 378.06091800356535,
-          "y": 64.14099821746964
+          "x": 891.0609180035653,
+          "y": 169.14099821746964
         }
       ],
-      "sourceX": 663.4396284829718,
-      "sourceY": 236.06614128905122,
-      "targetX": 513.4396284829718,
-      "targetY": 236.06614128905122
+      "sourceX": 167.58513931888535,
+      "sourceY": 99.02476780185765,
+      "targetX": 889.4396284829718,
+      "targetY": 331.5398254995775
     }
   ]
 }

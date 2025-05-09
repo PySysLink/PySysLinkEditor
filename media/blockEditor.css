@@ -31,9 +31,11 @@
     color: white;
     border-radius: 4px;
     padding: 8px;
+    padding-left: 40px;
+    padding-right: 40px;
     cursor: move;
     user-select: none;
-    z-index: 6;
+    z-index: 2;
 
     backface-visibility: hidden;
     transform: translateZ(0);
@@ -107,6 +109,7 @@
     stroke-width: 2; /* Line thickness */
     fill: none; /* No fill for the polyline */
     pointer-events: all; /* Allow interaction with the line */
+    z-index: 4;
 }
 
 .link-line.selected {
@@ -118,6 +121,7 @@
     fill: #007acc; /* Node color */
     pointer-events: all; /* Allow interaction with the node */
     cursor: pointer; /* Show pointer cursor on hover */
+    z-index: 4;
 }
 
 .link-node.highlighted {
@@ -130,14 +134,49 @@
 }
 
 
-.input-port, .output-port {
-    position: relative; /* Ensure ports are positioned relative to the block */
-    width: 20px;
-    height: 20px;
-    background: #00cc33;
-    color: white;
-    text-align: center;
-    line-height: 20px;
-    border-radius: 50%; /* Make ports circular */
-    margin: 0; /* Remove default margins */
+.input-port,
+.output-port {
+  position: absolute;        /* relative to the .block */
+  display: flex;             /* to line up dot + text horizontally */
+  align-items: center;       /* vertically center the contents */
+  width: 40px;               /* wider than 20px */
+  height: 20px;              /* keep it 20px tall */
+  background: #00cc33;
+  color: white;
+  border-radius: 4px;        /* gentle rounding on the rectangle */
+  font-size: 0.75em;         /* shrink text a bit so it fits */
+  z-index: 3;
+}
+
+.input-port::before,
+.output-port::before {
+  content: "";
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  background: #005a9e;
+  border-radius: 50%;      /* perfect circle */
+}
+
+/* Input: dot on the left, text on the right */
+.input-port {
+  justify-content: flex-start; /* left-align contents */
+  padding-left: 4px;           /* space before the dot */
+}
+
+/* Space between dot & label */
+.input-port::before {
+  margin-right: 4px;
+}
+
+/* Output: we’ll mirror it — dot on the right, text on the left */
+.output-port {
+  justify-content: flex-end;   /* right-align contents */
+  padding-right: 4px;          /* space after the dot */
+}
+
+/* Place label before the dot */
+.output-port::before {
+  order: 2;                    /* move the pseudo-element to the end */
+  margin-left: 4px;
 }

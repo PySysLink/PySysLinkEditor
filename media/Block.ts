@@ -9,6 +9,7 @@ export class Block extends Selectable implements Movable {
     _isSelected: boolean = false;
 
     public getElement(): HTMLElement | SVGElement {
+        this.upadatePortPositions();
         return this.element;
     }
     private element: HTMLElement;
@@ -28,26 +29,22 @@ export class Block extends Selectable implements Movable {
         this.inputPortNumber = inputPorts;
         this.outputPortNumber = outputPorts;
 
-        const blockElement = document.createElement('div');
-        this.element = blockElement;
-        blockElement.classList.add('block');
-        blockElement.style.left = `${this.x}px`;
-        blockElement.style.top = `${this.y}px`;
+        this.element = document.createElement('div');
+        
+        this.element.classList.add('block');
+        this.element.style.left = `${this.x}px`;
+        this.element.style.top = `${this.y}px`;
         
         const labelElement = document.createElement('div');
         labelElement.textContent = this.label;
-        blockElement.appendChild(labelElement);
+        this.element.appendChild(labelElement);
 
         for (let j = 0; j < this.inputPortNumber; j++) {
             const inputPort = document.createElement('div');
             inputPort.classList.add('input-port');
             inputPort.textContent = `In ${j + 1}`;
 
-            const position = this.getPortPosition(j, "input");
-            inputPort.style.position = "relative";
-            inputPort.style.left = `${position.x - this.x}px`;
-            inputPort.style.top = `${position.y - this.y}px`;
-            blockElement.appendChild(inputPort);
+            this.element.appendChild(inputPort);
             this.inputPorts.push(inputPort);
         }
     
@@ -57,11 +54,7 @@ export class Block extends Selectable implements Movable {
             outputPort.classList.add('output-port');
             outputPort.textContent = `Out ${i + 1}`;
            
-            const position = this.getPortPosition(i, "output");
-            outputPort.style.position = "relative";
-            outputPort.style.left = `${position.x - this.x}px`;
-            outputPort.style.top = `${position.y - this.y}px`;
-            blockElement.appendChild(outputPort);
+            this.element.appendChild(outputPort);
             this.outputPorts.push(outputPort);
         }
     }
@@ -97,6 +90,24 @@ export class Block extends Selectable implements Movable {
         this.moveTo(this.x + deltaX, this.y + deltaY);
     }
 
+    private upadatePortPositions(): void {
+        for (let j = 0; j < this.inputPortNumber; j++) {
+            const inputPort = this.inputPorts[j];
+
+            const position = this.getPortPosition(j, "input");
+            inputPort.style.left = `${position.x - this.x - inputPort.offsetWidth/4}px`;
+            inputPort.style.top = `${position.y - this.y - inputPort.offsetHeight/2}px`;
+        }
+    
+        // Add output ports
+        for (let i = 0; i < this.outputPortNumber; i++) {
+            const outputPort = this.outputPorts[i];
+           
+            const position = this.getPortPosition(i, "output");
+            outputPort.style.left = `${position.x - this.x - 3*outputPort.offsetWidth/4}px`;
+            outputPort.style.top = `${position.y - this.y - outputPort.offsetHeight/2}px`;
+        }
+    }
 
     public getPortPosition(portIndex: number, portType: "input" | "output"): { x: number; y: number } {
         const portSpacing = 20; // Spacing between ports
@@ -108,15 +119,14 @@ export class Block extends Selectable implements Movable {
     
         // Adjust for the port type
         if (portType === "input") {
-            return { 
-                x: blockX - 5, // Position input ports slightly to the left of the block
-                y: blockY + portOffset + 5 // Offset vertically based on the index
-            };
+            return { x: blockX, y: blockY + portOffset + 20 };
         } else {
-            return { 
-                x: blockX + 140 + 5, // Position output ports slightly to the right of the block
-                y: blockY + portOffset + 5 // Offset vertically based on the index
-            };
+            if (this.element) {
+                return { x: blockX + this.element.offsetWidth, y: blockY + portOffset + 20 };
+            }
+            else {
+                return { x: blockX + 20, y: blockY + portOffset + 20};
+            }
         }
     }
 }
