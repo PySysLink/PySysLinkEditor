@@ -26,6 +26,7 @@ export class LinkInteractionManager {
         this.linksSvg = linksSvg;
         this.blockInteractionManager = blockInteractionManager;
         this.blockInteractionManager.registerOnMouseDownOnPortCallback(this.onMouseDownOnPort);
+        this.blockInteractionManager.registerOnDeleteCallback(this.onBlockDeleted);
     }
 
     public getAllLinkSegments(): LinkSegment[] {
@@ -100,10 +101,14 @@ export class LinkInteractionManager {
             if (portType === "output") {
                 newLink = this.createLink(new SourceNode(block, portIndex), 
                                 new TargetNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y));
+                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete());
+                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete());
                 e.stopPropagation();
             } else if (portType === "input") {
                 newLink = this.createLink(new SourceNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y),
                                 new TargetNode(block, portIndex));
+                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete());
+                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete());
                 e.stopPropagation();
             }
 
@@ -214,20 +219,20 @@ export class LinkInteractionManager {
         return result;
     }
 
-    public deleteLink(link: Link): void {
+    public deleteLink = (link: Link): void => {
         link.removeFromSvg(this.linksSvg);
         const index = this.links.indexOf(link);
         if (index !== -1) {
             this.links.splice(index, 1);
         }
         this.vscode.postMessage({ type: 'deleteLink', id: link.id});
-    }
+    };
 
     public renderLinks(
             linksData: { id: string, sourceId: string; sourcePort: number; targetId: string; targetPort: number; 
                 sourceX: number; sourceY: number; targetX: number; targetY: number; intermediateNodes: { id: string; x: number; y: number }[] }[]): SVGSVGElement {
         
-        this.vscode.postMessage({ type: 'print', text: `Render links` });
+        this.vscode.postMessage({ type: 'print', text: `Render links: ${JSON.stringify(linksData, null, 2)}` });
 
         this.linksSvg = document.querySelector('.links') as SVGSVGElement;
         if (!this.linksSvg) {
@@ -254,7 +259,7 @@ export class LinkInteractionManager {
                 if (linkData.sourceId !== 'undefined') {
                     let sourceBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.sourceId);
                     if (!sourceBlock) {
-                        throw RangeError(`Source block of id: ${linkData.sourceId} not found`);
+                        throw RangeError(`Source block of id: ${linkData.sourceId} not found, link id: ${linkData.id}`);
                     }
                     sourceNode = new SourceNode(sourceBlock, linkData.sourcePort);
                 } else {
@@ -283,6 +288,10 @@ export class LinkInteractionManager {
                     intermediateNodes,
                     this.deleteLink
                 );
+                if (currentLink) {
+                    sourceNode.addOnDeleteCallback(() => currentLink?.delete());
+                    targetNode.addOnDeleteCallback(() => currentLink?.delete());
+                }
 
                 this.links.push(currentLink);
             }
@@ -350,4 +359,15 @@ export class LinkInteractionManager {
         }
         return null;
     }
+
+    public onBlockDeleted = (block: Block): void => {
+        this.links.forEach(link => {
+            if (link.sourceNode.connectedPort?.block.id === block.id) {
+                link.sourceNode.connectedPort = undefined;
+            }
+            if (link.targetNode.connectedPort?.block.id === block.id) {
+                link.targetNode.connectedPort = undefined;
+            }
+        });
+    };
 }

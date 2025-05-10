@@ -30,7 +30,8 @@ class Block extends _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable {
     inputPorts = [];
     outputPorts = [];
     onMouseDownOnPortCallbacks = [];
-    constructor(id, label, x, y, inputPorts, outputPorts) {
+    onDelete;
+    constructor(id, label, x, y, inputPorts, outputPorts, onDelete) {
         super();
         this.id = id;
         this.label = label;
@@ -38,6 +39,7 @@ class Block extends _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable {
         this.y = y;
         this.inputPortNumber = inputPorts;
         this.outputPortNumber = outputPorts;
+        this.onDelete = onDelete;
         this.element = document.createElement('div');
         this.element.classList.add('block');
         this.element.style.left = `${this.x}px`;
@@ -135,6 +137,15 @@ class Block extends _Selectable__WEBPACK_IMPORTED_MODULE_0__.Selectable {
             }
         }
     }
+    delete() {
+        // Remove the block's DOM element from the canvas
+        if (this.element && this.element.parentElement) {
+            this.element.parentElement.removeChild(this.element);
+        }
+        // Notify any managers or listeners that the block has been deleted
+        // (e.g., remove it from a block manager or update links)
+        this.onDelete(this);
+    }
 }
 
 
@@ -160,11 +171,12 @@ class BlockInteractionManager {
     isDragging = false;
     vscode;
     onMouseDownOnPortCallbacks = [];
+    onDeleteCallbacks = [];
     constructor(vscode) {
         this.vscode = vscode;
     }
     createBlock(id, label, x, y, inputPorts, outputPorts) {
-        const block = new _Block__WEBPACK_IMPORTED_MODULE_0__.Block(id, label, x, y, inputPorts, outputPorts);
+        const block = new _Block__WEBPACK_IMPORTED_MODULE_0__.Block(id, label, x, y, inputPorts, outputPorts, this.deleteBlock);
         block.registerOnMouseDownOnPortCallback((e, portType, portIndex) => {
             this.onMouseDownOnPort(block, e, portType, portIndex);
         });
@@ -179,9 +191,20 @@ class BlockInteractionManager {
     registerOnMouseDownOnPortCallback(callback) {
         this.onMouseDownOnPortCallbacks.push(callback);
     }
+    registerOnDeleteCallback(callback) {
+        this.onDeleteCallbacks.push(callback);
+    }
     getSelectedBlocks() {
         return this.blocks.filter(block => block.isSelected());
     }
+    deleteBlock = (block) => {
+        const index = this.blocks.indexOf(block);
+        if (index !== -1) {
+            this.blocks.splice(index, 1);
+        }
+        this.onDeleteCallbacks.forEach(callback => callback(block));
+        this.vscode.postMessage({ type: 'deleteBlock', id: block.id });
+    };
 }
 
 
@@ -243,15 +266,19 @@ class LinkNode extends _Selectable__WEBPACK_IMPORTED_MODULE_1__.Selectable {
     y;
     nodeElement;
     isHighlighted = false;
+    onDeleteCallbacks = [];
     getElement() {
         return this.nodeElement;
     }
     moveCallbacks = [];
-    constructor(id, x, y) {
+    constructor(id, x, y, onDelete = undefined) {
         super();
         this.id = id;
         this.x = x;
         this.y = y;
+        if (onDelete) {
+            this.onDeleteCallbacks.push(onDelete);
+        }
         this.nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         this.nodeElement.classList.add('link-node');
         this.nodeElement.setAttribute("cx", `${this.x}`);
@@ -314,17 +341,23 @@ class LinkNode extends _Selectable__WEBPACK_IMPORTED_MODULE_1__.Selectable {
             this.nodeElement.classList.remove('highlighted');
         }
     }
+    delete = () => {
+        this.onDeleteCallbacks.forEach(callback => callback());
+    };
+    addOnDeleteCallback(callback) {
+        this.onDeleteCallbacks.push(callback);
+    }
 }
 class SourceNode extends LinkNode {
     connectedPort;
-    constructor(xOrBlock, yOrIndex) {
+    constructor(xOrBlock, yOrIndex, onDelete = undefined) {
         if (typeof xOrBlock === 'number' && typeof yOrIndex === 'number') {
-            super(String(xOrBlock) + String(yOrIndex), xOrBlock, yOrIndex);
+            super(String(xOrBlock) + String(yOrIndex), xOrBlock, yOrIndex, onDelete);
         }
         else if (xOrBlock instanceof _Block__WEBPACK_IMPORTED_MODULE_0__.Block && typeof yOrIndex === 'number') {
             const connectedPort = { block: xOrBlock, index: yOrIndex };
             const position = connectedPort.block.getPortPosition(connectedPort.index, "output");
-            super(connectedPort.block.id + yOrIndex, position.x, position.y);
+            super(connectedPort.block.id + yOrIndex, position.x, position.y, onDelete);
             this.connectedPort = connectedPort;
         }
         else {
@@ -352,17 +385,20 @@ class SourceNode extends LinkNode {
             super.moveTo(position.x, position.y);
         }
     }
+    disconnect() {
+        this.connectedPort = undefined;
+    }
 }
 class TargetNode extends LinkNode {
     connectedPort;
-    constructor(xOrBlock, yOrIndex) {
+    constructor(xOrBlock, yOrIndex, onDelete = undefined) {
         if (typeof xOrBlock === 'number' && typeof yOrIndex === 'number') {
-            super(String(xOrBlock) + String(yOrIndex), xOrBlock, yOrIndex);
+            super(String(xOrBlock) + String(yOrIndex), xOrBlock, yOrIndex, onDelete);
         }
         else if (xOrBlock instanceof _Block__WEBPACK_IMPORTED_MODULE_0__.Block && typeof yOrIndex === 'number') {
             const connectedPort = { block: xOrBlock, index: yOrIndex };
             const position = connectedPort.block.getPortPosition(connectedPort.index, "input");
-            super(connectedPort.block.id + yOrIndex, position.x, position.y);
+            super(connectedPort.block.id + yOrIndex, position.x, position.y, onDelete);
             this.connectedPort = connectedPort;
         }
         else {
@@ -390,16 +426,21 @@ class TargetNode extends LinkNode {
             super.moveTo(position.x, position.y);
         }
     }
+    disconnect() {
+        this.connectedPort = undefined;
+    }
 }
 class LinkSegment extends _Selectable__WEBPACK_IMPORTED_MODULE_1__.Selectable {
     sourceLinkNode;
     targetLinkNode;
     segmentElement;
+    onDelete;
     getElement() {
         return this.segmentElement;
     }
-    constructor(sourceLinkNode, targetLinkNode) {
+    constructor(sourceLinkNode, targetLinkNode, onDelete) {
         super();
+        this.onDelete = onDelete;
         this.sourceLinkNode = sourceLinkNode;
         this.sourceLinkNode.addCallback(this.updateSourceLinkNodePosition);
         this.targetLinkNode = targetLinkNode;
@@ -454,6 +495,9 @@ class LinkSegment extends _Selectable__WEBPACK_IMPORTED_MODULE_1__.Selectable {
         }
         this.updatePosition();
     }
+    delete = () => {
+        this.onDelete();
+    };
 }
 class Link {
     sourceNode;
@@ -461,11 +505,13 @@ class Link {
     intermediateNodes = [];
     segments = [];
     id;
-    constructor(id, sourceNode, targetNode, intermediateNodes = []) {
+    onDelete;
+    constructor(id, sourceNode, targetNode, intermediateNodes = [], onDelete) {
         this.id = id;
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
         this.intermediateNodes = intermediateNodes;
+        this.onDelete = onDelete;
     }
     updateSegments() {
         let newSegments = [];
@@ -475,7 +521,7 @@ class Link {
                 newSegments = [existingSegment];
             }
             else {
-                newSegments = [new LinkSegment(this.sourceNode, this.targetNode)];
+                newSegments = [new LinkSegment(this.sourceNode, this.targetNode, () => this.onDelete(this))];
             }
         }
         else {
@@ -484,7 +530,7 @@ class Link {
                 newSegments = [existingSegment];
             }
             else {
-                newSegments = [new LinkSegment(this.sourceNode, this.intermediateNodes[0])];
+                newSegments = [new LinkSegment(this.sourceNode, this.intermediateNodes[0], () => this.onDelete(this))];
             }
             for (let i = 0; i < this.intermediateNodes.length - 1; i++) {
                 existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.intermediateNodes[i] && segment.targetLinkNode === this.intermediateNodes[i + 1]);
@@ -492,7 +538,7 @@ class Link {
                     newSegments.push(existingSegment);
                 }
                 else {
-                    newSegments.push(new LinkSegment(this.intermediateNodes[i], this.intermediateNodes[i + 1]));
+                    newSegments.push(new LinkSegment(this.intermediateNodes[i], this.intermediateNodes[i + 1], () => this.onDelete(this)));
                 }
             }
             existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.intermediateNodes[this.intermediateNodes.length - 1] && segment.targetLinkNode === this.targetNode);
@@ -500,7 +546,7 @@ class Link {
                 newSegments.push(existingSegment);
             }
             else {
-                newSegments.push(new LinkSegment(this.intermediateNodes[this.intermediateNodes.length - 1], this.targetNode));
+                newSegments.push(new LinkSegment(this.intermediateNodes[this.intermediateNodes.length - 1], this.targetNode, () => this.onDelete(this)));
             }
         }
         this.segments = newSegments;
@@ -536,21 +582,23 @@ class Link {
         }
     }
     removeFromSvg(svg) {
-        this.segments.forEach(segment => {
-            if (segment.segmentElement) {
-                svg.removeChild(segment.segmentElement);
+        if (svg) {
+            this.segments.forEach(segment => {
+                if (segment.segmentElement) {
+                    svg.removeChild(segment.segmentElement);
+                }
+            });
+            this.intermediateNodes.forEach(node => {
+                if (node.nodeElement) {
+                    svg.removeChild(node.nodeElement);
+                }
+            });
+            if (this.sourceNode.nodeElement) {
+                svg.removeChild(this.sourceNode.nodeElement);
             }
-        });
-        this.intermediateNodes.forEach(node => {
-            if (node.nodeElement) {
-                svg.removeChild(node.nodeElement);
+            if (this.targetNode.nodeElement) {
+                svg.removeChild(this.targetNode.nodeElement);
             }
-        });
-        if (this.sourceNode.nodeElement) {
-            svg.removeChild(this.sourceNode.nodeElement);
-        }
-        if (this.targetNode.nodeElement) {
-            svg.removeChild(this.targetNode.nodeElement);
         }
     }
     select() {
@@ -607,6 +655,9 @@ class Link {
         });
         return result;
     }
+    delete = () => {
+        this.onDelete(this);
+    };
 }
 
 
@@ -642,6 +693,7 @@ class LinkInteractionManager {
         this.linksSvg = linksSvg;
         this.blockInteractionManager = blockInteractionManager;
         this.blockInteractionManager.registerOnMouseDownOnPortCallback(this.onMouseDownOnPort);
+        this.blockInteractionManager.registerOnDeleteCallback(this.onBlockDeleted);
     }
     getAllLinkSegments() {
         let result = [];
@@ -666,7 +718,7 @@ class LinkInteractionManager {
     createLink(sourceNode, targetNode, intermediateNodes = []) {
         let intermediateNodesData = [];
         intermediateNodes.forEach(node => intermediateNodesData.push({ x: node.getPosition().x, y: node.getPosition().y }));
-        let newLink = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link((0,_util__WEBPACK_IMPORTED_MODULE_1__.getNonce)(), sourceNode, targetNode, intermediateNodes);
+        let newLink = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link((0,_util__WEBPACK_IMPORTED_MODULE_1__.getNonce)(), sourceNode, targetNode, intermediateNodes, this.deleteLink);
         this.links.push(newLink);
         this.vscode.postMessage({ type: 'addLink',
             id: newLink.id,
@@ -701,10 +753,14 @@ class LinkInteractionManager {
             let newLink;
             if (portType === "output") {
                 newLink = this.createLink(new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(block, portIndex), new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y));
+                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete());
+                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete());
                 e.stopPropagation();
             }
             else if (portType === "input") {
                 newLink = this.createLink(new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y), new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(block, portIndex));
+                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete());
+                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete());
                 e.stopPropagation();
             }
             // Add a temporary mousemove listener to detect drag threshold
@@ -802,15 +858,16 @@ class LinkInteractionManager {
         });
         return result;
     }
-    deleteLink(link) {
+    deleteLink = (link) => {
         link.removeFromSvg(this.linksSvg);
         const index = this.links.indexOf(link);
         if (index !== -1) {
             this.links.splice(index, 1);
         }
-    }
+        this.vscode.postMessage({ type: 'deleteLink', id: link.id });
+    };
     renderLinks(linksData) {
-        this.vscode.postMessage({ type: 'print', text: `Render links` });
+        this.vscode.postMessage({ type: 'print', text: `Render links: ${JSON.stringify(linksData, null, 2)}` });
         this.linksSvg = document.querySelector('.links');
         if (!this.linksSvg) {
             this.linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -834,7 +891,7 @@ class LinkInteractionManager {
                 if (linkData.sourceId !== 'undefined') {
                     let sourceBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.sourceId);
                     if (!sourceBlock) {
-                        throw RangeError(`Source block of id: ${linkData.sourceId} not found`);
+                        throw RangeError(`Source block of id: ${linkData.sourceId} not found, link id: ${linkData.id}`);
                     }
                     sourceNode = new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(sourceBlock, linkData.sourcePort);
                 }
@@ -855,7 +912,11 @@ class LinkInteractionManager {
                 linkData.intermediateNodes.forEach(intermediateData => {
                     intermediateNodes.push(new _Link__WEBPACK_IMPORTED_MODULE_0__.LinkNode(intermediateData.id, intermediateData.x, intermediateData.y));
                 });
-                currentLink = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link(linkData.id, sourceNode, targetNode, intermediateNodes);
+                currentLink = new _Link__WEBPACK_IMPORTED_MODULE_0__.Link(linkData.id, sourceNode, targetNode, intermediateNodes, this.deleteLink);
+                if (currentLink) {
+                    sourceNode.addOnDeleteCallback(() => currentLink?.delete());
+                    targetNode.addOnDeleteCallback(() => currentLink?.delete());
+                }
                 this.links.push(currentLink);
             }
             currentLink.addToSvg(this.linksSvg);
@@ -921,6 +982,16 @@ class LinkInteractionManager {
         }
         return null;
     }
+    onBlockDeleted = (block) => {
+        this.links.forEach(link => {
+            if (link.sourceNode.connectedPort?.block.id === block.id) {
+                link.sourceNode.connectedPort = undefined;
+            }
+            if (link.targetNode.connectedPort?.block.id === block.id) {
+                link.targetNode.connectedPort = undefined;
+            }
+        });
+    };
 }
 
 
@@ -1014,7 +1085,21 @@ class SelectableManager {
         this.canvas = canvas;
         this.getZoomLevelReal = getZoomLevelReal;
         this.canvas.addEventListener('mousedown', this.onMouseDownInCanvas);
+        document.addEventListener('keydown', this.onKeyDown);
     }
+    onKeyDown = (e) => {
+        if (e.key === 'Delete') {
+            const selectedSelectables = this.getSelectedSelectables();
+            selectedSelectables.forEach(selectable => {
+                selectable.delete();
+            });
+            // Optionally, unselect all after deletion
+            this.unselectAll();
+            let stateMessages = this.getStateList();
+            this.vscode.postMessage({ type: 'print', text: stateMessages });
+            this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
+        }
+    };
     updateSelectables() {
         this.getSelectableList().forEach(selectable => {
             selectable.addOnMouseDownListener(this.onMouseDownInSelectable);
@@ -1365,7 +1450,7 @@ const vscode = acquireVsCodeApi();
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
     function renderHTML(json) {
-        vscode.postMessage({ type: 'print', text: `Render html` });
+        vscode.postMessage({ type: 'print', text: `Render html: ${JSON.stringify(json, null, 2)}` });
         vscode.postMessage({ type: 'print', text: `Rendering ${blockInteractionManager.blocks.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
         blockInteractionManager.blocks.forEach(block => block.addElementToCanvas(canvas));

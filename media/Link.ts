@@ -10,17 +10,23 @@ export class LinkNode extends Selectable implements Movable {
     nodeElement: SVGCircleElement;
     isHighlighted: boolean = false;
 
+    private onDeleteCallbacks: (() => void)[] = [];
+
+
     public getElement(): HTMLElement | SVGElement {
         return this.nodeElement;
     }
 
     private moveCallbacks: { (x: number, y: number) : void; }[] = [];
 
-    constructor (id: string, x: number, y: number) {
+    constructor (id: string, x: number, y: number, onDelete: (() => void) | undefined = undefined) {
         super();
         this.id = id;
         this.x = x;
         this.y = y;
+        if (onDelete) {
+            this.onDeleteCallbacks.push(onDelete);
+        }
 
         this.nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         this.nodeElement.classList.add('link-node');
@@ -91,18 +97,26 @@ export class LinkNode extends Selectable implements Movable {
             this.nodeElement.classList.remove('highlighted');
         }
     }
+
+    public delete = (): void => {
+        this.onDeleteCallbacks.forEach(callback => callback());
+    };
+
+    public addOnDeleteCallback(callback: () => void) {
+        this.onDeleteCallbacks.push(callback);
+    }
 }
 
 export class SourceNode extends LinkNode {
     connectedPort: undefined | { block: Block, index: number };
 
-    constructor(xOrBlock: number | Block, yOrIndex: number) {
+    constructor(xOrBlock: number | Block, yOrIndex: number, onDelete: (() => void) | undefined = undefined) {
         if (typeof xOrBlock === 'number' && typeof yOrIndex === 'number') {
-            super(String(xOrBlock) + String(yOrIndex), xOrBlock, yOrIndex);
+            super(String(xOrBlock) + String(yOrIndex), xOrBlock, yOrIndex, onDelete);
         } else if (xOrBlock instanceof Block && typeof yOrIndex === 'number') {
             const connectedPort = { block: xOrBlock, index: yOrIndex };
             const position = connectedPort.block.getPortPosition(connectedPort.index, "output");
-            super(connectedPort.block.id + yOrIndex, position.x, position.y);
+            super(connectedPort.block.id + yOrIndex, position.x, position.y, onDelete);
             this.connectedPort = connectedPort;
         } else {
             throw new Error("Invalid arguments provided to SourceNode constructor");
@@ -133,18 +147,22 @@ export class SourceNode extends LinkNode {
             super.moveTo(position.x, position.y);
         }
     }
+
+    public disconnect() {
+        this.connectedPort = undefined;
+    }
 }
 
 export class TargetNode extends LinkNode {
     connectedPort: undefined | { block: Block, index: number };
 
-    constructor(xOrBlock: number | Block, yOrIndex: number) {
+    constructor(xOrBlock: number | Block, yOrIndex: number, onDelete: (() => void) | undefined = undefined) {
         if (typeof xOrBlock === 'number' && typeof yOrIndex === 'number') {
-            super(String(xOrBlock) + String(yOrIndex), xOrBlock, yOrIndex);
+            super(String(xOrBlock) + String(yOrIndex), xOrBlock, yOrIndex, onDelete);
         } else if (xOrBlock instanceof Block && typeof yOrIndex === 'number') {
             const connectedPort = { block: xOrBlock, index: yOrIndex };
             const position = connectedPort.block.getPortPosition(connectedPort.index, "input");
-            super(connectedPort.block.id + yOrIndex, position.x, position.y);
+            super(connectedPort.block.id + yOrIndex, position.x, position.y, onDelete);
             this.connectedPort = connectedPort;
         } else {
             throw new Error("Invalid arguments provided to SourceNode constructor");
@@ -175,6 +193,10 @@ export class TargetNode extends LinkNode {
             super.moveTo(position.x, position.y);
         }
     }
+
+    public disconnect() {
+        this.connectedPort = undefined;
+    }
 }
 
 export class LinkSegment extends Selectable implements Movable {
@@ -182,12 +204,15 @@ export class LinkSegment extends Selectable implements Movable {
     targetLinkNode: LinkNode;
     segmentElement: SVGPolylineElement;
 
+    private onDelete: () => void;
+
     public getElement(): HTMLElement | SVGElement {
         return this.segmentElement;
     }
 
-    constructor (sourceLinkNode: LinkNode, targetLinkNode: LinkNode) {
+    constructor (sourceLinkNode: LinkNode, targetLinkNode: LinkNode, onDelete: () => void) {
         super();
+        this.onDelete = onDelete;
         this.sourceLinkNode = sourceLinkNode;
         this.sourceLinkNode.addCallback(this.updateSourceLinkNodePosition);
         this.targetLinkNode = targetLinkNode;
@@ -250,6 +275,10 @@ export class LinkSegment extends Selectable implements Movable {
         }
         this.updatePosition();
     }
+
+    public delete = (): void => {
+        this.onDelete();
+    };
 }
 
 export class Link {
@@ -282,28 +311,28 @@ export class Link {
             if (existingSegment) {
                 newSegments = [existingSegment];
             } else {
-                newSegments = [new LinkSegment(this.sourceNode, this.targetNode)];
+                newSegments = [new LinkSegment(this.sourceNode, this.targetNode, () => this.onDelete(this))];
             }
         } else {
             let existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.sourceNode && segment.targetLinkNode === this.intermediateNodes[0]);
             if (existingSegment) {
                 newSegments = [existingSegment];
             } else {
-                newSegments = [new LinkSegment(this.sourceNode, this.intermediateNodes[0])];
+                newSegments = [new LinkSegment(this.sourceNode, this.intermediateNodes[0], () => this.onDelete(this))];
             }
             for (let i: number = 0; i < this.intermediateNodes.length - 1; i++) {
                 existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.intermediateNodes[i] && segment.targetLinkNode === this.intermediateNodes[i + 1]);
                 if (existingSegment) {
                     newSegments.push(existingSegment);
                 } else {
-                    newSegments.push(new LinkSegment(this.intermediateNodes[i], this.intermediateNodes[i + 1]));
+                    newSegments.push(new LinkSegment(this.intermediateNodes[i], this.intermediateNodes[i + 1], () => this.onDelete(this)));
                 }
             }
             existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.intermediateNodes[this.intermediateNodes.length - 1] && segment.targetLinkNode === this.targetNode);
             if (existingSegment) {
                 newSegments.push(existingSegment);
             } else {
-                newSegments.push(new LinkSegment(this.intermediateNodes[this.intermediateNodes.length - 1], this.targetNode));
+                newSegments.push(new LinkSegment(this.intermediateNodes[this.intermediateNodes.length - 1], this.targetNode, () => this.onDelete(this)));
             }
         }
         this.segments = newSegments;
@@ -346,23 +375,25 @@ export class Link {
     }
 
     removeFromSvg(svg: SVGSVGElement): void {
-        this.segments.forEach(segment => {
-            if (segment.segmentElement) {
-                svg.removeChild(segment.segmentElement);
-            }
-        });
+        if (svg) {
+    this.segments.forEach(segment => {
+                if (segment.segmentElement) {
+                    svg.removeChild(segment.segmentElement);
+                }
+            });
 
-        this.intermediateNodes.forEach(node => {
-            if (node.nodeElement) {
-                svg.removeChild(node.nodeElement);
-            }
-        });
+            this.intermediateNodes.forEach(node => {
+                if (node.nodeElement) {
+                    svg.removeChild(node.nodeElement);
+                }
+            });
 
-        if (this.sourceNode.nodeElement) {
-            svg.removeChild(this.sourceNode.nodeElement);
-        }
-        if (this.targetNode.nodeElement) {
-            svg.removeChild(this.targetNode.nodeElement);
+            if (this.sourceNode.nodeElement) {
+                svg.removeChild(this.sourceNode.nodeElement);
+            }
+            if (this.targetNode.nodeElement) {
+                svg.removeChild(this.targetNode.nodeElement);
+            }
         }
     }
 
@@ -428,4 +459,8 @@ export class Link {
 
         return result;
     }
+
+    public delete = (): void => {
+        this.onDelete(this);
+    };
 }

@@ -114,6 +114,10 @@ class PySysLinkBlockEditorProvider {
                 return (0, LinkManager_1.moveLinkBatch)(e.updates, json);
             case 'moveLinkNode':
                 return (0, LinkManager_1.moveLinkBatch)([e], json);
+            case 'deleteLink':
+                return (0, LinkManager_1.deleteLink)(json, e.id);
+            case 'deleteBlock':
+                return (0, BlockManager_1.deleteBlock)(json, e.id);
             default:
                 console.log(`Type of message not recognized: ${e.type}`);
                 return json;

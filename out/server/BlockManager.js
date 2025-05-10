@@ -34,6 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addBlock = addBlock;
+exports.deleteBlock = deleteBlock;
 exports.moveBlock = moveBlock;
 exports.editBlockLabel = editBlockLabel;
 const vscode = __importStar(require("vscode"));
@@ -57,6 +58,18 @@ function addBlock(json) {
     (0, BlockMetadata_1.initializeBlockMetadata)(newBlock);
     blocks.push(newBlock);
     json.blocks = blocks;
+    return json;
+}
+function deleteBlock(json, id) {
+    const blocks = Array.isArray(json.blocks) ? json.blocks : [];
+    const links = Array.isArray(json.links) ? json.links : [];
+    let block = blocks.find((block) => block.id === id);
+    const index = blocks.indexOf(block, 0);
+    if (index > -1) {
+        blocks.splice(index, 1);
+    }
+    json.blocks = blocks;
+    json.links = links;
     return json;
 }
 function moveBlock(id, x, y, json) {

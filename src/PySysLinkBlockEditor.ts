@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { addBlock, moveBlock, editBlockLabel } from './BlockManager';
+import { addBlock, deleteBlock, moveBlock, editBlockLabel } from './BlockManager';
 import { getNonce } from './util';
-import { addLink, moveLinkBatch } from './LinkManager';
+import { addLink, moveLinkBatch, deleteLink } from './LinkManager';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private documentLock: Promise<void> = Promise.resolve();
@@ -99,6 +99,10 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 				return moveLinkBatch(e.updates, json);
 			case 'moveLinkNode':
 				return moveLinkBatch([e], json);
+			case 'deleteLink':
+				return deleteLink(json, e.id);
+			case 'deleteBlock':
+				return deleteBlock(json, e.id);
 			default:
 				console.log(`Type of message not recognized: ${e.type}`);
 				return json;

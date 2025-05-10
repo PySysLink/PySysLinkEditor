@@ -56,7 +56,6 @@ const vscode = acquireVsCodeApi();
     function getZoomLevelReal(): number {
         return zoomLevel/2;
     }
-
     
 
     function createRandomLink(): void {
@@ -111,7 +110,7 @@ const vscode = acquireVsCodeApi();
             }[];
         }[];
     }): void {
-        vscode.postMessage({ type: 'print', text: `Render html` });
+        vscode.postMessage({ type: 'print', text: `Render html: ${JSON.stringify(json, null, 2)}` });
         vscode.postMessage({ type: 'print', text: `Rendering ${blockInteractionManager.blocks.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
         blockInteractionManager.blocks.forEach(block => block.addElementToCanvas(canvas));

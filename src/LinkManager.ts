@@ -35,6 +35,17 @@ export function addLink(
     return json;
 }
 
+export function deleteLink(json: any, id: string): any {
+    const links: any = Array.isArray(json.links) ? json.links : [];
+    let link = links.find((link: { id: string; }) => link.id === id);
+    const index = links.indexOf(link, 0);
+    if (index > -1) {
+        links.splice(index, 1);
+    }
+    json.links = links;
+    return json;
+}
+
 export function moveLinkBatch(updates: { type: string;
     id: string;
     sourceId: string;

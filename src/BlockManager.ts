@@ -28,6 +28,21 @@ export function addBlock(
     return json;
 }
 
+export function deleteBlock(json: any, id: string): any {
+    const blocks: any = Array.isArray(json.blocks) ? json.blocks : [];
+    const links: any = Array.isArray(json.links) ? json.links : [];
+
+    let block = blocks.find((block: { id: string; }) => block.id === id);
+    const index = blocks.indexOf(block, 0);
+    if (index > -1) {
+        blocks.splice(index, 1);
+    }
+
+    json.blocks = blocks;
+    json.links = links;
+    return json;
+}
+
 export function moveBlock(id: string, x: number, y: number, json: any): any {
     const block = (json.blocks || []).find((b: any) => b.id === id);
     if (block) {

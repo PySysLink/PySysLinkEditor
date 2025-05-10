@@ -158,10 +158,6 @@ export class Block extends Selectable implements Movable {
             this.element.parentElement.removeChild(this.element);
         }
 
-        // Clean up references to input and output ports
-        this.inputPorts = [];
-        this.outputPorts = [];
-
         // Notify any managers or listeners that the block has been deleted
         // (e.g., remove it from a block manager or update links)
         this.onDelete(this);

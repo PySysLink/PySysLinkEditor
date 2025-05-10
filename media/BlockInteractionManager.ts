@@ -11,6 +11,7 @@ export class BlockInteractionManager {
     private vscode: any;
 
     private onMouseDownOnPortCallbacks: ((block: Block, e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
+    private onDeleteCallbacks: ((block: Block) => void)[] = [];
 
     constructor(vscode: any) {
         this.vscode = vscode;
@@ -36,11 +37,21 @@ export class BlockInteractionManager {
     }
     
     
+    public registerOnDeleteCallback(callback: (block: Block) => void): void {
+        this.onDeleteCallbacks.push(callback);
+    }
+    
+    
     public getSelectedBlocks(): Block[] {
         return this.blocks.filter(block => block.isSelected());
     }
 
-    public deleteBlock(block: Block) {
+    public deleteBlock = (block: Block): void => {
+        const index = this.blocks.indexOf(block);
+        if (index !== -1) {
+            this.blocks.splice(index, 1);
+        }
+        this.onDeleteCallbacks.forEach(callback => callback(block));
         this.vscode.postMessage({ type: 'deleteBlock', id: block.id});
-    }
+    };
 }

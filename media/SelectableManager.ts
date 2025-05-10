@@ -29,7 +29,28 @@ export class SelectableManager {
         this.getZoomLevelReal = getZoomLevelReal;
 
         this.canvas.addEventListener('mousedown', this.onMouseDownInCanvas);
+
+        document.addEventListener('keydown', this.onKeyDown);
     }
+
+    private onKeyDown = (e: KeyboardEvent): void => {
+    if (e.key === 'Delete') {
+        const selectedSelectables = this.getSelectedSelectables();
+
+        selectedSelectables.forEach(selectable => {
+            selectable.delete();
+        });
+
+        // Optionally, unselect all after deletion
+        this.unselectAll();
+
+        let stateMessages = this.getStateList();
+
+        this.vscode.postMessage({ type: 'print', text: stateMessages });
+
+        this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
+    }
+};
 
     public updateSelectables(): void {
         this.getSelectableList().forEach(selectable => {

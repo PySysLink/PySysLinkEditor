@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addLink = addLink;
+exports.deleteLink = deleteLink;
 exports.moveLinkBatch = moveLinkBatch;
 function addLink(id, sourceId, sourcePort, targetId, targetPort, sourceX, sourceY, targetX, targetY, intermediateNodes = [], json) {
     const links = Array.isArray(json.links) ? json.links : [];
@@ -19,6 +20,16 @@ function addLink(id, sourceId, sourcePort, targetId, targetPort, sourceX, source
     links.push(newLink);
     json.links = links;
     console.log(`Added link between ${sourceId}:${sourcePort} and ${targetId}:${targetPort}`);
+    return json;
+}
+function deleteLink(json, id) {
+    const links = Array.isArray(json.links) ? json.links : [];
+    let link = links.find((link) => link.id === id);
+    const index = links.indexOf(link, 0);
+    if (index > -1) {
+        links.splice(index, 1);
+    }
+    json.links = links;
     return json;
 }
 function moveLinkBatch(updates, json) {

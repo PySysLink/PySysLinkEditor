@@ -26,5 +26,5 @@ export abstract class Selectable extends CanvasElement {
         }
     }   
     
-    public abstract delete();
+    public abstract delete(): void;
 }
