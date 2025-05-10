@@ -259,9 +259,11 @@ export class LinkInteractionManager {
                 if (linkData.sourceId !== 'undefined') {
                     let sourceBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.sourceId);
                     if (!sourceBlock) {
-                        throw RangeError(`Source block of id: ${linkData.sourceId} not found, link id: ${linkData.id}`);
+                        this.vscode.postMessage( {type: 'print', text: `Target block of id: ${linkData.targetId} not found`});
+                        sourceNode = new SourceNode(linkData.sourceX, linkData.sourceY);
+                    } else {
+                        sourceNode = new SourceNode(sourceBlock, linkData.sourcePort);
                     }
-                    sourceNode = new SourceNode(sourceBlock, linkData.sourcePort);
                 } else {
                     sourceNode = new SourceNode(linkData.sourceX, linkData.sourceY);
                 }
@@ -269,9 +271,11 @@ export class LinkInteractionManager {
                 if (linkData.targetId !== 'undefined') {
                     let targetBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.targetId);
                     if (!targetBlock) {
-                        throw RangeError(`Target block of id: ${linkData.targetId} not found`);
+                        this.vscode.postMessage( {type: 'print', text: `Target block of id: ${linkData.targetId} not found`});
+                        targetNode = new TargetNode(linkData.targetX, linkData.targetY);
+                    } else {
+                        targetNode = new TargetNode(targetBlock, linkData.targetPort);
                     }
-                    targetNode = new TargetNode(targetBlock, linkData.targetPort);
                 } else {
                     targetNode = new TargetNode(linkData.targetX, linkData.targetY);
                 }

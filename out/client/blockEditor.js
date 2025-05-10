@@ -582,23 +582,46 @@ class Link {
         }
     }
     removeFromSvg(svg) {
-        if (svg) {
+        if (!svg) {
+            console.error("SVG element is null or undefined.");
+            return;
+        }
+        try {
+            // Remove segments
             this.segments.forEach(segment => {
-                if (segment.segmentElement) {
+                if (segment.segmentElement && svg.contains(segment.segmentElement)) {
                     svg.removeChild(segment.segmentElement);
                 }
-            });
-            this.intermediateNodes.forEach(node => {
-                if (node.nodeElement) {
-                    svg.removeChild(node.nodeElement);
+                else {
+                    console.warn(`Segment element not found in SVG or is null: ${segment.segmentElement}`);
                 }
             });
-            if (this.sourceNode.nodeElement) {
+            // Remove intermediate nodes
+            this.intermediateNodes.forEach(node => {
+                if (node.nodeElement && svg.contains(node.nodeElement)) {
+                    svg.removeChild(node.nodeElement);
+                }
+                else {
+                    console.warn(`Intermediate node element not found in SVG or is null: ${node.nodeElement}`);
+                }
+            });
+            // Remove source node
+            if (this.sourceNode.nodeElement && svg.contains(this.sourceNode.nodeElement)) {
                 svg.removeChild(this.sourceNode.nodeElement);
             }
-            if (this.targetNode.nodeElement) {
+            else {
+                console.warn(`Source node element not found in SVG or is null: ${this.sourceNode.nodeElement}`);
+            }
+            // Remove target node
+            if (this.targetNode.nodeElement && svg.contains(this.targetNode.nodeElement)) {
                 svg.removeChild(this.targetNode.nodeElement);
             }
+            else {
+                console.warn(`Target node element not found in SVG or is null: ${this.targetNode.nodeElement}`);
+            }
+        }
+        catch (error) {
+            console.error("An error occurred while removing elements from SVG:", error);
         }
     }
     select() {
@@ -891,9 +914,12 @@ class LinkInteractionManager {
                 if (linkData.sourceId !== 'undefined') {
                     let sourceBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.sourceId);
                     if (!sourceBlock) {
-                        throw RangeError(`Source block of id: ${linkData.sourceId} not found, link id: ${linkData.id}`);
+                        this.vscode.postMessage({ type: 'print', text: `Target block of id: ${linkData.targetId} not found` });
+                        sourceNode = new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(linkData.sourceX, linkData.sourceY);
                     }
-                    sourceNode = new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(sourceBlock, linkData.sourcePort);
+                    else {
+                        sourceNode = new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(sourceBlock, linkData.sourcePort);
+                    }
                 }
                 else {
                     sourceNode = new _Link__WEBPACK_IMPORTED_MODULE_0__.SourceNode(linkData.sourceX, linkData.sourceY);
@@ -901,9 +927,12 @@ class LinkInteractionManager {
                 if (linkData.targetId !== 'undefined') {
                     let targetBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.targetId);
                     if (!targetBlock) {
-                        throw RangeError(`Target block of id: ${linkData.targetId} not found`);
+                        this.vscode.postMessage({ type: 'print', text: `Target block of id: ${linkData.targetId} not found` });
+                        targetNode = new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(linkData.targetX, linkData.targetY);
                     }
-                    targetNode = new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(targetBlock, linkData.targetPort);
+                    else {
+                        targetNode = new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(targetBlock, linkData.targetPort);
+                    }
                 }
                 else {
                     targetNode = new _Link__WEBPACK_IMPORTED_MODULE_0__.TargetNode(linkData.targetX, linkData.targetY);
@@ -1090,14 +1119,26 @@ class SelectableManager {
     onKeyDown = (e) => {
         if (e.key === 'Delete') {
             const selectedSelectables = this.getSelectedSelectables();
-            selectedSelectables.forEach(selectable => {
-                selectable.delete();
-            });
-            // Optionally, unselect all after deletion
+            const deleteNext = (index) => {
+                if (index < selectedSelectables.length) {
+                    // Delete the current selectable
+                    selectedSelectables[index].delete();
+                    // Schedule the next deletion5
+                    setTimeout(() => deleteNext(index + 1), 100);
+                }
+                else {
+                    // After all deletions, send the state list after 100 ms
+                    setTimeout(() => {
+                        const stateMessages = this.getStateList();
+                        this.vscode.postMessage({ type: 'print', text: stateMessages });
+                        this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
+                    }, 100);
+                }
+            };
+            // Start the deletion process
+            deleteNext(0);
+            // Optionally, unselect all after deletion starts
             this.unselectAll();
-            let stateMessages = this.getStateList();
-            this.vscode.postMessage({ type: 'print', text: stateMessages });
-            this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
         }
     };
     updateSelectables() {
@@ -1230,8 +1271,11 @@ class SelectableManager {
     };
     onMouseUpSelectionBox = () => {
         if (this.selectionBox) {
+            try {
+                this.canvas.removeChild(this.selectionBox);
+            }
+            catch (e) { }
             // End box selection
-            this.canvas.removeChild(this.selectionBox);
             this.selectionBox = null;
         }
         document.removeEventListener('mousemove', this.onMouseMoveSelectionBox);

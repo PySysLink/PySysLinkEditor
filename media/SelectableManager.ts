@@ -34,23 +34,34 @@ export class SelectableManager {
     }
 
     private onKeyDown = (e: KeyboardEvent): void => {
-    if (e.key === 'Delete') {
-        const selectedSelectables = this.getSelectedSelectables();
+        if (e.key === 'Delete') {
+            const selectedSelectables = this.getSelectedSelectables();
 
-        selectedSelectables.forEach(selectable => {
-            selectable.delete();
-        });
+            const deleteNext = (index: number): void => {
+                if (index < selectedSelectables.length) {
+                    // Delete the current selectable
+                    selectedSelectables[index].delete();
 
-        // Optionally, unselect all after deletion
-        this.unselectAll();
+                    // Schedule the next deletion5
+                    setTimeout(() => deleteNext(index + 1), 100);
+                } else {
+                    // After all deletions, send the state list after 100 ms
+                    setTimeout(() => {
+                        const stateMessages = this.getStateList();
 
-        let stateMessages = this.getStateList();
+                        this.vscode.postMessage({ type: 'print', text: stateMessages });
+                        this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
+                    }, 100);
+                }
+            };
 
-        this.vscode.postMessage({ type: 'print', text: stateMessages });
+            // Start the deletion process
+            deleteNext(0);
 
-        this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
-    }
-};
+            // Optionally, unselect all after deletion starts
+            this.unselectAll();
+        } 
+    };
 
     public updateSelectables(): void {
         this.getSelectableList().forEach(selectable => {
@@ -218,8 +229,10 @@ export class SelectableManager {
 
     private onMouseUpSelectionBox = (): void => {
         if (this.selectionBox) {
+            try {
+                this.canvas.removeChild(this.selectionBox);
+            } catch (e) {}
             // End box selection
-            this.canvas.removeChild(this.selectionBox);
             this.selectionBox = null;
         }
 

@@ -375,25 +375,45 @@ export class Link {
     }
 
     removeFromSvg(svg: SVGSVGElement): void {
-        if (svg) {
-    this.segments.forEach(segment => {
-                if (segment.segmentElement) {
+        if (!svg) {
+            console.error("SVG element is null or undefined.");
+            return;
+        }
+
+        try {
+            // Remove segments
+            this.segments.forEach(segment => {
+                if (segment.segmentElement && svg.contains(segment.segmentElement)) {
                     svg.removeChild(segment.segmentElement);
+                } else {
+                    console.warn(`Segment element not found in SVG or is null: ${segment.segmentElement}`);
                 }
             });
 
+            // Remove intermediate nodes
             this.intermediateNodes.forEach(node => {
-                if (node.nodeElement) {
+                if (node.nodeElement && svg.contains(node.nodeElement)) {
                     svg.removeChild(node.nodeElement);
+                } else {
+                    console.warn(`Intermediate node element not found in SVG or is null: ${node.nodeElement}`);
                 }
             });
 
-            if (this.sourceNode.nodeElement) {
+            // Remove source node
+            if (this.sourceNode.nodeElement && svg.contains(this.sourceNode.nodeElement)) {
                 svg.removeChild(this.sourceNode.nodeElement);
+            } else {
+                console.warn(`Source node element not found in SVG or is null: ${this.sourceNode.nodeElement}`);
             }
-            if (this.targetNode.nodeElement) {
+
+            // Remove target node
+            if (this.targetNode.nodeElement && svg.contains(this.targetNode.nodeElement)) {
                 svg.removeChild(this.targetNode.nodeElement);
+            } else {
+                console.warn(`Target node element not found in SVG or is null: ${this.targetNode.nodeElement}`);
             }
+        } catch (error) {
+            console.error("An error occurred while removing elements from SVG:", error);
         }
     }
 
