@@ -46,12 +46,14 @@ export class BlockInteractionManager {
         return this.blocks.filter(block => block.isSelected());
     }
 
-    public deleteBlock = (block: Block): void => {
+    public deleteBlock = (block: Block, sendMessage: boolean = true): void => {
         const index = this.blocks.indexOf(block);
         if (index !== -1) {
             this.blocks.splice(index, 1);
         }
         this.onDeleteCallbacks.forEach(callback => callback(block));
-        this.vscode.postMessage({ type: 'deleteBlock', id: block.id});
+        if (sendMessage) {
+            this.vscode.postMessage({ type: 'deleteBlock', id: block.id});
+        }
     };
 }

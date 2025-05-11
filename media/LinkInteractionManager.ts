@@ -219,13 +219,15 @@ export class LinkInteractionManager {
         return result;
     }
 
-    public deleteLink = (link: Link): void => {
+    public deleteLink = (link: Link, sendMessage: boolean = true): void => {
         link.removeFromSvg(this.linksSvg);
         const index = this.links.indexOf(link);
         if (index !== -1) {
             this.links.splice(index, 1);
         }
-        this.vscode.postMessage({ type: 'deleteLink', id: link.id});
+        if (sendMessage) {
+            this.vscode.postMessage({ type: 'deleteLink', id: link.id});
+        }
     };
 
     public renderLinks(

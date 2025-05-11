@@ -197,13 +197,15 @@ class BlockInteractionManager {
     getSelectedBlocks() {
         return this.blocks.filter(block => block.isSelected());
     }
-    deleteBlock = (block) => {
+    deleteBlock = (block, sendMessage = true) => {
         const index = this.blocks.indexOf(block);
         if (index !== -1) {
             this.blocks.splice(index, 1);
         }
         this.onDeleteCallbacks.forEach(callback => callback(block));
-        this.vscode.postMessage({ type: 'deleteBlock', id: block.id });
+        if (sendMessage) {
+            this.vscode.postMessage({ type: 'deleteBlock', id: block.id });
+        }
     };
 }
 
@@ -881,13 +883,15 @@ class LinkInteractionManager {
         });
         return result;
     }
-    deleteLink = (link) => {
+    deleteLink = (link, sendMessage = true) => {
         link.removeFromSvg(this.linksSvg);
         const index = this.links.indexOf(link);
         if (index !== -1) {
             this.links.splice(index, 1);
         }
-        this.vscode.postMessage({ type: 'deleteLink', id: link.id });
+        if (sendMessage) {
+            this.vscode.postMessage({ type: 'deleteLink', id: link.id });
+        }
     };
     renderLinks(linksData) {
         this.vscode.postMessage({ type: 'print', text: `Render links: ${JSON.stringify(linksData, null, 2)}` });
@@ -1119,24 +1123,24 @@ class SelectableManager {
     onKeyDown = (e) => {
         if (e.key === 'Delete') {
             const selectedSelectables = this.getSelectedSelectables();
-            const deleteNext = (index) => {
-                if (index < selectedSelectables.length) {
-                    // Delete the current selectable
-                    selectedSelectables[index].delete();
-                    // Schedule the next deletion5
-                    setTimeout(() => deleteNext(index + 1), 100);
-                }
-                else {
-                    // After all deletions, send the state list after 100 ms
-                    setTimeout(() => {
-                        const stateMessages = this.getStateList();
-                        this.vscode.postMessage({ type: 'print', text: stateMessages });
-                        this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
-                    }, 100);
-                }
-            };
+            selectedSelectables.forEach(selectable => selectable.delete());
+            // const deleteNext = (index: number): void => {
+            //     if (index < selectedSelectables.length) {
+            //         // Delete the current selectable
+            //         selectedSelectables[index].delete();
+            //         // Schedule the next deletion5
+            //         setTimeout(() => deleteNext(index + 1), 100);
+            //     } else {
+            //         // After all deletions, send the state list after 100 ms
+            //         setTimeout(() => {
+            //             const stateMessages = this.getStateList();
+            //             this.vscode.postMessage({ type: 'print', text: stateMessages });
+            //             this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
+            //         }, 100);
+            //     }
+            // };
             // Start the deletion process
-            deleteNext(0);
+            // deleteNext(0);
             // Optionally, unselect all after deletion starts
             this.unselectAll();
         }
@@ -1566,6 +1570,18 @@ const vscode = acquireVsCodeApi();
             else {
                 vscode.postMessage({ type: 'print', text: `Block ID does not exist, creating block: ${blockData.id}` });
                 blockInteractionManager.createBlock(blockData.id, blockData.label, blockData.x, blockData.y, blockData.inputPorts, blockData.outputPorts);
+            }
+        });
+        blockInteractionManager.blocks.forEach((block) => {
+            const blockData = json.blocks?.find(b => b.id === block.id);
+            if (!blockData) {
+                blockInteractionManager.deleteBlock(block, false);
+            }
+        });
+        linkInteractionManager.links.forEach((link) => {
+            const linkData = json.links?.find(l => l.id === link.id);
+            if (!linkData) {
+                linkInteractionManager.deleteLink(link, false);
             }
         });
         renderHTML(json);

@@ -204,6 +204,20 @@ const vscode = acquireVsCodeApi();
             }
         });
 
+        blockInteractionManager.blocks.forEach((block: Block) => {
+            const blockData = json.blocks?.find(b => b.id === block.id);
+            if (!blockData) {
+                blockInteractionManager.deleteBlock(block, false);
+            }
+        });
+
+        linkInteractionManager.links.forEach((link: Link) => {
+            const linkData = json.links?.find(l => l.id === link.id);
+            if (!linkData) {
+                linkInteractionManager.deleteLink(link, false);
+            }
+        });
+
 
         renderHTML(json);
     }

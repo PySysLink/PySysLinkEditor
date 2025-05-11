@@ -21,7 +21,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 	constructor(
 		private readonly context: vscode.ExtensionContext
 	) { }
-
+	
 	public async resolveCustomTextEditor(
 		document: vscode.TextDocument,
 		webviewPanel: vscode.WebviewPanel,
@@ -66,19 +66,23 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 					editBlockLabel(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
 					return;
 				case 'updateStates':
-					let json = this.getDocumentAsJson(document);
-					e.updates.forEach((update: any) => {
-						json = this.handleMessage(json, update);
+					this.withDocumentLock(async () => {
+						let json = this.getDocumentAsJson(document);
+						e.updates.forEach((update: any) => {
+							json = this.handleMessage(json, update);
+						});
+						await this.updateTextDocument(document, json);
 					});
-					this.updateTextDocument(document, json);
 					return;
 				case 'print':
 					console.log(e.text);
 					return;
 				default:
-					let json2 = this.getDocumentAsJson(document);
-					this.handleMessage(json2, e);
-					this.updateTextDocument(document, json2);
+					this.withDocumentLock(async () => {
+						let json2 = this.getDocumentAsJson(document);
+						this.handleMessage(json2, e);
+						await this.updateTextDocument(document, json2);
+					});
 					return;
 			}
 		});
@@ -196,20 +200,17 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 	};
 
 	private updateTextDocument = (document: vscode.TextDocument, json: any) => {
-		this.withDocumentLock(async () => {
+		const edit = new vscode.WorkspaceEdit();
 
-			const edit = new vscode.WorkspaceEdit();
+		// Just replace the entire document every time for this example extension.
+		// A more complete extension should compute minimal edits instead.
+		edit.replace(
+			document.uri,
+			new vscode.Range(0, 0, document.lineCount, 0),
+			JSON.stringify(json, null, 2)
+		);
 
-			// Just replace the entire document every time for this example extension.
-			// A more complete extension should compute minimal edits instead.
-			edit.replace(
-				document.uri,
-				new vscode.Range(0, 0, document.lineCount, 0),
-				JSON.stringify(json, null, 2)
-			);
-
-			return vscode.workspace.applyEdit(edit);
-		});
+		return vscode.workspace.applyEdit(edit);
 	};
 
 }

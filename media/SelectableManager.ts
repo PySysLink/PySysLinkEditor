@@ -36,27 +36,27 @@ export class SelectableManager {
     private onKeyDown = (e: KeyboardEvent): void => {
         if (e.key === 'Delete') {
             const selectedSelectables = this.getSelectedSelectables();
+            selectedSelectables.forEach(selectable => selectable.delete());
+            // const deleteNext = (index: number): void => {
+            //     if (index < selectedSelectables.length) {
+            //         // Delete the current selectable
+            //         selectedSelectables[index].delete();
 
-            const deleteNext = (index: number): void => {
-                if (index < selectedSelectables.length) {
-                    // Delete the current selectable
-                    selectedSelectables[index].delete();
+            //         // Schedule the next deletion5
+            //         setTimeout(() => deleteNext(index + 1), 100);
+            //     } else {
+            //         // After all deletions, send the state list after 100 ms
+            //         setTimeout(() => {
+            //             const stateMessages = this.getStateList();
 
-                    // Schedule the next deletion5
-                    setTimeout(() => deleteNext(index + 1), 100);
-                } else {
-                    // After all deletions, send the state list after 100 ms
-                    setTimeout(() => {
-                        const stateMessages = this.getStateList();
-
-                        this.vscode.postMessage({ type: 'print', text: stateMessages });
-                        this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
-                    }, 100);
-                }
-            };
+            //             this.vscode.postMessage({ type: 'print', text: stateMessages });
+            //             this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
+            //         }, 100);
+            //     }
+            // };
 
             // Start the deletion process
-            deleteNext(0);
+            // deleteNext(0);
 
             // Optionally, unselect all after deletion starts
             this.unselectAll();

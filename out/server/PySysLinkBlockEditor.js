@@ -83,19 +83,23 @@ class PySysLinkBlockEditorProvider {
                     (0, BlockManager_1.editBlockLabel)(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
                     return;
                 case 'updateStates':
-                    let json = this.getDocumentAsJson(document);
-                    e.updates.forEach((update) => {
-                        json = this.handleMessage(json, update);
+                    this.withDocumentLock(async () => {
+                        let json = this.getDocumentAsJson(document);
+                        e.updates.forEach((update) => {
+                            json = this.handleMessage(json, update);
+                        });
+                        await this.updateTextDocument(document, json);
                     });
-                    this.updateTextDocument(document, json);
                     return;
                 case 'print':
                     console.log(e.text);
                     return;
                 default:
-                    let json2 = this.getDocumentAsJson(document);
-                    this.handleMessage(json2, e);
-                    this.updateTextDocument(document, json2);
+                    this.withDocumentLock(async () => {
+                        let json2 = this.getDocumentAsJson(document);
+                        this.handleMessage(json2, e);
+                        await this.updateTextDocument(document, json2);
+                    });
                     return;
             }
         });
@@ -195,13 +199,11 @@ class PySysLinkBlockEditorProvider {
         }
     };
     updateTextDocument = (document, json) => {
-        this.withDocumentLock(async () => {
-            const edit = new vscode.WorkspaceEdit();
-            // Just replace the entire document every time for this example extension.
-            // A more complete extension should compute minimal edits instead.
-            edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), JSON.stringify(json, null, 2));
-            return vscode.workspace.applyEdit(edit);
-        });
+        const edit = new vscode.WorkspaceEdit();
+        // Just replace the entire document every time for this example extension.
+        // A more complete extension should compute minimal edits instead.
+        edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), JSON.stringify(json, null, 2));
+        return vscode.workspace.applyEdit(edit);
     };
 }
 exports.PySysLinkBlockEditorProvider = PySysLinkBlockEditorProvider;
