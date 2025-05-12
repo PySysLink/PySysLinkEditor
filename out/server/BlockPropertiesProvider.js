@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlockPropertiesProvider = void 0;
 class BlockPropertiesProvider {
     context;
+    _view;
     constructor(context) {
         this.context = context;
     }

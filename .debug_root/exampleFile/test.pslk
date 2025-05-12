@@ -1,4 +1,72 @@
 {
-  "blocks": [],
-  "links": []
+  "blocks": [
+    {
+      "id": "dNVMiL52qFa0gSTvihvI5R57258Wmq6B",
+      "label": "New Block",
+      "x": 98,
+      "y": 183,
+      "blockType": "defaultType",
+      "blockClass": "defaultClass",
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "value": 0,
+        "gain": 1
+      }
+    },
+    {
+      "id": "n4JuraPsYKPkzfzK9j5YyN3HKFdROeIR",
+      "label": "New Block",
+      "x": 340,
+      "y": 259,
+      "blockType": "defaultType",
+      "blockClass": "defaultClass",
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "value": 0,
+        "gain": 1
+      }
+    },
+    {
+      "id": "O5ix6v0CXGYcEERRL9vdkCTMdAvWYkPo",
+      "label": "New Block",
+      "x": 317,
+      "y": 59,
+      "blockType": "defaultType",
+      "blockClass": "defaultClass",
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "value": 0,
+        "gain": 1
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "7ltcnVl06PqRawGTHsmK9YnJopPyJqZQ",
+      "targetId": "n4JuraPsYKPkzfzK9j5YyN3HKFdROeIR",
+      "targetPort": 0,
+      "intermediateNodes": [],
+      "sourceId": "dNVMiL52qFa0gSTvihvI5R57258Wmq6B",
+      "sourcePort": 0,
+      "sourceX": 218,
+      "sourceY": 203,
+      "targetX": 340,
+      "targetY": 279
+    },
+    {
+      "id": "Rag3WanZgPPtdN3fAvBLYuIFUNtav8SD",
+      "sourceId": "n4JuraPsYKPkzfzK9j5YyN3HKFdROeIR",
+      "sourcePort": 0,
+      "intermediateNodes": [],
+      "sourceX": 460,
+      "sourceY": 279,
+      "targetId": "undefined",
+      "targetPort": -1,
+      "targetX": 537,
+      "targetY": 138
+    }
+  ]
 }

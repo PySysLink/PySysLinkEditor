@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 
 export class BlockPropertiesProvider implements vscode.WebviewViewProvider {
+    private _view?: vscode.WebviewView;
+
     constructor(private readonly context: vscode.ExtensionContext) {}
   
     public resolveWebviewView(

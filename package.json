@@ -12,6 +12,15 @@
   "activationEvents": [],
   "main": "./out/server/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "pysyslink_BlockPropertiesActivityBar",
+          "title": "Properties",
+          "icon": "$(heart)"
+        }
+      ]
+    },
     "customEditors": [
       {
         "viewType": "pysyslink-editor.modelBlockEditor",
@@ -25,11 +34,12 @@
       }
     ],
     "views": {
-      "explorer": [
+      "pysyslink_BlockPropertiesActivityBar": [
         {
-          "id": "pysyslink.blockProperties",
+          "type": "webview",
+          "id": "pysyslink-editor.blockPropertiesView",
           "name": "Block Properties",
-          "type": "webview"
+          "icon": "$(heart)"
         }
       ]
     },

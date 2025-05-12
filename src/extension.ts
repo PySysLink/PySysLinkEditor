@@ -16,10 +16,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
-			'pysyslink.blockProperties',
+			'pysyslink-editor.blockPropertiesView',
 			new BlockPropertiesProvider(context)
 		)
 	);
+
+	console.log('Congratulations, activation completed!');
+
 
 }
 
