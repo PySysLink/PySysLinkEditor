@@ -11,39 +11,100 @@ export class BlockPropertiesProvider implements vscode.WebviewViewProvider {
       _token: vscode.CancellationToken
     ) {
       webviewView.webview.options = { enableScripts: true };
-      webviewView.webview.html = this.getHtmlForView();
+      webviewView.webview.html = this.getHtmlForView(webviewView.webview);
       webviewView.webview.onDidReceiveMessage(msg => {
         // handle { type: 'update', id, props }
         // apply edits to TextDocument here...
       });
     }
+
+    public setSelectedBlock(block: any): void {
+      if (this._view) {
+        this._view.webview.postMessage({
+          type: 'updateBlock',
+          block: block
+        });
+      }
+    }
   
-    private getHtmlForView(): string {
+    private getHtmlForView(webview: vscode.Webview): string {
+      const elementsBundled = webview.asWebviewUri(vscode.Uri.joinPath(
+            this.context.extensionUri, 'node_modules', '@vscode-elements', 'elements', 'dist', 'bundled.js'));
       return /* html */`
-        <!DOCTYPE html><body>
-          <form id="propsForm">
-            <label>Label: <input name="label"/></label><br/>
-            <label>X: <input name="x" type="number"/></label><br/>
-            <label>Y: <input name="y" type="number"/></label><br/>
-            <button type="submit">Save</button>
-          </form>
-          <script>
-            const vscode = acquireVsCodeApi();
-            document.getElementById('propsForm').addEventListener('submit', e => {
-              e.preventDefault();
-              const f = e.target;
-              vscode.postMessage({
-                type: 'update',
-                id: /* selected block ID */,
-                props: {
-                  label: f.label.value,
-                  x: Number(f.x.value),
-                  y: Number(f.y.value)
-                }
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <script
+              src="${elementsBundled}"
+              type="module"
+            ></script>
+          </head>
+          <body>
+            <vscode-form-container>
+              <vscode-form-group>
+                <vscode-label for="blockName">Name</vscode-label>
+                <vscode-textfield id="blockName" name="label"></vscode-textfield>
+              </vscode-form-group>
+              <vscode-form-group>
+                <vscode-label for="posX">X</vscode-label>
+                <vscode-textfield id="posX" name="x" type="number"></vscode-textfield>
+              </vscode-form-group>
+              <vscode-form-group>
+                <vscode-label for="posY">Y</vscode-label>
+                <vscode-textfield id="posY" name="y" type="number"></vscode-textfield>
+              </vscode-form-group>
+              <vscode-button id="saveBtn" appearance="cta">Save</vscode-button>
+            </vscode-form-container>
+            <script>
+              const vscode = acquireVsCodeApi();
+              document.getElementById("saveBtn").addEventListener("click", () => {
+                const form = document.querySelector("vscode-form-container");
+                // gather values, then:
+                vscode.postMessage({
+                  type: "update",
+                  props: {
+                    label: form.querySelector("[name='label']").value,
+                    x: Number(form.querySelector("[name='x']").value),
+                    y: Number(form.querySelector("[name='y']").value),
+                  }
+                });
               });
-            });
-          </script>
-        </body>`;
+            </script>
+          </body>
+        </html>
+      `;
+    }
+
+
+    private updateHtmlForBlock(block: any): void {
+      const propertiesHtml = Object.entries(block.properties || {}).map(([key, value]) => `
+        <vscode-form-group>
+          <vscode-label for="${key}">${key}</vscode-label>
+          <vscode-textfield id="${key}" name="${key}" value="${value}"></vscode-textfield>
+        </vscode-form-group>
+      `).join('');
+  
+      this._view?.webview.postMessage({
+        type: 'setHtml',
+        html: `
+          <vscode-form-container>
+            <vscode-form-group>
+              <vscode-label for="blockName">Name</vscode-label>
+              <vscode-textfield id="blockName" name="label" value="${block.label}"></vscode-textfield>
+            </vscode-form-group>
+            <vscode-form-group>
+              <vscode-label for="posX">X</vscode-label>
+              <vscode-textfield id="posX" name="x" type="number" value="${block.x}"></vscode-textfield>
+            </vscode-form-group>
+            <vscode-form-group>
+              <vscode-label for="posY">Y</vscode-label>
+              <vscode-textfield id="posY" name="y" type="number" value="${block.y}"></vscode-textfield>
+            </vscode-form-group>
+            ${propertiesHtml}
+            <vscode-button id="saveBtn" appearance="cta">Save</vscode-button>
+          </vscode-form-container>
+        `
+      });
     }
   }
   

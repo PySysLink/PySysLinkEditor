@@ -61,7 +61,7 @@
   "scripts": {
     "webpack": "webpack",
     "vscode:prepublish": "npm run compile",
-    "compile-server": "tsc -p tsconfig.server.json", 
+    "compile-server": "tsc -p tsconfig.server.json",
     "build": "npm run webpack && npm run compile-server",
     "watch": "tsc -w -p tsconfig.server.json & webpack --watch",
     "pretest": "npm run compile && npm run lint",
@@ -74,6 +74,7 @@
     "@types/vscode": "^1.99.0",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
+    "@vscode-elements/webview-playground": "^1.7.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
     "eslint": "^9.23.0",
@@ -81,5 +82,8 @@
     "typescript": "^5.8.2",
     "webpack": "^5.99.7",
     "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "@vscode-elements/elements": "^1.15.0"
   }
 }

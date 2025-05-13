@@ -2,12 +2,14 @@ import * as vscode from 'vscode';
 import { addBlock, deleteBlock, moveBlock, editBlockLabel } from './BlockManager';
 import { getNonce } from './util';
 import { addLink, moveLinkBatch, deleteLink } from './LinkManager';
+import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private documentLock: Promise<void> = Promise.resolve();
+	private blockPropertiesProvider: BlockPropertiesProvider;
 
-	public static register(context: vscode.ExtensionContext): vscode.Disposable {
-		const provider = new PySysLinkBlockEditorProvider(context);
+	public static register(context: vscode.ExtensionContext, blockPropertiesProvider: BlockPropertiesProvider): vscode.Disposable {
+		const provider = new PySysLinkBlockEditorProvider(context, blockPropertiesProvider);
 		const providerRegistration = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
 
 		console.log('Register start');
@@ -19,8 +21,11 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 
 	constructor(
-		private readonly context: vscode.ExtensionContext
-	) { }
+		private readonly context: vscode.ExtensionContext,
+		blockPropertiesProvider: BlockPropertiesProvider
+	) { 		
+		this.blockPropertiesProvider = blockPropertiesProvider;
+	}
 	
 	public async resolveCustomTextEditor(
 		document: vscode.TextDocument,

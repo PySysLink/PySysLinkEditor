@@ -11,15 +11,16 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "pysyslink-editor" is now active!');
-
-	context.subscriptions.push(PySysLinkBlockEditorProvider.register(context));
+    const blockPropertiesProvider = new BlockPropertiesProvider(context);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
 			'pysyslink-editor.blockPropertiesView',
-			new BlockPropertiesProvider(context)
+			blockPropertiesProvider
 		)
 	);
+
+	context.subscriptions.push(PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider));
 
 	console.log('Congratulations, activation completed!');
 
