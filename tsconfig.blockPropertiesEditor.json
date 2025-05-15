@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "ESNext", // Browser-compatible module system
+        "target": "ES2022",
+        "outDir": "out/blockPropertiesEditor", // Output directory for compiled files
+        "lib": [
+            "ES2022",
+            "DOM" // Include DOM types for client-side code
+        ],
+        "sourceMap": true,
+        "rootDir": "blockPropertiesEditor",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
+    },
+    "include": [
+        "blockPropertiesEditor/**/*.ts" // Only client-side code
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

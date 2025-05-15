@@ -41,15 +41,17 @@ const LinkManager_1 = require("./LinkManager");
 class PySysLinkBlockEditorProvider {
     context;
     documentLock = Promise.resolve();
-    static register(context) {
-        const provider = new PySysLinkBlockEditorProvider(context);
+    blockPropertiesProvider;
+    static register(context, blockPropertiesProvider) {
+        const provider = new PySysLinkBlockEditorProvider(context, blockPropertiesProvider);
         const providerRegistration = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
         console.log('Register start');
         return providerRegistration;
     }
     static viewType = 'pysyslink-editor.modelBlockEditor';
-    constructor(context) {
+    constructor(context, blockPropertiesProvider) {
         this.context = context;
+        this.blockPropertiesProvider = blockPropertiesProvider;
     }
     async resolveCustomTextEditor(document, webviewPanel, _token) {
         // Setup initial content for the webview
@@ -94,6 +96,8 @@ class PySysLinkBlockEditorProvider {
                 case 'print':
                     console.log(e.text);
                     return;
+                case 'blockSelected':
+                    this.blockPropertiesProvider.setSelectedBlock(e.block);
                 default:
                     this.withDocumentLock(async () => {
                         let json2 = this.getDocumentAsJson(document);
@@ -132,10 +136,10 @@ class PySysLinkBlockEditorProvider {
      */
     getHtmlForWebview(webview) {
         // Local path to script and css for the webview
-        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'out', 'client', 'blockEditor.js'));
-        const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'reset.css'));
-        const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'vscode.css'));
-        const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'blockEditor.css'));
+        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'out', 'blockEditor', 'blockEditor.js'));
+        const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'blockEditor', 'reset.css'));
+        const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'blockEditor', 'vscode.css'));
+        const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'blockEditor', 'blockEditor.css'));
         // Use a nonce to whitelist which scripts can be run
         const nonce = (0, util_1.getNonce)();
         return /* html */ `

@@ -42,60 +42,27 @@ class BlockPropertiesProvider {
         this.context = context;
     }
     resolveWebviewView(webviewView, _context, _token) {
+        this._view = webviewView;
         webviewView.webview.options = { enableScripts: true };
-        webviewView.webview.html = this.getHtmlForView(webviewView.webview);
-        webviewView.webview.onDidReceiveMessage(msg => {
-            // handle { type: 'update', id, props }
-            // apply edits to TextDocument here...
-        });
-    }
-    getReact() {
-    }
-    getHtmlForView(webview) {
-        const elementsBundled = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', '@vscode-elements', 'elements', 'dist', 'bundled.js'));
-        return /* html */ `
+        const scriptUri = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'out', 'blockPropertiesEditor', 'blockPropertiesEditor.js'));
+        webviewView.webview.html = /* html */ `
         <!DOCTYPE html>
         <html lang="en">
-          <head>
-            <script
-              src="${elementsBundled}"
-              type="module"
-            ></script>
-          </head>
+          <head></head>
           <body>
-            <vscode-form-container>
-              <vscode-form-group>
-                <vscode-label for="blockName">Name</vscode-label>
-                <vscode-textfield id="blockName" name="label"></vscode-textfield>
-              </vscode-form-group>
-              <vscode-form-group>
-                <vscode-label for="posX">X</vscode-label>
-                <vscode-textfield id="posX" name="x" type="number"></vscode-textfield>
-              </vscode-form-group>
-              <vscode-form-group>
-                <vscode-label for="posY">Y</vscode-label>
-                <vscode-textfield id="posY" name="y" type="number"></vscode-textfield>
-              </vscode-form-group>
-              <vscode-button id="saveBtn" appearance="cta">Save</vscode-button>
-            </vscode-form-container>
-            <script>
-              const vscode = acquireVsCodeApi();
-              document.getElementById("saveBtn").addEventListener("click", () => {
-                const form = document.querySelector("vscode-form-container");
-                // gather values, then:
-                vscode.postMessage({
-                  type: "update",
-                  props: {
-                    label: form.querySelector("[name='label']").value,
-                    x: Number(form.querySelector("[name='x']").value),
-                    y: Number(form.querySelector("[name='y']").value),
-                  }
-                });
-              });
-            </script>
+            <div id="app"></div>
+            <script type="module" src="${scriptUri}"></script>
           </body>
         </html>
       `;
+    }
+    setSelectedBlock(block) {
+        if (this._view) {
+            this._view.webview.postMessage({
+                type: 'updateBlock',
+                block: block
+            });
+        }
     }
 }
 exports.BlockPropertiesProvider = BlockPropertiesProvider;

@@ -82,6 +82,8 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 				case 'print':
 					console.log(e.text);
 					return;
+				case 'blockSelected':
+					this.blockPropertiesProvider.setSelectedBlock(e.block);
 				default:
 					this.withDocumentLock(async () => {
 						let json2 = this.getDocumentAsJson(document);
@@ -125,16 +127,16 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 	private getHtmlForWebview(webview: vscode.Webview): string {
 		// Local path to script and css for the webview
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'out', 'client', 'blockEditor.js'));
+			this.context.extensionUri, 'out', 'blockEditor', 'blockEditor.js'));
 
 		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'media', 'reset.css'));
+			this.context.extensionUri, 'blockEditor', 'reset.css'));
 
 		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'media', 'vscode.css'));
+			this.context.extensionUri, 'blockEditor', 'vscode.css'));
 
 		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'media', 'blockEditor.css'));
+			this.context.extensionUri, 'blockEditor', 'blockEditor.css'));
 
 		// Use a nonce to whitelist which scripts can be run
 		const nonce = getNonce();
