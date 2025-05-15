@@ -11,7 +11,11 @@
         "rootDir": "blockEditor",
         "strict": true,
         "esModuleInterop": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "baseUrl": ".", // Add baseUrl for path mapping
+        "paths": {
+            "shared/*": ["shared/*"] // Map "shared" to the shared directory
+        }
     },
     "include": [
         "blockEditor/**/*.ts" // Only client-side code
