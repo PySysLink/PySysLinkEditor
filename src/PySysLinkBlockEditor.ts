@@ -1,20 +1,24 @@
 import * as vscode from 'vscode';
-import { addBlock, deleteBlock, moveBlock, editBlockLabel } from './BlockManager';
+import { addBlock, deleteBlock, moveBlock, editBlockLabel, getBlockData, updateBlockProperties } from './BlockManager';
 import { getNonce } from './util';
 import { addLink, moveLinkBatch, deleteLink } from './LinkManager';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private documentLock: Promise<void> = Promise.resolve();
+	private document: vscode.TextDocument | undefined;
 	private blockPropertiesProvider: BlockPropertiesProvider;
 
-	public static register(context: vscode.ExtensionContext, blockPropertiesProvider: BlockPropertiesProvider): vscode.Disposable {
+	public static register(
+		context: vscode.ExtensionContext,
+		blockPropertiesProvider: BlockPropertiesProvider
+	): { disposable: vscode.Disposable; provider: PySysLinkBlockEditorProvider } {
 		const provider = new PySysLinkBlockEditorProvider(context, blockPropertiesProvider);
-		const providerRegistration = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
-
+		const disposable = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
+	
 		console.log('Register start');
-
-		return providerRegistration;
+	
+		return { disposable, provider };
 	}
 
 	private static readonly viewType = 'pysyslink-editor.modelBlockEditor';
@@ -39,6 +43,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		console.log('before get html');
 		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
 		console.log('after get html');
+		this.document = document;
 
 
 		const updateWebview = () => {
@@ -83,7 +88,9 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 					console.log(e.text);
 					return;
 				case 'blockSelected':
-					this.blockPropertiesProvider.setSelectedBlock(e.block);
+					console.log(`Block selected: ${e.blockId}`);
+					this.blockPropertiesProvider.setSelectedBlock(await getBlockData(document, e.blockId, this.getDocumentAsJson));
+					return;
 				default:
 					this.withDocumentLock(async () => {
 						let json2 = this.getDocumentAsJson(document);
@@ -175,6 +182,17 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			</body>
 			</html>`;
 	}
+
+	public updateBlockParameters = (props: Record<string, any>): void => {
+		const blockId = this.blockPropertiesProvider.selectedBlockId;
+		this.withDocumentLock(async () => {
+			if (this.document && blockId) {
+				let json = this.getDocumentAsJson(this.document);
+				json = await updateBlockProperties(json, blockId, props);
+				await this.updateTextDocument(this.document, json);
+			}
+		});
+	};
 
 	private async withDocumentLock<T>(callback: () => Promise<T>): Promise<T> {
 		console.log('Acquiring lock...');

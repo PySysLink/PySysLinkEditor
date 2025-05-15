@@ -197,6 +197,7 @@ const vscode = acquireVsCodeApi();
             blockInteractionManager.blocks.find(b => b.id === blockData.id)?.moveTo(blockData.x, blockData.y);
             var block = blockInteractionManager.blocks.find(b => b.id === blockData.id);
             if (block) {
+                vscode.postMessage({ type: 'print', text: `Block ID exists, updating block: ${blockData.id}, block data: ${blockData}` });
                 block.parseStateFromJson(blockData);
             } else {
                 vscode.postMessage({ type: 'print', text: `Block ID does not exist, creating block: ${blockData.id}` });

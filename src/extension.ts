@@ -20,8 +20,9 @@ export function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
-	context.subscriptions.push(PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider));
-
+	const { disposable, provider: pySysLinkBlockEditorProvider } = PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider);
+    context.subscriptions.push(disposable);
+	blockPropertiesProvider.registerOnUpdateCallback(pySysLinkBlockEditorProvider.updateBlockParameters);
 	console.log('Congratulations, activation completed!');
 
 

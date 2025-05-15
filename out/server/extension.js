@@ -48,7 +48,9 @@ function activate(context) {
     console.log('Congratulations, your extension "pysyslink-editor" is now active!');
     const blockPropertiesProvider = new BlockPropertiesProvider_1.BlockPropertiesProvider(context);
     context.subscriptions.push(vscode.window.registerWebviewViewProvider('pysyslink-editor.blockPropertiesView', blockPropertiesProvider));
-    context.subscriptions.push(PySysLinkBlockEditor_1.PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider));
+    const { disposable, provider: pySysLinkBlockEditorProvider } = PySysLinkBlockEditor_1.PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider);
+    context.subscriptions.push(disposable);
+    blockPropertiesProvider.registerOnUpdateCallback(pySysLinkBlockEditorProvider.updateBlockParameters);
     console.log('Congratulations, activation completed!');
 }
 // This method is called when your extension is deactivated

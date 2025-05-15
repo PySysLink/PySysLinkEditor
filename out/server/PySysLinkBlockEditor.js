@@ -41,12 +41,13 @@ const LinkManager_1 = require("./LinkManager");
 class PySysLinkBlockEditorProvider {
     context;
     documentLock = Promise.resolve();
+    document;
     blockPropertiesProvider;
     static register(context, blockPropertiesProvider) {
         const provider = new PySysLinkBlockEditorProvider(context, blockPropertiesProvider);
-        const providerRegistration = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
+        const disposable = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
         console.log('Register start');
-        return providerRegistration;
+        return { disposable, provider };
     }
     static viewType = 'pysyslink-editor.modelBlockEditor';
     constructor(context, blockPropertiesProvider) {
@@ -61,6 +62,7 @@ class PySysLinkBlockEditorProvider {
         console.log('before get html');
         webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
         console.log('after get html');
+        this.document = document;
         const updateWebview = () => {
             const json = this.getDocumentAsJson(document);
             webviewPanel.webview.postMessage({
@@ -97,7 +99,9 @@ class PySysLinkBlockEditorProvider {
                     console.log(e.text);
                     return;
                 case 'blockSelected':
-                    this.blockPropertiesProvider.setSelectedBlock(e.block);
+                    console.log(`Block selected: ${e.blockId}`);
+                    this.blockPropertiesProvider.setSelectedBlock(await (0, BlockManager_1.getBlockData)(document, e.blockId, this.getDocumentAsJson));
+                    return;
                 default:
                     this.withDocumentLock(async () => {
                         let json2 = this.getDocumentAsJson(document);
@@ -176,6 +180,16 @@ class PySysLinkBlockEditorProvider {
 			</body>
 			</html>`;
     }
+    updateBlockParameters = (props) => {
+        const blockId = this.blockPropertiesProvider.selectedBlockId;
+        this.withDocumentLock(async () => {
+            if (this.document && blockId) {
+                let json = this.getDocumentAsJson(this.document);
+                json = await (0, BlockManager_1.updateBlockProperties)(json, blockId, props);
+                await this.updateTextDocument(this.document, json);
+            }
+        });
+    };
     async withDocumentLock(callback) {
         console.log('Acquiring lock...');
         // Chain the new operation to the existing lock

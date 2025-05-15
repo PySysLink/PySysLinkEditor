@@ -38,30 +38,65 @@ const vscode = __importStar(require("vscode"));
 class BlockPropertiesProvider {
     context;
     _view;
+    updateHandlers = [];
+    selectedBlockId = null;
     constructor(context) {
         this.context = context;
+    }
+    registerOnUpdateCallback(handler) {
+        this.updateHandlers.push(handler);
     }
     resolveWebviewView(webviewView, _context, _token) {
         this._view = webviewView;
         webviewView.webview.options = { enableScripts: true };
         const scriptUri = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'out', 'blockPropertiesEditor', 'blockPropertiesEditor.js'));
+        const elementsBundled = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', '@vscode-elements', 'elements', 'dist', 'bundled.js'));
         webviewView.webview.html = /* html */ `
         <!DOCTYPE html>
         <html lang="en">
-          <head></head>
+          <head>
+            <script
+              src="${elementsBundled}"
+              type="module"
+            ></script>
+          </head>
           <body>
             <div id="app"></div>
             <script type="module" src="${scriptUri}"></script>
           </body>
         </html>
       `;
+        // Listen for messages FROM the webview:
+        webviewView.webview.onDidReceiveMessage((msg) => {
+            switch (msg.type) {
+                case 'update':
+                    // frontend wants to save edited props
+                    this.callUpdatedCallbacks(msg.props);
+                    break;
+                // you could handle other msg.types here if needed...
+                default:
+                    console.warn(`[BlockPropertiesProvider] unrecognized message type: ${msg.type}`);
+            }
+        });
     }
     setSelectedBlock(block) {
         if (this._view) {
+            console.log('setSelectedBlock backend', block);
             this._view.webview.postMessage({
                 type: 'updateBlock',
                 block: block
             });
+            this.selectedBlockId = block.id;
+        }
+    }
+    callUpdatedCallbacks(props) {
+        for (const handler of this.updateHandlers) {
+            try {
+                handler(props);
+            }
+            catch (err) {
+                console.error('[BlockPropertiesProvider] error in update handler', err);
+            }
         }
     }
 }

@@ -69,3 +69,22 @@ export async function editBlockLabel(document: vscode.TextDocument, id: string, 
     block.label = newLabel;
     updateTextDocument(document, json);
 }
+
+export async function getBlockData(document: vscode.TextDocument, id: string, getDocumentAsJson: (doc: vscode.TextDocument) => any): Promise<any> {
+    const json = getDocumentAsJson(document);
+    const block = (json.blocks || []).find((b: any) => b.id === id);
+    console.log('Block read from file: ', block);
+    if (!block) { return; }
+    return block;
+}
+
+export async function updateBlockProperties(json: any, id: string, props: Record<string, any>): Promise<any> {
+    const block = (json.blocks || []).find((b: any) => b.id === id);
+    if (!block) { return; }
+
+    for (const [key, value] of Object.entries(props)) {
+        block[key] = value;
+    }
+    console.log('Block properties updated: ', block);
+    return json;
+}

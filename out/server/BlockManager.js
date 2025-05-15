@@ -37,6 +37,8 @@ exports.addBlock = addBlock;
 exports.deleteBlock = deleteBlock;
 exports.moveBlock = moveBlock;
 exports.editBlockLabel = editBlockLabel;
+exports.getBlockData = getBlockData;
+exports.updateBlockProperties = updateBlockProperties;
 const vscode = __importStar(require("vscode"));
 const util_1 = require("./util");
 const BlockMetadata_1 = require("./BlockMetadata");
@@ -96,5 +98,25 @@ async function editBlockLabel(document, id, getDocumentAsJson, updateTextDocumen
     } // user cancelled
     block.label = newLabel;
     updateTextDocument(document, json);
+}
+async function getBlockData(document, id, getDocumentAsJson) {
+    const json = getDocumentAsJson(document);
+    const block = (json.blocks || []).find((b) => b.id === id);
+    console.log('Block read from file: ', block);
+    if (!block) {
+        return;
+    }
+    return block;
+}
+async function updateBlockProperties(json, id, props) {
+    const block = (json.blocks || []).find((b) => b.id === id);
+    if (!block) {
+        return;
+    }
+    for (const [key, value] of Object.entries(props)) {
+        block[key] = value;
+    }
+    console.log('Block properties updated: ', block);
+    return json;
 }
 //# sourceMappingURL=BlockManager.js.map

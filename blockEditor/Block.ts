@@ -19,6 +19,8 @@ export class Block extends Selectable implements Movable {
     inputPorts: HTMLElement[] = [];
     outputPorts: HTMLElement[] = [];
 
+    labelElement: HTMLElement;
+
     onMouseDownOnPortCallbacks: ((e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
 
     private onDelete: (block: Block) => void;
@@ -39,9 +41,9 @@ export class Block extends Selectable implements Movable {
         this.element.style.left = `${this.x}px`;
         this.element.style.top = `${this.y}px`;
         
-        const labelElement = document.createElement('div');
-        labelElement.textContent = this.label;
-        this.element.appendChild(labelElement);
+        this.labelElement = document.createElement('div');
+        this.labelElement.textContent = this.label;
+        this.element.appendChild(this.labelElement);
 
         for (let j = 0; j < this.inputPortNumber; j++) {
             const inputPort = document.createElement('div');
@@ -102,6 +104,8 @@ export class Block extends Selectable implements Movable {
     public parseStateFromJson(blockData: { x: number; y: number; label: string }): void {
         this.moveTo(blockData.x, blockData.y);
         this.label = blockData.label;
+        this.labelElement.textContent = this.label;
+
     }
 
     public getPosition(): { x: number; y: number } {

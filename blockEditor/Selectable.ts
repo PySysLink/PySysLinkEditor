@@ -3,14 +3,24 @@ import { CanvasElement } from "./CanvasElement";
 export abstract class Selectable extends CanvasElement {
     _isSelected: boolean = false;
 
+    private onSelectedCallbacks: ((selected: boolean) => void)[] = [];
+
     public select(): void {
+        let previouslySelected = this._isSelected;
         this._isSelected = true;
         this.getElement().classList.add('selected');
+        if (!previouslySelected) {
+            this.onSelectedCallbacks.forEach(callback => callback(this._isSelected));
+        }
     }
 
     public unselect(): void {
+        let previouslySelected = this._isSelected;
         this._isSelected = false;
         this.getElement().classList.remove('selected');
+        if (previouslySelected) {
+            this.onSelectedCallbacks.forEach(callback => callback(this._isSelected));
+        }
     }
 
     public isSelected(): boolean {
@@ -25,6 +35,10 @@ export abstract class Selectable extends CanvasElement {
             this.unselect();
         }
     }   
+
+    public registerOnSelectedCallback(callback: (selected: boolean) => void): void {
+        this.onSelectedCallbacks.push(callback);
+    }
     
     public abstract delete(): void;
 }

@@ -22,7 +22,19 @@ export class BlockInteractionManager {
         block.registerOnMouseDownOnPortCallback((e: any, portType: "input" | "output", portIndex: number) => {
             this.onMouseDownOnPort(block, e, portType, portIndex);
         });
+        block.registerOnSelectedCallback((selected: boolean) => {
+            this.onBlockSelected(block, selected);
+        });
         this.blocks.push(block);
+    }
+
+    private onBlockSelected(block: Block, selected: boolean): void {
+        this.vscode.postMessage({ type: 'print', text: `Block ${block.id} selected: ${selected}` });
+        if (selected) {
+            this.vscode.postMessage({ type: 'blockSelected', blockId: block.id });
+        } else {
+            this.vscode.postMessage({ type: 'blockUnselected', blockId: block.id });
+        }
     }
 
     private onMouseDownOnPort(block: Block, e: any, portType: "input" | "output", portIndex: number): void {
