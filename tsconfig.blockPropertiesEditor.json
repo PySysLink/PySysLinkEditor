@@ -8,7 +8,7 @@
             "DOM" // Include DOM types for client-side code
         ],
         "sourceMap": true,
-        "rootDir": "blockPropertiesEditor",
+        "rootDir": ".",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
@@ -18,7 +18,8 @@
         }
     },
     "include": [
-        "blockPropertiesEditor/**/*.ts" // Only client-side code
+        "blockPropertiesEditor/**/*.ts", // Only client-side code
+        "shared/**/*.ts"       // Include shared files
     ],
     "exclude": [
         "node_modules"

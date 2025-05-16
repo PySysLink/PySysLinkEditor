@@ -3,6 +3,7 @@ import { BlockInteractionManager } from './BlockInteractionManager';
 import { Link, LinkNode, LinkSegment, SourceNode, TargetNode } from './Link';
 import { Block } from './Block';
 import { getNonce } from './util';
+import { LinkData } from '../shared/JsonTypes'; 
 
 export class LinkInteractionManager {
     public links: Link[] = [];
@@ -230,9 +231,7 @@ export class LinkInteractionManager {
         }
     };
 
-    public renderLinks(
-            linksData: { id: string, sourceId: string; sourcePort: number; targetId: string; targetPort: number; 
-                sourceX: number; sourceY: number; targetX: number; targetY: number; intermediateNodes: { id: string; x: number; y: number }[] }[]): SVGSVGElement {
+    public renderLinks(linksData: LinkData[]): SVGSVGElement {
         
         this.vscode.postMessage({ type: 'print', text: `Render links: ${JSON.stringify(linksData, null, 2)}` });
 

@@ -9,6 +9,9 @@ module.exports = [
         },
         resolve: {
             extensions: ['.ts', '.js'], // Resolve TypeScript and JavaScript files
+            alias: {
+                shared: path.resolve(__dirname, "shared"), // Add alias for shared directory
+            },
         },
         module: {
             rules: [
@@ -35,6 +38,9 @@ module.exports = [
         },
         resolve: {
             extensions: ['.ts', '.js'], // Resolve TypeScript and JavaScript files
+            alias: {
+                shared: path.resolve(__dirname, "shared"), // Add alias for shared directory
+            },
         },
         module: {
             rules: [

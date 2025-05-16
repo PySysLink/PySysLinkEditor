@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [],
-  "main": "./out/server/extension.js",
+  "main": "./out/server/src/extension.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [

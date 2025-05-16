@@ -3,11 +3,14 @@ import { addBlock, deleteBlock, moveBlock, editBlockLabel, getBlockData, updateB
 import { getNonce } from './util';
 import { addLink, moveLinkBatch, deleteLink } from './LinkManager';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
+import { JsonData } from '../shared/JsonTypes';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private documentLock: Promise<void> = Promise.resolve();
 	private document: vscode.TextDocument | undefined;
 	private blockPropertiesProvider: BlockPropertiesProvider;
+
+	private lastVersion: number = 0;
 
 	public static register(
 		context: vscode.ExtensionContext,
@@ -48,12 +51,11 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 		const updateWebview = () => {
 			const json  = this.getDocumentAsJson(document);	
+			console.log('Sending JSON to frontend:', json);
+			console.log('Sending JSON to frontend:', JSON.stringify(json, null, 2));
 			webviewPanel.webview.postMessage({
 				type: 'update',
-				text: JSON.stringify({
-					blocks: json.blocks || [],
-					links: json.links || []
-				}),
+				json: json,
 			});
 		};
 
@@ -101,6 +103,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			}
 		});
 
+		console.log('Resolved, update webview');
 		updateWebview();
 	}
 
@@ -205,18 +208,22 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		return releaseLock;
 	}
 
-	private getDocumentAsJson = (document: vscode.TextDocument): any => {
+	private getDocumentAsJson = (document: vscode.TextDocument): JsonData => {
 		console.log("Get document json");
 		const text = document.getText();
 		console.log("Text obtained");
 		if (text.trim().length === 0) {
-			return { blocks: [], links: [] };
+			this.lastVersion += 1;
+			return { version: this.lastVersion, blocks: [], links: [] };
 		}
 	
 		try {
 			const json = JSON.parse(text);
+			this.lastVersion += 1;
+			json.version = this.lastVersion;
 			json.blocks = Array.isArray(json.blocks) ? json.blocks : [];
 			json.links = Array.isArray(json.links) ? json.links : [];
+			console.log("Parsed json: ", json);
 			return json;
 		} catch (error) {
 			console.error('Error parsing document JSON:', error);

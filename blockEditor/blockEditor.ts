@@ -5,7 +5,8 @@ import { LinkInteractionManager } from './LinkInteractionManager';
 import { Selectable } from './Selectable';
 import { SelectableManager } from './SelectableManager';
 import { link } from 'fs';
-
+import { JsonData } from '../shared/JsonTypes';
+import { CommunicationManager } from './CommunicationManager';
 
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
@@ -52,6 +53,7 @@ const vscode = acquireVsCodeApi();
     selectableManager.updateSelectables();
     selectableManager.addOnMouseMoveListener(linkInteractionManager.updateLinks);
 
+    let communicationManager = new CommunicationManager(vscode);
 
     function getZoomLevelReal(): number {
         return zoomLevel/2;
@@ -84,32 +86,7 @@ const vscode = acquireVsCodeApi();
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
 
-    function renderHTML(json: {
-        blocks?: {
-            id: string;
-            label: string;
-            x: number;
-            y: number;
-            inputPorts: number;
-            outputPorts: number;
-        }[];
-        links?: {
-            id: string;
-            sourceId: string;
-            sourcePort: number;
-            targetId: string;
-            targetPort: number;
-            sourceX: number;
-            sourceY: number;
-            targetX: number;
-            targetY: number;
-            intermediateNodes: {
-                id: string
-                x: number;
-                y: number;
-            }[];
-        }[];
-    }): void {
+    function renderHTML(json: JsonData): void {
         vscode.postMessage({ type: 'print', text: `Render html: ${JSON.stringify(json, null, 2)}` });
         vscode.postMessage({ type: 'print', text: `Rendering ${blockInteractionManager.blocks.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
@@ -181,18 +158,11 @@ const vscode = acquireVsCodeApi();
         // canvasContainer.scrollTop = (canvas.scrollHeight - canvasContainer.clientHeight) / 2;
     }
 
-    function updateWebView(jsonText: string): void {
-        vscode.postMessage({ type: 'print', text: `Update blocks` });
-        let json: { blocks?: { id: string; label: string; x: number; y: number; inputPorts: number; outputPorts: number}[]; 
-                    links?: { id: string, sourceId: string; sourcePort: number; targetId: string; targetPort: number; 
-                        sourceX: number; sourceY: number; targetX: number; targetY: number; intermediateNodes: { id: string; x: number; y: number }[] }[] };
-        try {
-            json = JSON.parse(jsonText || '{}');
-        } catch {
-            canvas.textContent = 'Invalid JSON';
-            return;
-        }
+    communicationManager.registerLocalJsonChangedCallback(updateWebView);
 
+    function updateWebView(json: JsonData): void {
+        vscode.postMessage({ type: 'print', text: `Render html update webview: ${JSON.stringify(json, null, 2)}` });
+        vscode.postMessage({ type: 'print', text: `Blocks ${JSON.stringify(json.blocks, null, 2)}` });
         json.blocks?.forEach(blockData => {
             blockInteractionManager.blocks.find(b => b.id === blockData.id)?.moveTo(blockData.x, blockData.y);
             var block = blockInteractionManager.blocks.find(b => b.id === blockData.id);
@@ -300,8 +270,8 @@ const vscode = acquireVsCodeApi();
 
     // Listen for messages from extension
     window.addEventListener('message', (e: MessageEvent) => {
-        if (e.data.type === 'update') {
-            updateWebView(e.data.text);
+        if (e.data.type === 'update') {            
+            communicationManager.newJsonFromServer(e.data.json);
             vscode.setState({ text: e.data.text });
         }
     });
@@ -309,6 +279,6 @@ const vscode = acquireVsCodeApi();
     // Restore state if reloaded
     const state = vscode.getState();
     if (state) {
-        updateWebView(state.text);
+        communicationManager.newJsonFromServer(state.text);
     }
 })();
