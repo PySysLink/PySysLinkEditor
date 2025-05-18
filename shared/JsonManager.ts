@@ -93,3 +93,65 @@ export function MergeJsons(
 
     return mergedJson;
 }
+
+export function deleteBlockFromJson(json: JsonData, blockId: IdType): JsonData {
+    let updatedLinks = json.links;
+    if (updatedLinks) {
+        updatedLinks.forEach(link => {
+            if (link.sourceId === blockId) {
+                link.sourceId = undefined;
+                link.sourcePort = -1;
+            }
+            if (link.targetId === blockId) {
+                link.targetId = undefined;
+                link.targetPort = -1;
+            }
+        });
+    }
+    const updatedJson: JsonData = {
+        ...json,
+        blocks: json.blocks?.filter(block => block.id !== blockId),
+        links: updatedLinks
+    };
+    return updatedJson;
+}
+
+export function addBlockToJson(json: JsonData, block: BlockData): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        blocks: [...(json.blocks || []), block]
+    };
+    return updatedJson;
+}
+
+export function addLinkToJson(json: JsonData, link: LinkData): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        links: [...(json.links || []), link]
+    };
+    return updatedJson;
+}
+
+export function deleteLinkFromJson(json: JsonData, linkId: IdType): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        links: json.links?.filter(link => link.id !== linkId)
+    };
+    return updatedJson;
+}
+
+export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        blocks: json.blocks?.map(block => (block.id === updatedBlock.id ? updatedBlock : block))
+    };
+    return updatedJson;
+}
+
+export function updateLinkFromJson(json: JsonData, updatedLink: LinkData): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => (link.id === updatedLink.id ? updatedLink : link))
+    };
+    return updatedJson;
+}

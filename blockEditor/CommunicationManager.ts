@@ -1,5 +1,5 @@
-import { MergeJsons } from "../shared/JsonManager";
-import { JsonData } from "../shared/JsonTypes";
+import { addBlockToJson, addLinkToJson, deleteBlockFromJson, MergeJsons, updateBlockFromJson, updateLinkFromJson } from "../shared/JsonManager";
+import { BlockData, IdType, JsonData, LinkData } from "../shared/JsonTypes";
 
 
 export class CommunicationManager {
@@ -15,6 +15,13 @@ export class CommunicationManager {
 
     constructor(vscode: any) {
         this.vscode = vscode;
+    }
+
+    print(text: string) {
+        this.vscode.postMessage({
+            command: 'print',
+            text: text
+        });
     }
 
     public registerLocalJsonChangedCallback(callback: (json: JsonData) => void) {
@@ -76,4 +83,60 @@ export class CommunicationManager {
             }
         }
     }
+
+    public notifyBlockSelected = (blockId: IdType, selected: boolean) => {
+        if (selected) {
+            this.vscode.postMessage({ type: 'blockSelected', blockId: blockId });
+        } else {
+            this.vscode.postMessage({ type: 'blockUnselected', blockId: blockId });
+        }
+    };
+
+    public deleteBlock = (blockId: IdType) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = deleteBlockFromJson(json, blockId);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public addBlock = (block: BlockData) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = addBlockToJson(json, block);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public addLink = (link: LinkData) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = addLinkToJson(json, link);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public deleteLink = (linkId: IdType) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = deleteBlockFromJson(json, linkId);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public updateBlock = (block: BlockData) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = updateBlockFromJson(json, block);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public updateLink = (link: LinkData): void => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = updateLinkFromJson(json, link);
+            this.setLocalJson(newJson, true);
+        }
+    };
 }

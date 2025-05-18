@@ -1,3 +1,4 @@
+import { BlockData } from "../shared/JsonTypes";
 import { Movable } from "./Movable";
 import { Selectable } from "./Selectable";
 
@@ -9,7 +10,7 @@ export class Block extends Selectable implements Movable {
     _isSelected: boolean = false;
 
     public getElement(): HTMLElement | SVGElement {
-        this.upadatePortPositions();
+        this.updatePortPositions();
         return this.element;
     }
     private element: HTMLElement;
@@ -24,8 +25,9 @@ export class Block extends Selectable implements Movable {
     onMouseDownOnPortCallbacks: ((e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
 
     private onDelete: (block: Block) => void;
+    private onUpdate: (blockData: BlockData) => void;
 
-    constructor(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number, onDelete: (block: Block) => void) {
+    constructor(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number, onDelete: (block: Block) => void, onUpdate: (blockData: BlockData) => void) {
         super();
         this.id = id;
         this.label = label;
@@ -34,6 +36,7 @@ export class Block extends Selectable implements Movable {
         this.inputPortNumber = inputPorts;
         this.outputPortNumber = outputPorts;
         this.onDelete = onDelete;
+        this.onUpdate = onUpdate;
 
         this.element = document.createElement('div');
         
@@ -71,6 +74,20 @@ export class Block extends Selectable implements Movable {
             this.element.appendChild(outputPort);
             this.outputPorts.push(outputPort);
         }
+
+        this.onUpdate(this.toBlockData());
+    }
+
+    private toBlockData(): BlockData {
+        return {
+            id: this.id,
+            label: this.label,
+            x: this.x,
+            y: this.y,
+            inputPorts: this.inputPortNumber,
+            outputPorts: this.outputPortNumber,
+            properties: {}
+        };
     }
 
     private onMouseDownInPort(e: any, portType: "input" | "output", portIndex: number): void {
@@ -90,22 +107,14 @@ export class Block extends Selectable implements Movable {
             this.element.style.left = `${x}px`;
             this.element.style.top = `${y}px`;
         }
-    }
-
-    public getState(): { type: string; id: string; x: number; y: number}[] {
-        return [{
-            type: 'move',
-            id: this.id,
-            x: this.x,
-            y: this.y
-        }];
+        this.onUpdate(this.toBlockData());
     }
 
     public parseStateFromJson(blockData: { x: number; y: number; label: string }): void {
         this.moveTo(blockData.x, blockData.y);
         this.label = blockData.label;
         this.labelElement.textContent = this.label;
-
+        this.onUpdate(this.toBlockData());
     }
 
     public getPosition(): { x: number; y: number } {
@@ -116,7 +125,7 @@ export class Block extends Selectable implements Movable {
         this.moveTo(this.x + deltaX, this.y + deltaY);
     }
 
-    private upadatePortPositions(): void {
+    private updatePortPositions(): void {
         for (let j = 0; j < this.inputPortNumber; j++) {
             const inputPort = this.inputPorts[j];
 

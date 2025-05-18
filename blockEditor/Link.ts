@@ -2,6 +2,7 @@ import { debug, timeStamp } from 'console';
 import { Block } from './Block';
 import { Movable } from './Movable';
 import { Selectable } from './Selectable';
+import { LinkData } from '../shared/JsonTypes';
 
 export class LinkNode extends Selectable implements Movable {
     id: string;
@@ -289,19 +290,57 @@ export class Link {
     id: string;
 
     private onDelete: (link: Link) => void;
+    private onUpdate: (link: LinkData) => void;
 
     constructor(
         id: string,
         sourceNode: SourceNode,
         targetNode: TargetNode,
         intermediateNodes: LinkNode[] = [],
-        onDelete: (link: Link) => void
+        onDelete: (link: Link) => void,
+        onUpdate: (link: LinkData) => void
     ) {
         this.id = id;
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
         this.intermediateNodes = intermediateNodes;
         this.onDelete = onDelete;
+        this.onUpdate = onUpdate;
+
+        this.sourceNode.addCallback((x: number, y: number) => {
+            this.updatePosition();
+        });
+
+        this.targetNode.addCallback((x: number, y: number) => {
+            this.updatePosition();
+        });
+
+        this.intermediateNodes.forEach(node => {
+            node.addCallback((x: number, y: number) => {
+                this.updatePosition();
+            });
+        });
+
+        this.onUpdate(this.toLinkData());
+    }
+    
+    public toLinkData(): LinkData {
+        return {
+            id: this.id,
+            sourceId: this.sourceNode.connectedPort ? this.sourceNode.connectedPort.block.id : undefined,
+            sourcePort: this.sourceNode.connectedPort ? this.sourceNode.connectedPort.index : -1,
+            targetId: this.targetNode.connectedPort ? this.targetNode.connectedPort.block.id : undefined,
+            targetPort: this.targetNode.connectedPort ? this.targetNode.connectedPort.index : -1,
+            intermediateNodes: this.intermediateNodes.map(node => ({
+                id: node.id,
+                x: node.getPosition().x,
+                y: node.getPosition().y
+            })),
+            sourceX: this.sourceNode.getPosition().x,
+            sourceY: this.sourceNode.getPosition().y,
+            targetX: this.targetNode.getPosition().x,
+            targetY: this.targetNode.getPosition().y
+        };
     }
 
     public updateSegments() {
@@ -344,6 +383,7 @@ export class Link {
         this.targetNode.moveToAttachedPort();
         
         this.segments.forEach(segment => segment.updatePosition());
+        this.onUpdate(this.toLinkData());
     }
 
     public addToSvg(svg: SVGSVGElement): void {
@@ -431,53 +471,6 @@ export class Link {
         this.intermediateNodes.forEach(node => node.unselect());
         this.sourceNode.unselect();
         this.targetNode.unselect();
-    }
-
-    public getState(): { type: string; id: string; sourceId: string; sourcePort: number; targetId: string; targetPort: number; nodeIndex: number, nodeId: string; x: number, y: number }[] {
-        var result: { type: string; id: string; sourceId: string; sourcePort: number; targetId: string; targetPort: number; nodeIndex: number; nodeId: string; x: number; y: number; }[] = [];
-        let sourcePort = this.sourceNode.connectedPort;
-        let targetPort = this.targetNode.connectedPort;
-
-        this.intermediateNodes.forEach((node, index) => {
-            result.push({
-                type: 'moveLinkNode',
-                id: this.id,
-                sourceId: sourcePort? sourcePort.block.id : 'undefined',
-                sourcePort: sourcePort? sourcePort.index : -1,
-                targetId: targetPort? targetPort.block.id : 'undefined',
-                targetPort: targetPort? targetPort.index : -1,
-                nodeIndex: index,
-                nodeId: node.id,
-                x: node.getPosition().x,
-                y: node.getPosition().y
-            });
-        });
-
-        result.push({type: 'moveLinkNode', 
-            id: this.id,
-            sourceId: sourcePort? sourcePort.block.id : 'undefined',
-            sourcePort: sourcePort? sourcePort.index : -1,
-            targetId: targetPort? targetPort.block.id : 'undefined',
-            targetPort: targetPort? targetPort.index : -1,
-            nodeIndex: -1, // -1 for sourceNode
-            nodeId: this.sourceNode.id,
-            x: this.sourceNode.getPosition().x,
-            y: this.sourceNode.getPosition().y
-         });
-        
-        result.push({type: 'moveLinkNode', 
-            id: this.id,
-            sourceId: sourcePort? sourcePort.block.id : 'undefined',
-            sourcePort: sourcePort? sourcePort.index : -1,
-            targetId: targetPort? targetPort.block.id : 'undefined',
-            targetPort: targetPort? targetPort.index : -1,
-            nodeIndex: -2, // -2 for targetNode
-            nodeId: this.targetNode.id,
-            x: this.targetNode.getPosition().x,
-            y: this.targetNode.getPosition().y
-         });
-
-        return result;
     }
 
     public delete = (): void => {

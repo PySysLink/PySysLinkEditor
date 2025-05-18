@@ -1,6 +1,8 @@
 import { Selectable } from "./Selectable";
 import { Movable, isMovable } from "./Movable";
 import { CanvasElement } from "./CanvasElement";
+import { CommunicationManager } from "./CommunicationManager";
+import { IdType } from "../shared/JsonTypes";
 
 export class SelectableManager {
     private dragStartX = 0;
@@ -11,7 +13,7 @@ export class SelectableManager {
 
     private selectionBox: HTMLElement | null = null;
 
-    private vscode: any;
+    private communicationManager: CommunicationManager;
     private canvas: HTMLElement;
 
     private getZoomLevelReal: () => number;
@@ -20,11 +22,10 @@ export class SelectableManager {
 
     private onMouseUpCallbacks: (() => void)[] = [];
     private onMouseMoveCallbacks: ((e: MouseEvent) => void)[] = [];
-    private registeredStateLists: (() => any[])[] = [];
 
 
-    constructor(vscode: any, canvas: HTMLElement, getZoomLevelReal: () => number) {
-        this.vscode = vscode;
+    constructor(communicationManager: CommunicationManager, canvas: HTMLElement, getZoomLevelReal: () => number) {
+        this.communicationManager = communicationManager;
         this.canvas = canvas;
         this.getZoomLevelReal = getZoomLevelReal;
 
@@ -73,10 +74,6 @@ export class SelectableManager {
         return this.registeredSelectableLists.flatMap(getSelectableList => getSelectableList());
     }
 
-    private getStateList(): any[] {
-        return this.registeredStateLists.flatMap(getStateList => getStateList()).flat();
-    }
-
     private unselectAll(): void {
         this.getSelectableList().forEach(selectable => selectable.unselect());
     }
@@ -89,12 +86,8 @@ export class SelectableManager {
         this.registeredSelectableLists.push(getSelectableList);
     }
 
-    public registerStateList(getStateList: () => any[]): void {
-        this.registeredStateLists.push(getStateList);
-    }
-
     private onMouseDownInSelectable = (canvasElement: CanvasElement, e: MouseEvent): void => {
-        this.vscode.postMessage({ type: 'print', text: `Mouse down event happened` });
+        this.communicationManager.print(`Mouse down event happened`);
         let selectable: Selectable;
         if (!(canvasElement instanceof Selectable)) {
             return;
@@ -103,24 +96,24 @@ export class SelectableManager {
             selectable = canvasElement as Selectable;
         }
         if (e.button !== 1) {
-            this.vscode.postMessage({ type: 'print', text: `button not 1` });
+            this.communicationManager.print(`button not 1`);
 
             if (!selectable.isSelected()) {
                 if (e.shiftKey) {
                     // Toggle selection if Shift is pressed
-                    this.vscode.postMessage({ type: 'print', text: `Toggle` });
+                    this.communicationManager.print(`Toggle` );
 
                     selectable.toggleSelect();
                 } else {
                     // Clear selection and select only this block
-                    this.vscode.postMessage({ type: 'print', text: `Select only selectable: ${selectable}` });
+                    this.communicationManager.print(`Select only selectable: ${selectable}`);
 
                     this.unselectAll();
                     selectable.select();
                 }
             }
 
-            this.vscode.postMessage({ type: 'print', text: `Selectable selected: ${selectable.isSelected()}` });
+            this.communicationManager.print(`Selectable selected: ${selectable.isSelected()}`);
 
 
             // Store the initial mouse position
@@ -133,12 +126,12 @@ export class SelectableManager {
                 const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
                 const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
 
-                this.vscode.postMessage({ type: 'print', text: `Let see if drag: deltaX ${deltaX} deltaY ${deltaY}` });
+                this.communicationManager.print(`Let see if drag: deltaX ${deltaX} deltaY ${deltaY}`);
         
                 if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
                     // Exceeded drag threshold, start dragging
                     this.isDragging = true;
-                    this.vscode.postMessage({ type: 'print', text: `Drag started` });
+                    this.communicationManager.print(`Drag started`);
 
                     document.removeEventListener('mousemove', onMouseMoveThreshold);
         
@@ -211,15 +204,7 @@ export class SelectableManager {
 
 
     public onMouseUpDrag = (): void => {
-        this.vscode.postMessage({ type: 'print', text: `Mouse up` });
-
-        if (this.isDragging) {
-            let stateMessages = this.getStateList();
-
-            this.vscode.postMessage({ type: 'print', text: stateMessages });
-
-            this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
-        }
+        this.communicationManager.print(`Mouse up` );
 
         document.removeEventListener('mousemove', this.onMouseMoveDrag);
         document.removeEventListener('mouseup', this.onMouseUpDrag);
@@ -241,7 +226,7 @@ export class SelectableManager {
     };
 
     private onMouseMoveSelectionBox = (e: MouseEvent): void => {        
-        this.vscode?.postMessage({ type: 'print', text: `Mouse move selection box` });
+        this.communicationManager.print(`Mouse move selection box` );
         if (this.selectionBox) {
             // Update selection box size
             const canvasRect = this.canvas.getBoundingClientRect();
@@ -285,7 +270,7 @@ export class SelectableManager {
     }
 
     public onMouseMoveDrag = (e: MouseEvent): void => {
-        this.vscode.postMessage({ type: 'print', text: `Drag move` });
+        this.communicationManager.print(`Drag move`);
 
         const scaledDeltaX = (e.clientX - this.dragStartX) / this.getZoomLevelReal();
         const scaledDeltaY = (e.clientY - this.dragStartY) / this.getZoomLevelReal();

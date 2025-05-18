@@ -1,0 +1,20 @@
+{
+  "version": 4,
+  "blocks": [
+    {
+      "id": "OXznmZawIMep37qVqchp4dyCZpvwZAHf",
+      "label": "New Block",
+      "x": 50,
+      "y": 50,
+      "blockType": "defaultType",
+      "blockClass": "defaultClass",
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "value": 0,
+        "gain": 1
+      }
+    }
+  ],
+  "links": []
+}

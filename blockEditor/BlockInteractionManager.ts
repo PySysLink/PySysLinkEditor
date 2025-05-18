@@ -1,4 +1,5 @@
 import { Block } from './Block';
+import { CommunicationManager } from './CommunicationManager';
 
 export class BlockInteractionManager {
     public blocks: Block[] = [];
@@ -8,17 +9,17 @@ export class BlockInteractionManager {
     private dragThreshold = 5; // Minimum distance to detect a drag
     private isDragging = false;
 
-    private vscode: any;
+    private communicationManager: CommunicationManager;
 
     private onMouseDownOnPortCallbacks: ((block: Block, e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
     private onDeleteCallbacks: ((block: Block) => void)[] = [];
 
-    constructor(vscode: any) {
-        this.vscode = vscode;
+    constructor(communicationManager: CommunicationManager) {
+        this.communicationManager = communicationManager;
     }
 
     public createBlock(id: string, label: string, x: number, y: number, inputPorts: number, outputPorts: number): void {
-        const block = new Block(id, label, x, y, inputPorts, outputPorts, this.deleteBlock);
+        const block = new Block(id, label, x, y, inputPorts, outputPorts, this.deleteBlock, this.communicationManager.updateBlock);
         block.registerOnMouseDownOnPortCallback((e: any, portType: "input" | "output", portIndex: number) => {
             this.onMouseDownOnPort(block, e, portType, portIndex);
         });
@@ -29,16 +30,12 @@ export class BlockInteractionManager {
     }
 
     private onBlockSelected(block: Block, selected: boolean): void {
-        this.vscode.postMessage({ type: 'print', text: `Block ${block.id} selected: ${selected}` });
-        if (selected) {
-            this.vscode.postMessage({ type: 'blockSelected', blockId: block.id });
-        } else {
-            this.vscode.postMessage({ type: 'blockUnselected', blockId: block.id });
-        }
+        this.communicationManager.print(`Block ${block.id} selected: ${selected}`);
+        this.communicationManager.notifyBlockSelected(block.id, selected);
     }
 
     private onMouseDownOnPort(block: Block, e: any, portType: "input" | "output", portIndex: number): void {
-        this.vscode.postMessage({ type: 'print', text: `Mouse down on ${portType} port ${portIndex} of block ${block.id}` });
+        this.communicationManager.print( `Mouse down on ${portType} port ${portIndex} of block ${block.id}` );
         this.onMouseDownOnPortCallbacks.forEach(callback => {
             callback(block, e, portType, portIndex);
         });
@@ -65,7 +62,7 @@ export class BlockInteractionManager {
         }
         this.onDeleteCallbacks.forEach(callback => callback(block));
         if (sendMessage) {
-            this.vscode.postMessage({ type: 'deleteBlock', id: block.id});
+            this.communicationManager.deleteBlock(block.id);
         }
     };
 }

@@ -4,6 +4,7 @@ import { Link, LinkNode, LinkSegment, SourceNode, TargetNode } from './Link';
 import { Block } from './Block';
 import { getNonce } from './util';
 import { LinkData } from '../shared/JsonTypes'; 
+import { CommunicationManager } from './CommunicationManager';
 
 export class LinkInteractionManager {
     public links: Link[] = [];
@@ -17,12 +18,12 @@ export class LinkInteractionManager {
     private isDragging = false;
 
     private canvas: HTMLElement;
-    private vscode: any;
+    private communicationManager: CommunicationManager;
 
     private blockInteractionManager: BlockInteractionManager;
 
-    constructor (vscode: any, canvas: HTMLElement, linksSvg: SVGSVGElement, blockInteractionManager: BlockInteractionManager) {
-        this.vscode = vscode;
+    constructor (communicationManager: CommunicationManager, canvas: HTMLElement, linksSvg: SVGSVGElement, blockInteractionManager: BlockInteractionManager) {
+        this.communicationManager = communicationManager;
         this.canvas = canvas;
         this.linksSvg = linksSvg;
         this.blockInteractionManager = blockInteractionManager;
@@ -52,52 +53,56 @@ export class LinkInteractionManager {
     }
 
     public createLink(sourceNode: SourceNode, targetNode: TargetNode, intermediateNodes: LinkNode[] = []): Link {
-        let intermediateNodesData: {x: number, y: number}[] = [];
-        intermediateNodes.forEach(node => intermediateNodesData.push({x: node.getPosition().x, y: node.getPosition().y}));
+        let intermediateNodesData: {id: string, x: number, y: number}[] = [];
+        intermediateNodes.forEach(node => intermediateNodesData.push({id: node.id, x: node.getPosition().x, y: node.getPosition().y}));
 
         let newLink = new Link(
             getNonce(),
             sourceNode,
             targetNode,
             intermediateNodes,
-            this.deleteLink
+            this.deleteLink,
+            this.communicationManager.updateLink
         );
 
         this.links.push(newLink);
 
-        this.vscode.postMessage({ type: 'addLink', 
-                                    id: newLink.id,
-                                    sourceId: sourceNode.connectedPort?.block.id, 
-                                    sourcePort: sourceNode.connectedPort?.index, 
-                                    targetId: targetNode.connectedPort?.block.id, 
-                                    targetPort: targetNode.connectedPort?.index, 
-                                    intermediateNodes: intermediateNodesData});
+        this.communicationManager.addLink({id: newLink.id,
+            sourceId: sourceNode.connectedPort?.block.id, 
+            sourcePort: sourceNode.connectedPort ? sourceNode.connectedPort.index : -1, 
+            targetId: targetNode.connectedPort?.block.id, 
+            targetPort: targetNode.connectedPort ? targetNode.connectedPort.index : -1, 
+            sourceX: sourceNode.getPosition().x,
+            sourceY: sourceNode.getPosition().y,
+            targetX: targetNode.getPosition().x,
+            targetY: targetNode.getPosition().y,
+            intermediateNodes: intermediateNodesData});
         
         return newLink;
     }
 
     private onMouseDownOnPort = (block: Block, e: any, portType: "input" | "output", portIndex: number): void => {
         let isLinkOnNode = false;
-        this.vscode.postMessage({ type: 'print', text: `Checking if block already have connection` });
+        this.communicationManager.print(`Checking if block already have connection`);
 
         if (portType === "input") {
             this.links.forEach(link => {
                 if (link.targetNode.connectedPort?.block.id === block.id && link.targetNode.connectedPort?.index === portIndex) {
-                    this.vscode.postMessage({ type: 'print', text: `Connected link found ${link.id}` });
+                    this.communicationManager.print(`Connected link found ${link.id}`);
                     isLinkOnNode = true;
                 }
             });
         } else {
             this.links.forEach(link => {
                 if (link.sourceNode.connectedPort?.block.id === block.id && link.sourceNode.connectedPort?.index === portIndex) {
-                    this.vscode.postMessage({ type: 'print', text: `Connected link found ${link.id}` });
+                    this.communicationManager.print(`Connected link found ${link.id}`);
                     isLinkOnNode = true;
                 }
             });
         }
         
         if (!isLinkOnNode) {
-            this.vscode.postMessage({ type: 'print', text: `Mouse down on non connected port, creating link` });
+            this.communicationManager.print(`Mouse down on non connected port, creating link`);
             let newLink: Link;
             if (portType === "output") {
                 newLink = this.createLink(new SourceNode(block, portIndex), 
@@ -122,7 +127,7 @@ export class LinkInteractionManager {
                     // Exceeded drag threshold, start dragging
                     this.isDragging = true;
                     document.removeEventListener('mousemove', onMouseMoveThreshold);
-                    this.vscode.postMessage({ type: 'print', text: `Threshold revased, trigger on mouse down` });
+                    this.communicationManager.print(`Threshold rebased, trigger on mouse down`);
 
                     if (portType === "input") {
                         newLink.sourceNode.unselect();
@@ -227,13 +232,13 @@ export class LinkInteractionManager {
             this.links.splice(index, 1);
         }
         if (sendMessage) {
-            this.vscode.postMessage({ type: 'deleteLink', id: link.id});
+            this.communicationManager.deleteLink(link.id);
         }
     };
 
     public renderLinks(linksData: LinkData[]): SVGSVGElement {
         
-        this.vscode.postMessage({ type: 'print', text: `Render links: ${JSON.stringify(linksData, null, 2)}` });
+        this.communicationManager.print(`Render links: ${JSON.stringify(linksData, null, 2)}`);
 
         this.linksSvg = document.querySelector('.links') as SVGSVGElement;
         if (!this.linksSvg) {
@@ -254,13 +259,13 @@ export class LinkInteractionManager {
                     node.moveTo(linkData.intermediateNodes[index].x, linkData.intermediateNodes[index].y);
                 });
             } else {
-                this.vscode.postMessage({ type: 'print', text: `Link ID does not exist, creating link: ${linkData.id}` });
+                this.communicationManager.print(`Link ID does not exist, creating link: ${linkData.id}`);
                 let sourceNode;
                 let targetNode;
                 if (linkData.sourceId !== 'undefined') {
                     let sourceBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.sourceId);
                     if (!sourceBlock) {
-                        this.vscode.postMessage( {type: 'print', text: `Target block of id: ${linkData.targetId} not found`});
+                        this.communicationManager.print(`Target block of id: ${linkData.targetId} not found`);
                         sourceNode = new SourceNode(linkData.sourceX, linkData.sourceY);
                     } else {
                         sourceNode = new SourceNode(sourceBlock, linkData.sourcePort);
@@ -272,7 +277,7 @@ export class LinkInteractionManager {
                 if (linkData.targetId !== 'undefined') {
                     let targetBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.targetId);
                     if (!targetBlock) {
-                        this.vscode.postMessage( {type: 'print', text: `Target block of id: ${linkData.targetId} not found`});
+                        this.communicationManager.print(`Target block of id: ${linkData.targetId} not found`);
                         targetNode = new TargetNode(linkData.targetX, linkData.targetY);
                     } else {
                         targetNode = new TargetNode(targetBlock, linkData.targetPort);
@@ -291,7 +296,8 @@ export class LinkInteractionManager {
                     sourceNode,
                     targetNode,
                     intermediateNodes,
-                    this.deleteLink
+                    this.deleteLink,
+                    this.communicationManager.updateLink
                 );
                 if (currentLink) {
                     sourceNode.addOnDeleteCallback(() => currentLink?.delete());
