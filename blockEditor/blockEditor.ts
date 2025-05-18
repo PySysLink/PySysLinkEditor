@@ -36,9 +36,11 @@ const vscode = acquireVsCodeApi();
     let blockInteractionManager: BlockInteractionManager;
     let selectableManager: SelectableManager;
 
-    blockInteractionManager = new BlockInteractionManager(vscode);
-    linkInteractionManager = new LinkInteractionManager(vscode, canvas, document.querySelector('.links') as SVGSVGElement, blockInteractionManager);
-    selectableManager = new SelectableManager(vscode, canvas, getZoomLevelReal);
+    let communicationManager = new CommunicationManager(vscode);
+
+    blockInteractionManager = new BlockInteractionManager(communicationManager);
+    linkInteractionManager = new LinkInteractionManager(communicationManager, canvas, document.querySelector('.links') as SVGSVGElement, blockInteractionManager);
+    selectableManager = new SelectableManager(communicationManager, canvas, getZoomLevelReal);
 
     selectableManager.registerSelectableList(() => blockInteractionManager.blocks);
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkSegments());
@@ -47,9 +49,8 @@ const vscode = acquireVsCodeApi();
     selectableManager.addOnMouseMoveListener(linkInteractionManager.highlightNodesNearPorts);
     selectableManager.addOnMouseUpListener(linkInteractionManager.connectNodesToPorts);
     selectableManager.updateSelectables();
-    selectableManager.addOnMouseMoveListener(linkInteractionManager.updateLinks);
+    selectableManager.addOnMouseMoveListener((() => linkInteractionManager.updateLinks()));
 
-    let communicationManager = new CommunicationManager(vscode);
 
     function getZoomLevelReal(): number {
         return zoomLevel/2;
@@ -82,7 +83,7 @@ const vscode = acquireVsCodeApi();
         vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
     }
 
-    function renderHTML(json: JsonData): void {
+    function renderHTML(json: JsonData, sendMessages: boolean=true): void {
         vscode.postMessage({ type: 'print', text: `Render html: ${JSON.stringify(json, null, 2)}` });
         vscode.postMessage({ type: 'print', text: `Rendering ${blockInteractionManager.blocks.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
@@ -93,7 +94,7 @@ const vscode = acquireVsCodeApi();
         // Add button
         const btn = document.createElement('button');
         btn.textContent = 'Add Block';
-        btn.addEventListener('click', () => vscode.postMessage({ type: 'addBlock' }));
+        btn.addEventListener('click', () => communicationManager.createNewBlock());
         topControls.appendChild(btn);
 
         // Add button to create a link
@@ -122,7 +123,7 @@ const vscode = acquireVsCodeApi();
 
         
 
-        linkInteractionManager.updateLinks();
+        linkInteractionManager.updateLinks(sendMessages);
 
         centerCanvas();
 
@@ -142,7 +143,7 @@ const vscode = acquireVsCodeApi();
         })));
 
         canvasContainer.appendChild(svgElement);
-        linkInteractionManager.updateLinks();
+        linkInteractionManager.updateLinks(sendMessages);
         selectableManager.updateSelectables();      
     }
 
@@ -158,13 +159,12 @@ const vscode = acquireVsCodeApi();
 
     function updateWebView(json: JsonData): void {
         vscode.postMessage({ type: 'print', text: `Render html update webview: ${JSON.stringify(json, null, 2)}` });
-        vscode.postMessage({ type: 'print', text: `Blocks ${JSON.stringify(json.blocks, null, 2)}` });
         json.blocks?.forEach(blockData => {
-            blockInteractionManager.blocks.find(b => b.id === blockData.id)?.moveTo(blockData.x, blockData.y);
+            blockInteractionManager.blocks.find(b => b.id === blockData.id)?.moveTo(blockData.x, blockData.y, false);
             var block = blockInteractionManager.blocks.find(b => b.id === blockData.id);
             if (block) {
                 vscode.postMessage({ type: 'print', text: `Block ID exists, updating block: ${blockData.id}, block data: ${blockData}` });
-                block.parseStateFromJson(blockData);
+                block.parseStateFromJson(blockData, false);
             } else {
                 vscode.postMessage({ type: 'print', text: `Block ID does not exist, creating block: ${blockData.id}` });
                 blockInteractionManager.createBlock(blockData.id, blockData.label, blockData.x, blockData.y, blockData.inputPorts, blockData.outputPorts);

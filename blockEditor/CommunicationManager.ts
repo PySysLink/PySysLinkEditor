@@ -1,11 +1,13 @@
 import { addBlockToJson, addLinkToJson, deleteBlockFromJson, MergeJsons, updateBlockFromJson, updateLinkFromJson } from "../shared/JsonManager";
 import { BlockData, IdType, JsonData, LinkData } from "../shared/JsonTypes";
+import { getNonce } from "./util";
 
 
 export class CommunicationManager {
 
     vscode: any;
     freezed: boolean = false;
+    disableSending: boolean = false;
 
     private localJson: JsonData | undefined;
     private serverJsonBeforeFreeze: JsonData | undefined;
@@ -139,4 +141,21 @@ export class CommunicationManager {
             this.setLocalJson(newJson, true);
         }
     };
+
+    public createNewBlock = () => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newBlock: BlockData = {
+                id: getNonce(),
+                label: "New Block",
+                x: 0,
+                y: 0,
+                inputPorts: 1,
+                outputPorts: 1,
+                properties: {}
+            };
+            let newJson = addBlockToJson(json, newBlock);
+            this.setLocalJson(newJson, true);
+        }
+    }
 }

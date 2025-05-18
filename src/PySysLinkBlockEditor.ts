@@ -77,13 +77,15 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 				case 'edit':
 					editBlockLabel(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
 					return;
-				case 'updateStates':
-					this.withDocumentLock(async () => {
-						let json = this.getDocumentAsJson(document);
-						e.updates.forEach((update: any) => {
-							json = this.handleMessage(json, update);
-						});
-						await this.updateTextDocument(document, json);
+				case 'updateJson':
+					this.documentLock = this.withDocumentLock(async () => {
+						if (this.document) {
+							const json = this.getDocumentAsJson(this.document);
+							json.version = json.version + 1;
+							json.blocks = e.json.blocks;
+							json.links = e.json.links;
+							await this.updateTextDocument(this.document, json);
+						}
 					});
 					return;
 				case 'print':
@@ -94,11 +96,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 					this.blockPropertiesProvider.setSelectedBlock(await getBlockData(document, e.blockId, this.getDocumentAsJson));
 					return;
 				default:
-					this.withDocumentLock(async () => {
-						let json2 = this.getDocumentAsJson(document);
-						this.handleMessage(json2, e);
-						await this.updateTextDocument(document, json2);
-					});
+					console.log(`Type of message not recognized: ${e.type}`);
 					return;
 			}
 		});
@@ -107,28 +105,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		updateWebview();
 	}
 
-	private handleMessage(json: any, e: any) : any {
-		switch (e.type) {
-			case 'addBlock':
-				return addBlock(json);
-			case 'move':
-				return moveBlock(e.id, e.x, e.y, json);
-			case 'addLink':
-				addLink(e.id, e.sourceId, e.sourcePort, e.targetId, e.targetPort, e.sourceX, e.sourceY, e.targetX, e.targetY, e.intermediateNodes, json);
-				return;
-			case 'moveLinkBatch':
-				return moveLinkBatch(e.updates, json);
-			case 'moveLinkNode':
-				return moveLinkBatch([e], json);
-			case 'deleteLink':
-				return deleteLink(json, e.id);
-			case 'deleteBlock':
-				return deleteBlock(json, e.id);
-			default:
-				console.log(`Type of message not recognized: ${e.type}`);
-				return json;
-		}
-	}
     
 
 	/**

@@ -74,8 +74,6 @@ export class Block extends Selectable implements Movable {
             this.element.appendChild(outputPort);
             this.outputPorts.push(outputPort);
         }
-
-        this.onUpdate(this.toBlockData());
     }
 
     private toBlockData(): BlockData {
@@ -100,21 +98,25 @@ export class Block extends Selectable implements Movable {
         this.onMouseDownOnPortCallbacks.push(callback);
     }
 
-    public moveTo(x: number, y: number): void {
+    public moveTo(x: number, y: number, launchCallback: boolean = true): void {
         this.x = x;
         this.y = y;
         if (this.element) {
             this.element.style.left = `${x}px`;
             this.element.style.top = `${y}px`;
         }
-        this.onUpdate(this.toBlockData());
+        if (launchCallback) {
+            this.onUpdate(this.toBlockData());
+        }
     }
 
-    public parseStateFromJson(blockData: { x: number; y: number; label: string }): void {
+    public parseStateFromJson(blockData: { x: number; y: number; label: string }, sendMessages: boolean=true): void {
         this.moveTo(blockData.x, blockData.y);
         this.label = blockData.label;
         this.labelElement.textContent = this.label;
-        this.onUpdate(this.toBlockData());
+        if (sendMessages) {
+            this.onUpdate(this.toBlockData());
+        }
     }
 
     public getPosition(): { x: number; y: number } {

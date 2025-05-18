@@ -163,7 +163,7 @@ export class LinkInteractionManager {
         }
     };
     
-    public updateLinks = (): void => {
+    public updateLinks = (sendMessages: boolean=true): void => {
         this.linksSvg = document.querySelector('.links') as SVGSVGElement;
         if (!this.linksSvg) {
             this.linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -180,7 +180,7 @@ export class LinkInteractionManager {
 
 
         this.links.forEach(link => link.addToSvg(this.linksSvg));
-        this.links.forEach(link => link.updatePosition());
+        this.links.forEach(link => link.updatePosition(sendMessages));
         this.canvas.appendChild(this.linksSvg);
     };
 

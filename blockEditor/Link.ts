@@ -378,12 +378,14 @@ export class Link {
         this.segments.forEach(segment => segment.updatePosition());
     }
 
-    public updatePosition(): void {
+    public updatePosition(sendMessages: boolean=true): void {
         this.sourceNode.moveToAttachedPort();
         this.targetNode.moveToAttachedPort();
         
         this.segments.forEach(segment => segment.updatePosition());
-        this.onUpdate(this.toLinkData());
+        if (sendMessages) {
+            this.onUpdate(this.toLinkData());
+        }
     }
 
     public addToSvg(svg: SVGSVGElement): void {
