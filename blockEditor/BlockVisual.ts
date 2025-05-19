@@ -23,7 +23,7 @@ export class BlockVisual extends Selectable implements Movable {
 
     private onDelete: (block: BlockVisual) => void;
 
-    constructor(blockData: BlockData, onDelete: (block: BlockVisual) => void) {
+    constructor(blockData: BlockData, communicationManager: CommunicationManager, onDelete: (block: BlockVisual) => void) {
         super();
         this.id = blockData.id;
         this.inputPortNumber = blockData.inputPorts;
@@ -42,6 +42,13 @@ export class BlockVisual extends Selectable implements Movable {
             inputPort.classList.add('input-port');
             inputPort.textContent = `In ${j + 1}`;
 
+            const position = communicationManager.getPortPosition(this.id, "input", j);
+            const thisPosition = this.getPosition(communicationManager);
+            if (position && thisPosition) {
+                inputPort.style.left = `${position.x - thisPosition.x - inputPort.offsetWidth/4}px`;
+                inputPort.style.top = `${position.y - thisPosition.y - inputPort.offsetHeight/2}px`;
+            }
+            
             inputPort.addEventListener('mousedown', (e: any) => {
                 this.onMouseDownInPort(e, "input", j);
             });
@@ -55,7 +62,14 @@ export class BlockVisual extends Selectable implements Movable {
             const outputPort = document.createElement('div');
             outputPort.classList.add('output-port');
             outputPort.textContent = `Out ${i + 1}`;
-            
+
+            const position = communicationManager.getPortPosition(this.id, "output", i);
+            const thisPosition = this.getPosition(communicationManager);
+            if (position && thisPosition) {
+                outputPort.style.left = `${position.x - thisPosition.x - 3*outputPort.offsetWidth/4}px`;
+                outputPort.style.top = `${position.y - thisPosition.y - outputPort.offsetHeight/2}px`;
+            }
+
             outputPort.addEventListener('mousedown', (e: any) => {
                 this.onMouseDownInPort(e, "output", i);
             });

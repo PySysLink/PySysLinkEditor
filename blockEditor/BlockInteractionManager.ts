@@ -20,7 +20,7 @@ export class BlockInteractionManager {
     }
 
     public createBlockVisual(blockData: BlockData): void {
-        const block = new BlockVisual(blockData, this.deleteBlock);
+        const block = new BlockVisual(blockData, this.communicationManager, this.deleteBlock);
         block.registerOnMouseDownOnPortCallback((e: any, portType: "input" | "output", portIndex: number) => {
             this.onMouseDownOnPort(block, e, portType, portIndex);
         });
