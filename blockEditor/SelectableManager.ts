@@ -278,7 +278,7 @@ export class SelectableManager {
         if (this.isDragging) {
             this.getSelectedSelectables().forEach(selectable => {
                 if (isMovable(selectable)) {
-                    selectable.moveDelta(scaledDeltaX, scaledDeltaY);
+                    selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager);
                 }
             });
 

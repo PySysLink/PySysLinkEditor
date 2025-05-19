@@ -155,3 +155,146 @@ export function updateLinkFromJson(json: JsonData, updatedLink: LinkData): JsonD
     };
     return updatedJson;
 }
+
+export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: number): JsonData {
+    let updatedJson: JsonData = {
+        ...json,
+        blocks: json.blocks?.map(block => {
+            if (block.id === blockId) {
+                return {
+                    ...block,
+                    x: x,  
+                    y: y
+                };
+            }
+            return block;
+        })
+    };
+    updatedJson = updateLinksNodesPosition(updatedJson);
+    return updatedJson;
+}
+
+export function attachLinkToPort(json: JsonData, linkId: IdType, blockId: IdType, portType: "input" | "output", portIndex: number): JsonData {
+    let link = json.links?.find(l => l.id === linkId);
+    if (link) {
+        if (portType === "input") {
+            link.targetId = blockId;
+            link.targetPort = portIndex;
+            link.targetX = getPortPosition(json, blockId, portType, portIndex)?.x || 0;
+            link.targetY = getPortPosition(json, blockId, portType, portIndex)?.y || 0;
+        } else {
+            link.sourceId = blockId;
+            link.sourcePort = portIndex;
+            link.sourceX = getPortPosition(json, blockId, portType, portIndex)?.x || 0;
+            link.sourceY = getPortPosition(json, blockId, portType, portIndex)?.y || 0;
+        }
+        let newJson = updateLinkFromJson(json, link);
+        return newJson;
+    }
+    return json;
+}
+
+export function getPortPosition(json: JsonData, blockId: IdType, portType: "input" | "output", portIndex: number): { x: number, y: number } | undefined {
+        const portSpacing = 20; // Spacing between ports
+        const blockWidth = 120;
+        const portOffset = portIndex * portSpacing;
+        
+        if (json) {
+            let block = json.blocks?.find(b => b.id === blockId);
+            if (block) {
+                if (portType === "input") {
+                    return { x: block.x, y: block.y + portOffset + 20 };
+                } else {
+                    return { x: block.x + blockWidth, y: block.y + portOffset + 20 };
+                }
+            }
+        }
+        return undefined;
+    };
+
+export function updateLinksNodesPosition(json: JsonData): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            const sourceBlock = json.blocks?.find(block => block.id === link.sourceId);
+            if (sourceBlock) {
+                link.sourceX = sourceBlock.x;
+                link.sourceY = sourceBlock.y;
+            }
+            const targetBlock = json.blocks?.find(block => block.id === link.targetId);
+            if (targetBlock) {
+                link.targetX = targetBlock.x;
+                link.targetY = targetBlock.y;
+            }
+            return link;
+        })
+    };
+    return updatedJson;
+}
+
+export function moveLinkNode(json: JsonData, nodeId: IdType, x: number, y: number): JsonData {
+    let updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            if (link.intermediateNodes) {
+                link.intermediateNodes = link.intermediateNodes.map(node => {
+                    if (node.id === nodeId) {
+                        node.x = x;
+                        node.y = y;
+                    }
+                    return node;
+                });
+            }
+            return link;
+        })
+    };
+    return updatedJson;
+}
+
+export function moveLinkDelta(json: JsonData, linkId: IdType, deltaX: number, deltaY: number): JsonData {
+    let updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            if (link.id === linkId) {
+                link.sourceX += deltaX;
+                link.sourceY += deltaY;
+                link.targetX += deltaX;
+                link.targetY += deltaY;
+                link.intermediateNodes = link.intermediateNodes.map(node => {
+                    node.x += deltaX;
+                    node.y += deltaY;
+                    return node;
+                });
+            }
+            return link;
+        })
+    };
+    return updatedJson;
+}
+
+export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number): JsonData {
+    let updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            if (link.id === linkId) {
+                link.sourceX = x;
+                link.sourceY = y;
+            }
+            return link;
+        })
+    };
+    return updatedJson;
+}
+export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: number): JsonData {
+    let updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            if (link.id === linkId) {
+                link.targetX = x;
+                link.targetY = y;
+            }
+            return link;
+        })
+    };
+    return updatedJson;
+}

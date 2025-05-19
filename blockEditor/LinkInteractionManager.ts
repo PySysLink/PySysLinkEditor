@@ -1,13 +1,13 @@
 import { link } from 'fs';
 import { BlockInteractionManager } from './BlockInteractionManager';
-import { Link, LinkNode, LinkSegment, SourceNode, TargetNode } from './Link';
-import { Block } from './Block';
+import { LinkVisual, LinkNode, LinkSegment, SourceNode, TargetNode } from './LinkVisual';
+import { BlockVisual } from './BlockVisual';
 import { getNonce } from './util';
-import { LinkData } from '../shared/JsonTypes'; 
+import { IdType, JsonData, LinkData } from '../shared/JsonTypes'; 
 import { CommunicationManager } from './CommunicationManager';
 
 export class LinkInteractionManager {
-    public links: Link[] = [];
+    public links: LinkVisual[] = [];
     public linksSvg: SVGSVGElement;
     
 
@@ -28,7 +28,6 @@ export class LinkInteractionManager {
         this.linksSvg = linksSvg;
         this.blockInteractionManager = blockInteractionManager;
         this.blockInteractionManager.registerOnMouseDownOnPortCallback(this.onMouseDownOnPort);
-        this.blockInteractionManager.registerOnDeleteCallback(this.onBlockDeleted);
     }
 
     public getAllLinkSegments(): LinkSegment[] {
@@ -52,49 +51,31 @@ export class LinkInteractionManager {
         return result;
     }
 
-    public createLink(sourceNode: SourceNode, targetNode: TargetNode, intermediateNodes: LinkNode[] = []): Link {
-        let intermediateNodesData: {id: string, x: number, y: number}[] = [];
-        intermediateNodes.forEach(node => intermediateNodesData.push({id: node.id, x: node.getPosition().x, y: node.getPosition().y}));
-
-        let newLink = new Link(
-            getNonce(),
-            sourceNode,
-            targetNode,
-            intermediateNodes,
-            this.deleteLink,
-            this.communicationManager.updateLink
+    public createLinkVisual(linkData: LinkData): LinkVisual {
+        let newLink = new LinkVisual(
+            linkData,
+            this.deleteLink
         );
 
         this.links.push(newLink);
-
-        this.communicationManager.addLink({id: newLink.id,
-            sourceId: sourceNode.connectedPort?.block.id, 
-            sourcePort: sourceNode.connectedPort ? sourceNode.connectedPort.index : -1, 
-            targetId: targetNode.connectedPort?.block.id, 
-            targetPort: targetNode.connectedPort ? targetNode.connectedPort.index : -1, 
-            sourceX: sourceNode.getPosition().x,
-            sourceY: sourceNode.getPosition().y,
-            targetX: targetNode.getPosition().x,
-            targetY: targetNode.getPosition().y,
-            intermediateNodes: intermediateNodesData});
         
         return newLink;
     }
 
-    private onMouseDownOnPort = (block: Block, e: any, portType: "input" | "output", portIndex: number): void => {
+    private onMouseDownOnPort = (block: BlockVisual, e: any, portType: "input" | "output", portIndex: number): void => {
         let isLinkOnNode = false;
         this.communicationManager.print(`Checking if block already have connection`);
 
         if (portType === "input") {
-            this.links.forEach(link => {
-                if (link.targetNode.connectedPort?.block.id === block.id && link.targetNode.connectedPort?.index === portIndex) {
+            this.communicationManager.getLocalJson()?.links?.forEach(link => {
+                if (link.targetId === block.id && link.targetPort === portIndex) {
                     this.communicationManager.print(`Connected link found ${link.id}`);
                     isLinkOnNode = true;
                 }
             });
         } else {
-            this.links.forEach(link => {
-                if (link.sourceNode.connectedPort?.block.id === block.id && link.sourceNode.connectedPort?.index === portIndex) {
+            this.communicationManager.getLocalJson()?.links?.forEach(link => {
+                if (link.sourceId === block.id && link.sourcePort === portIndex) {
                     this.communicationManager.print(`Connected link found ${link.id}`);
                     isLinkOnNode = true;
                 }
@@ -103,20 +84,16 @@ export class LinkInteractionManager {
         
         if (!isLinkOnNode) {
             this.communicationManager.print(`Mouse down on non connected port, creating link`);
-            let newLink: Link;
-            if (portType === "output") {
-                newLink = this.createLink(new SourceNode(block, portIndex), 
-                                new TargetNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y));
+
+            let newLinkData = this.communicationManager.createNewLinkFromPort(block.id, portType, portIndex);
+            let newLink: LinkVisual;
+            if (newLinkData) {
+                newLink = this.createLinkVisual(newLinkData);
                 newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete());
                 newLink.targetNode.addOnDeleteCallback(() => newLink?.delete());
-                e.stopPropagation();
-            } else if (portType === "input") {
-                newLink = this.createLink(new SourceNode(block.getPortPosition(portIndex, portType).x, block.getPortPosition(portIndex, portType).y),
-                                new TargetNode(block, portIndex));
-                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete());
-                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete());
-                e.stopPropagation();
-            }
+            } else { return; }
+            
+            e.stopPropagation();
 
             // Add a temporary mousemove listener to detect drag threshold
             const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
@@ -162,8 +139,8 @@ export class LinkInteractionManager {
             document.addEventListener('mouseup', onMouseUpThreshold);
         }
     };
-    
-    public updateLinks = (sendMessages: boolean=true): void => {
+
+    public updateFromJson(json: JsonData): void {
         this.linksSvg = document.querySelector('.links') as SVGSVGElement;
         if (!this.linksSvg) {
             this.linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -178,11 +155,23 @@ export class LinkInteractionManager {
         this.linksSvg.style.height = `${this.canvas.offsetHeight}px`;
         this.linksSvg.style.transform = this.canvas.style.transform; // Match the canvas transform (e.g., scale)
 
+        json.links?.forEach(linkData => {
+            var link = this.links.find(l => l.id === linkData.id);
+            if (!link) {
+                this.createLinkVisual(linkData);
+            }
+        });
+
+        this.links.forEach((link: LinkVisual) => {
+            const linkData = json.links?.find(l => l.id === link.id);
+            if (!linkData) {
+                this.deleteLink(link);
+            }
+        });
 
         this.links.forEach(link => link.addToSvg(this.linksSvg));
-        this.links.forEach(link => link.updatePosition(sendMessages));
-        this.canvas.appendChild(this.linksSvg);
-    };
+        this.links.forEach(link => link.updateFromJson(json));
+    }
 
 
     public getSelectedLinkSegments(): LinkSegment[] {
@@ -212,8 +201,8 @@ export class LinkInteractionManager {
     }
 
 
-    public getSelectedLinks(): Link[] {
-        var result: Link[] = [];
+    public getSelectedLinks(): LinkVisual[] {
+        var result: LinkVisual[] = [];
         this.links.forEach(link => {
             for (let segment of link.segments) {
                 if (segment.isSelected()) {
@@ -225,160 +214,88 @@ export class LinkInteractionManager {
         return result;
     }
 
-    public deleteLink = (link: Link, sendMessage: boolean = true): void => {
+    public deleteLink = (link: LinkVisual): void => {
         link.removeFromSvg(this.linksSvg);
         const index = this.links.indexOf(link);
         if (index !== -1) {
             this.links.splice(index, 1);
         }
-        if (sendMessage) {
-            this.communicationManager.deleteLink(link.id);
-        }
     };
 
-    public renderLinks(linksData: LinkData[]): SVGSVGElement {
-        
-        this.communicationManager.print(`Render links: ${JSON.stringify(linksData, null, 2)}`);
-
-        this.linksSvg = document.querySelector('.links') as SVGSVGElement;
-        if (!this.linksSvg) {
-            this.linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            this.linksSvg.classList.add('links');
-        }
-
-        while (this.linksSvg.firstChild) {
-            this.linksSvg.removeChild(this.linksSvg.firstChild);
-        }
-
-    
-        // Create and render new links
-        linksData.forEach(linkData => {
-            let currentLink = this.links.find(link => link.id === linkData.id);
-            if (currentLink) {
-                currentLink.intermediateNodes.forEach((node, index) => {
-                    node.moveTo(linkData.intermediateNodes[index].x, linkData.intermediateNodes[index].y);
-                });
-            } else {
-                this.communicationManager.print(`Link ID does not exist, creating link: ${linkData.id}`);
-                let sourceNode;
-                let targetNode;
-                if (linkData.sourceId !== 'undefined') {
-                    let sourceBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.sourceId);
-                    if (!sourceBlock) {
-                        this.communicationManager.print(`Target block of id: ${linkData.targetId} not found`);
-                        sourceNode = new SourceNode(linkData.sourceX, linkData.sourceY);
-                    } else {
-                        sourceNode = new SourceNode(sourceBlock, linkData.sourcePort);
-                    }
-                } else {
-                    sourceNode = new SourceNode(linkData.sourceX, linkData.sourceY);
-                }
-
-                if (linkData.targetId !== 'undefined') {
-                    let targetBlock = this.blockInteractionManager.blocks.find(block => block.id === linkData.targetId);
-                    if (!targetBlock) {
-                        this.communicationManager.print(`Target block of id: ${linkData.targetId} not found`);
-                        targetNode = new TargetNode(linkData.targetX, linkData.targetY);
-                    } else {
-                        targetNode = new TargetNode(targetBlock, linkData.targetPort);
-                    }
-                } else {
-                    targetNode = new TargetNode(linkData.targetX, linkData.targetY);
-                }
-
-                let intermediateNodes: LinkNode[] = [];
-                linkData.intermediateNodes.forEach(intermediateData => {
-                    intermediateNodes.push(new LinkNode(intermediateData.id, intermediateData.x, intermediateData.y));
-                });
-
-                currentLink = new Link(
-                    linkData.id,
-                    sourceNode,
-                    targetNode,
-                    intermediateNodes,
-                    this.deleteLink,
-                    this.communicationManager.updateLink
-                );
-                if (currentLink) {
-                    sourceNode.addOnDeleteCallback(() => currentLink?.delete());
-                    targetNode.addOnDeleteCallback(() => currentLink?.delete());
-                }
-
-                this.links.push(currentLink);
-            }
-            currentLink.addToSvg(this.linksSvg);
-            currentLink.updatePosition();
-        });
-
-        return this.linksSvg;
-    }
-
     public connectNodesToPorts = () : void => {
-        this.getAllLinkNodes().forEach(node => {
-            const port = this.detectPort(node);
-            if (port) {
-                node.unhighlight();
-                if (port.portType === "input" && node instanceof TargetNode) {
-                    node.attachToPort(port.block, port.portIndex);
-                } else if (port.portType === "output" && node instanceof SourceNode) {
-                    node.attachToPort(port.block, port.portIndex);
-                }
-            } else {
-                node.unhighlight();
+        this.communicationManager.getLocalJson()?.links?.forEach(link => {
+            const visualLink = this.links.find(l => l.id === link.id);
+
+            const port1 = this.detectPort(link.sourceX, link.sourceY);
+            if (port1) {
+                visualLink?.sourceNode.unhighlight();
+                if (port1.portType === "output") {
+                    this.communicationManager.attachLinkToPort(link.id, port1.blockId, port1.portType, port1.portIndex);
+                } else { visualLink?.sourceNode.unhighlight(); }
+            }
+
+            const port2 = this.detectPort(link.targetX, link.targetY);
+            if (port2) {
+                visualLink?.sourceNode.unhighlight();
+                if (port2.portType === "input") {
+                    this.communicationManager.attachLinkToPort(link.id, port2.blockId, port2.portType, port2.portIndex);
+                } else { visualLink?.sourceNode.unhighlight(); }
             }
         });
     };
 
     public highlightNodesNearPorts = (e: MouseEvent) : void => {
-        this.getAllLinkNodes().forEach(node => {
-            // Detect if the node is over a port
-            const port = this.detectPort(node);
-            
-            if (port) {
-                if (port.portType === "input" && node instanceof TargetNode) {
-                    if (!node.connectedPort) {
-                        node.highlight();
+        this.communicationManager.getLocalJson()?.links?.forEach(link => {
+            const visualLink = this.links.find(l => l.id === link.id);
+
+            const port1 = this.detectPort(link.sourceX, link.sourceY);
+            if (port1) {
+                if (port1.portType === "output") {
+                    if (link.sourcePort === undefined) {
+                        visualLink?.sourceNode.highlight();
                     }
-                } else if (port.portType === "output" && node instanceof SourceNode) {
-                    if (!node.connectedPort) {
-                        node.highlight();
-                    }
-                } else {
-                    node.unhighlight();
-                }
-            } else {
-                node.unhighlight();
+                } else { visualLink?.sourceNode.unhighlight(); }
             }
+
+            const port2 = this.detectPort(link.targetX, link.targetY);
+            if (port2) {
+                if (port2.portType === "input") {
+                    if (link.targetPort === undefined) {
+                        visualLink?.targetNode.highlight();
+                    }
+                } else { visualLink?.targetNode.unhighlight(); }
+            }
+            
         });
     };
 
     
-    private detectPort(node: LinkNode): { block: Block; portIndex: number; portType: "input" | "output" } | null {
-        for (const block of this.blockInteractionManager.blocks) {
-            for (let i = 0; i < block.inputPortNumber; i++) {
-                const portPosition = block.getPortPosition(i, "input");
-                if (Math.abs(node.getPosition().x - portPosition.x) < 10 && Math.abs(node.getPosition().y - portPosition.y) < 10) {
-                    return { block, portIndex: i, portType: "input" };
+    private detectPort(x: number, y: number): { blockId: IdType; portType: "input" | "output"; portIndex: number } | undefined {
+        let localJson = this.communicationManager.getLocalJson();
+        if (!localJson) {
+            return undefined;
+        }
+        if (!localJson.blocks) {
+            return undefined;
+        }
+        for (const block of localJson.blocks) {
+            for (let i = 0; i < block.inputPorts; i++) {
+                const portPosition = this.communicationManager.getPortPosition(block.id, "input", i);
+                if (portPosition) {
+                    if (Math.abs(x - portPosition.x) < 10 && Math.abs(y - portPosition.y) < 10) {
+                        return { blockId: block.id, portIndex: i, portType: "input" };
+                    }
                 }
             }
-            for (let i = 0; i < block.outputPortNumber; i++) {
-                const portPosition = block.getPortPosition(i, "output");
-                if (Math.abs(node.getPosition().x - portPosition.x) < 10 && Math.abs(node.getPosition().y - portPosition.y) < 10) {
-                    return { block, portIndex: i, portType: "output" };
+            for (let i = 0; i < block.outputPorts; i++) {
+                const portPosition = this.communicationManager.getPortPosition(block.id, "output", i);
+                if (portPosition) {
+                    if (Math.abs(x - portPosition.x) < 10 && Math.abs(y - portPosition.y) < 10) {
+                        return { blockId: block.id, portIndex: i, portType: "output" };
+                    }
                 }
             }
         }
-        return null;
+        return undefined;
     }
-
-    public onBlockDeleted = (block: Block): void => {
-        this.links.forEach(link => {
-            if (link.sourceNode.connectedPort?.block.id === block.id) {
-                link.sourceNode.connectedPort = undefined;
-            }
-            if (link.targetNode.connectedPort?.block.id === block.id) {
-                link.targetNode.connectedPort = undefined;
-            }
-        });
-    };
 }

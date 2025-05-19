@@ -1,4 +1,4 @@
-import { addBlockToJson, addLinkToJson, deleteBlockFromJson, MergeJsons, updateBlockFromJson, updateLinkFromJson } from "../shared/JsonManager";
+import { addBlockToJson, addLinkToJson, attachLinkToPort, deleteBlockFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkFromJson, updateLinksNodesPosition } from "../shared/JsonManager";
 import { BlockData, IdType, JsonData, LinkData } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 
@@ -157,5 +157,83 @@ export class CommunicationManager {
             let newJson = addBlockToJson(json, newBlock);
             this.setLocalJson(newJson, true);
         }
-    }
+    };
+
+    public createNewLinkFromPort = (blockId: IdType, portType: "input" | "output", portIndex: number) : LinkData | undefined => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newLink: LinkData = {
+                id: getNonce(),
+                sourceId: blockId,
+                targetId: "",
+                sourcePort: portType === "input" ? portIndex : -1,
+                targetPort: portType === "output" ? portIndex : -1,
+                sourceX: this.getPortPosition(blockId, portType, portIndex)?.x || 0,
+                sourceY: this.getPortPosition(blockId, portType, portIndex)?.y || 0,
+                targetX: this.getPortPosition(blockId, portType, portIndex)?.x || 0,
+                targetY: this.getPortPosition(blockId, portType, portIndex)?.y || 0,
+                intermediateNodes: []
+            };
+            let newJson = addLinkToJson(json, newLink);
+            this.setLocalJson(newJson, true);
+            return newLink;
+        }
+        return undefined;
+    };
+
+    public getPortPosition = (blockId: IdType, portType: "input" | "output", portIndex: number): { x: number, y: number } | undefined => {
+        let json = this.getLocalJson();
+        if (json) {
+            return getPortPosition(json, blockId, portType, portIndex);
+        }
+        return undefined;
+    };
+
+    public attachLinkToPort = (linkId: IdType, blockId: IdType, portType: "input" | "output", portIndex: number) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = attachLinkToPort(json, linkId, blockId, portType, portIndex);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public moveBlock = (blockId: IdType, x: number, y: number) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = moveBlockInJson(json, blockId, x, y);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public moveLinkDelta = (linkId: IdType, deltaX: number, deltaY: number) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = moveLinkDelta(json, linkId, deltaX, deltaY);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public moveLinkNode = (nodeId: IdType, x: number, y: number) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = moveLinkNode(json, nodeId, x, y);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public moveSourceNode = (linkId: IdType, x: number, y: number) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = moveSourceNode(json, linkId, x, y);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public moveTargetNode = (linkId: IdType, x: number, y: number) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = moveTargetNode(json, linkId, x, y);
+            this.setLocalJson(newJson, true);
+        }
+    };
 }

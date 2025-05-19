@@ -1,3 +1,5 @@
+import { JsonData } from "../shared/JsonTypes";
+
 export abstract class CanvasElement {
 
     abstract getElement(): HTMLElement | SVGElement;
@@ -22,4 +24,6 @@ export abstract class CanvasElement {
             onMouseDown(this, e);
         });
     }
+
+    public abstract updateFromJson(json: JsonData): void;
 }

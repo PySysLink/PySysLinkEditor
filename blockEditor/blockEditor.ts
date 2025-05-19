@@ -1,5 +1,5 @@
-import { Link, SourceNode, TargetNode } from './Link';
-import { Block } from './Block';
+import { LinkVisual, SourceNode, TargetNode } from './LinkVisual';
+import { BlockVisual } from './BlockVisual';
 import { BlockInteractionManager } from './BlockInteractionManager';
 import { LinkInteractionManager } from './LinkInteractionManager';
 import { Selectable } from './Selectable';
@@ -7,6 +7,7 @@ import { SelectableManager } from './SelectableManager';
 import { link } from 'fs';
 import { JsonData } from '../shared/JsonTypes';
 import { CommunicationManager } from './CommunicationManager';
+import { getNonce } from './util';
 
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
@@ -49,43 +50,15 @@ const vscode = acquireVsCodeApi();
     selectableManager.addOnMouseMoveListener(linkInteractionManager.highlightNodesNearPorts);
     selectableManager.addOnMouseUpListener(linkInteractionManager.connectNodesToPorts);
     selectableManager.updateSelectables();
-    selectableManager.addOnMouseMoveListener((() => linkInteractionManager.updateLinks()));
 
 
     function getZoomLevelReal(): number {
         return zoomLevel/2;
     }
     
-
-    function createRandomLink(): void {
-        if (blockInteractionManager.blocks.length < 2) {
-            vscode.postMessage({ type: 'print', text: 'Not enough blocks to create a link.' });
-            return;
-        }
-    
-        // Randomly select two different blocks
-        const sourceIndex = Math.floor(Math.random() * blockInteractionManager.blocks.length);
-        let targetIndex = Math.floor(Math.random() * blockInteractionManager.blocks.length);
-    
-        // Ensure the source and target are not the same
-        while (targetIndex === sourceIndex) {
-            targetIndex = Math.floor(Math.random() * blockInteractionManager.blocks.length);
-        }
-    
-        const sourceBlock = blockInteractionManager.blocks[sourceIndex];
-        const targetBlock = blockInteractionManager.blocks[targetIndex];
-    
-        // Create a link between the two blocks
-        let sourceNode = new SourceNode(sourceBlock, 0);
-        let targetNode = new TargetNode(targetBlock, 0);
-        linkInteractionManager.createLink(sourceNode, targetNode, []);
-    
-        vscode.postMessage({ type: 'print', text: `Created link between ${sourceBlock.label} and ${targetBlock.label}` });
-    }
-
-    function renderHTML(json: JsonData, sendMessages: boolean=true): void {
+    function renderHTML(json: JsonData): void {
         vscode.postMessage({ type: 'print', text: `Render html: ${JSON.stringify(json, null, 2)}` });
-        vscode.postMessage({ type: 'print', text: `Rendering ${blockInteractionManager.blocks.length} blocks` });
+        vscode.postMessage({ type: 'print', text: `Rendering ${json.blocks?.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
         blockInteractionManager.blocks.forEach(block => block.addElementToCanvas(canvas));
 
@@ -96,12 +69,6 @@ const vscode = acquireVsCodeApi();
         btn.textContent = 'Add Block';
         btn.addEventListener('click', () => communicationManager.createNewBlock());
         topControls.appendChild(btn);
-
-        // Add button to create a link
-        const btnCreateLink = document.createElement('button');
-        btnCreateLink.textContent = 'Create Link';
-        btnCreateLink.addEventListener('click', createRandomLink);
-        topControls.appendChild(btnCreateLink);
 
         const btnZoomIn = document.createElement('button');
         btnZoomIn.textContent = 'Zoom In';
@@ -121,67 +88,25 @@ const vscode = acquireVsCodeApi();
         zoomContainer.addEventListener('wheel', handleMouseWheelZoom);
         canvasContainer.addEventListener('mousedown', onMouseDownForPanning);
 
-        
-
-        linkInteractionManager.updateLinks(sendMessages);
-
-        centerCanvas();
-
         setZoom(zoomLevel);
 
-        let svgElement = linkInteractionManager.renderLinks((json.links || []).map(link => ({
-            id: link.id,
-            sourceId: link.sourceId,
-            targetId: link.targetId,
-            sourcePort: link.sourcePort, 
-            targetPort: link.targetPort, 
-            sourceX: link.sourceX,
-            sourceY: link.sourceY,
-            targetX: link.targetX,
-            targetY: link.targetY,
-            intermediateNodes: link.intermediateNodes 
-        })));
-
-        canvasContainer.appendChild(svgElement);
-        linkInteractionManager.updateLinks(sendMessages);
+        linkInteractionManager.updateFromJson(json);
+        blockInteractionManager.updateFromJson(json);
         selectableManager.updateSelectables();      
     }
 
     
 
-    function centerCanvas(): void {
-        // Scroll to the center of the canvas
-        // canvasContainer.scrollLeft = (canvas.scrollWidth - canvasContainer.clientWidth) / 2;
-        // canvasContainer.scrollTop = (canvas.scrollHeight - canvasContainer.clientHeight) / 2;
-    }
-
     communicationManager.registerLocalJsonChangedCallback(updateWebView);
 
     function updateWebView(json: JsonData): void {
         vscode.postMessage({ type: 'print', text: `Render html update webview: ${JSON.stringify(json, null, 2)}` });
-        json.blocks?.forEach(blockData => {
-            blockInteractionManager.blocks.find(b => b.id === blockData.id)?.moveTo(blockData.x, blockData.y, false);
-            var block = blockInteractionManager.blocks.find(b => b.id === blockData.id);
-            if (block) {
-                vscode.postMessage({ type: 'print', text: `Block ID exists, updating block: ${blockData.id}, block data: ${blockData}` });
-                block.parseStateFromJson(blockData, false);
-            } else {
-                vscode.postMessage({ type: 'print', text: `Block ID does not exist, creating block: ${blockData.id}` });
-                blockInteractionManager.createBlock(blockData.id, blockData.label, blockData.x, blockData.y, blockData.inputPorts, blockData.outputPorts);
-            }
-        });
+        blockInteractionManager.updateFromJson(json);
 
-        blockInteractionManager.blocks.forEach((block: Block) => {
-            const blockData = json.blocks?.find(b => b.id === block.id);
-            if (!blockData) {
-                blockInteractionManager.deleteBlock(block, false);
-            }
-        });
-
-        linkInteractionManager.links.forEach((link: Link) => {
+        linkInteractionManager.links.forEach((link: LinkVisual) => {
             const linkData = json.links?.find(l => l.id === link.id);
             if (!linkData) {
-                linkInteractionManager.deleteLink(link, false);
+                linkInteractionManager.deleteLink(link);
             }
         });
 
@@ -203,7 +128,6 @@ const vscode = acquireVsCodeApi();
         zoomContainer.style.width = `${scaledWidth}px`;
         zoomContainer.style.height = `${scaledHeight}px`;
 
-        linkInteractionManager.updateLinks(); // Update the links to match the new zoom level
         vscode.postMessage({ type: 'print', text: `Zoom level: ${zoomLevel}` });
     }
 
@@ -248,8 +172,6 @@ const vscode = acquireVsCodeApi();
         // Update the starting position for the next movement
         panStartX = e.clientX;
         panStartY = e.clientY;
-
-        linkInteractionManager.updateLinks();
     }
     
     function onMouseUpForPanning(e: MouseEvent): void {
