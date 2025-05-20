@@ -21,7 +21,7 @@ export class CommunicationManager {
 
     print(text: string) {
         this.vscode.postMessage({
-            command: 'print',
+            type: 'print',
             text: text
         });
     }
@@ -31,23 +31,41 @@ export class CommunicationManager {
     }
 
     public freeze() {
-        this.freezed = true;
-        this.serverJsonBeforeFreeze = this.localJson;
+        this.print("Freeze called");
+        if (!this.freezed) {
+            this.freezed = true;
+            this.serverJsonBeforeFreeze = this.localJson;
+        }
     }
 
     public unfreeze() {
-        this.freezed = false;
-        if (this.serverJson && this.serverJsonBeforeFreeze && this.localJson) {
-            let mergedJson = MergeJsons(this.serverJsonBeforeFreeze, this.localJson, this.serverJson);
-            this.setLocalJson(mergedJson);
-            this.serverJson = undefined;
-            this.serverJsonBeforeFreeze = undefined;
+        this.print("Unfreeze called");
+        this.print(`Freezed: ${this.freezed}`);
+        if (this.freezed) {
+            this.freezed = false;
+            this.print(`Freezed server json: ${this.serverJson}`);
+            this.print(`Freezed server before freeze: ${this.serverJsonBeforeFreeze}`);
+            this.print(`Freezed local json: ${this.localJson}`);
+            let mergedJson: JsonData | undefined = undefined;
+            if (this.serverJson && this.serverJsonBeforeFreeze && this.localJson) {
+                this.print("All ready to send freezed json");
+                mergedJson = MergeJsons(this.serverJsonBeforeFreeze, this.localJson, this.serverJson);
+            } else if (this.serverJsonBeforeFreeze && this.localJson) {
+                mergedJson = MergeJsons(this.serverJsonBeforeFreeze, this.localJson, this.localJson);
+            }
+            if (mergedJson) {
+                this.setLocalJson(mergedJson);
+                this.serverJson = undefined;
+                this.serverJsonBeforeFreeze = undefined;
+            }
         }
     }
 
     public setLocalJson(json: JsonData, sendToServer: boolean = true) {
         this.localJson = json;
+        this.print(`Is freezed: ${this.freezed}`);
         if (!this.freezed && sendToServer) {
+            this.print("Sending json to server, hence unfreezed");
             this.sendJsonToServer(json);
         } 
         this.localJsonChangedCallbacks.forEach(callback => {
@@ -59,7 +77,7 @@ export class CommunicationManager {
 
     private sendJsonToServer(json: JsonData) {
         this.vscode.postMessage({
-            command: 'updateJson',
+            type: 'updateJson',
             json: json
         });
     }

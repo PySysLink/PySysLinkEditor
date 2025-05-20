@@ -1,11 +1,11 @@
 {
-  "version": 4,
+  "version": 42,
   "blocks": [
     {
       "id": "OXznmZawIMep37qVqchp4dyCZpvwZAHf",
       "label": "New Block",
-      "x": 50,
-      "y": 50,
+      "x": 191,
+      "y": 53,
       "blockType": "defaultType",
       "blockClass": "defaultClass",
       "inputPorts": 1,
@@ -14,7 +14,38 @@
         "value": 0,
         "gain": 1
       }
+    },
+    {
+      "id": "CKY7AZPYshg8weEXXhTsgaYXBww8bZhs",
+      "label": "New Block",
+      "x": 405,
+      "y": 28,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {}
+    },
+    {
+      "id": "x4O0FTr5ZPeDqdHjvI2rmtX1xiFfzGC5",
+      "label": "New Block",
+      "x": 138,
+      "y": 209,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {}
     }
   ],
-  "links": []
+  "links": [
+    {
+      "id": "ak1aHXaL31bMMOMnw51lS9sbGH1Maesj",
+      "sourceId": "x4O0FTr5ZPeDqdHjvI2rmtX1xiFfzGC5",
+      "targetId": "",
+      "sourcePort": 0,
+      "targetPort": -1,
+      "sourceX": 138,
+      "sourceY": 209,
+      "targetX": 389,
+      "targetY": 44,
+      "intermediateNodes": []
+    }
+  ]
 }

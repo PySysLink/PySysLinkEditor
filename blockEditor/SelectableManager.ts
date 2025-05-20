@@ -64,6 +64,15 @@ export class SelectableManager {
         } 
     };
 
+    private setDragging(value: boolean) {
+        this.isDragging = value;
+        if (this.isDragging) {
+            this.communicationManager.freeze();
+        } else {
+            this.communicationManager.unfreeze();
+        }
+    }
+
     public updateSelectables(): void {
         this.getSelectableList().forEach(selectable => {
             selectable.addOnMouseDownListener(this.onMouseDownInSelectable);
@@ -119,7 +128,7 @@ export class SelectableManager {
             // Store the initial mouse position
             this.dragStartX = e.clientX;
             this.dragStartY = e.clientY;
-            this.isDragging = false; // Reset dragging state
+            this.setDragging(false); // Reset dragging state
         
             // Add a temporary mousemove listener to detect drag threshold
             const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
@@ -130,7 +139,8 @@ export class SelectableManager {
         
                 if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
                     // Exceeded drag threshold, start dragging
-                    this.isDragging = true;
+                    this.setDragging(true);
+                    this.communicationManager.freeze();
                     this.communicationManager.print(`Drag started`);
 
                     document.removeEventListener('mousemove', onMouseMoveThreshold);
@@ -210,6 +220,7 @@ export class SelectableManager {
         document.removeEventListener('mouseup', this.onMouseUpDrag);
 
         this.onMouseUpCallbacks.forEach(callback => callback());
+        this.setDragging(false);
     };
 
     private onMouseUpSelectionBox = (): void => {
