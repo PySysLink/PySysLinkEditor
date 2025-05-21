@@ -37,6 +37,9 @@ export class BlockVisual extends Selectable implements Movable {
         this.labelElement = document.createElement('div');
         this.element.appendChild(this.labelElement);
 
+        const portWidth = 40;
+        const portHeigh = 20;
+
         for (let j = 0; j < this.inputPortNumber; j++) {
             const inputPort = document.createElement('div');
             inputPort.classList.add('input-port');
@@ -45,8 +48,8 @@ export class BlockVisual extends Selectable implements Movable {
             const position = communicationManager.getPortPosition(this.id, "input", j);
             const thisPosition = this.getPosition(communicationManager);
             if (position && thisPosition) {
-                inputPort.style.left = `${position.x - thisPosition.x - inputPort.offsetWidth/4}px`;
-                inputPort.style.top = `${position.y - thisPosition.y - inputPort.offsetHeight/2}px`;
+                inputPort.style.left = `${position.x - thisPosition.x - portWidth/4}px`;
+                inputPort.style.top = `${position.y - thisPosition.y - portHeigh/2}px`;
             }
             
             inputPort.addEventListener('mousedown', (e: any) => {
@@ -66,8 +69,8 @@ export class BlockVisual extends Selectable implements Movable {
             const position = communicationManager.getPortPosition(this.id, "output", i);
             const thisPosition = this.getPosition(communicationManager);
             if (position && thisPosition) {
-                outputPort.style.left = `${position.x - thisPosition.x - 3*outputPort.offsetWidth/4}px`;
-                outputPort.style.top = `${position.y - thisPosition.y - outputPort.offsetHeight/2}px`;
+                outputPort.style.left = `${position.x - thisPosition.x - 3*portWidth/4}px`;
+                outputPort.style.top = `${position.y - thisPosition.y - portHeigh/2}px`;
             }
 
             outputPort.addEventListener('mousedown', (e: any) => {
@@ -110,7 +113,7 @@ export class BlockVisual extends Selectable implements Movable {
     }
 
 
-    public updateFromJson(json: JsonData): void {
+    public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         const blockData = json.blocks?.find((block: BlockData) => block.id === this.id);
         if (blockData) {
             this.labelElement.textContent = blockData.label;
@@ -119,7 +122,8 @@ export class BlockVisual extends Selectable implements Movable {
         }
     }
 
-    public delete(): void {
+    public delete(communicationManager: CommunicationManager): void {
+        communicationManager.deleteBlock(this.id);
         this.onDelete(this);
     }
 }

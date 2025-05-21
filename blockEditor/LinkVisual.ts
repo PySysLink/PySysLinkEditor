@@ -5,20 +5,21 @@ import { IdType, JsonData, LinkData } from '../shared/JsonTypes';
 import { getNonce } from './util';
 import { Movable } from './Movable';
 import { CommunicationManager } from './CommunicationManager';
+import { link } from 'fs';
 
 export class LinkNode extends Selectable implements Movable {
     id: string;
     nodeElement: SVGCircleElement;
     isHighlighted: boolean = false;
 
-    private onDeleteCallbacks: (() => void)[] = [];
+    private onDeleteCallbacks: ((communicationManager: CommunicationManager) => void)[] = [];
 
 
     public getElement(): HTMLElement | SVGElement {
         return this.nodeElement;
     }
 
-    constructor (id: string, onDelete: (() => void) | undefined = undefined) {
+    constructor (id: string, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
         super();
         this.id = id;
         if (onDelete) {
@@ -59,7 +60,7 @@ export class LinkNode extends Selectable implements Movable {
         }
     }
 
-    public updateFromJson(json: JsonData): void {
+    public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         const nodeData = json.links
                             ?.flatMap(link => link.intermediateNodes)
                             .find(node => node.id === this.id);
@@ -67,13 +68,12 @@ export class LinkNode extends Selectable implements Movable {
         if (nodeData) {
             this.getElement().setAttribute("cx", String(nodeData.x));
             this.getElement().setAttribute("cy", String(nodeData.y));
-        } else {
-            this.delete();
-        }  
+        } 
     }
 
     public highlight(): void {
         this.isHighlighted = true;
+        console.log("Highlighted!");
         if (this.nodeElement) {
             this.nodeElement.classList.add('highlighted');
         }
@@ -86,32 +86,30 @@ export class LinkNode extends Selectable implements Movable {
         }
     }
 
-    public delete = (): void => {
-        this.onDeleteCallbacks.forEach(callback => callback());
+    public delete = (communicationManager: CommunicationManager): void => {
+        this.onDeleteCallbacks.forEach(callback => callback(communicationManager));
     };
 
-    public addOnDeleteCallback(callback: () => void) {
+    public addOnDeleteCallback(callback: (communicationManager: CommunicationManager) => void) {
         this.onDeleteCallbacks.push(callback);
     }
 }
 
 export class SourceNode extends LinkNode implements Movable {
     private linkId: IdType;
-    constructor(linkId: IdType, onDelete: (() => void) | undefined = undefined) {
+    constructor(linkId: IdType, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
         super(getNonce(), onDelete);
         this.linkId = linkId;
         this.nodeElement.classList.add('source-node');
     }
 
-    public updateFromJson(json: JsonData): void {
-        const linkData = json.links?.find(link => link.sourceId === this.id);
+    public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
+        const linkData = json.links?.find(link => link.id === this.linkId);
 
         if (linkData) {
             this.getElement().setAttribute("cx", String(linkData.sourceX));
             this.getElement().setAttribute("cy", String(linkData.sourceY));
-        } else {
-            this.delete();
-        }  
+        }
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager): void {
@@ -128,7 +126,7 @@ export class SourceNode extends LinkNode implements Movable {
     }
 
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
-        let linkData = communicationManager.getLocalJson()?.links?.find(link => link.sourceId === this.id);
+        let linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
             return { x: linkData.sourceX, y: linkData.sourceY };
         }
@@ -137,21 +135,19 @@ export class SourceNode extends LinkNode implements Movable {
 }
 export class TargetNode extends LinkNode {
     private linkId: IdType;
-    constructor(linkId: IdType, onDelete: (() => void) | undefined = undefined) {
+    constructor(linkId: IdType, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
         super(getNonce(), onDelete);
         this.linkId = linkId;
-        this.nodeElement.classList.add('source-node');
+        this.nodeElement.classList.add('target-node');
     }
 
-    public updateFromJson(json: JsonData): void {
-        const linkData = json.links?.find(link => link.targetId === this.id);
+    public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
+        const linkData = json.links?.find(link => link.id === this.linkId);
 
         if (linkData) {
             this.getElement().setAttribute("cx", String(linkData.targetX));
             this.getElement().setAttribute("cy", String(linkData.targetY));
-        } else {
-            this.delete();
-        }  
+        } 
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager): void {
@@ -168,7 +164,7 @@ export class TargetNode extends LinkNode {
     }
 
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
-        let linkData = communicationManager.getLocalJson()?.links?.find(link => link.targetId === this.id);
+        let linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
             return { x: linkData.targetX, y: linkData.targetY };
         }
@@ -188,7 +184,7 @@ export class LinkSegment extends Selectable implements Movable {
         return this.segmentElement;
     }
 
-    constructor (sourceLinkNode: LinkNode, targetLinkNode: LinkNode, onDelete: () => void) {
+    constructor (sourceLinkNode: LinkNode, targetLinkNode: LinkNode, onDelete: () => void, communicationManager: CommunicationManager) {
         super();
         this.onDelete = onDelete;
         this.sourceLinkNode = sourceLinkNode;
@@ -199,17 +195,25 @@ export class LinkSegment extends Selectable implements Movable {
         if (this._isSelected) {
             this.segmentElement.classList.add('selected');
         }
+
+        const sourcePosition = this.sourceLinkNode.getPosition(communicationManager);
+        const targetPosition = this.targetLinkNode.getPosition(communicationManager);
+        
+        console.log(`Going to update`);
+        if (sourcePosition && targetPosition) {
+            console.log(`Let us update x: ${sourcePosition.x}, y: ${sourcePosition.y}`);
+            this.getElement().setAttribute("points", `${sourcePosition.x},${sourcePosition.y} ${targetPosition.x},${targetPosition.y}`);
+        }
     }
 
-    public updateFromJson(json: JsonData): void {
-        const sourceNodeData = json.links
-            ?.flatMap(link => link.intermediateNodes)
-            .find(node => node.id === this.sourceLinkNode.id);
-        const targetNodeData = json.links
-            ?.flatMap(link => link.intermediateNodes)
-            .find(node => node.id === this.targetLinkNode.id);
-        if (sourceNodeData && targetNodeData) {
-            this.getElement().setAttribute("points", `${sourceNodeData.x},${sourceNodeData.y} ${targetNodeData.x},${targetNodeData.y}`);
+    public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
+        const sourcePosition = this.sourceLinkNode.getPosition(communicationManager);
+        const targetPosition = this.targetLinkNode.getPosition(communicationManager);
+        
+        console.log(`Going to update`);
+        if (sourcePosition && targetPosition) {
+            console.log(`Let us update x: ${sourcePosition.x}, y: ${sourcePosition.y}`);
+            this.getElement().setAttribute("points", `${sourcePosition.x},${sourcePosition.y} ${targetPosition.x},${targetPosition.y}`);
         }
     }
 
@@ -255,49 +259,49 @@ export class LinkVisual {
         onDelete: (link: LinkVisual) => void
     ) {
         this.id = linkData.id;
-        this.sourceNode = new SourceNode(this.id, () => this.onDelete(this));
-        this.targetNode = new TargetNode(this.id, () => this.onDelete(this));
-        this.intermediateNodes = linkData.intermediateNodes.map(nodeData => new LinkNode(nodeData.id, () => this.onDelete(this)));
+        this.sourceNode = new SourceNode(this.id, (communicationManager: CommunicationManager) => this.delete(communicationManager));
+        this.targetNode = new TargetNode(this.id, (communicationManager: CommunicationManager) => this.delete(communicationManager));
+        this.intermediateNodes = linkData.intermediateNodes.map(nodeData => new LinkNode(nodeData.id, (communicationManager: CommunicationManager) => this.delete(communicationManager)));
         this.onDelete = onDelete;
     }
     
 
-    public updateSegments() {
+    public updateSegments(communicationManager: CommunicationManager) {
         let newSegments: LinkSegment[] = [];
         if (this.intermediateNodes.length === 0) {
             let existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.sourceNode && segment.targetLinkNode === this.targetNode);
             if (existingSegment) {
                 newSegments = [existingSegment];
             } else {
-                newSegments = [new LinkSegment(this.sourceNode, this.targetNode, () => this.onDelete(this))];
+                newSegments = [new LinkSegment(this.sourceNode, this.targetNode, () => this.onDelete(this), communicationManager)];
             }
         } else {
             let existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.sourceNode && segment.targetLinkNode === this.intermediateNodes[0]);
             if (existingSegment) {
                 newSegments = [existingSegment];
             } else {
-                newSegments = [new LinkSegment(this.sourceNode, this.intermediateNodes[0], () => this.onDelete(this))];
+                newSegments = [new LinkSegment(this.sourceNode, this.intermediateNodes[0], () => this.onDelete(this), communicationManager)];
             }
             for (let i: number = 0; i < this.intermediateNodes.length - 1; i++) {
                 existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.intermediateNodes[i] && segment.targetLinkNode === this.intermediateNodes[i + 1]);
                 if (existingSegment) {
                     newSegments.push(existingSegment);
                 } else {
-                    newSegments.push(new LinkSegment(this.intermediateNodes[i], this.intermediateNodes[i + 1], () => this.onDelete(this)));
+                    newSegments.push(new LinkSegment(this.intermediateNodes[i], this.intermediateNodes[i + 1], () => this.onDelete(this), communicationManager));
                 }
             }
             existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.intermediateNodes[this.intermediateNodes.length - 1] && segment.targetLinkNode === this.targetNode);
             if (existingSegment) {
                 newSegments.push(existingSegment);
             } else {
-                newSegments.push(new LinkSegment(this.intermediateNodes[this.intermediateNodes.length - 1], this.targetNode, () => this.onDelete(this)));
+                newSegments.push(new LinkSegment(this.intermediateNodes[this.intermediateNodes.length - 1], this.targetNode, () => this.onDelete(this), communicationManager));
             }
         }
         this.segments = newSegments;
     }
 
-    public addToSvg(svg: SVGSVGElement): void {
-        this.updateSegments();
+    public addToSvg(svg: SVGSVGElement, communicationManager: CommunicationManager): void {
+        this.updateSegments(communicationManager);
         this.segments.forEach(segment => {
             if (segment.segmentElement) {
                 svg.appendChild(segment.segmentElement);
@@ -366,11 +370,11 @@ export class LinkVisual {
         }
     }
 
-    public updateFromJson(json: JsonData): void {
-        this.sourceNode.updateFromJson(json);
-        this.targetNode.updateFromJson(json);
-        this.intermediateNodes.forEach(node => node.updateFromJson(json));
-        this.segments.forEach(segment => segment.updateFromJson(json));
+    public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
+        this.sourceNode.updateFromJson(json, communicationManager);
+        this.targetNode.updateFromJson(json, communicationManager);
+        this.intermediateNodes.forEach(node => node.updateFromJson(json, communicationManager));
+        this.segments.forEach(segment => segment.updateFromJson(json, communicationManager));
     }
 
 
@@ -389,7 +393,9 @@ export class LinkVisual {
         this.targetNode.unselect();
     }
 
-    public delete = (): void => {
+    public delete = (communicationManager: CommunicationManager): void => {
+        communicationManager.print(`Delete link: ${this.id}`);
+        communicationManager.deleteLink(this.id);
         this.onDelete(this);
     };
 }

@@ -51,8 +51,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 		const updateWebview = () => {
 			const json  = this.getDocumentAsJson(document);	
-			console.log('Sending JSON to frontend:', json);
-			console.log('Sending JSON to frontend:', JSON.stringify(json, null, 2));
 			webviewPanel.webview.postMessage({
 				type: 'update',
 				json: json,
@@ -185,9 +183,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 	}
 
 	private getDocumentAsJson = (document: vscode.TextDocument): JsonData => {
-		console.log("Get document json");
 		const text = document.getText();
-		console.log("Text obtained");
 		if (text.trim().length === 0) {
 			this.lastVersion += 1;
 			return { version: this.lastVersion, blocks: [], links: [] };
@@ -199,7 +195,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			json.version = this.lastVersion;
 			json.blocks = Array.isArray(json.blocks) ? json.blocks : [];
 			json.links = Array.isArray(json.links) ? json.links : [];
-			console.log("Parsed json: ", json);
 			return json;
 		} catch (error) {
 			console.error('Error parsing document JSON:', error);

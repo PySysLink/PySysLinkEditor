@@ -12,9 +12,9 @@ export interface BlockData {
 
 export interface LinkData {
     id: IdType;
-    sourceId: IdType | undefined;
+    sourceId: IdType;
     sourcePort: number;
-    targetId: IdType | undefined;
+    targetId: IdType;
     targetPort: number;
     sourceX: number; sourceY: number;
     targetX: number; targetY: number;

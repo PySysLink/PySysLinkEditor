@@ -1,4 +1,4 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, deleteBlockFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkFromJson, updateLinksNodesPosition } from "../shared/JsonManager";
+import { addBlockToJson, addLinkToJson, attachLinkToPort, deleteBlockFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkFromJson, updateLinksNodesPosition } from "../shared/JsonManager";
 import { BlockData, IdType, JsonData, LinkData } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 
@@ -40,12 +40,8 @@ export class CommunicationManager {
 
     public unfreeze() {
         this.print("Unfreeze called");
-        this.print(`Freezed: ${this.freezed}`);
         if (this.freezed) {
             this.freezed = false;
-            this.print(`Freezed server json: ${this.serverJson}`);
-            this.print(`Freezed server before freeze: ${this.serverJsonBeforeFreeze}`);
-            this.print(`Freezed local json: ${this.localJson}`);
             let mergedJson: JsonData | undefined = undefined;
             if (this.serverJson && this.serverJsonBeforeFreeze && this.localJson) {
                 this.print("All ready to send freezed json");
@@ -54,6 +50,7 @@ export class CommunicationManager {
                 mergedJson = MergeJsons(this.serverJsonBeforeFreeze, this.localJson, this.localJson);
             }
             if (mergedJson) {
+                console.log("set merged json");
                 this.setLocalJson(mergedJson);
                 this.serverJson = undefined;
                 this.serverJsonBeforeFreeze = undefined;
@@ -63,9 +60,9 @@ export class CommunicationManager {
 
     public setLocalJson(json: JsonData, sendToServer: boolean = true) {
         this.localJson = json;
-        this.print(`Is freezed: ${this.freezed}`);
+        console.log(`New json:`);
+        console.log(this.localJson);
         if (!this.freezed && sendToServer) {
-            this.print("Sending json to server, hence unfreezed");
             this.sendJsonToServer(json);
         } 
         this.localJsonChangedCallbacks.forEach(callback => {
@@ -115,6 +112,7 @@ export class CommunicationManager {
     public deleteBlock = (blockId: IdType) => {
         let json = this.getLocalJson();
         if (json) {
+            this.print(`Delete block: ${blockId}`);
             let newJson = deleteBlockFromJson(json, blockId);
             this.setLocalJson(newJson, true);
         }
@@ -139,7 +137,7 @@ export class CommunicationManager {
     public deleteLink = (linkId: IdType) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = deleteBlockFromJson(json, linkId);
+            let newJson = deleteLinkFromJson(json, linkId);
             this.setLocalJson(newJson, true);
         }
     };

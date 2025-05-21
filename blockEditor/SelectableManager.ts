@@ -36,30 +36,15 @@ export class SelectableManager {
 
     private onKeyDown = (e: KeyboardEvent): void => {
         if (e.key === 'Delete') {
+            this.communicationManager.print(`Delete called`);
             const selectedSelectables = this.getSelectedSelectables();
-            selectedSelectables.forEach(selectable => selectable.delete());
-            // const deleteNext = (index: number): void => {
-            //     if (index < selectedSelectables.length) {
-            //         // Delete the current selectable
-            //         selectedSelectables[index].delete();
-
-            //         // Schedule the next deletion5
-            //         setTimeout(() => deleteNext(index + 1), 100);
-            //     } else {
-            //         // After all deletions, send the state list after 100 ms
-            //         setTimeout(() => {
-            //             const stateMessages = this.getStateList();
-
-            //             this.vscode.postMessage({ type: 'print', text: stateMessages });
-            //             this.vscode.postMessage({ type: 'updateStates', updates: stateMessages });
-            //         }, 100);
-            //     }
-            // };
-
-            // Start the deletion process
-            // deleteNext(0);
-
-            // Optionally, unselect all after deletion starts
+            this.communicationManager.freeze();
+            selectedSelectables.forEach(selectable => {
+                this.communicationManager.print(`Delete selectable`);
+                selectable.delete(this.communicationManager);
+            });
+            this.communicationManager.unfreeze();
+            
             this.unselectAll();
         } 
     };
@@ -75,7 +60,7 @@ export class SelectableManager {
 
     public updateSelectables(): void {
         this.getSelectableList().forEach(selectable => {
-            selectable.addOnMouseDownListener(this.onMouseDownInSelectable);
+            selectable.addOnMouseDownListener("selectable_manager", this.onMouseDownInSelectable);
         });
     }
 
@@ -134,8 +119,6 @@ export class SelectableManager {
             const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
                 const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
                 const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
-
-                this.communicationManager.print(`Let see if drag: deltaX ${deltaX} deltaY ${deltaY}`);
         
                 if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
                     // Exceeded drag threshold, start dragging

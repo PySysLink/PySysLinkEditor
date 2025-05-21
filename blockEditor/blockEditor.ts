@@ -57,8 +57,6 @@ const vscode = acquireVsCodeApi();
     }
     
     function renderHTML(json: JsonData): void {
-        vscode.postMessage({ type: 'print', text: `Render html: ${JSON.stringify(json, null, 2)}` });
-        vscode.postMessage({ type: 'print', text: `Rendering ${json.blocks?.length} blocks` });
         canvas.innerHTML = ''; // Clear canvas
         blockInteractionManager.blocks.forEach(block => block.addElementToCanvas(canvas));
 
@@ -90,7 +88,9 @@ const vscode = acquireVsCodeApi();
 
         setZoom(zoomLevel);
 
-        linkInteractionManager.updateFromJson(json);
+        let svgElement = linkInteractionManager.updateFromJson(json);
+        canvas.appendChild(svgElement);
+
         blockInteractionManager.updateFromJson(json);
         selectableManager.updateSelectables();      
     }
@@ -100,7 +100,6 @@ const vscode = acquireVsCodeApi();
     communicationManager.registerLocalJsonChangedCallback(updateWebView);
 
     function updateWebView(json: JsonData): void {
-        vscode.postMessage({ type: 'print', text: `Render html update webview: ${JSON.stringify(json, null, 2)}` });
         blockInteractionManager.updateFromJson(json);
 
         linkInteractionManager.links.forEach((link: LinkVisual) => {
@@ -127,8 +126,6 @@ const vscode = acquireVsCodeApi();
     
         zoomContainer.style.width = `${scaledWidth}px`;
         zoomContainer.style.height = `${scaledHeight}px`;
-
-        vscode.postMessage({ type: 'print', text: `Zoom level: ${zoomLevel}` });
     }
 
     function handleMouseWheelZoom(e: WheelEvent): void {

@@ -89,8 +89,8 @@ export class LinkInteractionManager {
             let newLink: LinkVisual;
             if (newLinkData) {
                 newLink = this.createLinkVisual(newLinkData);
-                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete());
-                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete());
+                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
             } else { return; }
             
             e.stopPropagation();
@@ -140,7 +140,7 @@ export class LinkInteractionManager {
         }
     };
 
-    public updateFromJson(json: JsonData): void {
+    public updateFromJson(json: JsonData): SVGSVGElement {
         this.linksSvg = document.querySelector('.links') as SVGSVGElement;
         if (!this.linksSvg) {
             this.linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -169,8 +169,14 @@ export class LinkInteractionManager {
             }
         });
 
-        this.links.forEach(link => link.addToSvg(this.linksSvg));
-        this.links.forEach(link => link.updateFromJson(json));
+        this.links.forEach(link => link.updateFromJson(json, this.communicationManager));
+        this.links.forEach(link => link.addToSvg(this.linksSvg, this.communicationManager));
+
+        this.highlightNodesNearPorts();
+
+
+        return this.linksSvg;
+
     }
 
 
@@ -244,15 +250,17 @@ export class LinkInteractionManager {
         });
     };
 
-    public highlightNodesNearPorts = (e: MouseEvent) : void => {
+    public highlightNodesNearPorts = (e: MouseEvent | undefined=undefined) : void => {
         this.communicationManager.getLocalJson()?.links?.forEach(link => {
             const visualLink = this.links.find(l => l.id === link.id);
 
             const port1 = this.detectPort(link.sourceX, link.sourceY);
             if (port1) {
                 if (port1.portType === "output") {
-                    if (link.sourcePort === undefined) {
+                    if (link.sourceId === "undefined") {
                         visualLink?.sourceNode.highlight();
+                    } else {
+                        visualLink?.targetNode.unhighlight();
                     }
                 } else { visualLink?.sourceNode.unhighlight(); }
             }
@@ -260,8 +268,10 @@ export class LinkInteractionManager {
             const port2 = this.detectPort(link.targetX, link.targetY);
             if (port2) {
                 if (port2.portType === "input") {
-                    if (link.targetPort === undefined) {
+                    if (link.targetId === "undefined") {
                         visualLink?.targetNode.highlight();
+                    } else {
+                        visualLink?.targetNode.unhighlight();
                     }
                 } else { visualLink?.targetNode.unhighlight(); }
             }

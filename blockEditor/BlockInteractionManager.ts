@@ -45,7 +45,7 @@ export class BlockInteractionManager {
             }
         });
 
-        this.blocks.forEach(block => block.updateFromJson(json));
+        this.blocks.forEach(block => block.updateFromJson(json, this.communicationManager));
     }
 
     private onBlockSelected(block: BlockVisual, selected: boolean): void {

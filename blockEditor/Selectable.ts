@@ -1,4 +1,5 @@
 import { CanvasElement } from "./CanvasElement";
+import { CommunicationManager } from "./CommunicationManager";
 
 export abstract class Selectable extends CanvasElement {
     _isSelected: boolean = false;
@@ -40,5 +41,5 @@ export abstract class Selectable extends CanvasElement {
         this.onSelectedCallbacks.push(callback);
     }
     
-    public abstract delete(): void;
+    public abstract delete(communicationManager: CommunicationManager): void;
 }

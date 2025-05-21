@@ -1,25 +1,11 @@
 {
-  "version": 42,
+  "version": 50,
   "blocks": [
-    {
-      "id": "OXznmZawIMep37qVqchp4dyCZpvwZAHf",
-      "label": "New Block",
-      "x": 191,
-      "y": 53,
-      "blockType": "defaultType",
-      "blockClass": "defaultClass",
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {
-        "value": 0,
-        "gain": 1
-      }
-    },
     {
       "id": "CKY7AZPYshg8weEXXhTsgaYXBww8bZhs",
       "label": "New Block",
-      "x": 405,
-      "y": 28,
+      "x": 588,
+      "y": 188,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {}
@@ -27,8 +13,26 @@
     {
       "id": "x4O0FTr5ZPeDqdHjvI2rmtX1xiFfzGC5",
       "label": "New Block",
-      "x": 138,
-      "y": 209,
+      "x": 242,
+      "y": 314,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {}
+    },
+    {
+      "id": "cxcOVMrYEPBEE90rx0B0e15z3OEQ38uu",
+      "label": "New Block",
+      "x": 554,
+      "y": 79,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {}
+    },
+    {
+      "id": "6xhRsfMpmkME8ukhDJgE714QKDzKCiJ0",
+      "label": "New Block",
+      "x": 194.8888888888888,
+      "y": 68.22222222222223,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {}
@@ -38,13 +42,49 @@
     {
       "id": "ak1aHXaL31bMMOMnw51lS9sbGH1Maesj",
       "sourceId": "x4O0FTr5ZPeDqdHjvI2rmtX1xiFfzGC5",
-      "targetId": "",
+      "targetId": "cxcOVMrYEPBEE90rx0B0e15z3OEQ38uu",
       "sourcePort": 0,
-      "targetPort": -1,
-      "sourceX": 138,
-      "sourceY": 209,
-      "targetX": 389,
-      "targetY": 44,
+      "targetPort": 0,
+      "sourceX": 362,
+      "sourceY": 334,
+      "targetX": 554,
+      "targetY": 99,
+      "intermediateNodes": []
+    },
+    {
+      "id": "TYAsb02jtcTr43BnN5nKc1QDJsjzsmNS",
+      "sourceId": "x4O0FTr5ZPeDqdHjvI2rmtX1xiFfzGC5",
+      "targetId": "CKY7AZPYshg8weEXXhTsgaYXBww8bZhs",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 362,
+      "sourceY": 334,
+      "targetX": 588,
+      "targetY": 208,
+      "intermediateNodes": []
+    },
+    {
+      "id": "GCB6zOae3mxjf0T6bO9gijOJc1dYNEcQ",
+      "sourceId": "6xhRsfMpmkME8ukhDJgE714QKDzKCiJ0",
+      "targetId": "x4O0FTr5ZPeDqdHjvI2rmtX1xiFfzGC5",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 314.8888888888888,
+      "sourceY": 88.22222222222223,
+      "targetX": 242,
+      "targetY": 334,
+      "intermediateNodes": []
+    },
+    {
+      "id": "Zfo9WOQsnxRTo7z19YUfVmFOxx9uhvex",
+      "sourceId": "x4O0FTr5ZPeDqdHjvI2rmtX1xiFfzGC5",
+      "targetId": "6xhRsfMpmkME8ukhDJgE714QKDzKCiJ0",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 362,
+      "sourceY": 334,
+      "targetX": 194.8888888888888,
+      "targetY": 88.22222222222223,
       "intermediateNodes": []
     }
   ]

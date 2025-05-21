@@ -53,8 +53,10 @@ export function MergeJsons(
         baseArray?.forEach(baseItem => {
             const priorityItem = priorityArray?.find(item => item.id === baseItem.id);
             const secondaryItem = secondaryArray?.find(item => item.id === baseItem.id);
-            result.push(mergeObject(baseItem, priorityItem, secondaryItem));
-            seenIds.add(baseItem.id);
+            if (priorityItem || secondaryItem) {
+                result.push(mergeObject(baseItem, priorityItem, secondaryItem));
+                seenIds.add(baseItem.id);
+            }
         });
 
         // Add or merge items from the priority array that are not in the base array
@@ -99,11 +101,11 @@ export function deleteBlockFromJson(json: JsonData, blockId: IdType): JsonData {
     if (updatedLinks) {
         updatedLinks.forEach(link => {
             if (link.sourceId === blockId) {
-                link.sourceId = undefined;
+                link.sourceId = "undefined";
                 link.sourcePort = -1;
             }
             if (link.targetId === blockId) {
-                link.targetId = undefined;
+                link.targetId = "undefined";
                 link.targetPort = -1;
             }
         });
@@ -113,6 +115,9 @@ export function deleteBlockFromJson(json: JsonData, blockId: IdType): JsonData {
         blocks: json.blocks?.filter(block => block.id !== blockId),
         links: updatedLinks
     };
+    console.log(`Removed block: ${blockId}`);
+    console.log(json);
+    console.log(updatedJson);
     return updatedJson;
 }
 
@@ -216,15 +221,15 @@ export function updateLinksNodesPosition(json: JsonData): JsonData {
     const updatedJson: JsonData = {
         ...json,
         links: json.links?.map(link => {
-            const sourceBlock = json.blocks?.find(block => block.id === link.sourceId);
-            if (sourceBlock) {
-                link.sourceX = sourceBlock.x;
-                link.sourceY = sourceBlock.y;
+            const sourcePosition = getPortPosition(json, link.sourceId, "output", link.sourcePort);
+            if (sourcePosition) {
+                link.sourceX = sourcePosition.x;
+                link.sourceY = sourcePosition.y;
             }
-            const targetBlock = json.blocks?.find(block => block.id === link.targetId);
-            if (targetBlock) {
-                link.targetX = targetBlock.x;
-                link.targetY = targetBlock.y;
+            const targetPosition = getPortPosition(json, link.targetId, "input", link.targetPort);
+            if (targetPosition) {
+                link.targetX = targetPosition.x;
+                link.targetY = targetPosition.y;
             }
             return link;
         })
@@ -272,26 +277,104 @@ export function moveLinkDelta(json: JsonData, linkId: IdType, deltaX: number, de
     return updatedJson;
 }
 
-export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number): JsonData {
+export function checkIfPortInPosition(json: JsonData, x: number, y: number, maxDistance: number): { blockId: IdType, portType: 'input' | 'output', portIndex: number } | undefined {
+    if (!json.blocks) {
+        return undefined; // No blocks to check
+    }
+
+    for (const block of json.blocks) {
+        // Check input ports
+        for (let i = 0; i < block.inputPorts; i++) {
+            const portPosition = getPortPosition(json, block.id, 'input', i);
+            if (portPosition && isWithinDistance(portPosition, x, y, maxDistance)) {
+                return { blockId: block.id, portType: 'input', portIndex: i };
+            }
+        }
+
+        // Check output ports
+        for (let i = 0; i < block.outputPorts; i++) {
+            const portPosition = getPortPosition(json, block.id, 'output', i);
+            if (portPosition && isWithinDistance(portPosition, x, y, maxDistance)) {
+                return { blockId: block.id, portType: 'output', portIndex: i };
+            }
+        }
+    }
+
+    return undefined; // No port found within the specified distance
+}
+
+function isWithinDistance(
+    portPosition: { x: number, y: number },
+    x: number,
+    y: number,
+    maxDistance: number
+): boolean {
+    const dx = portPosition.x - x;
+    const dy = portPosition.y - y;
+    return Math.sqrt(dx * dx + dy * dy) <= maxDistance;
+}
+
+export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, attachLinkToPort: boolean=false): JsonData {
+    let finalX = x;
+    let finalY = y;
+    let finalId = "undefined";
+    let finalPort = -1;
+    if (attachLinkToPort) {
+        let port = checkIfPortInPosition(json, x, y, 10);
+
+        if (port && port.portType === "output") {
+            let portPosition = getPortPosition(json, port.blockId, port.portType, port.portIndex);
+            if (portPosition) {
+                finalX = portPosition.x;
+                finalY = portPosition.y;
+                finalId = port.blockId;
+                finalPort = port.portIndex;
+            }
+        }
+    }
+        
     let updatedJson: JsonData = {
         ...json,
         links: json.links?.map(link => {
             if (link.id === linkId) {
-                link.sourceX = x;
-                link.sourceY = y;
+                link.sourceId = finalId;
+                link.sourcePort = finalPort;
+                link.sourceX = finalX;
+                link.sourceY = finalY;
             }
             return link;
         })
     };
     return updatedJson;
 }
-export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: number): JsonData {
+export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: number, attachLinkToPort: boolean=false): JsonData {
+    let finalX = x;
+    let finalY = y;
+    let finalId = "undefined";
+    let finalPort = -1;
+
+    if (attachLinkToPort) {
+        let port = checkIfPortInPosition(json, x, y, 10);
+
+        if (port && port.portType === "input") {
+            let portPosition = getPortPosition(json, port.blockId, port.portType, port.portIndex);
+            if (portPosition) {
+                finalX = portPosition.x;
+                finalY = portPosition.y;
+                finalId = port.blockId;
+                finalPort = port.portIndex;
+            }
+        }
+    }
+    
     let updatedJson: JsonData = {
         ...json,
         links: json.links?.map(link => {
             if (link.id === linkId) {
-                link.targetX = x;
-                link.targetY = y;
+                link.targetId = finalId;
+                link.targetPort = finalPort;
+                link.targetX = finalX;
+                link.targetY = finalY;
             }
             return link;
         })
