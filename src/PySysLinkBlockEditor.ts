@@ -1,13 +1,15 @@
 import * as vscode from 'vscode';
-import { addBlock, deleteBlock, moveBlock, editBlockLabel, getBlockData, updateBlockProperties } from './BlockManager';
+import { editBlockLabel, getBlockData, updateBlockProperties } from './BlockManager';
 import { getNonce } from './util';
-import { addLink, moveLinkBatch, deleteLink } from './LinkManager';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
-import { JsonData } from '../shared/JsonTypes';
+import { IdType, JsonData } from '../shared/JsonTypes';
+import { updateLinksNodesPosition } from '../shared/JsonManager';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private documentLock: Promise<void> = Promise.resolve();
 	private document: vscode.TextDocument | undefined;
+	private webviewPanel: vscode.WebviewPanel | undefined;
+	private selectedBlockId: IdType | undefined;
 	private blockPropertiesProvider: BlockPropertiesProvider;
 
 	private lastVersion: number = 0;
@@ -47,20 +49,16 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
 		console.log('after get html');
 		this.document = document;
+		this.webviewPanel = webviewPanel;
 
 
-		const updateWebview = () => {
-			const json  = this.getDocumentAsJson(document);	
-			webviewPanel.webview.postMessage({
-				type: 'update',
-				json: json,
-			});
-		};
+		
 
 
 		const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
 			if (e.document.uri.toString() === document.uri.toString()) {
-				updateWebview();
+				this.notifySelectedBlock();
+				this.updateWebview();
 			}
 		});
 
@@ -91,7 +89,8 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 					return;
 				case 'blockSelected':
 					console.log(`Block selected: ${e.blockId}`);
-					this.blockPropertiesProvider.setSelectedBlock(await getBlockData(document, e.blockId, this.getDocumentAsJson));
+					this.selectedBlockId = e.blockId;
+					this.notifySelectedBlock();
 					return;
 				default:
 					console.log(`Type of message not recognized: ${e.type}`);
@@ -100,8 +99,25 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		});
 
 		console.log('Resolved, update webview');
-		updateWebview();
+		this.updateWebview();
 	}
+
+
+	private async notifySelectedBlock() {
+		if (this.document && this.selectedBlockId) {
+			this.blockPropertiesProvider.setSelectedBlock(await getBlockData(this.document, this.selectedBlockId, this.getDocumentAsJson));
+		}
+	}
+
+	private updateWebview = () => {
+		if (this.document && this.webviewPanel) {
+			const json  = this.getDocumentAsJson(this.document);	
+			this.webviewPanel.webview.postMessage({
+				type: 'update',
+				json: json,
+			});
+		}	
+	};
 
     
 
@@ -207,6 +223,8 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 		// Just replace the entire document every time for this example extension.
 		// A more complete extension should compute minimal edits instead.
+		json = updateLinksNodesPosition(json);
+
 		edit.replace(
 			document.uri,
 			new vscode.Range(0, 0, document.lineCount, 0),

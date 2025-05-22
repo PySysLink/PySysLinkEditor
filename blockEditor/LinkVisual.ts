@@ -9,6 +9,9 @@ import { link } from 'fs';
 
 export class LinkNode extends Selectable implements Movable {
     id: string;
+    public getId(): IdType {
+        return this.id;    
+    }
     nodeElement: SVGCircleElement;
     isHighlighted: boolean = false;
 
@@ -47,16 +50,16 @@ export class LinkNode extends Selectable implements Movable {
         return undefined;
     }
 
-    moveTo(x: number, y: number, communicationManager: CommunicationManager): void {
+    moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.moveLinkNode(this.id, x, y);
     }
 
-    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager): void {
+    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         let position = this.getPosition(communicationManager);
         if (position) {
             const newX = position.x + deltaX;
             const newY = position.y + deltaY;
-            this.moveTo(newX, newY, communicationManager);
+            this.moveTo(newX, newY, communicationManager, selectables);
         }
     }
 
@@ -97,6 +100,9 @@ export class LinkNode extends Selectable implements Movable {
 
 export class SourceNode extends LinkNode implements Movable {
     private linkId: IdType;
+    public getId(): IdType {
+        return this.linkId + "SourceNode";    
+    }
     constructor(linkId: IdType, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
         super(getNonce(), onDelete);
         this.linkId = linkId;
@@ -112,16 +118,24 @@ export class SourceNode extends LinkNode implements Movable {
         }
     }
 
-    moveTo(x: number, y: number, communicationManager: CommunicationManager): void {
+    moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
+        if (linkData) {
+            const connectedBlock = selectables.find(selectable => selectable.getId() === linkData.sourceId);
+            if (connectedBlock && connectedBlock.isSelected()) {
+                // Do not move if the connected block is selected
+                return;
+            }
+        }
         communicationManager.moveSourceNode(this.linkId, x, y);
     }
 
-    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager): void {
+    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         let position = this.getPosition(communicationManager);
         if (position) {
             const newX = position.x + deltaX;
             const newY = position.y + deltaY;
-            this.moveTo(newX, newY, communicationManager);
+            this.moveTo(newX, newY, communicationManager, selectables);
         }
     }
 
@@ -135,6 +149,9 @@ export class SourceNode extends LinkNode implements Movable {
 }
 export class TargetNode extends LinkNode {
     private linkId: IdType;
+    public getId(): IdType {
+        return this.linkId + "TargetNode";    
+    }
     constructor(linkId: IdType, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
         super(getNonce(), onDelete);
         this.linkId = linkId;
@@ -150,16 +167,24 @@ export class TargetNode extends LinkNode {
         } 
     }
 
-    moveTo(x: number, y: number, communicationManager: CommunicationManager): void {
+    moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
+        if (linkData) {
+            const connectedBlock = selectables.find(selectable => selectable.getId() === linkData.targetId);
+            if (connectedBlock && connectedBlock.isSelected()) {
+                // Do not move if the connected block is selected
+                return;
+            }
+        }
         communicationManager.moveTargetNode(this.linkId, x, y);
     }
 
-    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager): void {
+    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         let position = this.getPosition(communicationManager);
         if (position) {
             const newX = position.x + deltaX;
             const newY = position.y + deltaY;
-            this.moveTo(newX, newY, communicationManager);
+            this.moveTo(newX, newY, communicationManager, selectables);
         }
     }
 
@@ -177,6 +202,9 @@ export class LinkSegment extends Selectable implements Movable {
     sourceLinkNode: LinkNode;
     targetLinkNode: LinkNode;
     segmentElement: SVGPolylineElement;
+    public getId(): IdType {
+        return this.sourceLinkNode.getId() + this.targetLinkNode.getId();    
+    }
 
     private onDelete: () => void;
 
@@ -221,27 +249,33 @@ export class LinkSegment extends Selectable implements Movable {
         this.onDelete();
     };
 
-    moveTo(x: number, y: number, communicationManager: CommunicationManager): void {
+    moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         const position = this.getPosition(communicationManager);
         if (position) {
             const deltaX = x - position.x;
             const deltaY = y - position.y;
-            this.sourceLinkNode.moveDelta(deltaX, deltaY, communicationManager);
-            this.targetLinkNode.moveDelta(deltaX, deltaY, communicationManager);
+            if (!this.sourceLinkNode.isSelected() && !this.targetLinkNode.isSelected()) {
+                this.sourceLinkNode.moveDelta(deltaX, deltaY, communicationManager, selectables);
+                this.targetLinkNode.moveDelta(deltaX, deltaY, communicationManager, selectables);
+            }
         }
     }
 
-    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager): void {
+    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         let position = this.getPosition(communicationManager);
         if (position) {
             const newX = position.x + deltaX;
             const newY = position.y + deltaY;
-            this.moveTo(newX, newY, communicationManager);
+            this.moveTo(newX, newY, communicationManager, selectables);
         }
     }
 
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
         return this.sourceLinkNode.getPosition(communicationManager);
+    }
+
+    public selectCondition(): "Intersect" | "FullyWithing" {
+        return "FullyWithing";
     }
 }
 

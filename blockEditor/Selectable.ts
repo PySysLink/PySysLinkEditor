@@ -42,4 +42,8 @@ export abstract class Selectable extends CanvasElement {
     }
     
     public abstract delete(communicationManager: CommunicationManager): void;
+
+    public selectCondition(): "Intersect" | "FullyWithing" {
+        return "Intersect";
+    }
 }

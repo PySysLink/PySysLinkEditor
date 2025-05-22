@@ -5,7 +5,7 @@ export function MergeJsons(
     jsonChildPriority: JsonData,
     jsonChild2: JsonData
 ): JsonData {
-    const mergedJson: JsonData = {
+    let mergedJson: JsonData = {
         version: Math.max(jsonBase.version, jsonChildPriority.version, jsonChild2.version),
         blocks: [],
         links: [],
@@ -93,6 +93,9 @@ export function MergeJsons(
         jsonChild2.links
     );
 
+    mergedJson = updateLinksNodesPosition(mergedJson);
+
+
     return mergedJson;
 }
 
@@ -146,10 +149,11 @@ export function deleteLinkFromJson(json: JsonData, linkId: IdType): JsonData {
 }
 
 export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData): JsonData {
-    const updatedJson: JsonData = {
+    let updatedJson: JsonData = {
         ...json,
         blocks: json.blocks?.map(block => (block.id === updatedBlock.id ? updatedBlock : block))
     };
+    updatedJson = updateLinksNodesPosition(updatedJson);
     return updatedJson;
 }
 

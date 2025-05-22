@@ -91,13 +91,13 @@ export class SelectableManager {
         }
         if (e.button !== 1) {
             this.communicationManager.print(`button not 1`);
-
+            let wasSelectableSelected = selectable.isSelected();
             if (!selectable.isSelected()) {
                 if (e.shiftKey) {
                     // Toggle selection if Shift is pressed
                     this.communicationManager.print(`Toggle` );
 
-                    selectable.toggleSelect();
+                    selectable.select();
                 } else {
                     // Clear selection and select only this block
                     this.communicationManager.print(`Select only selectable: ${selectable}`);
@@ -149,13 +149,16 @@ export class SelectableManager {
                     // If no drag occurred, treat it as a simple click
                     if (e.shiftKey) {
                         // Toggle selection if Shift is pressed
-                        selectable.toggleSelect();
+                        if (wasSelectableSelected) {
+                            selectable.unselect();
+                        }
                     } else {
                         // Clear selection and select only this block
                         this.unselectAll();
                         selectable.select();
                     }
                 }
+                this.communicationManager.print(`Selectable selected 2: ${selectable.isSelected()}`);
             };
         
             document.addEventListener('mouseup', onMouseUpThreshold);
@@ -249,12 +252,24 @@ export class SelectableManager {
             if (selectableEl) {
                 const blockRect = selectableEl.getBoundingClientRect();
 
-                if (
-                    blockRect.left < boxRect.right &&
-                    blockRect.right > boxRect.left &&
-                    blockRect.top < boxRect.bottom &&
-                    blockRect.bottom > boxRect.top
-                ) {
+                const condition = selectable.selectCondition();
+
+                const toBeSelected =
+                    condition === "Intersect"
+                        ? (
+                            blockRect.left < boxRect.right &&
+                            blockRect.right > boxRect.left &&
+                            blockRect.top < boxRect.bottom &&
+                            blockRect.bottom > boxRect.top
+                        )
+                        : (
+                            blockRect.left >= boxRect.left &&
+                            blockRect.right <= boxRect.right &&
+                            blockRect.top >= boxRect.top &&
+                            blockRect.bottom <= boxRect.bottom
+                        );
+
+                if (toBeSelected) {
                     selectable.select();
                 } else {
                     selectable.unselect();
@@ -270,9 +285,10 @@ export class SelectableManager {
         const scaledDeltaY = (e.clientY - this.dragStartY) / this.getZoomLevelReal();
         
         if (this.isDragging) {
-            this.getSelectedSelectables().forEach(selectable => {
+            let selectables = this.getSelectedSelectables();
+            selectables.forEach(selectable => {
                 if (isMovable(selectable)) {
-                    selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager);
+                    selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
                 }
             });
 

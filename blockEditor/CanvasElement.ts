@@ -1,9 +1,13 @@
-import { JsonData } from "../shared/JsonTypes";
+import { IdType, JsonData } from "../shared/JsonTypes";
 import { CommunicationManager } from "./CommunicationManager";
 
 export abstract class CanvasElement {
 
     abstract getElement(): HTMLElement | SVGElement;
+
+    public getId(): IdType {
+        return "undefinedElement";
+    }
 
     private onMouseDownListenersIds: string[] = [];
     private onMouseDownListeners: ((canvasElement: CanvasElement, e: any) => void)[] = [];

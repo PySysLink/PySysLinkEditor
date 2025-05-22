@@ -1,4 +1,4 @@
-import { BlockData, JsonData } from "../shared/JsonTypes";
+import { BlockData, IdType, JsonData } from "../shared/JsonTypes";
 import { CommunicationManager } from "./CommunicationManager";
 import { Movable } from "./Movable";
 import { Selectable } from "./Selectable";
@@ -10,6 +10,11 @@ export class BlockVisual extends Selectable implements Movable {
     public getElement(): HTMLElement | SVGElement {
         return this.element;
     }
+
+    public getId(): IdType {
+        return this.id;    
+    }
+
     private element: HTMLElement;
 
     inputPortNumber: number;
@@ -81,16 +86,16 @@ export class BlockVisual extends Selectable implements Movable {
             this.outputPorts.push(outputPort);
         }
     }
-    moveTo(x: number, y: number, communicationManager: CommunicationManager): void {
+    moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.moveBlock(this.id, x, y);
     }
 
-    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager): void {
+    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         let position = this.getPosition(communicationManager);
         if (position) {
             const newX = position.x + deltaX;
             const newY = position.y + deltaY;
-            this.moveTo(newX, newY, communicationManager);
+            this.moveTo(newX, newY, communicationManager, selectables);
         }
     }
 

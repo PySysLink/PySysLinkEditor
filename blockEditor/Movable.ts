@@ -1,8 +1,9 @@
 import { CommunicationManager } from "./CommunicationManager";
+import { Selectable } from "./Selectable";
 
 export interface Movable {
-    moveTo(x: number, y: number, communicationManager: CommunicationManager): void;
-    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager): void;
+    moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void;
+    moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void;
     getPosition(communicationManager: CommunicationManager): { x: number, y: number } | undefined;
     }
 
