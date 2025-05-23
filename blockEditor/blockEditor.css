@@ -1,11 +1,23 @@
+body.pysyslink-dark {
+    --pysyslink-background: #636363; /* Example dark background */
+    --pysyslink-block-body: #284d50; /* Light text on dark */
+    --pysyslink-border: #333333;
+}
+
+body.pysyslink-light {
+    --pysyslink-background: #b6b6b6; /* Example light background */
+    --pysyslink-block-body: #b0e8ee; /* Dark text on light */
+    --pysyslink-border: #cccccc;
+}
+
+
 .canvas-container {
     position: relative;
     width: 100%;
     height: 80%; 
-    background: #a7ff98;
+    background: var(--pysyslink-background);
 
     overflow: auto; /* Enable scrolling */
-    background: #f5f5f5;
 }
 
 .canvas-container.panning {
@@ -18,8 +30,8 @@
     transform-origin: 0 0;
     width: 200%; 
     height: 200%;
-    background: #ff9898;
-    border: 1px solid #ccc;
+    background: var(--pysyslink-background);
+    border: 1px solid var(--vscode-editorWidget-border);
     z-index: 60;
 }
 
@@ -27,8 +39,8 @@
     position: absolute;
     width: 120px;
     height: 50px;
-    background: #007acc;
-    color: white;
+    background: var(--pysyslink-block-body);
+    color: var(--vscode-foreground);
     border-radius: 4px;
     padding: 8px;
     padding-left: 40px;
@@ -36,6 +48,7 @@
     cursor: move;
     user-select: none;
     z-index: 2;
+    box-shadow: 0 1px 3px var(--vscode-widget-shadow);
 
     backface-visibility: hidden;
     transform: translateZ(0);
@@ -43,8 +56,8 @@
 }
 
 .block.selected {
-    border: 2px solid #ffcc00;
-    background: #005a9e;
+    border: 2px dashed var(--vscode-editorCursor-foreground);
+    background: var(--vscode-editorCursor-background, rgba(128,128,128,0.2));
 
     backface-visibility: hidden;
     transform: translateZ(0);
@@ -64,7 +77,6 @@
 
 .zoom-container {
     position: relative;
-    background: #a198ff;
     transform-origin: 0 0;
     overflow: hidden; /* Disable scrolling */
     will-change: transform; /* Optimize for transform changes */
@@ -82,11 +94,13 @@
     position: relative;
     width: 100%;
     height: 20%;
-    overflow: hidden; /* Disable scrolling */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: var(--input-padding-vertical) var(--input-padding-horizontal);
+    background: var(--vscode-panel-background);
+    box-shadow: 0 2px 4px var(--vscode-widget-shadow);
     z-index: 10;
-    background: #f5f5f5;
-    padding: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -105,7 +119,7 @@
 }
 
 .link-line {
-    stroke: #007acc; /* Line color */
+    stroke: var(--vscode-editor-foreground);
     stroke-width: 2; /* Line thickness */
     fill: none; /* No fill for the polyline */
     pointer-events: all; /* Allow interaction with the line */
@@ -113,24 +127,24 @@
 }
 
 .link-line.selected {
-    stroke: #ff0000; /* Highlight color for selected links */
+    stroke: var(--vscode-errorForeground);
 }
 
 .link-node {
     r: 5; /* Radius of the circle */
-    fill: #007acc; /* Node color */
+    fill: var(--vscode-editor-foreground);
     pointer-events: all; /* Allow interaction with the node */
     cursor: pointer; /* Show pointer cursor on hover */
     z-index: 4;
 }
 
 .link-node.highlighted {
-    stroke: yellow;
+    stroke: var(--vscode-warningForeground);
     stroke-width: 3px;
 }
 
 .link-node.selected {
-    fill: #ff0000; /* Highlight color for selected nodes */
+    fill: var(--vscode-errorForeground);
 }
 
 
@@ -141,8 +155,8 @@
   align-items: center;       /* vertically center the contents */
   width: 40px;               /* wider than 20px */
   height: 20px;              /* keep it 20px tall */
-  background: #00cc33;
-  color: white;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
   border-radius: 4px;        /* gentle rounding on the rectangle */
   font-size: 0.75em;         /* shrink text a bit so it fits */
   z-index: 3;
@@ -154,8 +168,6 @@
   flex-shrink: 0;
   width: 8px;
   height: 8px;
-  background: #005a9e;
-  border-radius: 50%;      /* perfect circle */
 }
 
 /* Input: dot on the left, text on the right */

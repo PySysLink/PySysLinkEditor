@@ -34,6 +34,10 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		blockPropertiesProvider: BlockPropertiesProvider
 	) { 		
 		this.blockPropertiesProvider = blockPropertiesProvider;
+
+		this.context.subscriptions.push(
+			vscode.window.onDidChangeActiveColorTheme(this.onThemeChange, this)
+		);
 	}
 	
 	public async resolveCustomTextEditor(
@@ -100,6 +104,29 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 		console.log('Resolved, update webview');
 		this.updateWebview();
+		this.postColorTheme(vscode.window.activeColorTheme.kind);
+	}
+
+
+	private onThemeChange(e: vscode.ColorTheme) {
+		this.postColorTheme(e.kind);
+	}
+
+	private postColorTheme(theme: vscode.ColorThemeKind) {
+		let themeKind = "unknown";
+		if (theme === vscode.ColorThemeKind.Light) {
+			themeKind = "light";
+		} else if (theme === vscode.ColorThemeKind.Dark) {
+			themeKind = "dark";
+		} else {
+			themeKind = "highContrast";
+		}
+		if (this.webviewPanel) {
+			this.webviewPanel.webview.postMessage({
+				type: 'colorThemeKindChanged',
+				kind: themeKind,
+			});
+		}
 	}
 
 
@@ -169,7 +196,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 					<div class="zoom-container">
 						<div class="canvas"></div>
 					</div>
-				</div>
+				</div>Okey
 			</div>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>

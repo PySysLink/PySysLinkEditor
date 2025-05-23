@@ -188,8 +188,27 @@ const vscode = acquireVsCodeApi();
         if (e.data.type === 'update') {            
             communicationManager.newJsonFromServer(e.data.json);
             vscode.setState({ text: e.data.text });
+        } else if (e.data.type === 'colorThemeKindChanged') {
+            applyThemeClass(e.data.kind);
         }
     });
+
+    function applyThemeClass(kind: string) {
+        if (kind === "light") {
+            document.body.classList.add('pysyslink-light');
+            document.body.classList.remove('pysyslink-dark');
+            document.body.classList.remove('pysyslink-high-contrast');
+        } else if (kind === "dark") {
+            document.body.classList.remove('pysyslink-light');
+            document.body.classList.add('pysyslink-dark');
+            document.body.classList.remove('pysyslink-high-contrast');
+        } else {
+            document.body.classList.remove('pysyslink-light');
+            document.body.classList.remove('pysyslink-dark');
+            document.body.classList.add('pysyslink-high-contrast');
+        }
+        
+    }
 
     // Restore state if reloaded
     const state = vscode.getState();
