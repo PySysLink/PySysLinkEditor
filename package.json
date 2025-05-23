@@ -40,6 +40,12 @@
           "id": "pysyslink-editor.blockPropertiesView",
           "name": "Block Properties",
           "icon": "$(heart)"
+        },
+        {
+          "type": "webview",
+          "id": "pysyslink-editor.simulationManager",
+          "name": "Simulation Manager",
+          "icon": "$(heart)"
         }
       ]
     },

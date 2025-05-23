@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { PySysLinkBlockEditorProvider } from './PySysLinkBlockEditor';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
+import { SimulationManager } from './SimulationManager';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -12,11 +13,19 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "pysyslink-editor" is now active!');
     const blockPropertiesProvider = new BlockPropertiesProvider(context);
+    const simulationManager = new SimulationManager(context);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
 			'pysyslink-editor.blockPropertiesView',
 			blockPropertiesProvider
+		)
+	);
+	
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(
+			'pysyslink-editor.simulationManager',
+			simulationManager
 		)
 	);
 
