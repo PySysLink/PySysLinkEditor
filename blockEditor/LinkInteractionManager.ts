@@ -263,6 +263,8 @@ export class LinkInteractionManager {
                         visualLink?.targetNode.unhighlight();
                     }
                 } else { visualLink?.sourceNode.unhighlight(); }
+            } else {
+                visualLink?.sourceNode.unhighlight();
             }
 
             const port2 = this.detectPort(link.targetX, link.targetY);
@@ -274,6 +276,8 @@ export class LinkInteractionManager {
                         visualLink?.targetNode.unhighlight();
                     }
                 } else { visualLink?.targetNode.unhighlight(); }
+            } else {
+                visualLink?.targetNode.unhighlight();
             }
             
         });

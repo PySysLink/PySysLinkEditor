@@ -1,13 +1,29 @@
 body.pysyslink-dark {
-    --pysyslink-background: #636363; /* Example dark background */
-    --pysyslink-block-body: #284d50; /* Light text on dark */
-    --pysyslink-border: #333333;
+    --pysyslink-background: color-mix(in srgb, var(--vscode-editor-background) 80%, white 20%);
+    --pysyslink-block-body: var(--vscode-button-background);
+    --pysyslink-block-text: var(--vscode-button-foreground);
+    --pysyslink-grid-line: color-mix(in srgb, var(--pysyslink-background) 90%, white 10%);
+    --pysyslink-block-selected-border: var(--vscode-editorCursor-foreground);
+    --pysyslink-block-selected-bg: var(--vscode-editorCursor-background, rgba(128,128,128,0.2));
+    --pysyslink-selection-border: var(--vscode-focusBorder, #007acc);
+    --pysyslink-selection-fill: color-mix(in srgb, var(--pysyslink-selection-border) 20%, transparent);
+    --pysyslink-link: var(--vscode-editor-foreground);
+    --pysyslink-link-selected: var(--vscode-errorForeground);
+    --pysyslink-link-highlight: var(--vscode-editorWarning-foreground);
 }
 
 body.pysyslink-light {
-    --pysyslink-background: #b6b6b6; /* Example light background */
-    --pysyslink-block-body: #b0e8ee; /* Dark text on light */
-    --pysyslink-border: #cccccc;
+    --pysyslink-background: color-mix(in srgb, var(--vscode-editor-background) 80%, white 20%);
+    --pysyslink-block-body: var(--vscode-button-background);
+    --pysyslink-block-text: var(--vscode-button-foreground);
+    --pysyslink-grid-line: color-mix(in srgb, var(--pysyslink-background) 90%, black 10%);
+    --pysyslink-block-selected-border: var(--vscode-editorCursor-foreground);
+    --pysyslink-block-selected-bg: var(--vscode-editorCursor-background, rgba(128,128,128,0.2));
+    --pysyslink-selection-border: var(--vscode-focusBorder, #007acc);
+    --pysyslink-selection-fill: color-mix(in srgb, var(--pysyslink-selection-border) 20%, transparent);
+    --pysyslink-link: var(--vscode-editor-foreground);
+    --pysyslink-link-selected: var(--vscode-errorForeground);
+    --pysyslink-link-highlight: var(--vscode-editorWarning-foreground);
 }
 
 
@@ -30,7 +46,22 @@ body.pysyslink-light {
     transform-origin: 0 0;
     width: 200%; 
     height: 200%;
-    background: var(--pysyslink-background);
+    background-color: var(--pysyslink-background);
+    background-image:
+        repeating-linear-gradient(
+            to right,
+            var(--pysyslink-grid-line),
+            var(--pysyslink-grid-line) 1px,
+            transparent 1px,
+            transparent 98px
+        ),
+        repeating-linear-gradient(
+            to bottom,
+            var(--pysyslink-grid-line),
+            var(--pysyslink-grid-line) 1px,
+            transparent 1px,
+            transparent 98px
+        );
     border: 1px solid var(--vscode-editorWidget-border);
     z-index: 60;
 }
@@ -40,7 +71,7 @@ body.pysyslink-light {
     width: 120px;
     height: 50px;
     background: var(--pysyslink-block-body);
-    color: var(--vscode-foreground);
+    color: var(--pysyslink-block-text);
     border-radius: 4px;
     padding: 8px;
     padding-left: 40px;
@@ -56,8 +87,8 @@ body.pysyslink-light {
 }
 
 .block.selected {
-    border: 2px dashed var(--vscode-editorCursor-foreground);
-    background: var(--vscode-editorCursor-background, rgba(128,128,128,0.2));
+    border: 2px dashed var(--pysyslink-block-selected-border);
+    background: var(--pysyslink-block-selected-bg);
 
     backface-visibility: hidden;
     transform: translateZ(0);
@@ -66,8 +97,8 @@ body.pysyslink-light {
 
 .selection-box {
     position: absolute;
-    border: 2px dashed #007acc;
-    background: rgba(0, 122, 204, 0.2);
+    border: 2px dashed var(--pysyslink-selection-border);
+    background: var(--pysyslink-selection-fill);
     pointer-events: none;
 
     backface-visibility: hidden;
@@ -119,7 +150,7 @@ body.pysyslink-light {
 }
 
 .link-line {
-    stroke: var(--vscode-editor-foreground);
+    stroke: var(--pysyslink-link);
     stroke-width: 2; /* Line thickness */
     fill: none; /* No fill for the polyline */
     pointer-events: all; /* Allow interaction with the line */
@@ -127,24 +158,24 @@ body.pysyslink-light {
 }
 
 .link-line.selected {
-    stroke: var(--vscode-errorForeground);
+    stroke: var(--pysyslink-link-selected);
 }
 
 .link-node {
     r: 5; /* Radius of the circle */
-    fill: var(--vscode-editor-foreground);
+    fill: var(--pysyslink-link);
     pointer-events: all; /* Allow interaction with the node */
     cursor: pointer; /* Show pointer cursor on hover */
     z-index: 4;
 }
 
 .link-node.highlighted {
-    stroke: var(--vscode-warningForeground);
+    stroke: var(--pysyslink-link-highlight);
     stroke-width: 3px;
 }
 
 .link-node.selected {
-    fill: var(--vscode-errorForeground);
+    fill: var(--pysyslink-link-selected);
 }
 
 
