@@ -77,11 +77,13 @@ export class SimulationManager implements vscode.WebviewViewProvider {
 
     private startPythonServer() {
       const scriptPath = this.context.asAbsolutePath(
-				path.join('src', 'PySysLinkServer/PySysLinkServer.py')
+				path.join('src', 'pysyslink_server/pysyslink_server.py')
 			);
 
-			pythonProc = spawn("pysyslink-server", [], {
-          cwd: vscode.workspace.workspaceFolders?.[0].uri.fsPath,
+			pythonProc = spawn("python3", [scriptPath], {
+				cwd: vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
+					? vscode.workspace.workspaceFolders[0].uri.fsPath
+					: undefined,
 				stdio: ['pipe', 'pipe', 'pipe']
 			});
 
@@ -126,6 +128,8 @@ export class SimulationManager implements vscode.WebviewViewProvider {
         );
         return;
       }
+
+      console.log('[Extension] Sending runSimulation request...');
 
       // For demo purposes we ask the user for duration & steps:
       const durationInput = await vscode.window.showInputBox({

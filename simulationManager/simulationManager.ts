@@ -109,9 +109,7 @@ function onRun() {
 
   // JSON-RPC–style request
   vscode.postMessage({
-    jsonrpc: '2.0',
-    id: 1,
-    method: 'runSimulation',
+    type: 'update',
     params: cfg
   });
 }
