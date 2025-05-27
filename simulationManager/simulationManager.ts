@@ -107,9 +107,8 @@ function onRun() {
   clearStatus();
   showProgress(0);
 
-  // JSON-RPC–style request
   vscode.postMessage({
-    type: 'update',
+    type: 'runSimulation',
     params: cfg
   });
 }
@@ -120,9 +119,7 @@ function onStop() {
   isRunning = false;
   toggleButtons();
   vscode.postMessage({
-    jsonrpc: '2.0',
-    id: 2,
-    method: 'stopSimulation'
+    type: 'stopSimulation'
   });
 }
 
@@ -155,15 +152,13 @@ function clearStatus() {
 window.addEventListener('message', (event) => {
   const msg = event.data as any;
 
-  // JSON-RPC–style progress notification
-  if (msg.method === 'progress' && msg.params) {
+  if (msg.type === 'progress' && msg.params) {
     const { progress } = msg.params as ProgressMessage;
     showProgress(progress);
     return;
   }
 
-  // JSON-RPC–style response
-  if (msg.id === 1 && msg.result) {
+  if (msg.type === 'completed' && msg.result) {
     isRunning = false;
     toggleButtons();
     updateStatus(`Completed: ${JSON.stringify(msg.result)}`);
@@ -171,18 +166,10 @@ window.addEventListener('message', (event) => {
   }
 
   // JSON-RPC–style error
-  if (msg.id === 1 && msg.error) {
+  if (msg.type === 'error' && msg.error) {
     isRunning = false;
     toggleButtons();
     updateStatus(`Error: ${msg.error.message}`, true);
-    return;
-  }
-
-  // Stop response (id === 2)
-  if (msg.id === 2) {
-    isRunning = false;
-    toggleButtons();
-    updateStatus('Simulation stopped.');
     return;
   }
 

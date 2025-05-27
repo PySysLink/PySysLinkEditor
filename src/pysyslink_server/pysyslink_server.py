@@ -41,7 +41,7 @@ def handle_run_simulation(request: dict):
 
     # dummy simulation result
     result = {
-        "status": "completed",
+        "id": req_id,
         "output": {
             "dummyValue": 42,
             "message": f"Simulated for {duration}s in {steps} steps."
@@ -51,15 +51,15 @@ def handle_run_simulation(request: dict):
     # final JSON-RPC response
     send_message({
         "jsonrpc": "2.0",
-        "id": req_id,
+        "method": "completed",
         "result": result
     })
 
 def send_error(request_id, code, message):
     send_message({
         "jsonrpc": "2.0",
-        "id": request_id,
-        "error": { "code": code, "message": message }
+        "method": "error",
+        "error": { "id": request_id, "code": code, "message": message }
     })
 
 def main():

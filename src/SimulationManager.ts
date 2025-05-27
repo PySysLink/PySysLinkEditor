@@ -2,16 +2,44 @@ import * as vscode from 'vscode';
 import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as readline from 'readline';
+import { PythonServerManager } from './PythonServerManager';
 
-let pythonProc: ChildProcess | undefined;
 let requestId = 0;
 
 export class SimulationManager implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
     private updateHandlers: ((props: Record<string, any>) => void)[] = [];
+    private pythonServer: PythonServerManager;
 
-    constructor(private readonly context: vscode.ExtensionContext) {}
-  
+    constructor(private readonly context: vscode.ExtensionContext) {
+      this.pythonServer = new PythonServerManager(context);
+      this.pythonServer.init();    
+
+      this.pythonServer.addMessageListener((msg) => this.handlePythonMessage(msg));
+    }
+
+    private handlePythonMessage(msg: any) {
+      if (!this._view) { return; }
+
+      // Forward progress and result messages to the webview
+      if (msg.method === 'progress' && msg.params) {
+        this._view.webview.postMessage({
+          type: 'progress',
+          params: msg.params
+        });
+      } else if (msg.method === 'completed') {
+        this._view.webview.postMessage({
+          type: 'completed',
+          result: msg.result
+        });
+      } else if (msg.method === 'error') {
+        this._view.webview.postMessage({
+          type: 'error',
+          error: msg.error
+        });
+      }
+    }
+
     public registerOnUpdateCallback(handler: ((props: Record<string, any>) => void)): void {
       this.updateHandlers.push(handler);
     }
@@ -21,7 +49,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       _context: vscode.WebviewViewResolveContext,
       _token: vscode.CancellationToken
     ) {
-			this.startPythonServer();           
+			this.pythonServer.startServer();           
 
       this._view = webviewView;
       webviewView.webview.options = { enableScripts: true };
@@ -49,7 +77,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       // Listen for messages FROM the webview:
       webviewView.webview.onDidReceiveMessage((msg) => {
         switch (msg.type) {
-          case 'update':
+          case 'runSimulation':
             // frontend wants to save edited props
             this.callUpdatedCallbacks(msg.props);
 						this.sendSimulationStart();
@@ -75,54 +103,8 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       }
     }
 
-    private startPythonServer() {
-      const scriptPath = this.context.asAbsolutePath(
-				path.join('src', 'pysyslink_server/pysyslink_server.py')
-			);
-
-			pythonProc = spawn("python3", [scriptPath], {
-				cwd: vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
-					? vscode.workspace.workspaceFolders[0].uri.fsPath
-					: undefined,
-				stdio: ['pipe', 'pipe', 'pipe']
-			});
-
-			pythonProc.on('error', (err) => {
-        vscode.window.showErrorMessage(
-          `Failed to start Python process: ${err.message}`
-        );
-      });
-
-      // 4) Wire up stderr to show errors
-      pythonProc.stderr?.on('data', (chunk: Buffer) => {
-        console.error('[Python stderr]', chunk.toString());
-      });
-
-      // 5) Read stdout line-by-line
-      if (pythonProc.stdout) {
-        const rl = readline.createInterface({
-          input: pythonProc.stdout,
-          terminal: false
-        });
-
-        rl.on('line', (line: string) => {
-          try {
-            const msg = JSON.parse(line);
-            console.log('[Python JSON-RPC]', msg);
-            // TODO: forward to webview or handle message here
-          } catch (e) {
-            console.error('[Protocol error] Invalid JSON:', line);
-          }
-        });
-      }
-
-      vscode.window.showInformationMessage(
-        'Simulation server started.'
-      );
-    }
-
 		private async sendSimulationStart() {
-			if (!pythonProc || !pythonProc.stdin) {
+			if (!this.pythonServer.isRunning()) {
         vscode.window.showErrorMessage(
           'Simulation server is not running. Please run "Start Simulation Server" first.'
         );
@@ -161,7 +143,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       };
 
       // Send it over stdin, newline-terminated
-      pythonProc.stdin.write(JSON.stringify(request) + '\n');
+      this.pythonServer.sendRequest(request);
       console.log(`[Extension] Sent runSimulation request #${id}`, request);
 		}
 
