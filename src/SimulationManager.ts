@@ -4,9 +4,10 @@ import * as path from 'path';
 import * as readline from 'readline';
 import { PythonServerManager } from './PythonServerManager';
 
-let requestId = 0;
 
 export class SimulationManager implements vscode.WebviewViewProvider {
+    private requestId = 0;
+    private runningSimulationId = 0;
     private _view?: vscode.WebviewView;
     private updateHandlers: ((props: Record<string, any>) => void)[] = [];
     private pythonServer: PythonServerManager;
@@ -19,24 +20,47 @@ export class SimulationManager implements vscode.WebviewViewProvider {
     }
 
     private handlePythonMessage(msg: any) {
-      if (!this._view) { return; }
+      if (!this._view) {
+        return;
+      }
 
-      // Forward progress and result messages to the webview
-      if (msg.method === 'progress' && msg.params) {
-        this._view.webview.postMessage({
-          type: 'progress',
-          params: msg.params
-        });
-      } else if (msg.method === 'completed') {
-        this._view.webview.postMessage({
-          type: 'completed',
-          result: msg.result
-        });
-      } else if (msg.method === 'error') {
-        this._view.webview.postMessage({
-          type: 'error',
-          error: msg.error
-        });
+      switch (msg.type) {
+        case 'print':
+          console.log(`[python server]: ${msg.message}`);
+          break;
+        case 'notification':
+          // In our protocol, notifications carry an `event` + `data`
+          if (msg.event === 'progress') {
+            this._view.webview.postMessage({
+              type: 'progress',
+              params: msg.data
+            });
+          }
+          break;
+
+        case 'response':
+          // A successful RPC response
+          this._view.webview.postMessage({
+            type: 'completed',
+            result: msg.result
+          });
+          break;
+
+        case 'error':
+          // If you choose to surface errors as their own type
+          this._view.webview.postMessage({
+            type: 'error',
+            error: msg.error
+          });
+          break;
+
+        case 'heartbeat':
+          // Optional: handle ping/pong if you want to display connectivity
+          console.debug(`[Heartbeat ${msg.subtype}] ${msg.timestamp}`);
+          break;
+
+        default:
+          console.warn('Unknown message type from Python:', msg);
       }
     }
 
@@ -74,17 +98,14 @@ export class SimulationManager implements vscode.WebviewViewProvider {
         </html>
       `;
 
-      // Listen for messages FROM the webview:
       webviewView.webview.onDidReceiveMessage((msg) => {
         switch (msg.type) {
           case 'runSimulation':
-            // frontend wants to save edited props
-            this.callUpdatedCallbacks(msg.props);
 						this.sendSimulationStart();
             break;
-
-          // you could handle other msg.types here if needed...
-
+          case 'stopSimulation':
+            this.cancelSimulation();
+            break;
           default:
             console.warn(
               `[SimulationManager] unrecognized message type: ${msg.type}`
@@ -101,6 +122,25 @@ export class SimulationManager implements vscode.WebviewViewProvider {
           model: model
         });
       }
+    }
+
+    private cancelSimulation() {
+      if (!this.pythonServer.isRunning()) {
+        vscode.window.showErrorMessage(
+          'Simulation server is not running. Please run "Start Simulation Server" first.'
+        );
+        return;
+      }
+
+      const id = ++this.requestId;
+      const request = {
+        type: 'cancel',
+        id: this.runningSimulationId
+      };
+
+      // Send it over stdin, newline-terminated
+      this.pythonServer.sendRequest(request);
+      console.log(`[Extension] Sent cancel for request #${this.runningSimulationId}`, request);
     }
 
 		private async sendSimulationStart() {
@@ -134,9 +174,11 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       }
 
       // Build JSON-RPC request
-      const id = ++requestId;
+      const id = ++this.requestId;
+      this.runningSimulationId = id;
+
       const request = {
-        jsonrpc: '2.0',
+        type: 'request',
         id: id,
         method: 'runSimulation',
         params: { duration, steps }
