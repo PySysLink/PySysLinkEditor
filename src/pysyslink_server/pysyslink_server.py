@@ -1,4 +1,5 @@
 import asyncio
+import json
 import sys
 
 from RPCServer import RPCServer
@@ -12,15 +13,18 @@ toolkit_error_msg = (
     )
 
 toolkit_module_name = "pysyslink_toolkit"
+_toolkit = None 
 
 def try_import_toolkit():
+    global _toolkit
     try:
         import pysyslink_toolkit
+        _toolkit = pysyslink_toolkit
     except ImportError:
         raise RuntimeError(toolkit_error_msg)
     
 def is_toolkit_imported():
-    return toolkit_module_name in sys.modules
+    return _toolkit is not None
 
 def before_request():
     if not is_toolkit_imported():
@@ -29,8 +33,7 @@ def before_request():
 def get_toolkit():
     if not is_toolkit_imported():
         raise RuntimeError("Tried to access the toolkit before importing it")
-    
-    return pysyslink_toolkit
+    return _toolkit
 
 
 async def run_simulation(duration: float, steps: int):
@@ -50,15 +53,9 @@ async def run_simulation(duration: float, steps: int):
 
 async def get_libraries():
     before_request()
-    libraries = get_toolkit().get_available_libraries()
+    libraries = get_toolkit().get_available_block_libraries("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml")
     # Return only essential information
-    return [
-        {
-            "name": library.name,
-            "blockTypes": [{"name": block.name} for block in library.block_types]
-        }
-        for library in libraries
-    ]
+    return json.dumps(libraries)
 
 server = RPCServer(before_request)
 server.register_method("runSimulation", run_simulation)

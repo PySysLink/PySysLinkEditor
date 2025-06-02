@@ -73,11 +73,12 @@ export class BlockPalette implements vscode.WebviewViewProvider {
           const result = await this.pythonServer.sendRequestAsync({
             method: "getLibraries"
           }, 10000);
-
+          
+          console.log(`Available libraries: ${JSON.parse(result)}`);
           if (this._view) {
             this._view.webview.postMessage({
               type: 'setBlockLibraries',
-              model: result
+              model: JSON.parse(result)
             });
           }
         } catch (error) {
@@ -87,6 +88,7 @@ export class BlockPalette implements vscode.WebviewViewProvider {
               error: error
             });
           }
+          console.error(`Error on python server while getting block libraries: ${error}`);
           vscode.window.showErrorMessage(
             `Error on python server while getting block libraries: ${error}`
           );

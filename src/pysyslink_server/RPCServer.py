@@ -66,6 +66,7 @@ class RPCServer:
     async def _run_and_respond(self, req_id: int, coro):
         try:
             result = await coro
+            self.print("Result is: {}".format(result))
             # send final success response
             self._send({"type": "response", "id": req_id, "result": result})
         except asyncio.CancelledError:
