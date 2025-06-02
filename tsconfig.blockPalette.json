@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "module": "ESNext", // Browser-compatible module system
+        "target": "ES2022",
+        "outDir": "out/blockPalette", // Output directory for compiled files
+        "lib": [
+            "ES2022",
+            "DOM" // Include DOM types for client-side code
+        ],
+        "sourceMap": true,
+        "rootDir": ".",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "baseUrl": ".", // Add baseUrl for path mapping
+        "paths": {
+            "shared/*": ["shared/*"] // Map "shared" to the shared directory
+        }
+    },
+    "include": [
+        "blockPalette/**/*.ts", // Only client-side code
+        "shared/**/*.ts"       // Include shared files
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

@@ -4,6 +4,8 @@ import * as vscode from 'vscode';
 import { PySysLinkBlockEditorProvider } from './PySysLinkBlockEditor';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { SimulationManager } from './SimulationManager';
+import { BlockPalette } from './BlockPalette';
+import { PythonServerManager } from './PythonServerManager';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -12,8 +14,16 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "pysyslink-editor" is now active!');
+	let pythonServer = new PythonServerManager(context);
+
+    (async () => {
+        await pythonServer.init();
+        await pythonServer.startServer();
+    })();          
+
     const blockPropertiesProvider = new BlockPropertiesProvider(context);
-    const simulationManager = new SimulationManager(context);
+    const simulationManager = new SimulationManager(context, pythonServer);
+    const blockPalette = new BlockPalette(context, pythonServer);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
@@ -26,6 +36,13 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerWebviewViewProvider(
 			'pysyslink-editor.simulationManager',
 			simulationManager
+		)
+	);
+	
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(
+			'pysyslink-editor.blockPalette',
+			blockPalette
 		)
 	);
 

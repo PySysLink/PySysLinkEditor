@@ -12,9 +12,8 @@ export class SimulationManager implements vscode.WebviewViewProvider {
     private updateHandlers: ((props: Record<string, any>) => void)[] = [];
     private pythonServer: PythonServerManager;
 
-    constructor(private readonly context: vscode.ExtensionContext) {
-      this.pythonServer = new PythonServerManager(context);
-      this.pythonServer.init();    
+    constructor(private readonly context: vscode.ExtensionContext, pythonServer: PythonServerManager) {
+      this.pythonServer = pythonServer;
 
       this.pythonServer.addMessageListener((msg) => this.handlePythonMessage(msg));
     }
@@ -76,7 +75,6 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       _context: vscode.WebviewViewResolveContext,
       _token: vscode.CancellationToken
     ) {
-			this.pythonServer.startServer();           
 
       this._view = webviewView;
       webviewView.webview.options = { enableScripts: true };

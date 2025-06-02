@@ -26,6 +26,12 @@ def before_request():
     if not is_toolkit_imported():
         try_import_toolkit()
 
+def get_toolkit():
+    if not is_toolkit_imported():
+        raise RuntimeError("Tried to access the toolkit before importing it")
+    
+    return pysyslink_toolkit
+
 
 async def run_simulation(duration: float, steps: int):
     """
@@ -42,9 +48,21 @@ async def run_simulation(duration: float, steps: int):
         })
     return {"status": "completed"}
 
+async def get_libraries():
+    before_request()
+    libraries = get_toolkit().get_available_libraries()
+    # Return only essential information
+    return [
+        {
+            "name": library.name,
+            "blockTypes": [{"name": block.name} for block in library.block_types]
+        }
+        for library in libraries
+    ]
 
 server = RPCServer(before_request)
 server.register_method("runSimulation", run_simulation)
+server.register_method("getLibraries", get_libraries)
 
 if __name__ == "__main__":
     asyncio.run(server.start())

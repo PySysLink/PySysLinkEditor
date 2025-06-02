@@ -88,4 +88,33 @@ module.exports = [
         mode: 'development', // Use 'production' for optimized builds
         devtool: 'source-map', // Generate source maps for debugging
     },
+    {
+        entry: './blockPalette/blockPalette.ts', // Entry point for blockPropertiesEditor
+        output: {
+            filename: 'blockPalette.js', // Output file
+            path: path.resolve(__dirname, 'out/blockPalette'), // Match the output directory
+        },
+        resolve: {
+            extensions: ['.ts', '.js'], // Resolve TypeScript and JavaScript files
+            alias: {
+                shared: path.resolve(__dirname, "shared"), // Add alias for shared directory
+            },
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.ts$/,
+                    use: {
+                        loader: 'ts-loader',
+                        options: {
+                            configFile: path.resolve(__dirname, 'tsconfig.blockPalette.json'), // Use the new tsconfig file
+                        },
+                    },
+                    exclude: /node_modules/,
+                },
+            ],
+        },
+        mode: 'development', // Use 'production' for optimized builds
+        devtool: 'source-map', // Generate source maps for debugging
+    }
 ];

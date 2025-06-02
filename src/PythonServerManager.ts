@@ -12,6 +12,9 @@ export class PythonServerManager {
   private pythonProc?: ChildProcess;
   private listeners: PythonMessageListener[] = [];
 
+  private requestIdCounter = 1; 
+  private pendingRequests = new Map<number, { resolve: (r: any) => void, reject: (e: any) => void }>(); 
+
   constructor(private readonly context: vscode.ExtensionContext) {}
 
   public addMessageListener(listener: PythonMessageListener) {
@@ -23,6 +26,22 @@ export class PythonServerManager {
   }
 
   private notifyListeners(msg: PythonMessage) {
+    if (msg.type === 'response' && typeof msg.id === 'number') {
+      const pending = this.pendingRequests.get(msg.id);
+      if (pending) {
+        pending.resolve(msg.result);
+        this.pendingRequests.delete(msg.id);
+        return;
+      }
+    } else if (msg.type === 'error' && typeof msg.id === 'number') {
+      const pending = this.pendingRequests.get(msg.id);
+      if (pending) {
+        pending.reject(new Error(msg.error ?? 'Unknown error'));
+        this.pendingRequests.delete(msg.id);
+        return;
+      }
+    }
+
     for (const listener of this.listeners) {
       try {
         listener(msg);
@@ -116,7 +135,38 @@ export class PythonServerManager {
     }
   }
 
+  public async sendRequestAsync(request: Omit<any, 'id' | 'type'>, timeoutMs: number = 5000): Promise<any> {
+    const id = this.requestIdCounter++;
+    const fullRequest = { type: 'request', id, ...request };
+
+    return new Promise((resolve, reject) => {
+      this.pendingRequests.set(id, { resolve, reject });
+
+      // Send the request
+      this.sendRequest(fullRequest);
+
+      // Set up timeout
+      setTimeout(() => {
+        if (this.pendingRequests.has(id)) {
+          this.pendingRequests.delete(id);
+          reject(new Error('Request timed out'));
+        }
+      }, timeoutMs);
+    });
+  }
+
   public isRunning() {
     return !!this.pythonProc;
+  }
+
+  public async waitForServer(timeoutMs: number = 20000): Promise<void> {
+    const interval = 200;
+    const start = Date.now();
+    while (!this.isRunning()) {
+      if (Date.now() - start > timeoutMs) {
+        throw new Error('Python server did not start in time');
+      }
+      await new Promise(res => setTimeout(res, interval));
+    }
   }
 }
