@@ -52,6 +52,9 @@ export class SimulationManager implements vscode.WebviewViewProvider {
             type: 'error',
             error: msg.error
           });
+          vscode.window.showErrorMessage(
+            `Error on python server: ${msg.error}`
+          );
           break;
 
         case 'heartbeat':
@@ -99,9 +102,10 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       `;
 
       webviewView.webview.onDidReceiveMessage((msg) => {
+        console.log(`SimulationManager: [${msg}]`);
         switch (msg.type) {
           case 'runSimulation':
-						this.sendSimulationStart();
+						this.sendSimulationStart(msg);
             break;
           case 'stopSimulation':
             this.cancelSimulation();
@@ -143,7 +147,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       console.log(`[Extension] Sent cancel for request #${this.runningSimulationId}`, request);
     }
 
-		private async sendSimulationStart() {
+		private async sendSimulationStart(msg: any) {
 			if (!this.pythonServer.isRunning()) {
         vscode.window.showErrorMessage(
           'Simulation server is not running. Please run "Start Simulation Server" first.'
@@ -153,21 +157,11 @@ export class SimulationManager implements vscode.WebviewViewProvider {
 
       console.log('[Extension] Sending runSimulation request...');
 
-      // For demo purposes we ask the user for duration & steps:
-      const durationInput = await vscode.window.showInputBox({
-        prompt: 'Total simulation duration (seconds)',
-        value: '5'
-      });
-      const stepsInput = await vscode.window.showInputBox({
-        prompt: 'Number of progress steps',
-        value: '10'
-      });
-      if (!durationInput || !stepsInput) {
-        return; // canceled
-      }
-
-      const duration = parseFloat(durationInput);
-      const steps = parseInt(stepsInput, 10);
+      const duration = msg.params.duration;
+      const steps = msg.params.steps;
+      console.log(`duration: ${msg.params.duration}`);
+      console.log(`steps: ${msg.params.steps}`);
+      console.log(`msg: ${msg}`);
       if (isNaN(duration) || isNaN(steps)) {
         vscode.window.showErrorMessage('Invalid numbers provided.');
         return;

@@ -14,11 +14,12 @@ class Protocol:
         return json.loads(line)
 
 class RPCServer:
-    def __init__(self):
+    def __init__(self, before_request: Callable[(), None] | None = None):
         self._handlers: Dict[str, Callable] = {}
         self._tasks: Dict[int, asyncio.Task] = {}
         self._next_id = 1
         self._heartbeat_interval = 10
+        self.before_request = before_request
 
     def register_method(self, name: str, func: Callable):
         """Decorate or register a method name → coroutine."""
@@ -46,6 +47,14 @@ class RPCServer:
 
     async def _handle_request(self, msg):
         req_id = msg["id"]
+        try:
+            if self.before_request != None:
+                self.before_request()
+        except Exception as e:
+            # on any other error, send an error response
+            self._send({"type": "error", "id": req_id, "error": str(e)})
+            return
+
         method = msg["method"]
         params = msg.get("params", {})
         coro = self._handlers[method](**params)
@@ -56,13 +65,17 @@ class RPCServer:
 
     async def _run_and_respond(self, req_id: int, coro):
         try:
-            # allow the method to send its own notifications:
             result = await coro
+            # send final success response
+            self._send({"type": "response", "id": req_id, "result": result})
         except asyncio.CancelledError:
-            result = {"status": "cancelled"}
-        # send final response
-        self._send({"type":"response","id":req_id,"result": result})
-        self._tasks.pop(req_id, None)
+            # on cancellation, send a cancelled result
+            self._send({"type": "response", "id": req_id, "result": {"status": "cancelled"}})
+        except Exception as e:
+            # on any other error, send an error response
+            self._send({"type": "error", "id": req_id, "error": str(e)})
+        finally:
+            self._tasks.pop(req_id, None)
 
     def _handle_cancel(self, req_id: int):
         task = self._tasks.get(req_id)
