@@ -190,13 +190,18 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			</head>
 			<body>
 			<div class="main">
-				<div class="top-controls">
-				</div>
-				<div class="canvas-container">
-					<div class="zoom-container">
-						<div class="canvas"></div>
+				<div class="top-controls"></div>
+				<div class="editor-layout">
+					<div class="canvas-container">
+						<div class="zoom-container">
+							<div class="canvas"></div>
+						</div>
 					</div>
-				</div>Okey
+					<div class="block-palette-sidebar" id="block-palette-sidebar">
+						<div class="palette-toggle" id="palette-toggle">&#9776;</div>
+						<div id="block-palette-content"></div>
+					</div>
+				</div>
 			</div>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>

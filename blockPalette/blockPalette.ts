@@ -99,6 +99,16 @@ function renderPalette() {
           blockType: block.name
         });
       });
+      blockBtn.setAttribute('draggable', 'true');
+      blockBtn.addEventListener('dragstart', (e: DragEvent) => {
+        const payload = JSON.stringify({
+          library: lib.name,
+          blockType: block.name
+        });
+        e.dataTransfer?.setData('application/vnd.codeblock', payload);
+      });
+
+      // Use a custom MIME type to avoid conflicts
       contentSlot.appendChild(blockBtn);
     });
 

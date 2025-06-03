@@ -223,3 +223,42 @@ body.pysyslink-light {
   order: 2;                    /* move the pseudo-element to the end */
   margin-left: 4px;
 }
+
+
+
+.editor-layout {
+  display: flex;
+  height: 100%;
+}
+.canvas-container {
+  flex: 1;
+  position: relative;
+}
+.block-palette-sidebar {
+  width: 300px;
+  background: #f3f3f3;
+  border-left: 1px solid #ccc;
+  transition: width 0.2s, min-width 0.2s;
+  min-width: 40px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.block-palette-sidebar.collapsed {
+  width: 40px;
+  min-width: 40px;
+}
+.palette-toggle {
+  cursor: pointer;
+  padding: 8px;
+  background: #e0e0e0;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  font-size: 1.5em;
+}
+#block-palette-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}

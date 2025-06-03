@@ -19,6 +19,37 @@ const vscode = acquireVsCodeApi();
     const topControls = document.querySelector('.top-controls') as HTMLElement;
     const canvasContainer = document.querySelector('.canvas-container') as HTMLElement;
 
+    if (canvas) {
+        // 1) Prevent the default on dragover to allow dropping
+        canvas.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        // 2) On drop, read the dataTransfer payload and create a new block
+        canvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            communicationManager.print(`Drop event received`);            
+
+            const data = e.dataTransfer?.getData('application/vnd.codeblock');
+            if (!data) {
+            return;
+            }
+
+            let meta;
+            try {
+            meta = JSON.parse(data);
+            } catch {
+            return;
+            }
+
+            // Compute drop coordinates relative to the canvas
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            communicationManager.print(`Drop event: ${data}, x: ${x}, y: ${y}`);            
+        });
+    }
 
     let zoomLevel = 2; // Default zoom level
     const zoomStep = 0.1; // Step for zooming in/out
@@ -190,6 +221,16 @@ const vscode = acquireVsCodeApi();
             vscode.setState({ text: e.data.text });
         } else if (e.data.type === 'colorThemeKindChanged') {
             applyThemeClass(e.data.kind);
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const sidebar = document.getElementById('block-palette-sidebar');
+        const toggle = document.getElementById('palette-toggle');
+        if (sidebar && toggle) {
+            toggle.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
         }
     });
 
