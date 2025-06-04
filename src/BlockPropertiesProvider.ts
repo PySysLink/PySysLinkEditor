@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as readline from 'readline';
+import { BlockData } from '../shared/JsonTypes';
 
 
 export class BlockPropertiesProvider implements vscode.WebviewViewProvider {
@@ -62,7 +63,7 @@ export class BlockPropertiesProvider implements vscode.WebviewViewProvider {
       });
     }
 
-    public setSelectedBlock(block: any): void {
+    public setSelectedBlock(block: BlockData): void {
       if (this._view) {
         console.log('setSelectedBlock backend', block);
         this._view.webview.postMessage({

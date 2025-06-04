@@ -46,12 +46,6 @@
           "id": "pysyslink-editor.simulationManager",
           "name": "Simulation Manager",
           "icon": "$(heart)"
-        },
-        {
-          "type": "webview",
-          "id": "pysyslink-editor.blockPalette",
-          "name": "Block Palette",
-          "icon": "$(heart)"
         }
       ]
     },

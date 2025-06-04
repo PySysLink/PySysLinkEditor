@@ -4,10 +4,12 @@ import { BlockInteractionManager } from './BlockInteractionManager';
 import { LinkInteractionManager } from './LinkInteractionManager';
 import { Selectable } from './Selectable';
 import { SelectableManager } from './SelectableManager';
+import { BlockPalette } from './BlockPalette';
 import { link } from 'fs';
 import { JsonData } from '../shared/JsonTypes';
 import { CommunicationManager } from './CommunicationManager';
 import { getNonce } from './util';
+import { Library } from '../shared/BlockPalette';
 
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
@@ -18,6 +20,8 @@ const vscode = acquireVsCodeApi();
     const zoomContainer = document.querySelector('.zoom-container') as HTMLElement;
     const topControls = document.querySelector('.top-controls') as HTMLElement;
     const canvasContainer = document.querySelector('.canvas-container') as HTMLElement;
+    const sidebar = document.getElementById('block-palette-sidebar') as HTMLElement;
+    const blockPaletteContent = document.getElementById('block-palette-content') as HTMLElement;
 
     if (canvas) {
         // 1) Prevent the default on dragover to allow dropping
@@ -35,11 +39,23 @@ const vscode = acquireVsCodeApi();
             return;
             }
 
-            let meta;
+            let meta: { library: string; blockType: string } | null = null;
             try {
-            meta = JSON.parse(data);
+                const parsed = JSON.parse(data);
+                if (
+                    typeof parsed === 'object' &&
+                    parsed !== null &&
+                    typeof parsed.library === 'string' &&
+                    typeof parsed.blockType === 'string'
+                ) {
+                    meta = { library: parsed.library, blockType: parsed.blockType };
+                } else {
+                    communicationManager.print('Drop event: Invalid meta object');
+                    return;
+                }
             } catch {
-            return;
+                communicationManager.print('Drop event: Failed to parse meta');
+                return;
             }
 
             // Compute drop coordinates relative to the canvas
@@ -47,7 +63,8 @@ const vscode = acquireVsCodeApi();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            communicationManager.print(`Drop event: ${data}, x: ${x}, y: ${y}`);            
+            communicationManager.print(`Drop event: ${data}, x: ${x}, y: ${y}`);   
+            communicationManager.createBlockOfType(meta.library, meta.blockType, x, y);         
         });
     }
 
@@ -67,12 +84,15 @@ const vscode = acquireVsCodeApi();
     let linkInteractionManager: LinkInteractionManager;
     let blockInteractionManager: BlockInteractionManager;
     let selectableManager: SelectableManager;
+    let blockPalette: BlockPalette;
 
     let communicationManager = new CommunicationManager(vscode);
 
     blockInteractionManager = new BlockInteractionManager(communicationManager);
     linkInteractionManager = new LinkInteractionManager(communicationManager, canvas, document.querySelector('.links') as SVGSVGElement, blockInteractionManager);
     selectableManager = new SelectableManager(communicationManager, canvas, getZoomLevelReal);
+    blockPalette = new BlockPalette(communicationManager);
+    communicationManager.registerLibrariesChangedCallback(blockPalette.updateLibraries);
 
     selectableManager.registerSelectableList(() => blockInteractionManager.blocks);
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkSegments());
@@ -94,10 +114,6 @@ const vscode = acquireVsCodeApi();
 
         topControls.innerHTML = '';
         // Add button
-        const btn = document.createElement('button');
-        btn.textContent = 'Add Block';
-        btn.addEventListener('click', () => communicationManager.createNewBlock());
-        topControls.appendChild(btn);
 
         const btnZoomIn = document.createElement('button');
         btnZoomIn.textContent = 'Zoom In';
@@ -105,14 +121,20 @@ const vscode = acquireVsCodeApi();
         btnZoomOut.textContent = 'Zoom Out';
         const btnResetZoom = document.createElement('button');
         btnResetZoom.textContent = 'Reset Zoom';
+        const btnToggleBlockPalette = document.createElement('button');
+        btnToggleBlockPalette.textContent = 'Toggle block palette';
 
         btnZoomIn.addEventListener('click', () => setZoom(zoomLevel + zoomStep));
         btnZoomOut.addEventListener('click', () => setZoom(zoomLevel - zoomStep));
         btnResetZoom.addEventListener('click', () => setZoom(2));
+        btnToggleBlockPalette.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
 
         topControls.appendChild(btnZoomIn);
         topControls.appendChild(btnZoomOut);
         topControls.appendChild(btnResetZoom);
+        topControls.appendChild(btnToggleBlockPalette);
 
         zoomContainer.addEventListener('wheel', handleMouseWheelZoom);
         canvasContainer.addEventListener('mousedown', onMouseDownForPanning);
@@ -123,7 +145,9 @@ const vscode = acquireVsCodeApi();
         canvas.appendChild(svgElement);
 
         blockInteractionManager.updateFromJson(json);
-        selectableManager.updateSelectables();      
+        selectableManager.updateSelectables();   
+        
+        blockPalette.renderPalette(blockPaletteContent);
     }
 
     
@@ -221,18 +245,11 @@ const vscode = acquireVsCodeApi();
             vscode.setState({ text: e.data.text });
         } else if (e.data.type === 'colorThemeKindChanged') {
             applyThemeClass(e.data.kind);
+        } else if (e.data.type === 'setBlockLibraries') {
+            communicationManager.setBlockLibraries(e.data.model as Library[]);
         }
     });
 
-    window.addEventListener('DOMContentLoaded', () => {
-        const sidebar = document.getElementById('block-palette-sidebar');
-        const toggle = document.getElementById('palette-toggle');
-        if (sidebar && toggle) {
-            toggle.addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
-            });
-        }
-    });
 
     function applyThemeClass(kind: string) {
         if (kind === "light") {

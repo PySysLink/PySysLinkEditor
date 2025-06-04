@@ -1,10 +1,10 @@
 import { addBlockToJson, addLinkToJson, attachLinkToPort, deleteBlockFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkFromJson, updateLinksNodesPosition } from "../shared/JsonManager";
 import { BlockData, IdType, JsonData, LinkData } from "../shared/JsonTypes";
 import { getNonce } from "./util";
+import { Library } from "../shared/BlockPalette";
 
 
 export class CommunicationManager {
-
     vscode: any;
     freezed: boolean = false;
     disableSending: boolean = false;
@@ -14,6 +14,10 @@ export class CommunicationManager {
     private serverJson: JsonData | undefined;
 
     private localJsonChangedCallbacks: ((json: JsonData) => void)[] = [];
+
+
+    libraries: Library[] = [];
+    librariesChangedCallbacks: ((json: Library[]) => void)[] = [];
 
     constructor(vscode: any) {
         this.vscode = vscode;
@@ -28,6 +32,10 @@ export class CommunicationManager {
 
     public registerLocalJsonChangedCallback(callback: (json: JsonData) => void) {
         this.localJsonChangedCallbacks.push(callback);
+    }
+
+    public registerLibrariesChangedCallback(callback: (libraries: Library[]) => void) {
+        this.librariesChangedCallbacks.push(callback);
     }
 
     public freeze() {
@@ -158,23 +166,6 @@ export class CommunicationManager {
         }
     };
 
-    public createNewBlock = () => {
-        let json = this.getLocalJson();
-        if (json) {
-            let newBlock: BlockData = {
-                id: getNonce(),
-                label: "New Block",
-                x: 0,
-                y: 0,
-                inputPorts: 1,
-                outputPorts: 1,
-                properties: {}
-            };
-            let newJson = addBlockToJson(json, newBlock);
-            this.setLocalJson(newJson, true);
-        }
-    };
-
     public createNewLinkFromPort = (blockId: IdType, portType: "input" | "output", portIndex: number) : LinkData | undefined => {
         let json = this.getLocalJson();
         if (json) {
@@ -252,4 +243,47 @@ export class CommunicationManager {
             this.setLocalJson(newJson, true);
         }
     };
+
+    public requestUpdatePalette() {
+        this.vscode.postMessage({ type: 'updateBlockPalette' });
+    }
+
+    public setBlockLibraries(libraries: Library[]) {
+        this.print(`Libraries are: ${JSON.stringify(libraries)}`);
+        this.libraries = libraries;
+        this.librariesChangedCallbacks.forEach(callback => callback(this.libraries));
+    }
+
+    public createBlockOfType(library: string, blockType: string, x: number, y: number) {
+        // Find the block definition from the libraries
+        const lib = this.libraries.find(l => l.name === library);
+        const blockDef = lib?.blockTypes.find(b => b.name === blockType);
+
+        if (!lib || !blockDef) {
+            this.print(`Block type ${blockType} not found in library ${library}`);
+            return;
+        }
+
+        let properties: Record<string, any> = {};
+        if (blockDef.configurationValues && Array.isArray(blockDef.configurationValues)) {
+            for (const conf of blockDef.configurationValues) {
+                Object.assign(properties, conf);
+            }
+        }
+
+        // Create the BlockData object
+        const newBlock: BlockData = {
+            id: getNonce(),
+            blockLibrary: library,
+            blockType: blockType,
+            label: blockType,
+            x,
+            y,
+            inputPorts: 1,
+            outputPorts: 1, 
+            properties: properties
+        };
+
+        this.addBlock(newBlock);
+    }
 }

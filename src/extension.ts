@@ -4,7 +4,6 @@ import * as vscode from 'vscode';
 import { PySysLinkBlockEditorProvider } from './PySysLinkBlockEditor';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { SimulationManager } from './SimulationManager';
-import { BlockPalette } from './BlockPalette';
 import { PythonServerManager } from './PythonServerManager';
 
 // This method is called when your extension is activated
@@ -23,7 +22,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     const blockPropertiesProvider = new BlockPropertiesProvider(context);
     const simulationManager = new SimulationManager(context, pythonServer);
-    const blockPalette = new BlockPalette(context, pythonServer);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
@@ -38,15 +36,9 @@ export function activate(context: vscode.ExtensionContext) {
 			simulationManager
 		)
 	);
-	
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(
-			'pysyslink-editor.blockPalette',
-			blockPalette
-		)
-	);
 
-	const { disposable, provider: pySysLinkBlockEditorProvider } = PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider);
+
+	const { disposable, provider: pySysLinkBlockEditorProvider } = PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider, pythonServer);
     context.subscriptions.push(disposable);
 	blockPropertiesProvider.registerOnUpdateCallback(pySysLinkBlockEditorProvider.updateBlockParameters);
 	console.log('Congratulations, activation completed!');

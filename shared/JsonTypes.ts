@@ -4,10 +4,13 @@ export type IdType = string;
 
 export interface BlockData {
     id: IdType;
+    blockLibrary: string;
+    blockType: string;
     label: string;
     x: number; y: number;
     inputPorts: number; outputPorts: number;
     properties: Record<string, any>;
+    
 }
 
 export interface LinkData {

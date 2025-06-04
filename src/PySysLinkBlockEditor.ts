@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { editBlockLabel, getBlockData, updateBlockProperties } from './BlockManager';
 import { getNonce } from './util';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { IdType, JsonData } from '../shared/JsonTypes';
-import { updateLinksNodesPosition } from '../shared/JsonManager';
+import { getBlockData, updateBlockParameters, updateLinksNodesPosition } from '../shared/JsonManager';
+import { PythonServerManager } from './PythonServerManager';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private documentLock: Promise<void> = Promise.resolve();
@@ -14,11 +14,14 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 	private lastVersion: number = 0;
 
+	private pythonServer: PythonServerManager;
+
 	public static register(
 		context: vscode.ExtensionContext,
-		blockPropertiesProvider: BlockPropertiesProvider
+		blockPropertiesProvider: BlockPropertiesProvider,
+		pythonServer: PythonServerManager,
 	): { disposable: vscode.Disposable; provider: PySysLinkBlockEditorProvider } {
-		const provider = new PySysLinkBlockEditorProvider(context, blockPropertiesProvider);
+		const provider = new PySysLinkBlockEditorProvider(context, blockPropertiesProvider, pythonServer);
 		const disposable = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
 	
 		console.log('Register start');
@@ -31,9 +34,11 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 	constructor(
 		private readonly context: vscode.ExtensionContext,
-		blockPropertiesProvider: BlockPropertiesProvider
+		blockPropertiesProvider: BlockPropertiesProvider,
+		pythonServer: PythonServerManager
 	) { 		
 		this.blockPropertiesProvider = blockPropertiesProvider;
+		this.pythonServer = pythonServer;
 
 		this.context.subscriptions.push(
 			vscode.window.onDidChangeActiveColorTheme(this.onThemeChange, this)
@@ -74,9 +79,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 		webviewPanel.webview.onDidReceiveMessage(async e => {
 			switch (e.type) {
-				case 'edit':
-					editBlockLabel(document, e.id, this.getDocumentAsJson, this.updateTextDocument);
-					return;
 				case 'updateJson':
 					this.documentLock = this.withDocumentLock(async () => {
 						if (this.document) {
@@ -95,6 +97,9 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 					console.log(`Block selected: ${e.blockId}`);
 					this.selectedBlockId = e.blockId;
 					this.notifySelectedBlock();
+					return;
+				case 'updateBlockPalette':
+					this.loadBlockLibraries();
 					return;
 				default:
 					console.log(`Type of message not recognized: ${e.type}`);
@@ -132,7 +137,11 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 	private async notifySelectedBlock() {
 		if (this.document && this.selectedBlockId) {
-			this.blockPropertiesProvider.setSelectedBlock(await getBlockData(this.document, this.selectedBlockId, this.getDocumentAsJson));
+        	const json = this.getDocumentAsJson(this.document);
+        	const blockData = getBlockData(json, this.selectedBlockId);
+			if (blockData) {
+				this.blockPropertiesProvider.setSelectedBlock(blockData);
+			}
 		}
 	}
 
@@ -152,6 +161,16 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 	 * Get the static html used for the editor webviews.
 	 */
 	private getHtmlForWebview(webview: vscode.Webview): string {
+		(async () => {
+			try {
+			await this.pythonServer.waitForServer(20000);
+			await this.loadBlockLibraries();
+			} catch (err) {
+			console.error('[BlockPalette] Could not load block libraries:', err);
+			vscode.window.showErrorMessage('Could not connect to simulation server in time.');
+			}
+		})();
+
 		// Local path to script and css for the webview
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(
 			this.context.extensionUri, 'out', 'blockEditor', 'blockEditor.js'));
@@ -167,6 +186,14 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 		// Use a nonce to whitelist which scripts can be run
 		const nonce = getNonce();
+	  	
+		const elementsBundled = webview.asWebviewUri(
+			vscode.Uri.joinPath(this.context.extensionUri, 
+								'node_modules', 
+								'@vscode-elements', 
+								'elements', 
+								'dist', 
+								'bundled.js'));
 
 		return /* html */`
 			<!DOCTYPE html>
@@ -187,6 +214,12 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 				<link href="${styleMainUri}" rel="stylesheet" />
 
 				<title>PySysLink</title>
+
+				<script
+					nonce="${nonce}"
+					src="${elementsBundled}"
+					type="module"
+				></script>
 			</head>
 			<body>
 			<div class="main">
@@ -198,7 +231,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 						</div>
 					</div>
 					<div class="block-palette-sidebar" id="block-palette-sidebar">
-						<div class="palette-toggle" id="palette-toggle">&#9776;</div>
 						<div id="block-palette-content"></div>
 					</div>
 				</div>
@@ -213,7 +245,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		this.withDocumentLock(async () => {
 			if (this.document && blockId) {
 				let json = this.getDocumentAsJson(this.document);
-				json = await updateBlockProperties(json, blockId, props);
+				json = updateBlockParameters(json, blockId, props);
 				await this.updateTextDocument(this.document, json);
 			}
 		});
@@ -265,5 +297,35 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 		return vscode.workspace.applyEdit(edit);
 	};
+
+	private async loadBlockLibraries() {
+        try {
+		console.log("Result requested block libraries");
+          const result = await this.pythonServer.sendRequestAsync({
+            method: "getLibraries"
+          }, 10000);
+
+		  console.log(`Result obtained block libraries: ${result}`);
+          
+          console.log(`Available libraries: ${JSON.parse(result)}`);
+          if (this.webviewPanel?.webview) {
+            this.webviewPanel?.webview.postMessage({
+              type: 'setBlockLibraries',
+              model: JSON.parse(result)
+            });
+          }
+        } catch (error) {
+          if (this.webviewPanel?.webview) {
+            this.webviewPanel?.webview.postMessage({
+              type: 'error',
+              error: error
+            });
+          }
+          console.error(`Error on python server while getting block libraries: ${error}`);
+          vscode.window.showErrorMessage(
+            `Error on python server while getting block libraries: ${error}`
+          );
+        }      
+    }
 
 }
