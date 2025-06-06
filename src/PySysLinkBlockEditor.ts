@@ -284,13 +284,32 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		}
 	};
 
-	private updateTextDocument = (document: vscode.TextDocument, json: any) => {
-		const edit = new vscode.WorkspaceEdit();
+	private updateTextDocument = async (document: vscode.TextDocument, json: any) => {
+		// Get the current JSON from the document
+		const currentJson = this.getDocumentAsJson(document);
 
-		// Just replace the entire document every time for this example extension.
-		// A more complete extension should compute minimal edits instead.
+		// Find new blocks (by id)
+		const currentBlockIds = new Set((currentJson.blocks ?? []).map(b => b.id));
+		const newBlocks: BlockData[] = (json.blocks ?? []).filter((b: BlockData) => !currentBlockIds.has(b.id));
+
+		// For each new block, get and set port amounts
+		for (const block of newBlocks) {
+			try {
+				const blockRenderInfo = await this.getBlockRenderInformation(block);
+				if (blockRenderInfo) {
+					block.inputPorts = blockRenderInfo.input_ports;
+					block.outputPorts = blockRenderInfo.output_ports;
+				}
+			} catch (err) {
+				console.error(`Failed to get render info for block ${block.id}:`, err);
+			}
+		}
+
+		// Update links node positions as before
 		json = updateLinksNodesPosition(json);
 
+		// Replace the entire document
+		const edit = new vscode.WorkspaceEdit();
 		edit.replace(
 			document.uri,
 			new vscode.Range(0, 0, document.lineCount, 0),

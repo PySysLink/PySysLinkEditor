@@ -1,13 +1,13 @@
 {
-  "version": 19,
+  "version": 43,
   "blocks": [
     {
       "id": "kmFq5VADd3K4AwehBThL5BH2B4UAQyRt",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 104,
-      "y": 148.203125,
+      "x": 60,
+      "y": 127.203125,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -19,8 +19,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 281.25,
-      "y": 222.453125,
+      "x": 206.25,
+      "y": 252.453125,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -33,17 +33,150 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 440.5,
-      "y": 159.953125,
-      "inputPorts": 1,
+      "x": 421.43333333333334,
+      "y": 172.53090277777778,
+      "inputPorts": 3,
       "outputPorts": 1,
       "properties": {
         "Gains": [
-          1,
-          2,
-          3
+          1.2,
+          2.1,
+          3.2
         ]
       }
+    },
+    {
+      "id": "sdrp5pcJA7M7d6UwSiOmQEhHeGUdD2KU",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 656.4888888888896,
+      "y": 324.9840277777778,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {}
+    },
+    {
+      "id": "wuyLSW4N6QGw5X3NKNhqwg9TfwaReIwu",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Accumulator",
+      "label": "Accumulator",
+      "x": 935,
+      "y": 145.40625,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "InitialValue": 0,
+        "SampleTime": -1
+      }
+    },
+    {
+      "id": "62FiYSuHYf6LFEa9vaKTuZQW9UAyL5ld",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 1558,
+      "y": 156.40625,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {}
+    },
+    {
+      "id": "z9ALq8YgpFTvF3X9OhJvzPSmB1fLMDT0",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 1292,
+      "y": 272.40625,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {}
+    },
+    {
+      "id": "gwcAQpsq7F3Y0vf8nX5BvEKnSj6F0vNc",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 1424,
+      "y": 321.40625,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {}
+    },
+    {
+      "id": "0ExW6Z3Z14WpbZfDnDD7Nv2mUwFDiEPs",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 1212,
+      "y": 77.40625,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": 1.1
+      }
+    },
+    {
+      "id": "lZDHVEtW1Uu0GlZ4Fwuu0CgYDg2y2ICk",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 1135,
+      "y": 204.40625,
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "Gains": [
+          1.1,
+          1.2
+        ]
+      }
+    },
+    {
+      "id": "pxnDWTekZ9p8xxuzyuhK2faxv0LfDMd9",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 714,
+      "y": 116.40625,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {}
+    },
+    {
+      "id": "E3lnHvMdFKYlrCHASpJDIlXvkocCImRw",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 1038,
+      "y": 344.40625,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {}
+    },
+    {
+      "id": "y6n04I06GIsvsrJn4mgTX2NC6CvTZtji",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 367,
+      "y": 59.40625,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": 1.1
+      }
+    },
+    {
+      "id": "1pZjIiNXoh6csoxq8ZsYLoSmiPQnn8MH",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 940,
+      "y": 37.40625,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {}
     }
   ],
   "links": [
@@ -53,10 +186,10 @@
       "targetId": "uCODI7nbia1bTh4kDKMxmB47OZaM2ceD",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 224,
-      "sourceY": 168.203125,
-      "targetX": 281.25,
-      "targetY": 242.453125,
+      "sourceX": 180,
+      "sourceY": 147.203125,
+      "targetX": 206.25,
+      "targetY": 272.453125,
       "intermediateNodes": []
     },
     {
@@ -65,10 +198,94 @@
       "targetId": "JRjmGs0JcgszgTZWtkbJDGG0DTSmOI60",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 401.25,
-      "sourceY": 242.453125,
-      "targetX": 440.5,
-      "targetY": 179.953125,
+      "sourceX": 326.25,
+      "sourceY": 272.453125,
+      "targetX": 421.43333333333334,
+      "targetY": 192.53090277777778,
+      "intermediateNodes": []
+    },
+    {
+      "id": "WvStdmR8wVJbkLzbVsrLMAU0DeeQh11a",
+      "sourceId": "JRjmGs0JcgszgTZWtkbJDGG0DTSmOI60",
+      "targetId": "sdrp5pcJA7M7d6UwSiOmQEhHeGUdD2KU",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 541.4333333333334,
+      "sourceY": 192.53090277777778,
+      "targetX": 656.4888888888896,
+      "targetY": 344.9840277777778,
+      "intermediateNodes": []
+    },
+    {
+      "id": "x67SwYyjZgvZtavNdicKd2D88xVSYdqW",
+      "sourceId": "uCODI7nbia1bTh4kDKMxmB47OZaM2ceD",
+      "targetId": "JRjmGs0JcgszgTZWtkbJDGG0DTSmOI60",
+      "sourcePort": 0,
+      "targetPort": 1,
+      "sourceX": 326.25,
+      "sourceY": 272.453125,
+      "targetX": 421.43333333333334,
+      "targetY": 212.53090277777778,
+      "intermediateNodes": []
+    },
+    {
+      "id": "UruLQPLyP1uPGW0TVv7jzmIBUIJK9ruH",
+      "sourceId": "uCODI7nbia1bTh4kDKMxmB47OZaM2ceD",
+      "targetId": "JRjmGs0JcgszgTZWtkbJDGG0DTSmOI60",
+      "sourcePort": 0,
+      "targetPort": 2,
+      "sourceX": 326.25,
+      "sourceY": 272.453125,
+      "targetX": 421.43333333333334,
+      "targetY": 232.53090277777778,
+      "intermediateNodes": []
+    },
+    {
+      "id": "U2pqd8zANGgpskIBRM5KFievIsS8MJWk",
+      "sourceId": "wuyLSW4N6QGw5X3NKNhqwg9TfwaReIwu",
+      "targetId": "lZDHVEtW1Uu0GlZ4Fwuu0CgYDg2y2ICk",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 1055,
+      "sourceY": 165.40625,
+      "targetX": 1135,
+      "targetY": 224.40625,
+      "intermediateNodes": []
+    },
+    {
+      "id": "XgVmVxA9m4LuHs8K8vDbXzG7qpYW8HJ9",
+      "sourceId": "JRjmGs0JcgszgTZWtkbJDGG0DTSmOI60",
+      "targetId": "lZDHVEtW1Uu0GlZ4Fwuu0CgYDg2y2ICk",
+      "sourcePort": 0,
+      "targetPort": 1,
+      "sourceX": 541.4333333333334,
+      "sourceY": 192.53090277777778,
+      "targetX": 1135,
+      "targetY": 244.40625,
+      "intermediateNodes": []
+    },
+    {
+      "id": "8Zzq8pMc825JvFkUQtUO3KFPmtP3VxXU",
+      "sourceId": "lZDHVEtW1Uu0GlZ4Fwuu0CgYDg2y2ICk",
+      "targetId": "z9ALq8YgpFTvF3X9OhJvzPSmB1fLMDT0",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 1255,
+      "sourceY": 224.40625,
+      "targetX": 1292,
+      "targetY": 292.40625,
+      "intermediateNodes": []
+    },
+    {
+      "id": "YAXhyp0AzQePQNaqS0MW64GAsmm3ndPq",
+      "sourceId": "0ExW6Z3Z14WpbZfDnDD7Nv2mUwFDiEPs",
+      "targetId": "62FiYSuHYf6LFEa9vaKTuZQW9UAyL5ld",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 1332,
+      "sourceY": 97.40625,
+      "targetX": 1558,
+      "targetY": 176.40625,
       "intermediateNodes": []
     }
   ]

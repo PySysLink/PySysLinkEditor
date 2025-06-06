@@ -1,6 +1,12 @@
+export interface BlockConfigurationValue {
+  name: string;
+  defaultValue: any;
+  type: string;
+}
+
 export interface BlockType {
   name: string;
-  configurationValues?: Record<string, any>[];
+  configurationValues?: BlockConfigurationValue[];
 }
 
 export interface Library {

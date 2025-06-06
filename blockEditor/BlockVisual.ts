@@ -124,6 +124,68 @@ export class BlockVisual extends Selectable implements Movable {
             this.labelElement.textContent = blockData.label;
             this.element.style.left = `${blockData.x}px`;
             this.element.style.top = `${blockData.y}px`;
+
+            // --- Update ports if the amount has changed ---
+            const portWidth = 40;
+            const portHeigh = 20;
+
+            // Remove old input ports if count changed
+            if (blockData.inputPorts !== this.inputPortNumber) {
+                // Remove old input port elements from DOM
+                this.inputPorts.forEach(portEl => this.element.removeChild(portEl));
+                this.inputPorts = [];
+                this.inputPortNumber = blockData.inputPorts;
+
+                // Add new input ports
+                for (let j = 0; j < this.inputPortNumber; j++) {
+                    const inputPort = document.createElement('div');
+                    inputPort.classList.add('input-port');
+                    inputPort.textContent = `In ${j + 1}`;
+
+                    const position = communicationManager.getPortPosition(this.id, "input", j);
+                    const thisPosition = this.getPosition(communicationManager);
+                    if (position && thisPosition) {
+                        inputPort.style.left = `${position.x - thisPosition.x - portWidth/4}px`;
+                        inputPort.style.top = `${position.y - thisPosition.y - portHeigh/2}px`;
+                    }
+
+                    inputPort.addEventListener('mousedown', (e: any) => {
+                        this.onMouseDownInPort(e, "input", j);
+                    });
+
+                    this.element.appendChild(inputPort);
+                    this.inputPorts.push(inputPort);
+                }
+            }
+
+            // Remove old output ports if count changed
+            if (blockData.outputPorts !== this.outputPortNumber) {
+                // Remove old output port elements from DOM
+                this.outputPorts.forEach(portEl => this.element.removeChild(portEl));
+                this.outputPorts = [];
+                this.outputPortNumber = blockData.outputPorts;
+
+                // Add new output ports
+                for (let i = 0; i < this.outputPortNumber; i++) {
+                    const outputPort = document.createElement('div');
+                    outputPort.classList.add('output-port');
+                    outputPort.textContent = `Out ${i + 1}`;
+
+                    const position = communicationManager.getPortPosition(this.id, "output", i);
+                    const thisPosition = this.getPosition(communicationManager);
+                    if (position && thisPosition) {
+                        outputPort.style.left = `${position.x - thisPosition.x - 3*portWidth/4}px`;
+                        outputPort.style.top = `${position.y - thisPosition.y - portHeigh/2}px`;
+                    }
+
+                    outputPort.addEventListener('mousedown', (e: any) => {
+                        this.onMouseDownInPort(e, "output", i);
+                    });
+
+                    this.element.appendChild(outputPort);
+                    this.outputPorts.push(outputPort);
+                }
+            }
         }
     }
 

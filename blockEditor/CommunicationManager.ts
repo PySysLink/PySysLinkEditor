@@ -267,7 +267,7 @@ export class CommunicationManager {
         let properties: Record<string, any> = {};
         if (blockDef.configurationValues && Array.isArray(blockDef.configurationValues)) {
             for (const conf of blockDef.configurationValues) {
-                Object.assign(properties, conf);
+                properties[conf.name] = conf.defaultValue;
             }
         }
 
@@ -279,8 +279,8 @@ export class CommunicationManager {
             label: blockType,
             x,
             y,
-            inputPorts: 1,
-            outputPorts: 1, 
+            inputPorts: 0,
+            outputPorts: 0, 
             properties: properties
         };
 
