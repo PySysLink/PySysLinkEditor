@@ -386,12 +386,12 @@ export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: num
     return updatedJson;
 }
 
-export function updateBlockParameters(json: JsonData, blockId: IdType, newProperties: Record<string, any>): JsonData {
+export function updateBlockParameters(json: JsonData, updatedBlock: BlockData): JsonData {
     const updatedJson: JsonData = {
         ...json,
         blocks: json.blocks?.map(block =>
-            block.id === blockId
-                ? { ...block, properties: { ...block.properties, ...newProperties } }
+            block.id === updatedBlock.id
+                ? { ...block, ...updatedBlock }
                 : block
         )
     };

@@ -1,99 +1,74 @@
 {
-  "version": 199,
+  "version": 19,
   "blocks": [
     {
-      "id": "w79tVB7dGgd2ICVTI7YpZ2iZrJDrwM8q",
+      "id": "kmFq5VADd3K4AwehBThL5BH2B4UAQyRt",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 841.9880952380952,
-      "y": 342.3697916666667,
-      "inputPorts": 1,
+      "x": 104,
+      "y": 148.203125,
+      "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
-        "Value": "7",
-        "label": "Constant",
-        "x": "95.75",
-        "y": "170.703125"
+        "Value": 2.1
       }
     },
     {
-      "id": "V6gfGgymtikhC3qNgLnO2klAGPj55usL",
+      "id": "uCODI7nbia1bTh4kDKMxmB47OZaM2ceD",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Integrator",
+      "label": "Integrator",
+      "x": 281.25,
+      "y": 222.453125,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "InitialValue": 0,
+        "ContinuousSampleTimeGroup": 1
+      }
+    },
+    {
+      "id": "JRjmGs0JcgszgTZWtkbJDGG0DTSmOI60",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 1095.9325396825402,
-      "y": 443.2031250000001,
+      "x": 440.5,
+      "y": 159.953125,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
-        "Gains": "1,3",
-        "label": "Adder",
-        "x": 374.25,
-        "y": 208.203125
+        "Gains": [
+          1,
+          2,
+          3
+        ]
       }
-    },
-    {
-      "id": "5tRUtyQfV0PtcujC37KAF0IYslv68yBa",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "ContinuousToDiscrete",
-      "label": "ContinuousToDiscrete",
-      "x": 1406.4603174603178,
-      "y": 437.4253472222222,
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {
-        "ContinuousSampleTimeGroup": 1,
-        "DiscreteSampleTime": -1
-      }
-    },
-    {
-      "id": "9Y5S4SRo1YZobHl3Wpow9mURY61WGuO0",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Display",
-      "label": "Display",
-      "x": 1719.2222222222224,
-      "y": 407.3333333333333,
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {}
     }
   ],
   "links": [
     {
-      "id": "FZOnveH4XQkd88Exj583SPwVUmKQHhX6",
-      "sourceId": "w79tVB7dGgd2ICVTI7YpZ2iZrJDrwM8q",
-      "targetId": "V6gfGgymtikhC3qNgLnO2klAGPj55usL",
+      "id": "Kd6rEi2BO8PRvdNyylyhuCS2kec77Jqe",
+      "sourceId": "kmFq5VADd3K4AwehBThL5BH2B4UAQyRt",
+      "targetId": "uCODI7nbia1bTh4kDKMxmB47OZaM2ceD",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 961.9880952380952,
-      "sourceY": 362.3697916666667,
-      "targetX": 1095.9325396825402,
-      "targetY": 463.2031250000001,
+      "sourceX": 224,
+      "sourceY": 168.203125,
+      "targetX": 281.25,
+      "targetY": 242.453125,
       "intermediateNodes": []
     },
     {
-      "id": "3DMfZLRhrcIZDiSMp5lw3DmFKT00eVpX",
-      "sourceId": "V6gfGgymtikhC3qNgLnO2klAGPj55usL",
-      "targetId": "5tRUtyQfV0PtcujC37KAF0IYslv68yBa",
+      "id": "PZ3xbOGRHHpzEd3wtrkSBVL0l3q9ch7t",
+      "sourceId": "uCODI7nbia1bTh4kDKMxmB47OZaM2ceD",
+      "targetId": "JRjmGs0JcgszgTZWtkbJDGG0DTSmOI60",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 1215.9325396825402,
-      "sourceY": 463.2031250000001,
-      "targetX": 1406.4603174603178,
-      "targetY": 457.4253472222222,
-      "intermediateNodes": []
-    },
-    {
-      "id": "pkLIT9BlEubL7q5Iwo2O9MCb6x6pLaLp",
-      "sourceId": "5tRUtyQfV0PtcujC37KAF0IYslv68yBa",
-      "targetId": "9Y5S4SRo1YZobHl3Wpow9mURY61WGuO0",
-      "sourcePort": 0,
-      "targetPort": 0,
-      "sourceX": 1526.4603174603178,
-      "sourceY": 457.4253472222222,
-      "targetX": 1719.2222222222224,
-      "targetY": 427.3333333333333,
+      "sourceX": 401.25,
+      "sourceY": 242.453125,
+      "targetX": 440.5,
+      "targetY": 179.953125,
       "intermediateNodes": []
     }
   ]

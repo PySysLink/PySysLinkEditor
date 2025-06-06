@@ -52,14 +52,21 @@ async def run_simulation(duration: float, steps: int):
     return {"status": "completed"}
 
 async def get_libraries():
-    before_request()
     libraries = get_toolkit().get_available_block_libraries("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml")
     # Return only essential information
     return json.dumps(libraries)
 
+async def get_block_render_information(block: str):
+    render_information = get_toolkit().get_block_render_information("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml", block)
+    print(render_information)
+    return render_information.to_json()
+    
+
+
 server = RPCServer(before_request)
 server.register_method("runSimulation", run_simulation)
 server.register_method("getLibraries", get_libraries)
+server.register_method("getBlockRenderInformation", get_block_render_information)
 
 if __name__ == "__main__":
     asyncio.run(server.start())

@@ -7,12 +7,12 @@ import { BlockData } from '../shared/JsonTypes';
 
 export class BlockPropertiesProvider implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
-    private updateHandlers: ((props: Record<string, any>) => void)[] = [];
+    private updateHandlers: ((blockData: BlockData) => void)[] = [];
     public selectedBlockId: string | null = null;
 
     constructor(private readonly context: vscode.ExtensionContext) {}
   
-    public registerOnUpdateCallback(handler: ((props: Record<string, any>) => void)): void {
+    public registerOnUpdateCallback(handler: ((blockData: BlockData) => void)): void {
       this.updateHandlers.push(handler);
     }
 
@@ -50,7 +50,7 @@ export class BlockPropertiesProvider implements vscode.WebviewViewProvider {
         switch (msg.type) {
           case 'update':
             // frontend wants to save edited props
-            this.callUpdatedCallbacks(msg.props);
+            this.callUpdatedCallbacks(msg.block);
             break;
 
           // you could handle other msg.types here if needed...
@@ -75,10 +75,10 @@ export class BlockPropertiesProvider implements vscode.WebviewViewProvider {
     }
 
 
-    private callUpdatedCallbacks(props: Record<string, any>) {
+    private callUpdatedCallbacks(newBlock: BlockData) {
       for (const handler of this.updateHandlers) {
         try {
-          handler(props);
+          handler(newBlock);
         } catch (err) {
           console.error(
             '[BlockPropertiesProvider] error in update handler',

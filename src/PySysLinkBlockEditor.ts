@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getNonce } from './util';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
-import { IdType, JsonData } from '../shared/JsonTypes';
+import { BlockData, IdType, JsonData } from '../shared/JsonTypes';
 import { getBlockData, updateBlockParameters, updateLinksNodesPosition } from '../shared/JsonManager';
 import { PythonServerManager } from './PythonServerManager';
 
@@ -240,12 +240,14 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			</html>`;
 	}
 
-	public updateBlockParameters = (props: Record<string, any>): void => {
-		const blockId = this.blockPropertiesProvider.selectedBlockId;
+	public updateBlockParameters = async (block: BlockData): Promise<void> => {
+		let block_render_info = await this.getBlockRenderInformation(block);
+		block.inputPorts = block_render_info.input_ports;
+		block.outputPorts = block_render_info.output_ports;
 		this.withDocumentLock(async () => {
-			if (this.document && blockId) {
+			if (this.document) {
 				let json = this.getDocumentAsJson(this.document);
-				json = updateBlockParameters(json, blockId, props);
+				json = updateBlockParameters(json, block);
 				await this.updateTextDocument(this.document, json);
 			}
 		});
@@ -297,6 +299,23 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
 		return vscode.workspace.applyEdit(edit);
 	};
+
+	private async getBlockRenderInformation(block: BlockData): Promise<any> {
+		try {
+		console.log("Result requested block libraries");
+          const result = await this.pythonServer.sendRequestAsync({
+            method: "getBlockRenderInformation",
+			params: { block }
+          }, 10000);
+
+		  return JSON.parse(result);
+        } catch (error) {
+          console.error(`Error on python server while getting block render information: ${error}`);
+          vscode.window.showErrorMessage(
+            `Error on python server while getting block render information: ${error}`
+          );
+        } 
+	}
 
 	private async loadBlockLibraries() {
         try {

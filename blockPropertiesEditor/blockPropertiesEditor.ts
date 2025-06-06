@@ -1,56 +1,50 @@
 /* Frontend script for VSCode Webview: dynamically builds the block properties form,
    handles messages from the extension backend, and sends updates back. */
 
+import { BlockData } from "../shared/JsonTypes";
+
 declare const acquireVsCodeApi: any;
 
-interface Block {
-	label: string;
-	x: number;
-	y: number;
-	properties?: Record<string, string | number>;
-}
 
 // Initialize VS Code API
 const vscode = acquireVsCodeApi();
 
 // Keep current block state
-let currentBlock: Block | null = null;
+let currentBlock: BlockData | null = null;
 
 /**
  * Build the properties form dynamically based on the given block.
  */
-function buildForm(block: Block) {
+function buildForm(block: BlockData) {
 	const container = document.createElement('vscode-form-container');
 	container.innerHTML = '';
 
-	// Helper to append a field
-	function appendField(key: string, value: string | number, type: string = 'text') {
-		const group = document.createElement('vscode-form-group');
-		const labelEl = document.createElement('vscode-label');
-		labelEl.setAttribute('for', key);
-		labelEl.textContent = key.charAt(0).toUpperCase() + key.slice(1);
-
-		const input = document.createElement('vscode-textfield');
-		input.id = key;
-		console.log('key', key);
-		console.log('value', value);
-		input.setAttribute('value', value.toString());
-		if (type === 'number') input.setAttribute('type', 'number');
-
-		group.appendChild(labelEl);
-		group.appendChild(input);
-		container.appendChild(group);
-	}
+	const infoFields = [
+        { label: 'Block Library', value: block.blockLibrary },
+        { label: 'Block Type', value: block.blockType },
+        { label: 'Block ID', value: block.id }
+    ];
+    infoFields.forEach(({ label, value }) => {
+        const group = document.createElement('vscode-form-group');
+        const labelEl = document.createElement('vscode-label');
+        labelEl.textContent = label;
+        const info = document.createElement('span');
+        info.textContent = value;
+        info.style.marginLeft = '8px';
+        group.appendChild(labelEl);
+        group.appendChild(info);
+        container.appendChild(group);
+    });
 
 	// Standard fields
-	appendField('label', block.label);
-	appendField('x', block.x, 'number');
-	appendField('y', block.y, 'number');
+	appendField(container, 'label', block.label);
+	appendField(container, 'x', block.x, 'number');
+	appendField(container, 'y', block.y, 'number');
 
 	// Custom properties
 	if (block.properties) {
 		for (const [key, val] of Object.entries(block.properties)) {
-			appendField(key, val);
+			appendPropertyField(container, key, val);
 		}
 	}
 
@@ -70,30 +64,143 @@ function buildForm(block: Block) {
 	}
 }
 
+function appendField(container: HTMLElement, key: string, value: string | number, type: string = 'text') {
+        const group = document.createElement('vscode-form-group');
+        const labelEl = document.createElement('vscode-label');
+        labelEl.setAttribute('for', key);
+        labelEl.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+
+        const input = document.createElement('vscode-textfield');
+        input.id = key;
+        input.setAttribute('value', value.toString());
+        if (type === 'number') {input.setAttribute('type', 'number');}
+        group.appendChild(labelEl);
+        group.appendChild(input);
+        container.appendChild(group);
+    }
+
+    function appendPropertyField(container: HTMLElement, key: string, value: any) {
+        const group = document.createElement('vscode-form-group');
+        const labelEl = document.createElement('vscode-label');
+        labelEl.setAttribute('for', key);
+        labelEl.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+
+        let input: HTMLElement;
+
+        if (typeof value === 'boolean') {
+            input = document.createElement('input');
+            input.id = key;
+            input.setAttribute('type', 'checkbox');
+            (input as HTMLInputElement).checked = value;
+        } else if (typeof value === 'number') {
+            input = document.createElement('vscode-textfield');
+            input.id = key;
+            input.setAttribute('type', 'number');
+            input.setAttribute('value', value.toString());
+        } else if (typeof value === 'string') {
+            input = document.createElement('vscode-textfield');
+            input.id = key;
+            input.setAttribute('type', 'text');
+            input.setAttribute('value', value);
+        } else if (Array.isArray(value)) {
+            input = document.createElement('div');
+            input.id = key;
+            value.forEach((item: any, idx: number) => {
+                const itemInput = document.createElement('vscode-textfield');
+                itemInput.id = `${key}__${idx}`;
+                itemInput.setAttribute('value', item.toString());
+                itemInput.setAttribute('style', 'margin-right:4px;');
+                input.appendChild(itemInput);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '✕';
+                removeBtn.setAttribute('type', 'button');
+                removeBtn.onclick = () => {
+                    input.removeChild(itemInput);
+                    input.removeChild(removeBtn);
+                };
+                input.appendChild(removeBtn);
+            });
+            const addBtn = document.createElement('button');
+            addBtn.textContent = '+';
+            addBtn.setAttribute('type', 'button');
+            addBtn.onclick = () => {
+                const idx = input.querySelectorAll('vscode-textfield').length;
+                const itemInput = document.createElement('vscode-textfield');
+                itemInput.id = `${key}__${idx}`;
+                itemInput.setAttribute('value', '');
+                itemInput.setAttribute('style', 'margin-right:4px;');
+                input.insertBefore(itemInput, addBtn);
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '✕';
+                removeBtn.setAttribute('type', 'button');
+                removeBtn.onclick = () => {
+                    input.removeChild(itemInput);
+                    input.removeChild(removeBtn);
+                };
+                input.insertBefore(removeBtn, addBtn);
+            };
+            input.appendChild(addBtn);
+        } else {
+            // fallback: string
+            input = document.createElement('vscode-textfield');
+            input.id = key;
+            input.setAttribute('type', 'text');
+            input.setAttribute('value', value?.toString() ?? '');
+        }
+
+        group.appendChild(labelEl);
+        group.appendChild(input);
+        container.appendChild(group);
+    }
+
+
 /**
  * Handle save click: gather form values and post update message.
  */
 function onSave() {
-	if (!currentBlock) {
-		return;
-	}
-	// Collect inputs
-	const inputs = document.querySelectorAll('vscode-textfield');
-	const props: any = {};
-	inputs.forEach((el: any) => {
-		const name = el.id;
-		let val: string | number = el.value;
-		// convert numbers
-		if (el.getAttribute('type') === 'number') {
-			val = Number(val);
-		}
-		props[name] = val;
-	});
+    if (!currentBlock) {return;}
 
-	vscode.postMessage({
-		type: 'update',
-		props
-	});
+    const updatedBlock: BlockData = { ...currentBlock };
+
+    // Standard fields
+    const labelInput = document.getElementById('label') as HTMLInputElement;
+    const xInput = document.getElementById('x') as HTMLInputElement;
+    const yInput = document.getElementById('y') as HTMLInputElement;
+    updatedBlock.label = labelInput.value;
+    updatedBlock.x = Number(xInput.value);
+    updatedBlock.y = Number(yInput.value);
+
+    // Properties
+    const newProps: Record<string, any> = {};
+    if (currentBlock.properties) {
+        for (const [key, value] of Object.entries(currentBlock.properties)) {
+            const el = document.getElementById(key);
+            if (el) {
+                if ((el as HTMLInputElement).type === 'checkbox') {
+                    newProps[key] = (el as HTMLInputElement).checked;
+                } else if (Array.isArray(value)) {
+                    const arr: any[] = [];
+                    const arrInputs = (el as HTMLElement).querySelectorAll('vscode-textfield');
+                    arrInputs.forEach((itemInput: any) => {
+                        const v = itemInput.value;
+                        if (v !== '') {arr.push(isNaN(Number(v)) ? v : Number(v));}
+                    });
+                    newProps[key] = arr;
+                } else if ((el as HTMLInputElement).type === 'number') {
+                    newProps[key] = Number((el as HTMLInputElement).value);
+                } else {
+                    newProps[key] = (el as HTMLInputElement).value;
+                }
+            }
+        }
+    }
+    updatedBlock.properties = newProps;
+
+    vscode.postMessage({
+        type: 'update',
+        block: updatedBlock
+    });
 }
 
 /**
