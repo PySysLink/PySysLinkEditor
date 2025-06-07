@@ -37,8 +37,14 @@ export function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
+	vscode.window.onDidChangeActiveTextEditor(editor => {
+        if (editor && editor.document && editor.document.uri.fsPath.endsWith('.pslk')) {
+            simulationManager.setCurrentPslkPath(editor.document.uri.fsPath);
+        }
+    });
 
-	const { disposable, provider: pySysLinkBlockEditorProvider } = PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider, pythonServer);
+
+	const { disposable, provider: pySysLinkBlockEditorProvider } = PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider, simulationManager, pythonServer);
     context.subscriptions.push(disposable);
 	blockPropertiesProvider.registerOnUpdateCallback(pySysLinkBlockEditorProvider.updateBlockParameters);
 	console.log('Congratulations, activation completed!');

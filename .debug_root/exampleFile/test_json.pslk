@@ -1,49 +1,19 @@
 {
-  "version": 169,
+  "version": 67,
   "blocks": [
-    {
-      "id": "cGau0kJz1Xkv0skuVTLrSUtQPbOxBrc0",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Display",
-      "label": "Display",
-      "x": 557.7647058823528,
-      "y": 192.66819852941182,
-      "inputPorts": 1,
-      "outputPorts": 0,
-      "properties": {}
-    },
     {
       "id": "jaaaEXN3oNNrJVbxYQQgYKF1DtianDqz",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 75.0588235294117,
-      "y": 160.31525735294113,
+      "x": 89.0588235294117,
+      "y": 127.31525735294113,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
         "Value": {
           "type": "float",
           "value": 1
-        }
-      }
-    },
-    {
-      "id": "JacuDPgSkqFk5ERA571VI14aJor64lV6",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Adder",
-      "label": "Adder",
-      "x": 305.94117647058823,
-      "y": 198.78584558823528,
-      "inputPorts": 2,
-      "outputPorts": 1,
-      "properties": {
-        "Gains": {
-          "type": "float[]",
-          "value": [
-            2,
-            3
-          ]
         }
       }
     },
@@ -52,8 +22,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 54.64705882352941,
-      "y": 286.43290441176464,
+      "x": 62.64705882352941,
+      "y": 258.43290441176464,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -62,43 +32,105 @@
           "value": 1
         }
       }
+    },
+    {
+      "id": "6LrNsPAK3jsY6AOI2Tqp4Opf21ZDyFxR",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 282,
+      "y": 177.609375,
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "id": "Ld5e9KQuKDEmBsPHwH5QU0SuL3g7ER6L",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Integrator",
+      "label": "Integrator",
+      "x": 457,
+      "y": 222.609375,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "InitialValue": {
+          "type": "float",
+          "value": 0
+        },
+        "ContinuousSampleTimeGroup": {
+          "type": "float",
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "sEEdKz3t20cpWfsHZmPSlMmSqFdM5MwV",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 649,
+      "y": 208.609375,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {}
     }
   ],
   "links": [
     {
       "id": "vK6o1gEySJHmKZfzVjAciXTWnOMH2LvF",
       "sourceId": "jaaaEXN3oNNrJVbxYQQgYKF1DtianDqz",
-      "targetId": "JacuDPgSkqFk5ERA571VI14aJor64lV6",
+      "targetId": "6LrNsPAK3jsY6AOI2Tqp4Opf21ZDyFxR",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 195.0588235294117,
-      "sourceY": 180.31525735294113,
-      "targetX": 305.94117647058823,
-      "targetY": 218.78584558823528,
+      "sourceX": 209.0588235294117,
+      "sourceY": 147.31525735294113,
+      "targetX": 282,
+      "targetY": 197.609375,
       "intermediateNodes": []
     },
     {
       "id": "ZnYd0nloRa1E8YyIApjNloDFlMocmNgQ",
       "sourceId": "aEINHYCoifM0R3rXoTc91jeAs7dspFID",
-      "targetId": "JacuDPgSkqFk5ERA571VI14aJor64lV6",
+      "targetId": "6LrNsPAK3jsY6AOI2Tqp4Opf21ZDyFxR",
       "sourcePort": 0,
       "targetPort": 1,
-      "sourceX": 174.64705882352942,
-      "sourceY": 306.43290441176464,
-      "targetX": 305.94117647058823,
-      "targetY": 238.78584558823528,
+      "sourceX": 182.64705882352942,
+      "sourceY": 278.43290441176464,
+      "targetX": 282,
+      "targetY": 217.609375,
       "intermediateNodes": []
     },
     {
-      "id": "C2O4lQXBVeAquHNZP46MYDCPzwiipu24",
-      "sourceId": "JacuDPgSkqFk5ERA571VI14aJor64lV6",
-      "targetId": "cGau0kJz1Xkv0skuVTLrSUtQPbOxBrc0",
+      "id": "udgKEvT5D8qDTdSRGGqVM6ORo573QG9C",
+      "sourceId": "6LrNsPAK3jsY6AOI2Tqp4Opf21ZDyFxR",
+      "targetId": "Ld5e9KQuKDEmBsPHwH5QU0SuL3g7ER6L",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 425.94117647058823,
-      "sourceY": 218.78584558823528,
-      "targetX": 557.7647058823528,
-      "targetY": 212.66819852941182,
+      "sourceX": 402,
+      "sourceY": 197.609375,
+      "targetX": 457,
+      "targetY": 242.609375,
+      "intermediateNodes": []
+    },
+    {
+      "id": "p1aRyb5yTz4TWTHLRMxF0tg0zwTI9yGG",
+      "sourceId": "Ld5e9KQuKDEmBsPHwH5QU0SuL3g7ER6L",
+      "targetId": "sEEdKz3t20cpWfsHZmPSlMmSqFdM5MwV",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 577,
+      "sourceY": 242.609375,
+      "targetX": 649,
+      "targetY": 228.609375,
       "intermediateNodes": []
     }
   ]

@@ -4,6 +4,7 @@ import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { BlockData, IdType, JsonData } from '../shared/JsonTypes';
 import { getBlockData, updateBlockParameters, updateLinksNodesPosition } from '../shared/JsonManager';
 import { PythonServerManager } from './PythonServerManager';
+import { SimulationManager } from './SimulationManager';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private documentLock: Promise<void> = Promise.resolve();
@@ -11,6 +12,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 	private webviewPanel: vscode.WebviewPanel | undefined;
 	private selectedBlockId: IdType | undefined;
 	private blockPropertiesProvider: BlockPropertiesProvider;
+	private simulationManager: SimulationManager;
 
 	private lastVersion: number = 0;
 
@@ -19,9 +21,10 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 	public static register(
 		context: vscode.ExtensionContext,
 		blockPropertiesProvider: BlockPropertiesProvider,
+		simulationManager: SimulationManager,
 		pythonServer: PythonServerManager,
 	): { disposable: vscode.Disposable; provider: PySysLinkBlockEditorProvider } {
-		const provider = new PySysLinkBlockEditorProvider(context, blockPropertiesProvider, pythonServer);
+		const provider = new PySysLinkBlockEditorProvider(context, blockPropertiesProvider, simulationManager, pythonServer);
 		const disposable = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
 	
 		console.log('Register start');
@@ -35,9 +38,11 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 	constructor(
 		private readonly context: vscode.ExtensionContext,
 		blockPropertiesProvider: BlockPropertiesProvider,
+		simulationManager: SimulationManager,
 		pythonServer: PythonServerManager
 	) { 		
 		this.blockPropertiesProvider = blockPropertiesProvider;
+		this.simulationManager = simulationManager;
 		this.pythonServer = pythonServer;
 
 		this.context.subscriptions.push(
@@ -110,6 +115,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		console.log('Resolved, update webview');
 		this.updateWebview();
 		this.postColorTheme(vscode.window.activeColorTheme.kind);
+		this.simulationManager.setCurrentPslkPath(document.uri.fsPath);
 	}
 
 

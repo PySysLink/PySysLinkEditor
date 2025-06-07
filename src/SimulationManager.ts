@@ -11,6 +11,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
     private updateHandlers: ((props: Record<string, any>) => void)[] = [];
     private pythonServer: PythonServerManager;
+    private currentPslkPath: string | undefined = undefined;
 
     constructor(private readonly context: vscode.ExtensionContext, pythonServer: PythonServerManager) {
       this.pythonServer = pythonServer;
@@ -145,6 +146,10 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       console.log(`[Extension] Sent cancel for request #${this.runningSimulationId}`, request);
     }
 
+    public setCurrentPslkPath(pslkPath: string) {
+      this.currentPslkPath = pslkPath;
+    }
+
 		private async sendSimulationStart(msg: any) {
 			if (!this.pythonServer.isRunning()) {
         vscode.window.showErrorMessage(
@@ -169,11 +174,19 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       const id = ++this.requestId;
       this.runningSimulationId = id;
 
+      if (!this.currentPslkPath) {
+        vscode.window.showErrorMessage('No PSLK file selected. Please open a PSLK file first.');
+        return;
+      }
       const request = {
         type: 'request',
         id: id,
         method: 'runSimulation',
-        params: { duration, steps }
+        params: { 
+          pslkPath: this.currentPslkPath, 
+          duration, 
+          steps 
+      }
       };
 
       // Send it over stdin, newline-terminated
