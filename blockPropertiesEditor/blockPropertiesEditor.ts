@@ -79,7 +79,7 @@ function appendField(container: HTMLElement, key: string, value: string | number
         container.appendChild(group);
     }
 
-    function appendPropertyField(container: HTMLElement, key: string, value: any) {
+    function appendPropertyField(container: HTMLElement, key: string, property: {type: string, value: any }) {
         const group = document.createElement('vscode-form-group');
         const labelEl = document.createElement('vscode-label');
         labelEl.setAttribute('for', key);
@@ -87,25 +87,25 @@ function appendField(container: HTMLElement, key: string, value: string | number
 
         let input: HTMLElement;
 
-        if (typeof value === 'boolean') {
+        if (property.type === 'bool') {
             input = document.createElement('input');
             input.id = key;
             input.setAttribute('type', 'checkbox');
-            (input as HTMLInputElement).checked = value;
-        } else if (typeof value === 'number') {
+            (input as HTMLInputElement).checked = property.value;
+        } else if (property.type === 'float' || property.type === 'int') {
             input = document.createElement('vscode-textfield');
             input.id = key;
             input.setAttribute('type', 'number');
-            input.setAttribute('value', value.toString());
-        } else if (typeof value === 'string') {
+            input.setAttribute('value', property.value.toString());
+        } else if (property.type === 'string') {
             input = document.createElement('vscode-textfield');
             input.id = key;
             input.setAttribute('type', 'text');
-            input.setAttribute('value', value);
-        } else if (Array.isArray(value)) {
+            input.setAttribute('value', property.value);
+        } else if (property.type.endsWith('[]') && Array.isArray(property.value)) {
             input = document.createElement('div');
             input.id = key;
-            value.forEach((item: any, idx: number) => {
+            property.value.forEach((item: any, idx: number) => {
                 const itemInput = document.createElement('vscode-textfield');
                 itemInput.id = `${key}__${idx}`;
                 itemInput.setAttribute('value', item.toString());
@@ -146,7 +146,7 @@ function appendField(container: HTMLElement, key: string, value: string | number
             input = document.createElement('vscode-textfield');
             input.id = key;
             input.setAttribute('type', 'text');
-            input.setAttribute('value', value?.toString() ?? '');
+            input.setAttribute('value', property.value?.toString() ?? '');
         }
 
         group.appendChild(labelEl);
@@ -172,25 +172,25 @@ function onSave() {
     updatedBlock.y = Number(yInput.value);
 
     // Properties
-    const newProps: Record<string, any> = {};
+    const newProps: Record<string, {type: string, value: any}> = {};
     if (currentBlock.properties) {
-        for (const [key, value] of Object.entries(currentBlock.properties)) {
+        for (const [key, prop] of Object.entries(currentBlock.properties)) {
             const el = document.getElementById(key);
             if (el) {
                 if ((el as HTMLInputElement).type === 'checkbox') {
-                    newProps[key] = (el as HTMLInputElement).checked;
-                } else if (Array.isArray(value)) {
+                    newProps[key] = { type: prop.type, value: (el as HTMLInputElement).checked };
+                } else if (prop.type.endsWith('[]') && Array.isArray(prop.value)) {
                     const arr: any[] = [];
                     const arrInputs = (el as HTMLElement).querySelectorAll('vscode-textfield');
                     arrInputs.forEach((itemInput: any) => {
                         const v = itemInput.value;
-                        if (v !== '') {arr.push(isNaN(Number(v)) ? v : Number(v));}
+                        if (v !== '') { arr.push(isNaN(Number(v)) ? v : Number(v)); }
                     });
-                    newProps[key] = arr;
-                } else if ((el as HTMLInputElement).type === 'number') {
-                    newProps[key] = Number((el as HTMLInputElement).value);
+                    newProps[key] = { type: prop.type, value: arr };
+                } else if ((el as HTMLInputElement).type === 'number' || prop.type === 'float' || prop.type === 'int' || prop.type === 'number') {
+                    newProps[key] = { type: prop.type, value: Number((el as HTMLInputElement).value) };
                 } else {
-                    newProps[key] = (el as HTMLInputElement).value;
+                    newProps[key] = { type: prop.type, value: (el as HTMLInputElement).value };
                 }
             }
         }

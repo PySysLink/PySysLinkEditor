@@ -264,10 +264,10 @@ export class CommunicationManager {
             return;
         }
 
-        let properties: Record<string, any> = {};
+        let properties: Record<string, {type: string, value: any}> = {};
         if (blockDef.configurationValues && Array.isArray(blockDef.configurationValues)) {
             for (const conf of blockDef.configurationValues) {
-                properties[conf.name] = conf.defaultValue;
+                properties[conf.name] = {type: conf.type, value: conf.defaultValue};
             }
         }
 

@@ -9,7 +9,7 @@ export interface BlockData {
     label: string;
     x: number; y: number;
     inputPorts: number; outputPorts: number;
-    properties: Record<string, any>;
+    properties: Record<string, {type: string, value: any}>;
     
 }
 
