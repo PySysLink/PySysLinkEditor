@@ -3,9 +3,11 @@
 declare const acquireVsCodeApi: any;
 
 interface SimulationConfig {
-  duration: number;
-  steps: number;
-  realTime: boolean;
+  start_time: number;
+  stop_time: number;
+  run_in_natural_time: boolean;
+  natural_time_multiplier: number;
+  simulation_options_file: string;
 }
 interface ProgressMessage { progress: number; }
 interface ResultMessage { result: any; }
@@ -24,20 +26,41 @@ function buildUI() {
   // Form container
   const form = document.createElement('vscode-form-container') as any;
 
-  // Duration
-  form.appendChild(makeFormGroup('duration', 'Duration (s)', 'number', '5'));
-  // Steps
-  form.appendChild(makeFormGroup('steps',   'Steps',         'number', '10'));
-  // Real-time toggle
-  const grp = document.createElement('vscode-form-group') as any;
-  const lbl = document.createElement('vscode-label');
-  lbl.textContent = 'Real-time';
-  lbl.setAttribute('for', 'realTime');
-  const chk = document.createElement('vscode-checkbox') as any;
-  chk.id = 'realTime';
-  grp.appendChild(lbl);
-  grp.appendChild(chk);
-  form.appendChild(grp);
+  // Start Time
+  form.appendChild(makeFormGroup('start_time', 'Start Time', 'number', '0'));
+  // Stop Time
+  form.appendChild(makeFormGroup('stop_time', 'Stop Time', 'number', '10'));
+  // Natural Time Multiplier
+  form.appendChild(makeFormGroup('natural_time_multiplier', 'Natural Time Multiplier', 'number', '1'));
+  // Run in Natural Time (checkbox)
+  const grpNatural = document.createElement('vscode-form-group') as any;
+  const lblNatural = document.createElement('vscode-label');
+  lblNatural.textContent = 'Run in Natural Time';
+  lblNatural.setAttribute('for', 'run_in_natural_time');
+  const chkNatural = document.createElement('vscode-checkbox') as any;
+  chkNatural.id = 'run_in_natural_time';
+  grpNatural.appendChild(lblNatural);
+  grpNatural.appendChild(chkNatural);
+  form.appendChild(grpNatural);
+
+  // Simulation Options File (text field + browse button)
+  const grpFile = document.createElement('vscode-form-group') as any;
+  const lblFile = document.createElement('vscode-label');
+  lblFile.textContent = 'Simulation Options File';
+  lblFile.setAttribute('for', 'simulation_options_file');
+  const inputFile = document.createElement('vscode-textfield') as any;
+  inputFile.id = 'simulation_options_file';
+  inputFile.setAttribute('type', 'text');
+  inputFile.setAttribute('placeholder', 'Select a file...');
+  const browseBtn = document.createElement('vscode-button') as any;
+  browseBtn.textContent = 'Browse';
+  browseBtn.addEventListener('click', () => {
+    vscode.postMessage({ type: 'openSimulationOptionsFileSelector' });
+  });
+  grpFile.appendChild(lblFile);
+  grpFile.appendChild(inputFile);
+  grpFile.appendChild(browseBtn);
+  form.appendChild(grpFile);
 
   // Buttons
   const runBtn  = document.createElement('vscode-button') as any;
@@ -92,10 +115,12 @@ function makeFormGroup(
 
 /** Gather form values into a SimulationConfig */
 function readConfig(): SimulationConfig {
-  const duration = Number((document.getElementById('duration') as any).value);
-  const steps    = Number((document.getElementById('steps')   as any).value);
-  const realTime = (document.getElementById('realTime')  as any).checked;
-  return { duration, steps, realTime };
+  const start_time = Number((document.getElementById('start_time') as any).value);
+  const stop_time = Number((document.getElementById('stop_time') as any).value);
+  const run_in_natural_time = (document.getElementById('run_in_natural_time') as any).checked;
+  const natural_time_multiplier = Number((document.getElementById('natural_time_multiplier') as any).value);
+  const simulation_options_file = (document.getElementById('simulation_options_file') as any).value;
+  return { start_time, stop_time, run_in_natural_time, natural_time_multiplier, simulation_options_file };
 }
 
 /** Handle Run button */
@@ -170,6 +195,17 @@ window.addEventListener('message', (event) => {
     isRunning = false;
     toggleButtons();
     updateStatus(`Error: ${msg.error.message}`, true);
+    return;
+  }
+
+  if (msg.type === 'setSimulationConfig' && msg.config) {
+    const cfg = msg.config;
+    (document.getElementById('start_time') as any).value = cfg.start_time ?? '';
+    (document.getElementById('stop_time') as any).value = cfg.stop_time ?? '';
+    (document.getElementById('natural_time_multiplier') as any).value = cfg.natural_time_multiplier ?? '';
+    (document.getElementById('run_in_natural_time') as any).checked = !!cfg.run_in_natural_time;
+    (document.getElementById('simulation_options_file') as any).value = cfg.simulation_options_file ?? '';
+    updateStatus('Simulation configuration loaded.');
     return;
   }
 

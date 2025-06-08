@@ -9,9 +9,11 @@ export class SimulationManager implements vscode.WebviewViewProvider {
     private requestId = 0;
     private runningSimulationId = 0;
     private _view?: vscode.WebviewView;
-    private updateHandlers: ((props: Record<string, any>) => void)[] = [];
+    private currentSimulationOptionsFileChangedHandler: ((newPath: string) => void)[] = [];
     private pythonServer: PythonServerManager;
+
     private currentPslkPath: string | undefined = undefined;
+    private currentSimulationOptionsPath: string | undefined = undefined;
 
     constructor(private readonly context: vscode.ExtensionContext, pythonServer: PythonServerManager) {
       this.pythonServer = pythonServer;
@@ -67,8 +69,8 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       }
     }
 
-    public registerOnUpdateCallback(handler: ((props: Record<string, any>) => void)): void {
-      this.updateHandlers.push(handler);
+    public registerCurrentSimulationOptionsFileChangedHandler(handler: ((currentSimulationPath: string) => void)): void {
+      this.currentSimulationOptionsFileChangedHandler.push(handler);
     }
 
     public resolveWebviewView(
@@ -109,6 +111,9 @@ export class SimulationManager implements vscode.WebviewViewProvider {
           case 'stopSimulation':
             this.cancelSimulation();
             break;
+          case 'openSimulationOptionsFileSelector':
+            this.openSimulationOptionsFileSelector();
+            break;
           default:
             console.warn(
               `[SimulationManager] unrecognized message type: ${msg.type}`
@@ -148,6 +153,53 @@ export class SimulationManager implements vscode.WebviewViewProvider {
 
     public setCurrentPslkPath(pslkPath: string) {
       this.currentPslkPath = pslkPath;
+    }
+
+    public setCurrentSimulationOptionsPath(currentSimulationOptionsPath: string) {
+      this.currentSimulationOptionsPath = currentSimulationOptionsPath;
+    }
+
+    public registerCurrentSimulationOptionsPathChangedCallback(handler: (path: string) => void): void {
+      this.currentSimulationOptionsFileChangedHandler.push(handler);
+    }
+
+    private async openSimulationOptionsFileSelector() {
+      const options: vscode.OpenDialogOptions = {
+        canSelectMany: false,
+        openLabel: 'Open',
+        canSelectFiles: true,
+        defaultUri: this.currentSimulationOptionsPath ? vscode.Uri.file(this.currentSimulationOptionsPath) : undefined
+      };
+
+      vscode.window.showOpenDialog(options).then(fileUri => {
+          if (fileUri && fileUri[0]) {
+              console.log('Selected file: ' + fileUri[0].fsPath);
+              this.currentSimulationOptionsPath = fileUri[0].fsPath;
+              // Notify all registered handlers about the change
+              this.currentSimulationOptionsFileChangedHandler.forEach(handler => {
+                handler(this.currentSimulationOptionsPath!);
+              });
+              // Post message to webview to update the UI
+              this.sendSimulationConfigToWebview();
+               
+          }
+      });
+    }
+
+    private sendSimulationConfigToWebview() {
+      if (!this._view) {
+        return;
+      }
+      this._view.webview.postMessage({
+        type: 'setSimulationConfig',
+        config: {
+          start_time: 0,
+          stop_time: 10,
+          run_in_natural_time: false,
+          natural_time_multiplier: 1,
+          simulation_options_file: this.currentSimulationOptionsPath || ''
+        }
+      });
     }
 
 		private async sendSimulationStart(msg: any) {
@@ -193,18 +245,5 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       this.pythonServer.sendRequest(request);
       console.log(`[Extension] Sent runSimulation request #${id}`, request);
 		}
-
-    private callUpdatedCallbacks(props: Record<string, any>) {
-      for (const handler of this.updateHandlers) {
-        try {
-          handler(props);
-        } catch (err) {
-          console.error(
-            '[SimulationManager] error in update handler',
-            err
-          );
-        }
-      }
-    }
   }
   
