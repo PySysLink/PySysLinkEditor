@@ -1,0 +1,10 @@
+start_time: 0
+stop_time: 20
+run_in_natural_time: false
+natural_time_speed_multiplier: 1
+solvers_configuration:
+  default:
+    Type: odeint
+    ControlledSolver: rosenbrock4_controller
+    AbsoluteTolerance: 1.e-8
+    RelativeTolerance: 1.e-8

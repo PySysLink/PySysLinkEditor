@@ -1,5 +1,5 @@
 {
-  "version": 67,
+  "version": 24,
   "blocks": [
     {
       "id": "jaaaEXN3oNNrJVbxYQQgYKF1DtianDqz",
@@ -8,22 +8,6 @@
       "label": "Constant",
       "x": 89.0588235294117,
       "y": 127.31525735294113,
-      "inputPorts": 0,
-      "outputPorts": 1,
-      "properties": {
-        "Value": {
-          "type": "float",
-          "value": 1
-        }
-      }
-    },
-    {
-      "id": "aEINHYCoifM0R3rXoTc91jeAs7dspFID",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Constant",
-      "label": "Constant",
-      "x": 62.64705882352941,
-      "y": 258.43290441176464,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -47,7 +31,7 @@
           "type": "float[]",
           "value": [
             1,
-            1
+            -1
           ]
         }
       }
@@ -57,8 +41,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 457,
-      "y": 222.609375,
+      "x": 469.94117647058823,
+      "y": 179.07996323529412,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -99,12 +83,12 @@
     },
     {
       "id": "ZnYd0nloRa1E8YyIApjNloDFlMocmNgQ",
-      "sourceId": "aEINHYCoifM0R3rXoTc91jeAs7dspFID",
+      "sourceId": "Ld5e9KQuKDEmBsPHwH5QU0SuL3g7ER6L",
       "targetId": "6LrNsPAK3jsY6AOI2Tqp4Opf21ZDyFxR",
       "sourcePort": 0,
       "targetPort": 1,
-      "sourceX": 182.64705882352942,
-      "sourceY": 278.43290441176464,
+      "sourceX": 589.9411764705883,
+      "sourceY": 199.07996323529412,
       "targetX": 282,
       "targetY": 217.609375,
       "intermediateNodes": []
@@ -117,8 +101,8 @@
       "targetPort": 0,
       "sourceX": 402,
       "sourceY": 197.609375,
-      "targetX": 457,
-      "targetY": 242.609375,
+      "targetX": 469.94117647058823,
+      "targetY": 199.07996323529412,
       "intermediateNodes": []
     },
     {
@@ -127,8 +111,8 @@
       "targetId": "sEEdKz3t20cpWfsHZmPSlMmSqFdM5MwV",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 577,
-      "sourceY": 242.609375,
+      "sourceX": 589.9411764705883,
+      "sourceY": 199.07996323529412,
       "targetX": 649,
       "targetY": 228.609375,
       "intermediateNodes": []

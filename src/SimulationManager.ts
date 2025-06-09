@@ -3,7 +3,8 @@ import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as readline from 'readline';
 import { PythonServerManager } from './PythonServerManager';
-
+import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 
 export class SimulationManager implements vscode.WebviewViewProvider {
     private requestId = 0;
@@ -114,12 +115,48 @@ export class SimulationManager implements vscode.WebviewViewProvider {
           case 'openSimulationOptionsFileSelector':
             this.openSimulationOptionsFileSelector();
             break;
+          case 'simulationConfigChanged':
+            this.saveSimulationConfigToFile(msg.config);
+            break;
           default:
             console.warn(
               `[SimulationManager] unrecognized message type: ${msg.type}`
             );
         }
       });
+    }
+
+    private saveSimulationConfigToFile(config: any) {
+      const filePath = config.simulation_options_file || this.currentSimulationOptionsPath;
+      if (!filePath) {
+        vscode.window.showErrorMessage('No simulation options file selected.');
+        return;
+      }
+
+      // Don't save the file path itself in the config
+      const configToSave = { ...config };
+      delete configToSave.simulation_options_file;
+
+      let existingConfig: any = {};
+      if (fs.existsSync(filePath)) {
+        try {
+          const fileContent = fs.readFileSync(filePath, 'utf8');
+          existingConfig = yaml.load(fileContent) || {};
+        } catch (err: any) {
+          vscode.window.showErrorMessage(`Failed to read simulation options: ${err.message}`);
+          return;
+        }
+      }
+
+      // Override pertinent fields
+      const mergedConfig = { ...existingConfig, ...configToSave };
+
+      try {
+        fs.writeFileSync(filePath, yaml.dump(mergedConfig, { indent: 2 }), 'utf8');
+        vscode.window.showInformationMessage('Simulation options saved.');
+      } catch (err: any) {
+        vscode.window.showErrorMessage(`Failed to save simulation options: ${err.message}`);
+      }
     }
 
     public setSelectedModel(model: any): void {
@@ -196,7 +233,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
           start_time: 0,
           stop_time: 10,
           run_in_natural_time: false,
-          natural_time_multiplier: 1,
+          natural_time_speed_multiplier: 1,
           simulation_options_file: this.currentSimulationOptionsPath || ''
         }
       });
@@ -210,38 +247,28 @@ export class SimulationManager implements vscode.WebviewViewProvider {
         return;
       }
 
-      console.log('[Extension] Sending runSimulation request...');
-
-      const duration = msg.params.duration;
-      const steps = msg.params.steps;
-      console.log(`duration: ${msg.params.duration}`);
-      console.log(`steps: ${msg.params.steps}`);
-      console.log(`msg: ${msg}`);
-      if (isNaN(duration) || isNaN(steps)) {
-        vscode.window.showErrorMessage('Invalid numbers provided.');
-        return;
-      }
-
-      // Build JSON-RPC request
-      const id = ++this.requestId;
-      this.runningSimulationId = id;
-
       if (!this.currentPslkPath) {
         vscode.window.showErrorMessage('No PSLK file selected. Please open a PSLK file first.');
         return;
       }
+
+      console.log('[Extension] Sending runSimulation request...');
+
+
+
+      const id = ++this.requestId;
+      this.runningSimulationId = id;
+
       const request = {
         type: 'request',
         id: id,
         method: 'runSimulation',
-        params: { 
+         params: { 
           pslkPath: this.currentPslkPath, 
-          duration, 
-          steps 
+          configFile: this.currentSimulationOptionsPath || ''
       }
       };
 
-      // Send it over stdin, newline-terminated
       this.pythonServer.sendRequest(request);
       console.log(`[Extension] Sent runSimulation request #${id}`, request);
 		}

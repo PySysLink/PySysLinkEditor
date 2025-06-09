@@ -6,7 +6,7 @@ interface SimulationConfig {
   start_time: number;
   stop_time: number;
   run_in_natural_time: boolean;
-  natural_time_multiplier: number;
+  natural_time_speed_multiplier: number;
   simulation_options_file: string;
 }
 interface ProgressMessage { progress: number; }
@@ -31,7 +31,7 @@ function buildUI() {
   // Stop Time
   form.appendChild(makeFormGroup('stop_time', 'Stop Time', 'number', '10'));
   // Natural Time Multiplier
-  form.appendChild(makeFormGroup('natural_time_multiplier', 'Natural Time Multiplier', 'number', '1'));
+  form.appendChild(makeFormGroup('natural_time_speed_multiplier', 'Natural Time Multiplier', 'number', '1'));
   // Run in Natural Time (checkbox)
   const grpNatural = document.createElement('vscode-form-group') as any;
   const lblNatural = document.createElement('vscode-label');
@@ -39,6 +39,7 @@ function buildUI() {
   lblNatural.setAttribute('for', 'run_in_natural_time');
   const chkNatural = document.createElement('vscode-checkbox') as any;
   chkNatural.id = 'run_in_natural_time';
+  chkNatural.addEventListener('change', notifyConfigChanged);
   grpNatural.appendChild(lblNatural);
   grpNatural.appendChild(chkNatural);
   form.appendChild(grpNatural);
@@ -52,6 +53,7 @@ function buildUI() {
   inputFile.id = 'simulation_options_file';
   inputFile.setAttribute('type', 'text');
   inputFile.setAttribute('placeholder', 'Select a file...');
+  inputFile.addEventListener('input', notifyConfigChanged);
   const browseBtn = document.createElement('vscode-button') as any;
   browseBtn.textContent = 'Browse';
   browseBtn.addEventListener('click', () => {
@@ -108,6 +110,7 @@ function makeFormGroup(
   input.id = id;
   input.setAttribute('type', type);
   input.value = defaultValue;
+  input.addEventListener('input', notifyConfigChanged);
   group.appendChild(lbl);
   group.appendChild(input);
   return group;
@@ -118,9 +121,17 @@ function readConfig(): SimulationConfig {
   const start_time = Number((document.getElementById('start_time') as any).value);
   const stop_time = Number((document.getElementById('stop_time') as any).value);
   const run_in_natural_time = (document.getElementById('run_in_natural_time') as any).checked;
-  const natural_time_multiplier = Number((document.getElementById('natural_time_multiplier') as any).value);
+  const natural_time_speed_multiplier = Number((document.getElementById('natural_time_speed_multiplier') as any).value);
   const simulation_options_file = (document.getElementById('simulation_options_file') as any).value;
-  return { start_time, stop_time, run_in_natural_time, natural_time_multiplier, simulation_options_file };
+  return { start_time, stop_time, run_in_natural_time, natural_time_speed_multiplier: natural_time_speed_multiplier, simulation_options_file };
+}
+
+function notifyConfigChanged() {
+  const cfg = readConfig();
+  vscode.postMessage({
+    type: 'simulationConfigChanged',
+    config: cfg
+  });
 }
 
 /** Handle Run button */
@@ -202,7 +213,7 @@ window.addEventListener('message', (event) => {
     const cfg = msg.config;
     (document.getElementById('start_time') as any).value = cfg.start_time ?? '';
     (document.getElementById('stop_time') as any).value = cfg.stop_time ?? '';
-    (document.getElementById('natural_time_multiplier') as any).value = cfg.natural_time_multiplier ?? '';
+    (document.getElementById('natural_time_speed_multiplier') as any).value = cfg.natural_time_speed_multiplier ?? '';
     (document.getElementById('run_in_natural_time') as any).checked = !!cfg.run_in_natural_time;
     (document.getElementById('simulation_options_file') as any).value = cfg.simulation_options_file ?? '';
     updateStatus('Simulation configuration loaded.');
