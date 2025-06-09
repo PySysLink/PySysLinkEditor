@@ -184,7 +184,9 @@ export class SimulationManager implements vscode.WebviewViewProvider {
 
     public setCurrentSimulationOptionsPath(currentSimulationOptionsPath: string) {
       this.currentSimulationOptionsPath = currentSimulationOptionsPath;
+      this.sendSimulationConfigToWebview();
     }
+
 
     private async openSimulationOptionsFileSelector() {
       const options: vscode.OpenDialogOptions = {
@@ -213,13 +215,24 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       if (!this._view) {
         return;
       }
+
+      let configFromFile: any = {};
+      if (this.currentSimulationOptionsPath && fs.existsSync(this.currentSimulationOptionsPath)) {
+        try {
+          const fileContent = fs.readFileSync(this.currentSimulationOptionsPath, 'utf8');
+          configFromFile = yaml.load(fileContent) || {};
+        } catch (err: any) {
+          vscode.window.showErrorMessage(`Failed to read simulation options: ${err.message}`);
+        }
+      }
+
       this._view.webview.postMessage({
         type: 'setSimulationConfig',
         config: {
-          start_time: 0,
-          stop_time: 10,
-          run_in_natural_time: false,
-          natural_time_speed_multiplier: 1,
+          start_time: configFromFile.start_time ?? 0,
+          stop_time: configFromFile.stop_time ?? 10,
+          run_in_natural_time: configFromFile.run_in_natural_time ?? false,
+          natural_time_speed_multiplier: configFromFile.natural_time_speed_multiplier ?? 1,
           simulation_options_file: this.currentSimulationOptionsPath || ''
         }
       });

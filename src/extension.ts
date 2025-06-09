@@ -37,19 +37,22 @@ export function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
-	vscode.window.onDidChangeActiveTextEditor(editor => {
-        if (editor && editor.document && editor.document.uri.fsPath.endsWith('.pslk')) {
-            simulationManager.setCurrentPslkPath(editor.document.uri.fsPath);
-        }
-    });
+	
 
 
 	const { disposable, provider: pySysLinkBlockEditorProvider } = PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider, simulationManager, pythonServer);
     context.subscriptions.push(disposable);
-	blockPropertiesProvider.registerOnUpdateCallback(pySysLinkBlockEditorProvider.updateBlockParameters);
 	console.log('Congratulations, activation completed!');
 
-	simulationManager.registerCurrentSimulationOptionsFileChangedHandler(pySysLinkBlockEditorProvider.currentSimulationOptionsFileChangedHandler);
+	vscode.window.onDidChangeActiveTextEditor(editor => {
+        if (editor && editor.document && editor.document.uri.fsPath.endsWith('.pslk')) {
+            simulationManager.setCurrentPslkPath(editor.document.uri.fsPath);
+			let simPath = pySysLinkBlockEditorProvider.getSimulationOptionsPath();
+			if (simPath) {
+				simulationManager.setCurrentSimulationOptionsPath(simPath);
+			}
+        }
+    });
 }
 
 // This method is called when your extension is deactivated

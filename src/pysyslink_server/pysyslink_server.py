@@ -1,6 +1,7 @@
 import asyncio
 import json
 import sys
+import yaml
 
 from RPCServer import RPCServer
 
@@ -39,8 +40,39 @@ def get_toolkit():
 async def run_simulation(pslkPath: str, configFile: str):
     toolkit = get_toolkit()
 
+    with open(configFile, "r") as f:
+        sim_config = yaml.safe_load(f)
+    stop_time = sim_config.get("stop_time", 10)
+    start_time = sim_config.get("start_time", 0)
+    total_time = stop_time - start_time
+
+    # Milestone tracking
+    milestones = set(range(5, 101, 5))  # 5, 10, ..., 100
+    last_percent = 0
+
     def display_callback(event):
-        print(f"[Python]: {event.value_id}, {event.simulation_time}, {event.value}")
+        nonlocal last_percent
+        # Print as before
+        server.send_notification(
+            event="displayValueUpdate",
+            data={
+                "displayId": event.value_id,
+                "value": event.value,
+                "simulationTime": event.simulation_time
+            }
+        )
+
+        # Calculate progress percentage
+        if total_time > 0:
+            percent = int(100 * (event.simulation_time - start_time) / total_time)
+            # Only send if we've crossed a new 5% milestone
+            if percent >= last_percent + 5 and percent in milestones:
+                last_percent = percent
+                # Send notification to frontend
+                server.send_notification(
+                    event="progress",
+                    data={"progress": percent}
+                )
 
     # Compile high-level to low-level YAML
     result = toolkit.compile_system(

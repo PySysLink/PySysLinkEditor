@@ -45,9 +45,31 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		this.simulationManager = simulationManager;
 		this.pythonServer = pythonServer;
 
+		this.pythonServer.addMessageListener((msg) => this.handlePythonMessage(msg));
+		this.blockPropertiesProvider.registerOnUpdateCallback(this.updateBlockParameters);
+		this.simulationManager.registerCurrentSimulationOptionsFileChangedHandler(this.changeSimulationsOptionsFile);
+
+
 		this.context.subscriptions.push(
 			vscode.window.onDidChangeActiveColorTheme(this.onThemeChange, this)
 		);
+	}
+
+	private handlePythonMessage(msg: any) {
+		if (!this.webviewPanel?.webview) {
+			return;
+		}
+
+		switch (msg.type) {
+		case 'notification':
+			// In our protocol, notifications carry an `event` + `data`
+			if (msg.event === 'displayValueUpdate') {
+				vscode.window.showInformationMessage(`${msg.data.displayId}: ${msg.data.value} at ${msg.data.simulationTime}`);
+			}
+			break;
+		default:
+			break;		
+		}
 	}
 	
 	public async resolveCustomTextEditor(
@@ -116,6 +138,10 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		this.updateWebview();
 		this.postColorTheme(vscode.window.activeColorTheme.kind);
 		this.simulationManager.setCurrentPslkPath(document.uri.fsPath);
+		let simPath = this.getSimulationOptionsPath();
+		if (simPath) {
+			this.simulationManager.setCurrentSimulationOptionsPath(simPath);
+		}
 	}
 
 
@@ -372,14 +398,23 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
         }      
     }
 
-	public currentSimulationOptionsFileChangedHandler = (newPath: string): void => {
+	public getSimulationOptionsPath = (): string | undefined => {
+		if (this.document) {
+			const json = this.getDocumentAsJson(this.document);
+			return json.simulation_configuration;
+		}
+		return undefined;
+	};
+
+	public changeSimulationsOptionsFile = (newPath: string): void => {
 		if (this.document) {
 			const json = this.getDocumentAsJson(this.document);
 			json.simulation_configuration = newPath;
 			this.withDocumentLock(async () => {
 				await this.updateTextDocument(this.document!, json);
 			});
-		}
-	};	
 
+			this.simulationManager.setCurrentSimulationOptionsPath(newPath);
+		}
+	};
 }

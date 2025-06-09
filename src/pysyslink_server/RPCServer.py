@@ -104,3 +104,13 @@ class RPCServer:
                 "subtype": "ping",
                 "timestamp": int(time.time())
             })
+    
+    def send_notification(self, event: str, data: dict):
+        """
+        Send a notification message to the frontend.
+        """
+        self._send({
+            "type": "notification",
+            "event": event,
+            "data": data
+        })
