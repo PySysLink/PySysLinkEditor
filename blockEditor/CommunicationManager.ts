@@ -68,10 +68,11 @@ export class CommunicationManager {
 
     public setLocalJson(json: JsonData, sendToServer: boolean = true) {
         this.localJson = json;
+        this.vscode.setState({ text: JSON.stringify(this.localJson) });
         console.log(`New json:`);
         console.log(this.localJson);
         if (!this.freezed && sendToServer) {
-            this.sendJsonToServer(json);
+            this.sendJsonToServer(this.localJson);
         } 
         this.localJsonChangedCallbacks.forEach(callback => {
             if (this.localJson) {

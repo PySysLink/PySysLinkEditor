@@ -242,7 +242,6 @@ const vscode = acquireVsCodeApi();
     window.addEventListener('message', (e: MessageEvent) => {
         if (e.data.type === 'update') {            
             communicationManager.newJsonFromServer(e.data.json);
-            vscode.setState({ text: e.data.text });
         } else if (e.data.type === 'colorThemeKindChanged') {
             applyThemeClass(e.data.kind);
         } else if (e.data.type === 'setBlockLibraries') {
@@ -271,6 +270,7 @@ const vscode = acquireVsCodeApi();
     // Restore state if reloaded
     const state = vscode.getState();
     if (state) {
-        communicationManager.newJsonFromServer(state.text);
+        communicationManager.print(`Restoring state: ${state.text}`);
+        communicationManager.newJsonFromServer(JSON.parse(state.text));
     }
 })();

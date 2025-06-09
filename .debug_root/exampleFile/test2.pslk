@@ -1,0 +1,106 @@
+{
+  "version": 5,
+  "blocks": [
+    {
+      "id": "xsVwUAmdgXTVNbANIRKJE0D0MIgopKc4",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 333,
+      "y": 187.203125,
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "id": "1zTVspqBafDSJ8eZwZeLQzM9CumMqowM",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 88,
+      "y": 127.203125,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "MzMaKuW5B4ZNKI9o9wmYnQIaT0R99uAM",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 73,
+      "y": 314.203125,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "iRf8CSUTMZfhIS2AG73S5z7Zdejm1ll0",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 524,
+      "y": 222.203125,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {}
+    }
+  ],
+  "links": [
+    {
+      "id": "u4Ny913sN7ADyyOQol8om8TZ4P41PVJ5",
+      "sourceId": "xsVwUAmdgXTVNbANIRKJE0D0MIgopKc4",
+      "targetId": "iRf8CSUTMZfhIS2AG73S5z7Zdejm1ll0",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 453,
+      "sourceY": 207.203125,
+      "targetX": 524,
+      "targetY": 242.203125,
+      "intermediateNodes": []
+    },
+    {
+      "id": "F4Qmf3vFouTK8wtiI4GLQZCq7J7KqvyK",
+      "sourceId": "1zTVspqBafDSJ8eZwZeLQzM9CumMqowM",
+      "targetId": "xsVwUAmdgXTVNbANIRKJE0D0MIgopKc4",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 208,
+      "sourceY": 147.203125,
+      "targetX": 333,
+      "targetY": 207.203125,
+      "intermediateNodes": []
+    },
+    {
+      "id": "Vbj4S0JBAAGZPBhKHBy6TL1GYJ3Hdwh9",
+      "sourceId": "MzMaKuW5B4ZNKI9o9wmYnQIaT0R99uAM",
+      "targetId": "xsVwUAmdgXTVNbANIRKJE0D0MIgopKc4",
+      "sourcePort": 0,
+      "targetPort": 1,
+      "sourceX": 193,
+      "sourceY": 334.203125,
+      "targetX": 333,
+      "targetY": 227.203125,
+      "intermediateNodes": []
+    }
+  ],
+  "simulation_configuration": ""
+}
