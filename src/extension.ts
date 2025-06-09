@@ -40,19 +40,33 @@ export function activate(context: vscode.ExtensionContext) {
 	
 
 
-	const { disposable, provider: pySysLinkBlockEditorProvider } = PySysLinkBlockEditorProvider.register(context, blockPropertiesProvider, simulationManager, pythonServer);
-    context.subscriptions.push(disposable);
-	console.log('Congratulations, activation completed!');
-
-	vscode.window.onDidChangeActiveTextEditor(editor => {
-        if (editor && editor.document && editor.document.uri.fsPath.endsWith('.pslk')) {
-            simulationManager.setCurrentPslkPath(editor.document.uri.fsPath);
-			let simPath = pySysLinkBlockEditorProvider.getSimulationOptionsPath();
-			if (simPath) {
-				simulationManager.setCurrentSimulationOptionsPath(simPath);
-			}
+	const pySysLinkBlockEditorProvider = new PySysLinkBlockEditorProvider(
+        context,
+        blockPropertiesProvider,
+        simulationManager,
+        pythonServer
+    );
+    const disposable = vscode.window.registerCustomEditorProvider(
+        'pysyslink-editor.modelBlockEditor', // viewType
+        pySysLinkBlockEditorProvider,
+        {
+            webviewOptions: {
+                retainContextWhenHidden: true
+            },
+            supportsMultipleEditorsPerDocument: true
         }
-    });
+    );
+    context.subscriptions.push(disposable);
+
+	// vscode.window.onDidChangeActiveTextEditor(editor => {
+    //     if (editor && editor.document && editor.document.uri.fsPath.endsWith('.pslk')) {
+    //         simulationManager.setCurrentPslkPath(editor.document.uri.fsPath);
+	// 		let simPath = pySysLinkBlockEditorProvider.getSimulationOptionsPath();
+	// 		if (simPath) {
+	// 			simulationManager.setCurrentSimulationOptionsPath(simPath);
+	// 		}
+    //     }
+    // });
 }
 
 // This method is called when your extension is deactivated

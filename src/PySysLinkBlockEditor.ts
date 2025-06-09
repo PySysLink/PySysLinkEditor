@@ -7,9 +7,33 @@ import { PythonServerManager } from './PythonServerManager';
 import { SimulationManager } from './SimulationManager';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
+    constructor(
+        private readonly context: vscode.ExtensionContext,
+        private readonly blockPropertiesProvider: BlockPropertiesProvider,
+        private readonly simulationManager: SimulationManager,
+        private readonly pythonServer: PythonServerManager
+    ) {}
+
+    public async resolveCustomTextEditor(
+        document: vscode.TextDocument,
+        webviewPanel: vscode.WebviewPanel,
+        _token: vscode.CancellationToken
+    ): Promise<void> {
+        new PySysLinkBlockEditorSession(
+            this.context,
+            document,
+            webviewPanel,
+            this.blockPropertiesProvider,
+            this.simulationManager,
+            this.pythonServer
+        );
+    }
+}
+
+export class PySysLinkBlockEditorSession {
 	private documentLock: Promise<void> = Promise.resolve();
-	private document: vscode.TextDocument | undefined;
-	private webviewPanel: vscode.WebviewPanel | undefined;
+	private document: vscode.TextDocument;
+	private webviewPanel: vscode.WebviewPanel;
 	private selectedBlockId: IdType | undefined;
 	private blockPropertiesProvider: BlockPropertiesProvider;
 	private simulationManager: SimulationManager;
@@ -17,34 +41,27 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 	private lastVersion: number = 0;
 
 	private pythonServer: PythonServerManager;
-
-	public static register(
-		context: vscode.ExtensionContext,
-		blockPropertiesProvider: BlockPropertiesProvider,
-		simulationManager: SimulationManager,
-		pythonServer: PythonServerManager,
-	): { disposable: vscode.Disposable; provider: PySysLinkBlockEditorProvider } {
-		const provider = new PySysLinkBlockEditorProvider(context, blockPropertiesProvider, simulationManager, pythonServer);
-		const disposable = vscode.window.registerCustomEditorProvider(PySysLinkBlockEditorProvider.viewType, provider);
-	
-		console.log('Register start');
-	
-		return { disposable, provider };
-	}
+	private context: vscode.ExtensionContext;
 
 	private static readonly viewType = 'pysyslink-editor.modelBlockEditor';
 
 
 	constructor(
-		private readonly context: vscode.ExtensionContext,
-		blockPropertiesProvider: BlockPropertiesProvider,
-		simulationManager: SimulationManager,
-		pythonServer: PythonServerManager
+		context: vscode.ExtensionContext,
+        document: vscode.TextDocument,
+        webviewPanel: vscode.WebviewPanel,
+        blockPropertiesProvider: BlockPropertiesProvider,
+        simulationManager: SimulationManager,
+        pythonServer: PythonServerManager
 	) { 		
+		this.context = context;
+		this.document = document;
+		this.webviewPanel = webviewPanel;
 		this.blockPropertiesProvider = blockPropertiesProvider;
 		this.simulationManager = simulationManager;
 		this.pythonServer = pythonServer;
 
+		
 		this.pythonServer.addMessageListener((msg) => this.handlePythonMessage(msg));
 		this.blockPropertiesProvider.registerOnUpdateCallback(this.updateBlockParameters);
 		this.simulationManager.registerCurrentSimulationOptionsFileChangedHandler(this.changeSimulationsOptionsFile);
@@ -53,6 +70,8 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		this.context.subscriptions.push(
 			vscode.window.onDidChangeActiveColorTheme(this.onThemeChange, this)
 		);
+
+		this.renderWebview();
 	}
 
 	private handlePythonMessage(msg: any) {
@@ -72,39 +91,34 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		}
 	}
 	
-	public async resolveCustomTextEditor(
-		document: vscode.TextDocument,
-		webviewPanel: vscode.WebviewPanel,
-		_token: vscode.CancellationToken
-	): Promise<void> {
+	public renderWebview(
+	): void {
 		// Setup initial content for the webview
-		webviewPanel.webview.options = {
+		this.webviewPanel.webview.options = {
 			enableScripts: true,
 		};
 		console.log('before get html');
-		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+		this.webviewPanel.webview.html = this.getHtmlForWebview(this.webviewPanel.webview);
 		console.log('after get html');
-		this.document = document;
-		this.webviewPanel = webviewPanel;
 
 
 		
 
 
 		const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
-			if (e.document.uri.toString() === document.uri.toString()) {
+			if (e.document.uri.toString() === this.document.uri.toString()) {
 				this.notifySelectedBlock();
 				this.updateWebview();
 			}
 		});
 
-		webviewPanel.onDidDispose(() => {
+		this.webviewPanel.onDidDispose(() => {
 			changeDocumentSubscription.dispose();
 		});
 
 		
 
-		webviewPanel.webview.onDidReceiveMessage(async e => {
+		this.webviewPanel.webview.onDidReceiveMessage(async e => {
 			switch (e.type) {
 				case 'updateJson':
 					this.documentLock = this.withDocumentLock(async () => {
@@ -137,7 +151,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		console.log('Resolved, update webview');
 		this.updateWebview();
 		this.postColorTheme(vscode.window.activeColorTheme.kind);
-		this.simulationManager.setCurrentPslkPath(document.uri.fsPath);
+		this.simulationManager.setCurrentPslkPath(this.document.uri.fsPath);
 		let simPath = this.getSimulationOptionsPath();
 		if (simPath) {
 			this.simulationManager.setCurrentSimulationOptionsPath(simPath);
