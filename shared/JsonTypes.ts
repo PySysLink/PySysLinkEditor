@@ -26,6 +26,7 @@ export interface LinkData {
 
 export interface JsonData {
     version: number;
+    simulation_configuration: string;
     blocks: BlockData[] | undefined;
     links: LinkData[] | undefined;
 }

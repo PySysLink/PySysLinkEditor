@@ -7,6 +7,7 @@ export function MergeJsons(
 ): JsonData {
     let mergedJson: JsonData = {
         version: Math.max(jsonBase.version, jsonChildPriority.version, jsonChild2.version),
+        simulation_configuration: "",
         blocks: [],
         links: [],
     };

@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
 	blockPropertiesProvider.registerOnUpdateCallback(pySysLinkBlockEditorProvider.updateBlockParameters);
 	console.log('Congratulations, activation completed!');
 
-
+	simulationManager.registerCurrentSimulationOptionsFileChangedHandler(pySysLinkBlockEditorProvider.currentSimulationOptionsFileChangedHandler);
 }
 
 // This method is called when your extension is deactivated

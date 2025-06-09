@@ -1,5 +1,5 @@
 {
-  "version": 24,
+  "version": 14,
   "blocks": [
     {
       "id": "jaaaEXN3oNNrJVbxYQQgYKF1DtianDqz",
@@ -117,5 +117,6 @@
       "targetY": 228.609375,
       "intermediateNodes": []
     }
-  ]
+  ],
+  "simulation_configuration": "/home/pello/pysyslink-editor/.debug_root/exampleFile/options.yaml"
 }

@@ -274,7 +274,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		const text = document.getText();
 		if (text.trim().length === 0) {
 			this.lastVersion += 1;
-			return { version: this.lastVersion, blocks: [], links: [] };
+			return { version: this.lastVersion, blocks: [], links: [], simulation_configuration: "" };
 		}
 	
 		try {
@@ -371,5 +371,15 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
           );
         }      
     }
+
+	public currentSimulationOptionsFileChangedHandler = (newPath: string): void => {
+		if (this.document) {
+			const json = this.getDocumentAsJson(this.document);
+			json.simulation_configuration = newPath;
+			this.withDocumentLock(async () => {
+				await this.updateTextDocument(this.document!, json);
+			});
+		}
+	};	
 
 }

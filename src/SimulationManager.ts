@@ -159,16 +159,6 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       }
     }
 
-    public setSelectedModel(model: any): void {
-      if (this._view) {
-        console.log('setSelectedModel backend', model);
-        this._view.webview.postMessage({
-          type: 'setSelectedModel',
-          model: model
-        });
-      }
-    }
-
     private cancelSimulation() {
       if (!this.pythonServer.isRunning()) {
         vscode.window.showErrorMessage(
@@ -194,10 +184,6 @@ export class SimulationManager implements vscode.WebviewViewProvider {
 
     public setCurrentSimulationOptionsPath(currentSimulationOptionsPath: string) {
       this.currentSimulationOptionsPath = currentSimulationOptionsPath;
-    }
-
-    public registerCurrentSimulationOptionsPathChangedCallback(handler: (path: string) => void): void {
-      this.currentSimulationOptionsFileChangedHandler.push(handler);
     }
 
     private async openSimulationOptionsFileSelector() {
