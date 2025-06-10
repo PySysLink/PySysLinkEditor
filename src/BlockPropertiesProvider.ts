@@ -63,7 +63,17 @@ export class BlockPropertiesProvider implements vscode.WebviewViewProvider {
       });
     }
 
-    public setSelectedBlock(block: BlockData): void {
+    public setSelectedBlock(block: BlockData | undefined): void {
+      if (!block) {
+        console.log('setSelectedBlock backend: no block selected');
+        this.selectedBlockId = null;
+        if (this._view) {
+          this._view.webview.postMessage({
+            type: 'clearSelection'
+          });
+        }
+        return;
+      }
       if (this._view) {
         console.log('setSelectedBlock backend', block);
         this._view.webview.postMessage({

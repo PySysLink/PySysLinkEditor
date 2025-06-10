@@ -7,6 +7,9 @@ import { PythonServerManager } from './PythonServerManager';
 import { SimulationManager } from './SimulationManager';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
+	private sessions = new Map<string, PySysLinkBlockEditorSession>();
+    private _activeSession: PySysLinkBlockEditorSession | undefined;
+
     constructor(
         private readonly context: vscode.ExtensionContext,
         private readonly blockPropertiesProvider: BlockPropertiesProvider,
@@ -14,12 +17,29 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
         private readonly pythonServer: PythonServerManager
     ) {}
 
+	public get activeSession() {
+        return this._activeSession;
+    }
+
+	public setActiveSession(session: PySysLinkBlockEditorSession | undefined): void {
+		this._activeSession = session;
+		this.blockPropertiesProvider.setSelectedBlock(undefined);
+
+		if (session) {
+			this.simulationManager.setCurrentPslkPath(session.documentUri.fsPath);
+			let simPath = session.getSimulationOptionsPath();
+			if (simPath) {
+				this.simulationManager.setCurrentSimulationOptionsPath(simPath);
+			}
+		}
+	}
+
     public async resolveCustomTextEditor(
         document: vscode.TextDocument,
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ): Promise<void> {
-        new PySysLinkBlockEditorSession(
+        const session = new PySysLinkBlockEditorSession(
             this.context,
             document,
             webviewPanel,
@@ -27,12 +47,34 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
             this.simulationManager,
             this.pythonServer
         );
+		this.sessions.set(document.uri.toString(), session);
+        this.setActiveSession(session);
+
+        // Listen for when this editor becomes active
+        webviewPanel.onDidChangeViewState(e => {
+            if (webviewPanel.active) {
+                this.setActiveSession(session);
+            }
+        });
+
+        // Clean up when closed
+        webviewPanel.onDidDispose(() => {
+            this.sessions.delete(document.uri.toString());
+            if (this._activeSession === session) {
+                this.setActiveSession(undefined);
+            }
+        });
+
+		
     }
 }
 
 export class PySysLinkBlockEditorSession {
 	private documentLock: Promise<void> = Promise.resolve();
 	private document: vscode.TextDocument;
+	public get documentUri(): vscode.Uri {
+		return this.document.uri;
+	}
 	private webviewPanel: vscode.WebviewPanel;
 	private selectedBlockId: IdType | undefined;
 	private blockPropertiesProvider: BlockPropertiesProvider;
