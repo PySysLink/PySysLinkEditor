@@ -1,48 +1,41 @@
 Blocks:
-- Id: jaaaEXN3oNNrJVbxYQQgYKF1DtianDqz
-  Name: ConstantEdited
+- Id: d1fXjobAjTOr4nKr6rLT3Z7qx72ZQOoz
+  Name: Constant
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Constant
   Value: 1.0
-- Id: 6LrNsPAK3jsY6AOI2Tqp4Opf21ZDyFxR
-  Name: Adder3
+- Id: u7Cey6avtkLBe0YB6yhkrNXSLLhV99F6
+  Name: Adder
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Adder
   Gains:
   - 1.0
-  - -1.0
-- Id: Ld5e9KQuKDEmBsPHwH5QU0SuL3g7ER6L
-  Name: IntegratorA
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Integrator
-  InitialValue: 0.0
-  ContinuousSampleTimeGroup: 1.0
-- Id: sEEdKz3t20cpWfsHZmPSlMmSqFdM5MwV
+  - 1.0
+- Id: Z5mxVpI7Fh2cCQWfNBh7kuP6TuGWsAIc
   Name: Display
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Display
+- Id: U0AixAO8RR2nixsDwCpie7x0fKsyIeaW
+  Name: Constant
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Constant
+  Value: 1.0
 Links:
-- Id: vK6o1gEySJHmKZfzVjAciXTWnOMH2LvF
-  Name: vK6o1gEySJHmKZfzVjAciXTWnOMH2LvF
-  SourceBlockId: jaaaEXN3oNNrJVbxYQQgYKF1DtianDqz
+- Id: KySLLGXpmrFc6pw8pX7iWvdrIwBBsNBl
+  Name: KySLLGXpmrFc6pw8pX7iWvdrIwBBsNBl
+  SourceBlockId: d1fXjobAjTOr4nKr6rLT3Z7qx72ZQOoz
   SourcePortIdx: 0
-  DestinationBlockId: 6LrNsPAK3jsY6AOI2Tqp4Opf21ZDyFxR
+  DestinationBlockId: u7Cey6avtkLBe0YB6yhkrNXSLLhV99F6
   DestinationPortIdx: 0
-- Id: ZnYd0nloRa1E8YyIApjNloDFlMocmNgQ
-  Name: ZnYd0nloRa1E8YyIApjNloDFlMocmNgQ
-  SourceBlockId: Ld5e9KQuKDEmBsPHwH5QU0SuL3g7ER6L
+- Id: uoxRXHahWCEdE3EvSmFThuA2jx3YpcIg
+  Name: uoxRXHahWCEdE3EvSmFThuA2jx3YpcIg
+  SourceBlockId: u7Cey6avtkLBe0YB6yhkrNXSLLhV99F6
   SourcePortIdx: 0
-  DestinationBlockId: 6LrNsPAK3jsY6AOI2Tqp4Opf21ZDyFxR
+  DestinationBlockId: Z5mxVpI7Fh2cCQWfNBh7kuP6TuGWsAIc
+  DestinationPortIdx: 0
+- Id: la4xOMCqe2ShHBusjHhgAtne5YowKcdC
+  Name: la4xOMCqe2ShHBusjHhgAtne5YowKcdC
+  SourceBlockId: U0AixAO8RR2nixsDwCpie7x0fKsyIeaW
+  SourcePortIdx: 0
+  DestinationBlockId: u7Cey6avtkLBe0YB6yhkrNXSLLhV99F6
   DestinationPortIdx: 1
-- Id: udgKEvT5D8qDTdSRGGqVM6ORo573QG9C
-  Name: udgKEvT5D8qDTdSRGGqVM6ORo573QG9C
-  SourceBlockId: 6LrNsPAK3jsY6AOI2Tqp4Opf21ZDyFxR
-  SourcePortIdx: 0
-  DestinationBlockId: Ld5e9KQuKDEmBsPHwH5QU0SuL3g7ER6L
-  DestinationPortIdx: 0
-- Id: p1aRyb5yTz4TWTHLRMxF0tg0zwTI9yGG
-  Name: p1aRyb5yTz4TWTHLRMxF0tg0zwTI9yGG
-  SourceBlockId: Ld5e9KQuKDEmBsPHwH5QU0SuL3g7ER6L
-  SourcePortIdx: 0
-  DestinationBlockId: sEEdKz3t20cpWfsHZmPSlMmSqFdM5MwV
-  DestinationPortIdx: 0

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getNonce } from './util';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
-import { BlockData, IdType, JsonData } from '../shared/JsonTypes';
+import { BlockData, BlockRenderInformation, IdType, JsonData } from '../shared/JsonTypes';
 import { getBlockData, updateBlockParameters, updateLinksNodesPosition } from '../shared/JsonManager';
 import { PythonServerManager } from './PythonServerManager';
 import { SimulationManager } from './SimulationManager';
@@ -250,7 +250,19 @@ export class PySysLinkBlockEditorSession {
 							json.version = json.version + 1;
 							json.blocks = e.json.blocks;
 							json.links = e.json.links;
+							json.blocks?.forEach(block => {
+								if (block.blockRenderInformation === undefined) {
+									this.getBlockRenderInformation(block).then(renderInfo => {
+										if (renderInfo) {
+											block.blockRenderInformation = renderInfo;
+										}
+									}).catch(err => {
+										console.error(`Error getting block render information for block ${block.id}:`, err);
+									});
+								}
+							});
 							await this.updateTextDocument(this.document, json);
+							
 						}
 					});
 					return;
@@ -428,6 +440,10 @@ export class PySysLinkBlockEditorSession {
 			return;
 		}
 		let block_render_info = await this.getBlockRenderInformation(block);
+		if (!block_render_info) {
+			console.warn(`Could not get render information for block with id ${block.id}.`);
+			return;
+		}
 		block.inputPorts = block_render_info.input_ports;
 		block.outputPorts = block_render_info.output_ports;
 		this.withDocumentLock(async () => {
@@ -517,7 +533,7 @@ export class PySysLinkBlockEditorSession {
 		return vscode.workspace.applyEdit(edit);
 	};
 
-	private async getBlockRenderInformation(block: BlockData): Promise<any> {
+	private async getBlockRenderInformation(block: BlockData): Promise<BlockRenderInformation | undefined> {
 		try {
 		console.log("Result requested block libraries");
           const result = await this.pythonServer.sendRequestAsync({
@@ -525,7 +541,7 @@ export class PySysLinkBlockEditorSession {
 			params: { block }
           }, 10000);
 
-		  return JSON.parse(result);
+		  return JSON.parse(result) as BlockRenderInformation;
         } catch (error) {
           console.error(`Error on python server while getting block render information: ${error}`);
           vscode.window.showErrorMessage(
