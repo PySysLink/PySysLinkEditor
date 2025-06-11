@@ -1,13 +1,13 @@
 {
-  "version": 77,
+  "version": 55,
   "blocks": [
     {
       "id": "M3B8KLrSsWXgz7H17Ch1wNj3Xhoe55UH",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 34,
-      "y": 110.609375,
+      "x": 46.17647058823533,
+      "y": 47.90349264705884,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -37,16 +37,18 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 265,
-      "y": 158.609375,
-      "inputPorts": 2,
+      "x": 239.00000000000006,
+      "y": 96.6681985294116,
+      "inputPorts": 4,
       "outputPorts": 1,
       "properties": {
         "Gains": {
           "type": "float[]",
           "value": [
             1,
-            1
+            1,
+            2,
+            3
           ]
         }
       },
@@ -62,7 +64,7 @@
         "min_height": 25,
         "max_width": 360,
         "max_height": 150,
-        "input_ports": 2,
+        "input_ports": 4,
         "output_ports": 1
       }
     },
@@ -71,8 +73,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 460,
-      "y": 159.609375,
+      "x": 395.88235294117646,
+      "y": 64.96231617647061,
       "inputPorts": 1,
       "outputPorts": 0,
       "properties": {},
@@ -100,10 +102,10 @@
       "targetId": "bSk8SS6Kz35MHu9h1YNErwv4Y60vUtxO",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 154,
-      "sourceY": 130.609375,
-      "targetX": 265,
-      "targetY": 178.609375,
+      "sourceX": 166.17647058823533,
+      "sourceY": 67.90349264705884,
+      "targetX": 239.00000000000006,
+      "targetY": 116.6681985294116,
       "intermediateNodes": []
     },
     {
@@ -112,10 +114,10 @@
       "targetId": "7t8dVyBOLG7Jp5J2R1DDjG1zcG2o0RVB",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 385,
-      "sourceY": 178.609375,
-      "targetX": 460,
-      "targetY": 179.609375,
+      "sourceX": 359.00000000000006,
+      "sourceY": 116.6681985294116,
+      "targetX": 395.88235294117646,
+      "targetY": 84.96231617647061,
       "intermediateNodes": []
     }
   ],

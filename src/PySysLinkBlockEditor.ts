@@ -250,17 +250,6 @@ export class PySysLinkBlockEditorSession {
 							json.version = json.version + 1;
 							json.blocks = e.json.blocks;
 							json.links = e.json.links;
-							json.blocks?.forEach(block => {
-								if (block.blockRenderInformation === undefined) {
-									this.getBlockRenderInformation(block).then(renderInfo => {
-										if (renderInfo) {
-											block.blockRenderInformation = renderInfo;
-										}
-									}).catch(err => {
-										console.error(`Error getting block render information for block ${block.id}:`, err);
-									});
-								}
-							});
 							await this.updateTextDocument(this.document, json);
 							
 						}
@@ -439,13 +428,6 @@ export class PySysLinkBlockEditorSession {
 			console.warn(`Block with id ${block.id} is not in the current document.`);
 			return;
 		}
-		let block_render_info = await this.getBlockRenderInformation(block);
-		if (!block_render_info) {
-			console.warn(`Could not get render information for block with id ${block.id}.`);
-			return;
-		}
-		block.inputPorts = block_render_info.input_ports;
-		block.outputPorts = block_render_info.output_ports;
 		this.withDocumentLock(async () => {
 			if (this.document) {
 				let json = this.getDocumentAsJson(this.document);
@@ -498,25 +480,25 @@ export class PySysLinkBlockEditorSession {
 		}
 	};
 
-	private updateTextDocument = async (document: vscode.TextDocument, json: any) => {
-		// Get the current JSON from the document
-		const currentJson = this.getDocumentAsJson(document);
-
-		// Find new blocks (by id)
-		const currentBlockIds = new Set((currentJson.blocks ?? []).map(b => b.id));
-		const newBlocks: BlockData[] = (json.blocks ?? []).filter((b: BlockData) => !currentBlockIds.has(b.id));
-
-		// For each new block, get and set port amounts
-		for (const block of newBlocks) {
-			try {
-				const blockRenderInfo = await this.getBlockRenderInformation(block);
-				if (blockRenderInfo) {
-					block.inputPorts = blockRenderInfo.input_ports;
-					block.outputPorts = blockRenderInfo.output_ports;
+	private updateTextDocument = async (document: vscode.TextDocument, json: JsonData) => {
+		if (this.pythonServer.isRunning()) {
+			const blockPromises = (json.blocks ?? []).map(async block => {
+				try {
+					const renderInfo = await this.getBlockRenderInformation(block);
+					if (renderInfo) {
+						block.blockRenderInformation = renderInfo;
+						block.inputPorts = renderInfo.input_ports;
+						block.outputPorts = renderInfo.output_ports;
+					}
+				} catch (err) {
+					console.error(`Error getting block render information for block ${block.id}:`, err);
 				}
-			} catch (err) {
-				console.error(`Failed to get render info for block ${block.id}:`, err);
-			}
+			});
+
+			// Wait for all block render info to be fetched in parallel
+			await Promise.all(blockPromises);
+		} else {
+			console.warn('Python server is not running, skipping block render information update.');
 		}
 
 		// Update links node positions as before
@@ -590,9 +572,10 @@ export class PySysLinkBlockEditorSession {
 
 	public changeSimulationsOptionsFile = (newPath: string): void => {
 		if (this.document) {
-			const json = this.getDocumentAsJson(this.document);
-			json.simulation_configuration = newPath;
+			
 			this.withDocumentLock(async () => {
+				const json = this.getDocumentAsJson(this.document);
+				json.simulation_configuration = newPath;	
 				await this.updateTextDocument(this.document!, json);
 			});
 
