@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     })();          
 
     const blockPropertiesProvider = new BlockPropertiesProvider(context);
-    const simulationManager = new SimulationManager(context, pythonServer);
+    const simulationManager = new SimulationManager(context);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
@@ -43,8 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let pySysLinkBlockEditorProvider = new PySysLinkBlockEditorProvider(
         context,
         blockPropertiesProvider,
-        simulationManager,
-        pythonServer
+        simulationManager
     );
     const disposable = vscode.window.registerCustomEditorProvider(
         'pysyslink-editor.modelBlockEditor', // viewType

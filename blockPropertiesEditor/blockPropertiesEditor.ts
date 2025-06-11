@@ -219,6 +219,12 @@ window.addEventListener('message', event => {
 				buildForm(currentBlock);
 			}
 			break;
+        case 'clearSelection':
+            // Clear current selection
+            currentBlock = null;
+            document.getElementById('app')!.innerHTML = '<p>No block selected</p>';
+            document.getElementById('saveBtn')!.removeEventListener('click', onSave);
+            break;
 		case 'setHtml':
 			// Deprecated: direct HTML replace
 			document.getElementById('app')!.innerHTML = msg.html;

@@ -13,8 +13,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
     constructor(
         private readonly context: vscode.ExtensionContext,
         private readonly blockPropertiesProvider: BlockPropertiesProvider,
-        private readonly simulationManager: SimulationManager,
-        private readonly pythonServer: PythonServerManager
+        private readonly simulationManager: SimulationManager
     ) {}
 
 	public get activeSession() {
@@ -26,7 +25,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 		this.blockPropertiesProvider.setSelectedBlock(undefined);
 
 		if (session) {
-			this.simulationManager.setCurrentPslkPath(session.documentUri.fsPath);
+			this.simulationManager.setCurrentPslkPath(session.documentUri.fsPath, session.simulationManagerCallback);
 			let simPath = session.getSimulationOptionsPath();
 			if (simPath) {
 				this.simulationManager.setCurrentSimulationOptionsPath(simPath);
@@ -44,8 +43,7 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
             document,
             webviewPanel,
             this.blockPropertiesProvider,
-            this.simulationManager,
-            this.pythonServer
+            this.simulationManager
         );
 		this.sessions.set(document.uri.toString(), session);
         this.setActiveSession(session);
@@ -87,21 +85,30 @@ export class PySysLinkBlockEditorSession {
 
 	private static readonly viewType = 'pysyslink-editor.modelBlockEditor';
 
+	private requestId = 0;
+	private runningSimulationId = 0;
+
 
 	constructor(
 		context: vscode.ExtensionContext,
         document: vscode.TextDocument,
         webviewPanel: vscode.WebviewPanel,
         blockPropertiesProvider: BlockPropertiesProvider,
-        simulationManager: SimulationManager,
-        pythonServer: PythonServerManager
+        simulationManager: SimulationManager
 	) { 		
 		this.context = context;
 		this.document = document;
 		this.webviewPanel = webviewPanel;
 		this.blockPropertiesProvider = blockPropertiesProvider;
 		this.simulationManager = simulationManager;
-		this.pythonServer = pythonServer;
+
+		this.pythonServer = new PythonServerManager(context);
+		const pythonServer = this.pythonServer;
+		(async () => {
+			await pythonServer.init();
+			await pythonServer.startServer();
+		})();      
+
 
 		
 		this.pythonServer.addMessageListener((msg) => this.handlePythonMessage(msg));
@@ -118,19 +125,93 @@ export class PySysLinkBlockEditorSession {
 
 	private handlePythonMessage(msg: any) {
 		if (!this.webviewPanel?.webview) {
-			return;
+		return;
 		}
 
 		switch (msg.type) {
-		case 'notification':
-			// In our protocol, notifications carry an `event` + `data`
-			if (msg.event === 'displayValueUpdate') {
-				vscode.window.showInformationMessage(`${msg.data.displayId}: ${msg.data.value} at ${msg.data.simulationTime}`);
-			}
-			break;
-		default:
-			break;		
+			case 'print':
+				console.log(`[python server]: ${msg.message}`);
+				break;
+			case 'notification':
+				// In our protocol, notifications carry an `event` + `data`
+				if (msg.event === 'progress') {
+					this.simulationManager.notifySimulationProgress(msg);
+				}
+				break;
+	
+			case 'response':
+				// A successful RPC response
+				this.simulationManager.notifySimulationCompleted(msg);
+				break;
+	
+			case 'error':
+				// If you choose to surface errors as their own type
+				vscode.window.showErrorMessage(
+				`Error on python server: ${msg.error}`
+				);
+				break;
+	
+			case 'heartbeat':
+				// Optional: handle ping/pong if you want to display connectivity
+				console.debug(`[Heartbeat ${msg.subtype}] ${msg.timestamp}`);
+				break;
+			
+			case 'notification':
+				// In our protocol, notifications carry an `event` + `data`
+				if (msg.event === 'displayValueUpdate') {
+					vscode.window.showInformationMessage(`${msg.data.displayId}: ${msg.data.value} at ${msg.data.simulationTime}`);
+				}
+				break;
+	
+			default:
+				console.warn('Unknown message type from Python:', msg);
 		}
+	}
+
+	private cancelSimulation() {
+		if (!this.pythonServer.isRunning()) {
+			vscode.window.showErrorMessage(
+				'Simulation server is not running. Please run "Start Simulation Server" first.'
+			);
+			return;
+		}
+
+		const id = ++this.requestId;
+		const request = {
+			type: 'cancel',
+			id: this.runningSimulationId
+		};
+
+		// Send it over stdin, newline-terminated
+		this.pythonServer.sendRequest(request);
+		console.log(`[Extension] Sent cancel for request #${this.runningSimulationId}`, request);
+	}
+
+	private async sendSimulationStart(msg: any) {
+		if (!this.pythonServer.isRunning()) {
+			vscode.window.showErrorMessage(
+				'Simulation server is not running. Please run "Start Simulation Server" first.'
+			);
+			return;
+		}
+
+		console.log('[Extension] Sending runSimulation request...');
+
+		const id = ++this.requestId;
+		this.runningSimulationId = id;
+
+		const request = {
+			type: 'request',
+			id: id,
+			method: 'runSimulation',
+			params: { 
+			pslkPath: this.document.uri.fsPath, 
+			configFile: this.getSimulationOptionsPath() || ''
+		}
+		};
+
+		this.pythonServer.sendRequest(request);
+		console.log(`[Extension] Sent runSimulation request #${id}`, request);
 	}
 	
 	public renderWebview(
@@ -193,12 +274,25 @@ export class PySysLinkBlockEditorSession {
 		console.log('Resolved, update webview');
 		this.updateWebview();
 		this.postColorTheme(vscode.window.activeColorTheme.kind);
-		this.simulationManager.setCurrentPslkPath(this.document.uri.fsPath);
+		this.simulationManager.setCurrentPslkPath(this.document.uri.fsPath, this.simulationManagerCallback);
 		let simPath = this.getSimulationOptionsPath();
 		if (simPath) {
 			this.simulationManager.setCurrentSimulationOptionsPath(simPath);
 		}
 	}
+
+	public simulationManagerCallback = (msg: any) => {
+		switch (msg.type) {
+			case 'runSimulation':
+				this.sendSimulationStart(msg);
+				break;
+			case 'stopSimulation':
+				this.cancelSimulation();
+				break;
+			default:
+				console.warn(`Unknown simulation manager message type: ${msg.type}`);
+		}
+	};
 
 
 	private onThemeChange(e: vscode.ColorTheme) {
@@ -329,6 +423,10 @@ export class PySysLinkBlockEditorSession {
 	}
 
 	public updateBlockParameters = async (block: BlockData): Promise<void> => {
+		if (!this.isBlockInDocument(block.id)) {
+			console.warn(`Block with id ${block.id} is not in the current document.`);
+			return;
+		}
 		let block_render_info = await this.getBlockRenderInformation(block);
 		block.inputPorts = block_render_info.input_ports;
 		block.outputPorts = block_render_info.output_ports;
@@ -339,6 +437,18 @@ export class PySysLinkBlockEditorSession {
 				await this.updateTextDocument(this.document, json);
 			}
 		});
+	};
+
+	public isBlockInDocument = (blockId: IdType): boolean => {
+		if (this.document) {
+			const json = this.getDocumentAsJson(this.document);
+			let result = json.blocks?.some(block => block.id === blockId);
+			if (result === undefined) {
+				result = false;
+			}
+			return result;
+		}
+		return false;
 	};
 
 	private async withDocumentLock<T>(callback: () => Promise<T>): Promise<T> {

@@ -1,18 +1,18 @@
 Blocks:
 - Id: jaaaEXN3oNNrJVbxYQQgYKF1DtianDqz
-  Name: Constant
+  Name: ConstantEdited
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Constant
   Value: 1.0
 - Id: 6LrNsPAK3jsY6AOI2Tqp4Opf21ZDyFxR
-  Name: Adder
+  Name: Adder3
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Adder
   Gains:
   - 1.0
   - -1.0
 - Id: Ld5e9KQuKDEmBsPHwH5QU0SuL3g7ER6L
-  Name: Integrator
+  Name: IntegratorA
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Integrator
   InitialValue: 0.0

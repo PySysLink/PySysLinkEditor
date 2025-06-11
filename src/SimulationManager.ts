@@ -7,67 +7,15 @@ import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 
 export class SimulationManager implements vscode.WebviewViewProvider {
-    private requestId = 0;
-    private runningSimulationId = 0;
     private _view?: vscode.WebviewView;
     private currentSimulationOptionsFileChangedHandler: ((newPath: string) => void)[] = [];
-    private pythonServer: PythonServerManager;
 
     private currentPslkPath: string | undefined = undefined;
     private currentSimulationOptionsPath: string | undefined = undefined;
 
-    constructor(private readonly context: vscode.ExtensionContext, pythonServer: PythonServerManager) {
-      this.pythonServer = pythonServer;
+    private pslkCallbacks: Map<string, (msg: any) => void> = new Map();
 
-      this.pythonServer.addMessageListener((msg) => this.handlePythonMessage(msg));
-    }
-
-    private handlePythonMessage(msg: any) {
-      if (!this._view) {
-        return;
-      }
-
-      switch (msg.type) {
-        case 'print':
-          console.log(`[python server]: ${msg.message}`);
-          break;
-        case 'notification':
-          // In our protocol, notifications carry an `event` + `data`
-          if (msg.event === 'progress') {
-            this._view.webview.postMessage({
-              type: 'progress',
-              params: msg.data
-            });
-          }
-          break;
-
-        case 'response':
-          // A successful RPC response
-          this._view.webview.postMessage({
-            type: 'completed',
-            result: msg.result
-          });
-          break;
-
-        case 'error':
-          // If you choose to surface errors as their own type
-          this._view.webview.postMessage({
-            type: 'error',
-            error: msg.error
-          });
-          vscode.window.showErrorMessage(
-            `Error on python server: ${msg.error}`
-          );
-          break;
-
-        case 'heartbeat':
-          // Optional: handle ping/pong if you want to display connectivity
-          console.debug(`[Heartbeat ${msg.subtype}] ${msg.timestamp}`);
-          break;
-
-        default:
-          console.warn('Unknown message type from Python:', msg);
-      }
+    constructor(private readonly context: vscode.ExtensionContext) {
     }
 
     public registerCurrentSimulationOptionsFileChangedHandler(handler: ((currentSimulationPath: string) => void)): void {
@@ -107,10 +55,31 @@ export class SimulationManager implements vscode.WebviewViewProvider {
         console.log(`SimulationManager: [${msg}]`);
         switch (msg.type) {
           case 'runSimulation':
-						this.sendSimulationStart(msg);
+            if (!this.currentPslkPath) {
+              vscode.window.showErrorMessage('No PSLK file selected for simulation.');
+              return;
+            }
+
+            // Notify the Python server to start the simulation
+            const pslkCallback = this.pslkCallbacks.get(this.currentPslkPath);
+            if (pslkCallback) {
+              pslkCallback({type: 'runSimulation'});
+            } else {
+              console.warn(`[SimulationManager] No callback registered for PSLK path: ${this.currentPslkPath}`);
+            }
             break;
           case 'stopSimulation':
-            this.cancelSimulation();
+            if (!this.currentPslkPath) {
+              vscode.window.showErrorMessage('No PSLK file selected for simulation.');
+              return;
+            }
+            // Notify the Python server to stop the simulation
+            const stopCallback = this.pslkCallbacks.get(this.currentPslkPath);
+            if (stopCallback) {
+              stopCallback({type: 'stopSimulation'});
+            } else {
+              console.warn(`[SimulationManager] No callback registered for PSLK path: ${this.currentPslkPath}`);
+            }
             break;
           case 'openSimulationOptionsFileSelector':
             this.openSimulationOptionsFileSelector();
@@ -159,27 +128,11 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       }
     }
 
-    private cancelSimulation() {
-      if (!this.pythonServer.isRunning()) {
-        vscode.window.showErrorMessage(
-          'Simulation server is not running. Please run "Start Simulation Server" first.'
-        );
-        return;
-      }
+    
 
-      const id = ++this.requestId;
-      const request = {
-        type: 'cancel',
-        id: this.runningSimulationId
-      };
-
-      // Send it over stdin, newline-terminated
-      this.pythonServer.sendRequest(request);
-      console.log(`[Extension] Sent cancel for request #${this.runningSimulationId}`, request);
-    }
-
-    public setCurrentPslkPath(pslkPath: string) {
+    public setCurrentPslkPath(pslkPath: string, callback?: (msg: any) => void) {
       this.currentPslkPath = pslkPath;
+      this.pslkCallbacks.set(pslkPath, callback || ((msg: any) => {}));    
     }
 
     public setCurrentSimulationOptionsPath(currentSimulationOptionsPath: string) {
@@ -238,38 +191,18 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       });
     }
 
-		private async sendSimulationStart(msg: any) {
-			if (!this.pythonServer.isRunning()) {
-        vscode.window.showErrorMessage(
-          'Simulation server is not running. Please run "Start Simulation Server" first.'
-        );
-        return;
-      }
+    public notifySimulationCompleted(msg: any) {
+      this._view?.webview.postMessage({
+				type: 'completed',
+				result: msg.result
+      });
+    }
 
-      if (!this.currentPslkPath) {
-        vscode.window.showErrorMessage('No PSLK file selected. Please open a PSLK file first.');
-        return;
-      }
-
-      console.log('[Extension] Sending runSimulation request...');
-
-
-
-      const id = ++this.requestId;
-      this.runningSimulationId = id;
-
-      const request = {
-        type: 'request',
-        id: id,
-        method: 'runSimulation',
-         params: { 
-          pslkPath: this.currentPslkPath, 
-          configFile: this.currentSimulationOptionsPath || ''
-      }
-      };
-
-      this.pythonServer.sendRequest(request);
-      console.log(`[Extension] Sent runSimulation request #${id}`, request);
-		}
+    public notifySimulationProgress(msg: any) {
+      this._view?.webview.postMessage({
+        type: 'progress',
+        params: msg.data
+      });
+    }
   }
   
