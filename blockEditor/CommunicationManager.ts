@@ -69,8 +69,7 @@ export class CommunicationManager {
     public setLocalJson(json: JsonData, sendToServer: boolean = true) {
         this.localJson = json;
         this.vscode.setState({ text: JSON.stringify(this.localJson) });
-        console.log(`New json:`);
-        console.log(this.localJson);
+        this.print(`New json local: ${JSON.stringify(this.localJson)}`);
         if (!this.freezed && sendToServer) {
             this.sendJsonToServer(this.localJson);
         } 
@@ -93,6 +92,7 @@ export class CommunicationManager {
     }
 
     public newJsonFromServer(json: JsonData) {
+        this.print(`New json update from server: ${JSON.stringify(json)}`);
         if (this.freezed) {
             if (this.serverJson === undefined) {
                 this.serverJson = json;
@@ -104,7 +104,7 @@ export class CommunicationManager {
             let localJson = this.getLocalJson();
             if (localJson === undefined) {
                 this.setLocalJson(json, false);
-            } else if (localJson.version < json.version) {
+            } else {
                 this.setLocalJson(json, false);
             }
         }

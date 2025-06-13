@@ -428,13 +428,14 @@ export class PySysLinkBlockEditorSession {
 			console.warn(`Block with id ${block.id} is not in the current document.`);
 			return;
 		}
-		this.withDocumentLock(async () => {
+		await this.withDocumentLock(async () => {
 			if (this.document) {
 				let json = this.getDocumentAsJson(this.document);
 				json = updateBlockParameters(json, block);
 				await this.updateTextDocument(this.document, json);
 			}
 		});
+		this.updateWebview();
 	};
 
 	public isBlockInDocument = (blockId: IdType): boolean => {

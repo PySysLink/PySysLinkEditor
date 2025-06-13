@@ -1,19 +1,19 @@
 {
-  "version": 55,
+  "version": 151,
   "blocks": [
     {
       "id": "M3B8KLrSsWXgz7H17Ch1wNj3Xhoe55UH",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 46.17647058823533,
-      "y": 47.90349264705884,
+      "x": 100,
+      "y": 96.90349264705884,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
         "Value": {
           "type": "float",
-          "value": 1
+          "value": 22
         }
       },
       "blockRenderInformation": {
@@ -37,9 +37,9 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 239.00000000000006,
-      "y": 96.6681985294116,
-      "inputPorts": 4,
+      "x": 264.00000000000006,
+      "y": 146.6681985294116,
+      "inputPorts": 3,
       "outputPorts": 1,
       "properties": {
         "Gains": {
@@ -47,8 +47,7 @@
           "value": [
             1,
             1,
-            2,
-            3
+            4
           ]
         }
       },
@@ -64,7 +63,7 @@
         "min_height": 25,
         "max_width": 360,
         "max_height": 150,
-        "input_ports": 4,
+        "input_ports": 3,
         "output_ports": 1
       }
     },
@@ -73,8 +72,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 395.88235294117646,
-      "y": 64.96231617647061,
+      "x": 449.88235294117646,
+      "y": 104.96231617647061,
       "inputPorts": 1,
       "outputPorts": 0,
       "properties": {},
@@ -102,10 +101,10 @@
       "targetId": "bSk8SS6Kz35MHu9h1YNErwv4Y60vUtxO",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 166.17647058823533,
-      "sourceY": 67.90349264705884,
-      "targetX": 239.00000000000006,
-      "targetY": 116.6681985294116,
+      "sourceX": 220,
+      "sourceY": 116.90349264705884,
+      "targetX": 264.00000000000006,
+      "targetY": 166.6681985294116,
       "intermediateNodes": []
     },
     {
@@ -114,10 +113,10 @@
       "targetId": "7t8dVyBOLG7Jp5J2R1DDjG1zcG2o0RVB",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 359.00000000000006,
-      "sourceY": 116.6681985294116,
-      "targetX": 395.88235294117646,
-      "targetY": 84.96231617647061,
+      "sourceX": 384.00000000000006,
+      "sourceY": 166.6681985294116,
+      "targetX": 449.88235294117646,
+      "targetY": 124.96231617647061,
       "intermediateNodes": []
     }
   ],
