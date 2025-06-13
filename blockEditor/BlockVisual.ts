@@ -1,4 +1,4 @@
-import { BlockData, IdType, JsonData } from "../shared/JsonTypes";
+import { BlockData, BlockRenderInformation, IdType, JsonData } from "../shared/JsonTypes";
 import { CommunicationManager } from "./CommunicationManager";
 import { Movable } from "./Movable";
 import { Selectable } from "./Selectable";
@@ -8,21 +8,23 @@ export class BlockVisual extends Selectable implements Movable {
     _isSelected: boolean = false;
 
     public getElement(): HTMLElement | SVGElement {
-        return this.element;
+        return this.blockElement;
     }
 
     public getId(): IdType {
         return this.id;    
     }
 
-    private element: HTMLElement;
+    private blockElement: HTMLElement;
+    private labelElement: HTMLElement;
+    private contentElement: HTMLElement;
+
 
     inputPortNumber: number;
     outputPortNumber: number;
     inputPorts: HTMLElement[] = [];
     outputPorts: HTMLElement[] = [];
 
-    labelElement: HTMLElement;
 
     onMouseDownOnPortCallbacks: ((e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
 
@@ -35,12 +37,27 @@ export class BlockVisual extends Selectable implements Movable {
         this.outputPortNumber = blockData.outputPorts;
         this.onDelete = onDelete;
 
-        this.element = document.createElement('div');
+
+        // Create block shape element
+        this.blockElement = document.createElement('div');
+        this.blockElement.classList.add('block');
+        this.blockElement.style.position = 'absolute';
+
+
+        // Content container inside the block
+        this.contentElement = document.createElement('div');
+        this.contentElement.classList.add('block-content');
+        this.blockElement.appendChild(this.contentElement);
         
-        this.element.classList.add('block');
-        
+        this.applyRenderInfo(blockData.blockRenderInformation);
+
+        // Create external label
         this.labelElement = document.createElement('div');
-        this.element.appendChild(this.labelElement);
+        this.labelElement.classList.add('block-label');
+        this.labelElement.textContent = blockData.label;
+
+        // Assemble
+        this.blockElement.appendChild(this.labelElement);
 
         const portWidth = 40;
         const portHeigh = 20;
@@ -61,7 +78,7 @@ export class BlockVisual extends Selectable implements Movable {
                 this.onMouseDownInPort(e, "input", j);
             });
 
-            this.element.appendChild(inputPort);
+            this.blockElement.appendChild(inputPort);
             this.inputPorts.push(inputPort);
         }
     
@@ -82,10 +99,45 @@ export class BlockVisual extends Selectable implements Movable {
                 this.onMouseDownInPort(e, "output", i);
             });
 
-            this.element.appendChild(outputPort);
+            this.blockElement.appendChild(outputPort);
             this.outputPorts.push(outputPort);
         }
     }
+
+    private applyRenderInfo(renderInfo?: BlockRenderInformation | null) {
+        if (!renderInfo) {return;}
+        // Shape classes: square, circle, triangle
+        this.blockElement.classList.add(`block--${renderInfo.shape}`);
+
+        // Size constraints
+        this.blockElement.style.width = `${renderInfo.default_width}px`;
+        this.blockElement.style.height = `${renderInfo.default_height}px`;
+        this.blockElement.style.minWidth = `${renderInfo.min_width}px`;
+        this.blockElement.style.minHeight = `${renderInfo.min_height}px`;
+        this.blockElement.style.maxWidth = `${renderInfo.max_width}px`;
+        this.blockElement.style.maxHeight = `${renderInfo.max_height}px`;
+
+        // Content: icon, text, both
+        this.contentElement.innerHTML = '';
+        if (renderInfo.icon) {
+            const img = document.createElement('img');
+            img.src = renderInfo.icon;
+            img.classList.add('block-icon');
+            this.contentElement.appendChild(img);
+        }
+        if (renderInfo.show_image_and_text && renderInfo.icon && renderInfo.text) {
+            const txt = document.createElement('div');
+            txt.classList.add('block-text');
+            txt.textContent = renderInfo.text;
+            this.contentElement.appendChild(txt);
+        } else if (!renderInfo.icon && renderInfo.text) {
+            const txt = document.createElement('div');
+            txt.classList.add('block-text');
+            txt.textContent = renderInfo.text;
+            this.contentElement.appendChild(txt);
+        }
+    }
+
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.moveBlock(this.id, x, y);
     }
@@ -122,17 +174,19 @@ export class BlockVisual extends Selectable implements Movable {
         const blockData = json.blocks?.find((block: BlockData) => block.id === this.id);
         if (blockData) {
             this.labelElement.textContent = blockData.label;
-            this.element.style.left = `${blockData.x}px`;
-            this.element.style.top = `${blockData.y}px`;
+            this.blockElement.style.left = `${blockData.x}px`;
+            this.blockElement.style.top = `${blockData.y}px`;
 
             // --- Update ports if the amount has changed ---
             const portWidth = 40;
             const portHeigh = 20;
 
+            this.applyRenderInfo(blockData.blockRenderInformation);
+
             // Remove old input ports if count changed
             if (blockData.inputPorts !== this.inputPortNumber) {
                 // Remove old input port elements from DOM
-                this.inputPorts.forEach(portEl => this.element.removeChild(portEl));
+                this.inputPorts.forEach(portEl => this.blockElement.removeChild(portEl));
                 this.inputPorts = [];
                 this.inputPortNumber = blockData.inputPorts;
 
@@ -153,7 +207,7 @@ export class BlockVisual extends Selectable implements Movable {
                         this.onMouseDownInPort(e, "input", j);
                     });
 
-                    this.element.appendChild(inputPort);
+                    this.blockElement.appendChild(inputPort);
                     this.inputPorts.push(inputPort);
                 }
             }
@@ -161,7 +215,7 @@ export class BlockVisual extends Selectable implements Movable {
             // Remove old output ports if count changed
             if (blockData.outputPorts !== this.outputPortNumber) {
                 // Remove old output port elements from DOM
-                this.outputPorts.forEach(portEl => this.element.removeChild(portEl));
+                this.outputPorts.forEach(portEl => this.blockElement.removeChild(portEl));
                 this.outputPorts = [];
                 this.outputPortNumber = blockData.outputPorts;
 
@@ -182,7 +236,7 @@ export class BlockVisual extends Selectable implements Movable {
                         this.onMouseDownInPort(e, "output", i);
                     });
 
-                    this.element.appendChild(outputPort);
+                    this.blockElement.appendChild(outputPort);
                     this.outputPorts.push(outputPort);
                 }
             }
