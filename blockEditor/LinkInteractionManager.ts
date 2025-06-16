@@ -5,6 +5,7 @@ import { BlockVisual } from './BlockVisual';
 import { getNonce } from './util';
 import { IdType, JsonData, LinkData } from '../shared/JsonTypes'; 
 import { CommunicationManager } from './CommunicationManager';
+import { SelectableManager } from './SelectableManager';
 
 export class LinkInteractionManager {
     public links: LinkVisual[] = [];
@@ -21,9 +22,13 @@ export class LinkInteractionManager {
     private communicationManager: CommunicationManager;
 
     private blockInteractionManager: BlockInteractionManager;
+    private selectableManager: SelectableManager;
 
-    constructor (communicationManager: CommunicationManager, canvas: HTMLElement, linksSvg: SVGSVGElement, blockInteractionManager: BlockInteractionManager) {
+    constructor (communicationManager: CommunicationManager, canvas: HTMLElement, linksSvg: SVGSVGElement, blockInteractionManager: BlockInteractionManager,
+        selectableManager: SelectableManager
+    ) {
         this.communicationManager = communicationManager;
+        this.selectableManager = selectableManager;
         this.canvas = canvas;
         this.linksSvg = linksSvg;
         this.blockInteractionManager = blockInteractionManager;
@@ -95,69 +100,23 @@ export class LinkInteractionManager {
 
             let newLink: LinkVisual | undefined = undefined;
 
-            // Add a temporary mousemove listener to detect drag threshold
-            const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
-                this.communicationManager.print(`[link log]: mouse move threshold, x: ${moveEvent.clientX}, y: ${moveEvent.clientY}`);
-                const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
-                const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
-        
-                if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
-                    if (!newLink) {
-                        let newLinkData = this.communicationManager.createNewLinkFromPort(block.id, portType, portIndex);
-                        if (newLinkData) {
-                            newLink = this.createLinkVisual(newLinkData);
-                            newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-                            newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-                        } else { return; }
-                        initialPortPositionX = newLink.sourceNode.getPosition(this.communicationManager)?.x || 0;
-                        initialPortPositionY = newLink.sourceNode.getPosition(this.communicationManager)?.y || 0;
-                        this.communicationManager.print(`[link log]: initial port position set to x: ${initialPortPositionX}, y: ${initialPortPositionY}`);
-                        this.communicationManager.print(`[link log]: drag start x: ${this.dragStartX}, y: ${this.dragStartY}`);
-                        this.communicationManager.print(`[link log]: Threshold rebased, trigger on mouse down`);
-                    }
-                    // Exceeded drag threshold, start dragging
-                    this.isDragging = true;
+            let newLinkData = this.communicationManager.createNewLinkFromPort(block.id, portType, portIndex);
+            if (newLinkData) {
+                newLink = this.createLinkVisual(newLinkData);
+                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+            } else { return; }
 
-                    if (portType === "input") {
-                        if (newLink.sourceNode.isSelected()) {
-                            document.removeEventListener('mousemove', onMouseMoveThreshold);
-                        } else {
-                            newLink.sourceNode.unselect();
-                            newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
-                        }
-                    } else {
-                        if (newLink.targetNode.isSelected()) {
-                            document.removeEventListener('mousemove', onMouseMoveThreshold);
-                        } else {
-                            newLink.targetNode.unselect();
-                            newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
-                        }
-                    }
-                }   
-            };
-        
-            document.addEventListener('mousemove', onMouseMoveThreshold);
-        
-            // Handle mouseup to detect a simple click
-            const onMouseUpThreshold = () => {
-                document.removeEventListener('mousemove', onMouseMoveThreshold);
-                document.removeEventListener('mouseup', onMouseUpThreshold);
-                this.communicationManager.print(`[link log]: mouse up`);
-
-                if (!this.isDragging) {
-                    // If no drag occurred, treat it as a simple click
-                    if (e.shiftKey) {
-                        // Toggle selection if Shift is pressed
-                        block.toggleSelect();
-                    } else {
-                        // Clear selection and select only this block
-                        block.select();
-                    }
-                }
-            };
-        
-            document.addEventListener('mouseup', onMouseUpThreshold);
-        }
+            if (portType === "input") {
+                this.selectableManager.addCallbackToSelectable(newLink.sourceNode);
+                newLink.sourceNode.unselect();
+                newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
+            } else {
+                this.selectableManager.addCallbackToSelectable(newLink.targetNode);
+                newLink.targetNode.unselect();
+                newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+            }
+        }            
     };
 
     public updateFromJson(json: JsonData): SVGSVGElement {

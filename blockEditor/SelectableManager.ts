@@ -64,6 +64,10 @@ export class SelectableManager {
         });
     }
 
+    public addCallbackToSelectable(selectable: Selectable): void {
+        selectable.addOnMouseDownListener("selectable_manager", this.onMouseDownInSelectable);
+    }
+
     private getSelectableList(): Selectable[] {
         return this.registeredSelectableLists.flatMap(getSelectableList => getSelectableList());
     }

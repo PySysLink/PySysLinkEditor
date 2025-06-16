@@ -89,8 +89,9 @@ const vscode = acquireVsCodeApi();
     let communicationManager = new CommunicationManager(vscode);
 
     blockInteractionManager = new BlockInteractionManager(communicationManager);
-    linkInteractionManager = new LinkInteractionManager(communicationManager, canvas, document.querySelector('.links') as SVGSVGElement, blockInteractionManager);
     selectableManager = new SelectableManager(communicationManager, canvas, getZoomLevelReal);
+    linkInteractionManager = new LinkInteractionManager(communicationManager, canvas, 
+            document.querySelector('.links') as SVGSVGElement, blockInteractionManager, selectableManager);
     blockPalette = new BlockPalette(communicationManager);
     communicationManager.registerLibrariesChangedCallback(blockPalette.updateLibraries);
 
