@@ -1,0 +1,273 @@
+{
+  "version": 65,
+  "blocks": [
+    {
+      "id": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 372.3333333333332,
+      "y": 131.14583333333331,
+      "inputPorts": 3,
+      "outputPorts": 1,
+      "properties": {
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            1,
+            -1
+          ]
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "circle",
+        "icon": "",
+        "text": "Adder",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 3,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "rVku98kvuv74fMESFc2Am01t5OLL3KEu",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 112,
+      "y": 106.8125,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Integrator",
+      "label": "Integrator",
+      "x": 196.66666666666663,
+      "y": 193.14583333333337,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "InitialValue": {
+          "type": "float",
+          "value": 0
+        },
+        "ContinuousSampleTimeGroup": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Integrator",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "xSd0egtPgxMwth16iFs3nG2pXHXOVX1j",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 15.111111111111088,
+      "y": 235.36805555555577,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "Of6AFAeXbm40lskvJU6SSKMCOHj8ISQg",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 698.0000000000001,
+      "y": 129.1180555555556,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Display",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
+    },
+    {
+      "id": "bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Integrator",
+      "label": "Integrator",
+      "x": 534.25,
+      "y": 128.609375,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "InitialValue": {
+          "type": "float",
+          "value": 0
+        },
+        "ContinuousSampleTimeGroup": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Integrator",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 1
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "kyg6FcOSeuYyDJc1ApOT9Dn6qLnKMR0w",
+      "sourceId": "rVku98kvuv74fMESFc2Am01t5OLL3KEu",
+      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 232,
+      "sourceY": 126.8125,
+      "targetX": 372.3333333333332,
+      "targetY": 151.14583333333331,
+      "intermediateNodes": []
+    },
+    {
+      "id": "v9As1fiwrBeIHl2iQXPziUyvsF91dBSD",
+      "sourceId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
+      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
+      "sourcePort": 0,
+      "targetPort": 1,
+      "sourceX": 316.66666666666663,
+      "sourceY": 213.14583333333337,
+      "targetX": 372.3333333333332,
+      "targetY": 171.14583333333331,
+      "intermediateNodes": []
+    },
+    {
+      "id": "5nVBggQAc0io49HkwJKGt4mijB2bmOe6",
+      "sourceId": "xSd0egtPgxMwth16iFs3nG2pXHXOVX1j",
+      "targetId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 135.1111111111111,
+      "sourceY": 255.36805555555577,
+      "targetX": 196.66666666666663,
+      "targetY": 213.14583333333337,
+      "intermediateNodes": []
+    },
+    {
+      "id": "vSA0RE79Nw20HeVG99VHY6XolmTxcH7A",
+      "sourceId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
+      "targetId": "bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 492.3333333333332,
+      "sourceY": 151.14583333333331,
+      "targetX": 534.25,
+      "targetY": 148.609375,
+      "intermediateNodes": []
+    },
+    {
+      "id": "l0Pddu7Q7EtjbDQFe6SXSFuV930xl2yc",
+      "sourceId": "bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do",
+      "targetId": "Of6AFAeXbm40lskvJU6SSKMCOHj8ISQg",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 654.25,
+      "sourceY": 148.609375,
+      "targetX": 698.0000000000001,
+      "targetY": 149.1180555555556,
+      "intermediateNodes": []
+    },
+    {
+      "id": "JQejOr3jTwkC5Q8A1nASvwVtFaFwr0Yh",
+      "sourceId": "bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do",
+      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
+      "sourcePort": 0,
+      "targetPort": 2,
+      "sourceX": 654.25,
+      "sourceY": 148.609375,
+      "targetX": 372.3333333333332,
+      "targetY": 191.14583333333331,
+      "intermediateNodes": []
+    }
+  ],
+  "simulation_configuration": "/home/pello/pysyslink-editor/.debug_root/exampleFile/options.yaml"
+}

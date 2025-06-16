@@ -81,7 +81,7 @@ export class SelectableManager {
     }
 
     private onMouseDownInSelectable = (canvasElement: CanvasElement, e: MouseEvent): void => {
-        this.communicationManager.print(`Mouse down event happened`);
+        this.communicationManager.print(`[link log]: Mouse down event happened`);
         let selectable: Selectable;
         if (!(canvasElement instanceof Selectable)) {
             return;

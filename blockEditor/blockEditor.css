@@ -86,7 +86,7 @@ body.pysyslink-light {
 
 /* Shapes */
 .block--square { /* default rounded rectangle */ }
-.block--circle {
+.block.block--circle {
   border-radius: 50%;
 }
 .block--triangle {

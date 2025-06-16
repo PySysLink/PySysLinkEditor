@@ -136,6 +136,16 @@ export class BlockVisual extends Selectable implements Movable {
             txt.textContent = renderInfo.text;
             this.contentElement.appendChild(txt);
         }
+
+        if (renderInfo.shape === "circle") {
+            this.blockElement.classList.add('block--circle');
+        }
+        else if (renderInfo.shape === "triangle") {
+            this.blockElement.classList.add('block--triangle');
+        }
+        else {
+            this.blockElement.classList.add('block--square');
+        }
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {

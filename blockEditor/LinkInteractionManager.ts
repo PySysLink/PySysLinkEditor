@@ -14,7 +14,7 @@ export class LinkInteractionManager {
     private dragStartX = 0;
     private dragStartY = 0;
 
-    private dragThreshold = 50; // Minimum distance to detect a drag
+    private dragThreshold = 5; // Minimum distance to detect a drag
     private isDragging = false;
 
     private canvas: HTMLElement;
@@ -64,7 +64,7 @@ export class LinkInteractionManager {
 
     private onMouseDownOnPort = (block: BlockVisual, e: any, portType: "input" | "output", portIndex: number): void => {
         let isLinkOnNode = false;
-        this.communicationManager.print(`Checking if block already have connection`);
+        this.communicationManager.print(`[link log] Checking if block already have connection`);
 
         if (portType === "input") {
             this.communicationManager.getLocalJson()?.links?.forEach(link => {
@@ -85,34 +85,53 @@ export class LinkInteractionManager {
         if (!isLinkOnNode) {
             this.communicationManager.print(`Mouse down on non connected port, creating link`);
 
-            let newLinkData = this.communicationManager.createNewLinkFromPort(block.id, portType, portIndex);
-            let newLink: LinkVisual;
-            if (newLinkData) {
-                newLink = this.createLinkVisual(newLinkData);
-                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-            } else { return; }
+            this.dragStartX = e.clientX;
+            this.dragStartY = e.clientY;
+
+            let initialPortPositionX = 0;
+            let initialPortPositionY = 0;
             
             e.stopPropagation();
 
+            let newLink: LinkVisual | undefined = undefined;
+
             // Add a temporary mousemove listener to detect drag threshold
             const onMouseMoveThreshold = (moveEvent: MouseEvent) => {
+                this.communicationManager.print(`[link log]: mouse move threshold, x: ${moveEvent.clientX}, y: ${moveEvent.clientY}`);
                 const deltaX = Math.abs(moveEvent.clientX - this.dragStartX);
                 const deltaY = Math.abs(moveEvent.clientY - this.dragStartY);
         
                 if (deltaX > this.dragThreshold || deltaY > this.dragThreshold) {
+                    if (!newLink) {
+                        let newLinkData = this.communicationManager.createNewLinkFromPort(block.id, portType, portIndex);
+                        if (newLinkData) {
+                            newLink = this.createLinkVisual(newLinkData);
+                            newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+                            newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+                        } else { return; }
+                        initialPortPositionX = newLink.sourceNode.getPosition(this.communicationManager)?.x || 0;
+                        initialPortPositionY = newLink.sourceNode.getPosition(this.communicationManager)?.y || 0;
+                        this.communicationManager.print(`[link log]: initial port position set to x: ${initialPortPositionX}, y: ${initialPortPositionY}`);
+                        this.communicationManager.print(`[link log]: drag start x: ${this.dragStartX}, y: ${this.dragStartY}`);
+                        this.communicationManager.print(`[link log]: Threshold rebased, trigger on mouse down`);
+                    }
                     // Exceeded drag threshold, start dragging
                     this.isDragging = true;
-                    document.removeEventListener('mousemove', onMouseMoveThreshold);
-                    this.communicationManager.print(`Threshold rebased, trigger on mouse down`);
 
                     if (portType === "input") {
-                        newLink.sourceNode.unselect();
-                        newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
+                        if (newLink.sourceNode.isSelected()) {
+                            document.removeEventListener('mousemove', onMouseMoveThreshold);
+                        } else {
+                            newLink.sourceNode.unselect();
+                            newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
+                        }
                     } else {
-                        newLink.targetNode.unselect();
-                        newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
-
+                        if (newLink.targetNode.isSelected()) {
+                            document.removeEventListener('mousemove', onMouseMoveThreshold);
+                        } else {
+                            newLink.targetNode.unselect();
+                            newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                        }
                     }
                 }   
             };
@@ -123,7 +142,8 @@ export class LinkInteractionManager {
             const onMouseUpThreshold = () => {
                 document.removeEventListener('mousemove', onMouseMoveThreshold);
                 document.removeEventListener('mouseup', onMouseUpThreshold);
-        
+                this.communicationManager.print(`[link log]: mouse up`);
+
                 if (!this.isDragging) {
                     // If no drag occurred, treat it as a simple click
                     if (e.shiftKey) {

@@ -69,7 +69,6 @@ export class CommunicationManager {
     public setLocalJson(json: JsonData, sendToServer: boolean = true) {
         this.localJson = json;
         this.vscode.setState({ text: JSON.stringify(this.localJson) });
-        this.print(`New json local: ${JSON.stringify(this.localJson)}`);
         if (!this.freezed && sendToServer) {
             this.sendJsonToServer(this.localJson);
         } 
@@ -92,7 +91,6 @@ export class CommunicationManager {
     }
 
     public newJsonFromServer(json: JsonData) {
-        this.print(`New json update from server: ${JSON.stringify(json)}`);
         if (this.freezed) {
             if (this.serverJson === undefined) {
                 this.serverJson = json;
@@ -172,10 +170,10 @@ export class CommunicationManager {
         if (json) {
             let newLink: LinkData = {
                 id: getNonce(),
-                sourceId: blockId,
-                targetId: "",
-                sourcePort: portType === "input" ? portIndex : -1,
-                targetPort: portType === "output" ? portIndex : -1,
+                sourceId: portType === "output" ? blockId : "undefined",
+                targetId: portType === "input" ? blockId : "undefined",
+                sourcePort: portType === "output" ? portIndex : -1,
+                targetPort: portType === "input" ? portIndex : -1,
                 sourceX: this.getPortPosition(blockId, portType, portIndex)?.x || 0,
                 sourceY: this.getPortPosition(blockId, portType, portIndex)?.y || 0,
                 targetX: this.getPortPosition(blockId, portType, portIndex)?.x || 0,
