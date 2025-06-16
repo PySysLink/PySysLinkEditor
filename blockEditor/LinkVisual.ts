@@ -220,6 +220,8 @@ export class LinkSegment extends Selectable implements Movable {
         
         this.segmentElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
         this.segmentElement.classList.add('link-line');
+        this.segmentElement.setAttribute("stroke-linejoin", "miter");
+
         if (this._isSelected) {
             this.segmentElement.classList.add('selected');
         }

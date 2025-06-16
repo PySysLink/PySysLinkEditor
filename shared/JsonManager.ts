@@ -95,6 +95,7 @@ export function MergeJsons(
     );
 
     mergedJson = updateLinksNodesPosition(mergedJson);
+    mergedJson = updateLinksDogLeg(mergedJson);
 
 
     return mergedJson;
@@ -155,6 +156,7 @@ export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData): Js
         blocks: json.blocks?.map(block => (block.id === updatedBlock.id ? updatedBlock : block))
     };
     updatedJson = updateLinksNodesPosition(updatedJson);
+    updatedJson = updateLinksDogLeg(updatedJson);
     return updatedJson;
 }
 
@@ -181,6 +183,7 @@ export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: n
         })
     };
     updatedJson = updateLinksNodesPosition(updatedJson);
+    updatedJson = updateLinksDogLeg(updatedJson);
     return updatedJson;
 }
 
@@ -241,6 +244,41 @@ export function updateLinksNodesPosition(json: JsonData): JsonData {
     };
     return updatedJson;
 }
+
+export function updateLinksDogLeg(json: JsonData): JsonData {
+  return {
+    ...json,
+    links: json.links?.map(link => {
+      // 1) recompute source & target port centers
+      const srcPos = getPortPosition(json, link.sourceId, "output", link.sourcePort);
+      const tgtPos = getPortPosition(json, link.targetId,   "input",  link.targetPort);
+      if (!srcPos || !tgtPos) {return link;}  // leave it alone if port not found
+
+      const sourceX = srcPos.x, sourceY = srcPos.y;
+      const targetX = tgtPos.x, targetY = tgtPos.y;
+
+      // 2) compute a mid‑X for the dog‑leg
+      const midX = (sourceX + targetX) / 2;
+
+      // 3) build exactly two intermediate “junction” nodes
+      const intermediateNodes = [
+        { id: `${link.id}_n1`, x: midX, y: sourceY },
+        { id: `${link.id}_n2`, x: midX, y: targetY }
+      ];
+
+      // 4) return the updated link
+      return {
+        ...link,
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+        intermediateNodes
+      };
+    })
+  };
+}
+
 
 export function moveLinkNode(json: JsonData, nodeId: IdType, x: number, y: number): JsonData {
     let updatedJson: JsonData = {
