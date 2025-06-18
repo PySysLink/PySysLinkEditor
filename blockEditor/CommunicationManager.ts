@@ -1,7 +1,8 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, deleteBlockFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkFromJson, updateLinksNodesPosition } from "../shared/JsonManager";
+import { addBlockToJson, addLinkToJson, attachLinkToPort, deleteBlockFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkInJson, updateLinksNodesPosition } from "../shared/JsonManager";
 import { BlockData, IdType, JsonData, LinkData } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
+import { moveLinkSegment } from "../shared/LInkOrganization";
 
 
 export class CommunicationManager {
@@ -160,7 +161,7 @@ export class CommunicationManager {
     public updateLink = (link: LinkData): void => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = updateLinkFromJson(json, link);
+            let newJson = updateLinkInJson(json, link);
             this.setLocalJson(newJson, true);
         }
     };
@@ -284,5 +285,18 @@ export class CommunicationManager {
         };
 
         this.addBlock(newBlock);
+    }
+
+    public moveLinkSegment(link: LinkData,
+        sourceIntermediateNodeId: IdType,
+        targetIntermediateNodeId: IdType,
+        targetPositionX: number,
+        targetPositionY: number) {
+
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = moveLinkSegment(json, link, sourceIntermediateNodeId, targetIntermediateNodeId, targetPositionX, targetPositionY);
+            this.setLocalJson(newJson, true);
+        }
     }
 }

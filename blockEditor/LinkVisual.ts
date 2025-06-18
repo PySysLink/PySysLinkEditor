@@ -9,6 +9,10 @@ import { link } from 'fs';
 
 export class LinkNode extends Selectable implements Movable {
     id: string;
+    protected linkId: IdType;
+    public getLinkId(): IdType {
+        return this.linkId;    
+    }
     public getId(): IdType {
         return this.id;    
     }
@@ -22,8 +26,9 @@ export class LinkNode extends Selectable implements Movable {
         return this.nodeElement;
     }
 
-    constructor (id: string, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
+    constructor (linkId: IdType, id: string, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
         super();
+        this.linkId = linkId;
         this.id = id;
         if (onDelete) {
             this.onDeleteCallbacks.push(onDelete);
@@ -99,13 +104,11 @@ export class LinkNode extends Selectable implements Movable {
 }
 
 export class SourceNode extends LinkNode implements Movable {
-    private linkId: IdType;
     public getId(): IdType {
         return this.linkId + "SourceNode";    
     }
     constructor(linkId: IdType, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
-        super(getNonce(), onDelete);
-        this.linkId = linkId;
+        super(linkId, getNonce(), onDelete);
         this.nodeElement.classList.add('source-node');
     }
 
@@ -148,13 +151,11 @@ export class SourceNode extends LinkNode implements Movable {
     }
 }
 export class TargetNode extends LinkNode {
-    private linkId: IdType;
     public getId(): IdType {
         return this.linkId + "TargetNode";    
     }
     constructor(linkId: IdType, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
-        super(getNonce(), onDelete);
-        this.linkId = linkId;
+        super(linkId, getNonce(), onDelete);
         this.nodeElement.classList.add('target-node');
     }
 
@@ -252,14 +253,17 @@ export class LinkSegment extends Selectable implements Movable {
     };
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        const position = this.getPosition(communicationManager);
-        if (position) {
-            const deltaX = x - position.x;
-            const deltaY = y - position.y;
-            if (!this.sourceLinkNode.isSelected() && !this.targetLinkNode.isSelected()) {
-                this.sourceLinkNode.moveDelta(deltaX, deltaY, communicationManager, selectables);
-                this.targetLinkNode.moveDelta(deltaX, deltaY, communicationManager, selectables);
+        const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.sourceLinkNode.getLinkId());
+        if (linkData) {
+            let sourceId = this.sourceLinkNode.getId();
+            let targetId = this.targetLinkNode.getId();
+            if (this.sourceLinkNode instanceof SourceNode) {
+                sourceId = "SourceNode";
             }
+            if (this.targetLinkNode instanceof TargetNode) {
+                targetId = "TargetNode";
+            }
+            communicationManager.moveLinkSegment(linkData, sourceId, targetId, x, y);
         }
     }
 
@@ -297,7 +301,7 @@ export class LinkVisual {
         this.id = linkData.id;
         this.sourceNode = new SourceNode(this.id, (communicationManager: CommunicationManager) => this.delete(communicationManager));
         this.targetNode = new TargetNode(this.id, (communicationManager: CommunicationManager) => this.delete(communicationManager));
-        this.intermediateNodes = linkData.intermediateNodes.map(nodeData => new LinkNode(nodeData.id, (communicationManager: CommunicationManager) => this.delete(communicationManager)));
+        this.intermediateNodes = linkData.intermediateNodes.map(nodeData => new LinkNode(this.id, nodeData.id, (communicationManager: CommunicationManager) => this.delete(communicationManager)));
         this.onDelete = onDelete;
     }
     

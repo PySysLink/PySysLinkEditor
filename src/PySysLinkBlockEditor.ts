@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { getNonce } from './util';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { BlockData, BlockRenderInformation, IdType, JsonData } from '../shared/JsonTypes';
-import { getBlockData, updateBlockParameters, updateLinksDogLeg, updateLinksNodesPosition } from '../shared/JsonManager';
+import { getBlockData, updateBlockParameters, updateLinksNodesPosition } from '../shared/JsonManager';
 import { PythonServerManager } from './PythonServerManager';
 import { SimulationManager } from './SimulationManager';
 
@@ -504,7 +504,6 @@ export class PySysLinkBlockEditorSession {
 
 		// Update links node positions as before
 		json = updateLinksNodesPosition(json);
-		json = updateLinksDogLeg(json);
 
 		// Replace the entire document
 		const edit = new vscode.WorkspaceEdit();

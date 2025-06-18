@@ -22,6 +22,7 @@ export interface LinkData {
     sourceX: number; sourceY: number;
     targetX: number; targetY: number;
     intermediateNodes: { id: IdType; x: number; y: number }[];
+    visualOriginNodeId?: IdType;
 }
 
 export interface JsonData {
