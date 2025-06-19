@@ -130,38 +130,84 @@ export function moveLinkSegment(
     return updateLinkInJson(json, link);
 }
 
+// Helper: Generate dog leg points between two points (excluding endpoints)
+function generateDogLegSegment(
+    p1: { id: string, x: number, y: number },
+    p2: { id: string, x: number, y: number }
+): { id: string, x: number, y: number }[] {
+    const dogLegs: { id: string, x: number, y: number }[] = [];
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
 
-function updateLinksDogLeg(json: JsonData): JsonData {
-  return {
-    ...json,
-    links: json.links?.map(link => {
-      // 1) recompute source & target port centers
-      const srcPos = getPortPosition(json, link.sourceId, "output", link.sourcePort);
-      const tgtPos = getPortPosition(json, link.targetId,   "input",  link.targetPort);
-      if (!srcPos || !tgtPos) {return link;}  // leave it alone if port not found
+    // If the segment is horizontal or vertical, no dog leg needed
+    if (dx === 0 || dy === 0) {
+        return dogLegs;
+    }
 
-      const sourceX = srcPos.x, sourceY = srcPos.y;
-      const targetX = tgtPos.x, targetY = tgtPos.y;
+    // Generate two dog leg points
+    const midX = (p1.x + p2.x) / 2;
+    const midY = (p1.y + p2.y) / 2;
 
-      // 2) compute a mid‑X for the dog‑leg
-      const midX = (sourceX + targetX) / 2;
+    // Create two dog leg points
+    dogLegs.push({ id: `${p1.id}_dogleg_1`, x: midX, y: p1.y });
+    dogLegs.push({ id: `${p2.id}_dogleg_2`, x: midX, y: p2.y });
 
-      // 3) build exactly two intermediate “junction” nodes
-      const intermediateNodes = [
-        { id: `${link.id}_n1`, x: midX, y: sourceY },
-        { id: `${link.id}_n2`, x: midX, y: targetY }
-      ];
-
-      // 4) return the updated link
-      return {
-        ...link,
-        sourceX,
-        sourceY,
-        targetX,
-        targetY,
-        intermediateNodes
-      };
-    })
-  };
-  
+    return dogLegs;
 }
+
+// Main function to update links' intermediate nodes
+function updateLinksDogLeg(json: JsonData): JsonData {
+    // if (!json.links) {return json;}
+
+    // for (const link of json.links) {
+    //     // Build the full list of points: source, ...intermediate, target
+    //     const points = [
+    //         { x: link.sourceX, y: link.sourceY },
+    //         ...(link.intermediateNodes || []),
+    //         { x: link.targetX, y: link.targetY }
+    //     ];
+
+    //     let newIntermediate: { id: string, x: number, y: number }[] = [];
+
+    //     for (let i = 0; i < points.length - 1; ++i) {
+    //         const a = points[i];
+    //         const b = points[i + 1];
+            
+    //         if (a.x === b.x || a.y === b.y) {
+    //             // Check if id field exists on a
+    //             if ('id' in a) {
+    //                 newIntermediate.push(a);
+    //             }
+    //         } else {
+    //             // Generate dog leg points
+    //             const dogLegs = generateDogLegSegment(
+    //                 { id: 'id' in a ? a.id : 'Source', x: a.x, y: a.y },
+    //                 { id: 'id' in a ? a.id : 'Target', x: b.x, y: b.y }
+    //             );
+                
+    //             // Add the first point (a) and all dog legs
+    //             if ('id' in a) {
+    //                 newIntermediate.push(a);
+    //             } 
+    //             newIntermediate.push(...dogLegs);
+    //         }
+    //     }
+
+    //     for (let i = 0; i < newIntermediate.length-2; ++i) {
+    //         const a = newIntermediate[i];
+    //         const b = newIntermediate[i + 1];
+    //         const c = newIntermediate[i + 2];
+
+    //         // If three points are collinear, remove the middle one
+    //         if ((a.x === b.x && b.x === c.x) || (a.y === b.y && b.y === c.y)) {
+    //             newIntermediate.splice(i + 1, 1);
+    //             i--; // Adjust index after removal
+    //         }
+    //     }
+
+    //     link.intermediateNodes = newIntermediate;
+    // }
+    return json;
+}
+
+

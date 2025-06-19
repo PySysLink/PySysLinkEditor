@@ -1,5 +1,5 @@
 {
-  "version": 15,
+  "version": 10,
   "blocks": [
     {
       "id": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
@@ -41,8 +41,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 1013.3888888888888,
-      "y": 244.5902777777778,
+      "x": 911.9603174603174,
+      "y": 184.59027777777783,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -72,8 +72,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1070.874560080442,
-      "y": 393.62949346405225,
+      "x": 1063.5061390278104,
+      "y": 432.57686188510485,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -107,8 +107,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 827.9829288358699,
-      "y": 418.3669357603182,
+      "x": 736.4710240739647,
+      "y": 393.20026909365146,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -197,142 +197,59 @@
   ],
   "links": [
     {
-      "id": "kyg6FcOSeuYyDJc1ApOT9Dn6qLnKMR0w",
-      "sourceId": "rVku98kvuv74fMESFc2Am01t5OLL3KEu",
-      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
-      "sourcePort": 0,
-      "targetPort": 0,
-      "sourceX": 1133.3888888888887,
-      "sourceY": 264.5902777777778,
-      "targetX": 1286.1324786324785,
-      "targetY": 223.75694444444446,
-      "intermediateNodes": [
-        {
-          "id": "kyg6FcOSeuYyDJc1ApOT9Dn6qLnKMR0w_n1",
-          "x": 1209.7606837606836,
-          "y": 264.5902777777778
-        },
-        {
-          "id": "kyg6FcOSeuYyDJc1ApOT9Dn6qLnKMR0w_n2",
-          "x": 1209.7606837606836,
-          "y": 223.75694444444446
-        }
-      ]
-    },
-    {
-      "id": "v9As1fiwrBeIHl2iQXPziUyvsF91dBSD",
-      "sourceId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
-      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
-      "sourcePort": 0,
-      "targetPort": 1,
-      "sourceX": 1190.874560080442,
-      "sourceY": 413.62949346405225,
-      "targetX": 1286.1324786324785,
-      "targetY": 243.75694444444446,
-      "intermediateNodes": [
-        {
-          "id": "v9As1fiwrBeIHl2iQXPziUyvsF91dBSD_n1",
-          "x": 1238.5035193564604,
-          "y": 413.62949346405225
-        },
-        {
-          "id": "v9As1fiwrBeIHl2iQXPziUyvsF91dBSD_n2",
-          "x": 1238.5035193564604,
-          "y": 243.75694444444446
-        }
-      ]
-    },
-    {
-      "id": "vSA0RE79Nw20HeVG99VHY6XolmTxcH7A",
-      "sourceId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
-      "targetId": "bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do",
-      "sourcePort": 0,
-      "targetPort": 0,
-      "sourceX": 1406.1324786324785,
-      "sourceY": 223.75694444444446,
-      "targetX": 1557.3207070707053,
-      "targetY": 354.1068497474749,
-      "intermediateNodes": [
-        {
-          "id": "vSA0RE79Nw20HeVG99VHY6XolmTxcH7A_n1",
-          "x": 1481.726592851592,
-          "y": 223.75694444444446
-        },
-        {
-          "id": "vSA0RE79Nw20HeVG99VHY6XolmTxcH7A_n2",
-          "x": 1481.726592851592,
-          "y": 354.1068497474749
-        }
-      ]
-    },
-    {
-      "id": "l0Pddu7Q7EtjbDQFe6SXSFuV930xl2yc",
-      "sourceId": "bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do",
-      "targetId": "Of6AFAeXbm40lskvJU6SSKMCOHj8ISQg",
-      "sourcePort": 0,
-      "targetPort": 0,
-      "sourceX": 1677.3207070707053,
-      "sourceY": 354.1068497474749,
-      "targetX": 1851.111111111112,
-      "targetY": 328.67361111111165,
-      "intermediateNodes": [
-        {
-          "id": "l0Pddu7Q7EtjbDQFe6SXSFuV930xl2yc_n1",
-          "x": 1764.2159090909086,
-          "y": 354.1068497474749
-        },
-        {
-          "id": "l0Pddu7Q7EtjbDQFe6SXSFuV930xl2yc_n2",
-          "x": 1764.2159090909086,
-          "y": 328.67361111111165
-        }
-      ]
-    },
-    {
-      "id": "JQejOr3jTwkC5Q8A1nASvwVtFaFwr0Yh",
-      "sourceId": "bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do",
-      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
-      "sourcePort": 0,
-      "targetPort": 2,
-      "sourceX": 1677.3207070707053,
-      "sourceY": 354.1068497474749,
-      "targetX": 1286.1324786324785,
-      "targetY": 263.75694444444446,
-      "intermediateNodes": [
-        {
-          "id": "JQejOr3jTwkC5Q8A1nASvwVtFaFwr0Yh_n1",
-          "x": 1481.726592851592,
-          "y": 354.1068497474749
-        },
-        {
-          "id": "JQejOr3jTwkC5Q8A1nASvwVtFaFwr0Yh_n2",
-          "x": 1481.726592851592,
-          "y": 263.75694444444446
-        }
-      ]
-    },
-    {
-      "id": "HQOPcG56s6pBR909N5dqr1vE88xQC2cv",
+      "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp",
       "sourceId": "xSd0egtPgxMwth16iFs3nG2pXHXOVX1j",
       "targetId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 947.9829288358699,
-      "sourceY": 438.3669357603182,
-      "targetX": 1070.874560080442,
-      "targetY": 413.62949346405225,
+      "sourceX": 856.4710240739647,
+      "sourceY": 413.20026909365146,
+      "targetX": 1063.5061390278104,
+      "targetY": 452.57686188510485,
       "intermediateNodes": [
         {
-          "id": "HQOPcG56s6pBR909N5dqr1vE88xQC2cv_n1",
-          "x": 1009.428744458156,
-          "y": 438.3669357603182
+          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_auto_source_1750352863357",
+          "x": 897.8995955025359,
+          "y": 413.20026909365146
         },
         {
-          "id": "HQOPcG56s6pBR909N5dqr1vE88xQC2cv_n2",
-          "x": 1009.428744458156,
-          "y": 413.62949346405225
+          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_auto_source_1750352861790",
+          "x": 897.8995955025359,
+          "y": 358.05741195079446
+        },
+        {
+          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_n1",
+          "x": 966.1424277047337,
+          "y": 358.05741195079446
+        },
+        {
+          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_n2",
+          "x": 966.1424277047337,
+          "y": 487.96147726972004
+        },
+        {
+          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_auto_target_1750352868073",
+          "x": 1043.5061390278104,
+          "y": 487.96147726972004
+        },
+        {
+          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_auto_target_1750352872623",
+          "x": 1043.5061390278104,
+          "y": 452.57686188510485
         }
       ]
+    },
+    {
+      "id": "gJjdWCjblhxuJaiVAh8LEeZN264tvDsU",
+      "sourceId": "rVku98kvuv74fMESFc2Am01t5OLL3KEu",
+      "targetId": "undefined",
+      "sourcePort": 0,
+      "targetPort": -1,
+      "sourceX": 1031.9603174603174,
+      "sourceY": 204.59027777777783,
+      "targetX": 1031.9603174603174,
+      "targetY": 204.59027777777783,
+      "intermediateNodes": []
     }
   ],
   "simulation_configuration": "/home/pello/pysyslink-editor/.debug_root/exampleFile/options.yaml"

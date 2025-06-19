@@ -337,6 +337,32 @@ export class LinkVisual {
                 newSegments.push(new LinkSegment(this.intermediateNodes[this.intermediateNodes.length - 1], this.targetNode, () => this.onDelete(this), communicationManager));
             }
         }
+        this.segments.forEach(segment => {
+            if (segment.isSelected()) {
+                if (segment.sourceLinkNode instanceof SourceNode) {
+                    newSegments.forEach(newSegment => {
+                        if (newSegment.targetLinkNode.getId() === segment.targetLinkNode.getId()) {
+                            newSegment.select();
+                        }
+                    });
+                }
+                if (segment.targetLinkNode instanceof TargetNode) {
+                    newSegments.forEach(newSegment => {
+                        if (newSegment.sourceLinkNode.getId() === segment.sourceLinkNode.getId()) {
+                            newSegment.select();
+                        }
+                    });
+                }
+                newSegments.forEach(newSegment => {
+                    if (newSegment.getId() === segment.getId()) {
+                        newSegment.select();
+                    }
+                });
+            }
+        });
+        console.log(`New segments: ${newSegments.map(segment => segment.getId()).join(", ")}`);
+        console.log(`Old segments: ${this.segments.map(segment => segment.getId()).join(", ")}`);
+        // Remove segments that are not in the new segments
         this.segments = newSegments;
     }
 
@@ -413,7 +439,23 @@ export class LinkVisual {
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         this.sourceNode.updateFromJson(json, communicationManager);
         this.targetNode.updateFromJson(json, communicationManager);
-        this.intermediateNodes.forEach(node => node.updateFromJson(json, communicationManager));
+        let intermediateNodes = json.links?.find(link => link.id = this.id)?.intermediateNodes.map(nodeData => new LinkNode(this.id, nodeData.id, (communicationManager: CommunicationManager) => this.delete(communicationManager)));
+        if (intermediateNodes) {
+            for (let node of this.intermediateNodes) {
+                const existingNode = intermediateNodes.find(n => n.id === node.id);
+                if (existingNode) {
+                    node.updateFromJson(json, communicationManager);
+                } else {
+                    this.intermediateNodes = this.intermediateNodes.filter(n => n.id !== node.id);
+                }
+            }
+            for (let i = 0; i < intermediateNodes.length; i++) {
+                if (!this.intermediateNodes.some(n => n.id === intermediateNodes[i].id)) {
+                    this.intermediateNodes.splice(i, 0, intermediateNodes[i]);
+                }
+            }
+        }
+        this.updateSegments(communicationManager);
         this.segments.forEach(segment => segment.updateFromJson(json, communicationManager));
     }
 
