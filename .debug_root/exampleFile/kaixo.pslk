@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 41,
   "blocks": [
     {
       "id": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
@@ -41,8 +41,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 911.9603174603174,
-      "y": 184.59027777777783,
+      "x": 850.468057398398,
+      "y": 91.5128783969729,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -72,8 +72,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1063.5061390278104,
-      "y": 432.57686188510485,
+      "x": 1175.102292873964,
+      "y": 417.8268618851048,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -164,8 +164,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1557.3207070707053,
-      "y": 334.1068497474749,
+      "x": 1643.628399378397,
+      "y": 405.64531128593643,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -197,59 +197,99 @@
   ],
   "links": [
     {
-      "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp",
+      "id": "YEEDqIGHrMLWt07eUb9UrbIQ4MWdaI9t",
+      "sourceId": "undefined",
+      "targetId": "Of6AFAeXbm40lskvJU6SSKMCOHj8ISQg",
+      "sourcePort": -1,
+      "targetPort": 0,
+      "sourceX": 1851.111111111112,
+      "sourceY": 328.67361111111165,
+      "targetX": 1851.111111111112,
+      "targetY": 328.67361111111165,
+      "intermediateNodes": []
+    },
+    {
+      "id": "rjqQOW1PypI3wE9Iea3hevB5pgWd17ny",
       "sourceId": "xSd0egtPgxMwth16iFs3nG2pXHXOVX1j",
       "targetId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
       "sourcePort": 0,
       "targetPort": 0,
       "sourceX": 856.4710240739647,
       "sourceY": 413.20026909365146,
-      "targetX": 1063.5061390278104,
-      "targetY": 452.57686188510485,
+      "targetX": 1175.102292873964,
+      "targetY": 437.8268618851048,
       "intermediateNodes": [
         {
-          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_auto_source_1750352863357",
-          "x": 897.8995955025359,
+          "id": "rjqQOW1PypI3wE9Iea3hevB5pgWd17ny_auto_source_1750361238677",
+          "x": 891.4710240739647,
           "y": 413.20026909365146
         },
         {
-          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_auto_source_1750352861790",
-          "x": 897.8995955025359,
-          "y": 358.05741195079446
+          "id": "rjqQOW1PypI3wE9Iea3hevB5pgWd17ny_auto_source_1750361235161",
+          "x": 891.4710240739647,
+          "y": 370.70026909365146
         },
         {
-          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_n1",
-          "x": 966.1424277047337,
-          "y": 358.05741195079446
+          "id": "Source",
+          "x": 958.9710240739647,
+          "y": 370.70026909365146
         },
         {
-          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_n2",
-          "x": 966.1424277047337,
-          "y": 487.96147726972004
+          "id": "sbmdbKCTd3gyF4v2PdbFHg1bgxRtbBgi",
+          "x": 958.9710240739647,
+          "y": 528.4502690936514
         },
         {
-          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_auto_target_1750352868073",
-          "x": 1043.5061390278104,
-          "y": 487.96147726972004
+          "id": "jesJWS2cjO93RdqBrN3EWeXDAQGuYGqZ",
+          "x": 1040.2210240739646,
+          "y": 528.4502690936514
         },
         {
-          "id": "hCCOuKwSusZyyJM8FBCkNirM8qu92Fdp_auto_target_1750352872623",
-          "x": 1043.5061390278104,
-          "y": 452.57686188510485
+          "id": "Target",
+          "x": 1040.2210240739646,
+          "y": 431.20026909365146
+        },
+        {
+          "id": "Target",
+          "x": 1171.352292873964,
+          "y": 431.20026909365146
+        },
+        {
+          "id": "Target",
+          "x": 1171.352292873964,
+          "y": 476.5768618851048
+        },
+        {
+          "id": "Target",
+          "x": 1172.602292873964,
+          "y": 476.5768618851048
+        },
+        {
+          "id": "Target",
+          "x": 1172.602292873964,
+          "y": 465.3268618851048
+        },
+        {
+          "id": "Target",
+          "x": 1173.852292873964,
+          "y": 465.3268618851048
+        },
+        {
+          "id": "Target",
+          "x": 1173.852292873964,
+          "y": 451.5768618851048
+        },
+        {
+          "id": "Target",
+          "x": 1175.102292873964,
+          "y": 451.5768618851048
+        },
+        {
+          "id": "Target",
+          "x": 1175.102292873964,
+          "y": 446.5768618851048
         }
       ]
-    },
-    {
-      "id": "gJjdWCjblhxuJaiVAh8LEeZN264tvDsU",
-      "sourceId": "rVku98kvuv74fMESFc2Am01t5OLL3KEu",
-      "targetId": "undefined",
-      "sourcePort": 0,
-      "targetPort": -1,
-      "sourceX": 1031.9603174603174,
-      "sourceY": 204.59027777777783,
-      "targetX": 1031.9603174603174,
-      "targetY": 204.59027777777783,
-      "intermediateNodes": []
     }
   ],
   "simulation_configuration": "/home/pello/pysyslink-editor/.debug_root/exampleFile/options.yaml"

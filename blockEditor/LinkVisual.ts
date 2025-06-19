@@ -360,9 +360,6 @@ export class LinkVisual {
                 });
             }
         });
-        console.log(`New segments: ${newSegments.map(segment => segment.getId()).join(", ")}`);
-        console.log(`Old segments: ${this.segments.map(segment => segment.getId()).join(", ")}`);
-        // Remove segments that are not in the new segments
         this.segments = newSegments;
     }
 
@@ -439,22 +436,33 @@ export class LinkVisual {
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         this.sourceNode.updateFromJson(json, communicationManager);
         this.targetNode.updateFromJson(json, communicationManager);
-        let intermediateNodes = json.links?.find(link => link.id = this.id)?.intermediateNodes.map(nodeData => new LinkNode(this.id, nodeData.id, (communicationManager: CommunicationManager) => this.delete(communicationManager)));
-        if (intermediateNodes) {
-            for (let node of this.intermediateNodes) {
-                const existingNode = intermediateNodes.find(n => n.id === node.id);
-                if (existingNode) {
-                    node.updateFromJson(json, communicationManager);
-                } else {
-                    this.intermediateNodes = this.intermediateNodes.filter(n => n.id !== node.id);
-                }
+        // Sync intermediateNodes with json
+        const jsonNodes = json.links?.find(link => link.id === this.id)?.intermediateNodes ?? [];
+        const newNodes: LinkNode[] = [];
+
+        for (let i = 0; i < jsonNodes.length; i++) {
+            const jsonNode = jsonNodes[i];
+            // Try to find an existing node with the same id
+            let existingNode = this.intermediateNodes.find(node => node.id === jsonNode.id);
+            if (!existingNode) {
+                // Create new node if not found
+                existingNode = new LinkNode(this.id, jsonNode.id, (cm: CommunicationManager) => this.delete(cm));
             }
-            for (let i = 0; i < intermediateNodes.length; i++) {
-                if (!this.intermediateNodes.some(n => n.id === intermediateNodes[i].id)) {
-                    this.intermediateNodes.splice(i, 0, intermediateNodes[i]);
-                }
-            }
+            newNodes.push(existingNode);
+            existingNode.updateFromJson(json, communicationManager);
         }
+
+        // Remove SVG elements for nodes that are no longer present
+        const removedNodes = this.intermediateNodes.filter(node => !newNodes.includes(node));
+        removedNodes.forEach(node => {
+            if (node.nodeElement && node.nodeElement.parentNode) {
+                node.nodeElement.parentNode.removeChild(node.nodeElement);
+            }
+        });
+
+        this.intermediateNodes = newNodes;
+
+        // Update segments after nodes are synced
         this.updateSegments(communicationManager);
         this.segments.forEach(segment => segment.updateFromJson(json, communicationManager));
     }

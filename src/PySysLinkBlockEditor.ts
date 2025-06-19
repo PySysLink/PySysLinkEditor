@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import { getNonce } from './util';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { BlockData, BlockRenderInformation, IdType, JsonData } from '../shared/JsonTypes';
 import { getBlockData, updateBlockParameters, updateLinksNodesPosition } from '../shared/JsonManager';
 import { PythonServerManager } from './PythonServerManager';
 import { SimulationManager } from './SimulationManager';
+import { getNonce } from '../shared/util';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private sessions = new Map<string, PySysLinkBlockEditorSession>();

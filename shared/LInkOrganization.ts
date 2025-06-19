@@ -1,5 +1,6 @@
 import { getPortPosition, updateLinkInJson } from "./JsonManager";
 import { IdType, JsonData, LinkData } from "./JsonTypes";
+import { getNonce } from "./util";
 
 export function updateLinksAfterBlockMove(json: JsonData): JsonData {
     return updateLinksDogLeg(json);
@@ -130,83 +131,156 @@ export function moveLinkSegment(
     return updateLinkInJson(json, link);
 }
 
-// Helper: Generate dog leg points between two points (excluding endpoints)
-function generateDogLegSegment(
-    p1: { id: string, x: number, y: number },
-    p2: { id: string, x: number, y: number }
-): { id: string, x: number, y: number }[] {
-    const dogLegs: { id: string, x: number, y: number }[] = [];
-    const dx = p2.x - p1.x;
-    const dy = p2.y - p1.y;
-
-    // If the segment is horizontal or vertical, no dog leg needed
-    if (dx === 0 || dy === 0) {
-        return dogLegs;
+function realignPoints(
+    preA: Point | undefined,
+    a: FullPoint,
+    b: FullPoint,
+    postB: Point | undefined
+): FullPoint[] {
+    let isALinkHorizontal: boolean | undefined = undefined;
+    if (preA) {
+        isALinkHorizontal = a.y === preA.y;
+        if (!isALinkHorizontal && a.x !== preA.x) {
+            throw new Error(`Points A and preA are not aligned horizontally or vertically: ${JSON.stringify(a)}, ${JSON.stringify(preA)}`);
+        }
+    } 
+    let isBLinkHorizontal: boolean | undefined = undefined;
+    if (postB) {
+        isBLinkHorizontal = b.y === postB.y;
+        if (!isBLinkHorizontal && b.x !== postB.x) {
+            throw new Error(`Points B and postB are not aligned horizontally or vertically: ${JSON.stringify(b)}, ${JSON.stringify(postB)}`);
+        }
     }
 
-    // Generate two dog leg points
-    const midX = (p1.x + p2.x) / 2;
-    const midY = (p1.y + p2.y) / 2;
+    if (isALinkHorizontal === undefined) {
+        if (isBLinkHorizontal === undefined) {
+            // Both points are source and target
+            return [a,
+                    { id: getNonce(), x: a.x, y: (a.y + b.y)/2 },
+                    { id: getNonce(), x: b.x, y: (a.y + b.y)/2 },
+                    b];
+        } else if (isBLinkHorizontal) {
+            // A is source, B is horizontal
+            return [a,
+                    { id: getNonce(), x: a.x, y: b.y },
+                    b];
+        } else {
+            // A is source, B is vertical
+            b.x = a.x;
+            return [a, b];
+        }
+    }
 
-    // Create two dog leg points
-    dogLegs.push({ id: `${p1.id}_dogleg_1`, x: midX, y: p1.y });
-    dogLegs.push({ id: `${p2.id}_dogleg_2`, x: midX, y: p2.y });
+    if (isBLinkHorizontal === undefined) {
+        if (isALinkHorizontal) {
+            // A is horizontal, B is target
+            return [a,
+                    { id: "AutoDogLegLeft", x: b.x, y: a.y },
+                    b];
+        } else {
+            // A is vertical, B is target
+            a.x = b.x;
+            return [a, b];
+        }
+    }
 
-    return dogLegs;
+    if (isALinkHorizontal && isBLinkHorizontal) {
+        // Both points are horizontal
+        a.x = b.x;
+        return [a, b];
+    } else if (isALinkHorizontal && !isBLinkHorizontal) {
+        // A is horizontal, B is vertical
+        a.x = b.x;
+        return [a, b];
+    } else if (!isALinkHorizontal && isBLinkHorizontal) {
+        // A is vertical, B is horizontal
+        a.y = b.y;
+        return [a, b];
+    } else {
+        // Both points are vertical
+        a.y = b.y;  
+        return [a, b];
+    }
 }
+
+type Point = {
+    id: IdType;
+    x: number;
+    y: number;
+} | {
+    x: number;
+    y: number;
+}
+
+type FullPoint = {
+    id: IdType;
+    x: number;
+    y: number;
+};
 
 // Main function to update links' intermediate nodes
 function updateLinksDogLeg(json: JsonData): JsonData {
-    // if (!json.links) {return json;}
+    if (!json.links) {return json;}
 
-    // for (const link of json.links) {
-    //     // Build the full list of points: source, ...intermediate, target
-    //     const points = [
-    //         { x: link.sourceX, y: link.sourceY },
-    //         ...(link.intermediateNodes || []),
-    //         { x: link.targetX, y: link.targetY }
-    //     ];
+    for (const link of json.links) {
+        // Build the full list of points: source, ...intermediate, target
+        const points: Point[] = [
+            { x: link.sourceX, y: link.sourceY },
+            ...(link.intermediateNodes || []),
+            { x: link.targetX, y: link.targetY }
+        ];
 
-    //     let newIntermediate: { id: string, x: number, y: number }[] = [];
+        let newIntermediate: { id: string, x: number, y: number }[] = [];
 
-    //     for (let i = 0; i < points.length - 1; ++i) {
-    //         const a = points[i];
-    //         const b = points[i + 1];
+        for (let i = 0; i < points.length - 1; ++i) {
+            const a = points[i];
+            const b = points[i + 1];
             
-    //         if (a.x === b.x || a.y === b.y) {
-    //             // Check if id field exists on a
-    //             if ('id' in a) {
-    //                 newIntermediate.push(a);
-    //             }
-    //         } else {
-    //             // Generate dog leg points
-    //             const dogLegs = generateDogLegSegment(
-    //                 { id: 'id' in a ? a.id : 'Source', x: a.x, y: a.y },
-    //                 { id: 'id' in a ? a.id : 'Target', x: b.x, y: b.y }
-    //             );
+            if (a.x === b.x || a.y === b.y) {
+                // Check if id field exists on a
+                if ('id' in a) {
+                    newIntermediate.push(a);
+                }
+            } else {
+                // Generate dog leg points
+                let preA: Point | undefined = undefined;
+                if (i >= 1) {
+                    preA = points[i - 1];
+                }
+                let postB: Point | undefined = undefined;
+                if (i + 2 < points.length) {
+                    postB = points[i + 2];
+                }
+
+                const dogLegs = realignPoints(
+                    preA,
+                    { id: 'id' in a ? a.id : 'Source', x: a.x, y: a.y },
+                    { id: 'id' in a ? a.id : 'Target', x: b.x, y: b.y },
+                    postB
+                );
                 
-    //             // Add the first point (a) and all dog legs
-    //             if ('id' in a) {
-    //                 newIntermediate.push(a);
-    //             } 
-    //             newIntermediate.push(...dogLegs);
-    //         }
-    //     }
+                // Add the first point (a) and all dog legs
+                if ('id' in a) {
+                    newIntermediate.push(a);
+                } 
+                newIntermediate.push(...dogLegs);
+            }
+        }
 
-    //     for (let i = 0; i < newIntermediate.length-2; ++i) {
-    //         const a = newIntermediate[i];
-    //         const b = newIntermediate[i + 1];
-    //         const c = newIntermediate[i + 2];
+        for (let i = 0; i < newIntermediate.length-2; ++i) {
+            const a = newIntermediate[i];
+            const b = newIntermediate[i + 1];
+            const c = newIntermediate[i + 2];
 
-    //         // If three points are collinear, remove the middle one
-    //         if ((a.x === b.x && b.x === c.x) || (a.y === b.y && b.y === c.y)) {
-    //             newIntermediate.splice(i + 1, 1);
-    //             i--; // Adjust index after removal
-    //         }
-    //     }
+            // If three points are collinear, remove the middle one
+            if ((a.x === b.x && b.x === c.x) || (a.y === b.y && b.y === c.y)) {
+                newIntermediate.splice(i + 1, 1);
+                i--; // Adjust index after removal
+            }
+        }
 
-    //     link.intermediateNodes = newIntermediate;
-    // }
+        link.intermediateNodes = newIntermediate;
+    }
     return json;
 }
 
