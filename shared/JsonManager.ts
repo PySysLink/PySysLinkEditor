@@ -251,26 +251,6 @@ export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
 }
 
 
-export function moveLinkNode(json: JsonData, nodeId: IdType, x: number, y: number): JsonData {
-    let updatedJson: JsonData = {
-        ...json,
-        links: json.links?.map(link => {
-            if (link.intermediateNodes) {
-                link.intermediateNodes = link.intermediateNodes.map(node => {
-                    if (node.id === nodeId) {
-                        node.x = x;
-                        node.y = y;
-                    }
-                    return node;
-                });
-            }
-            return link;
-        })
-    };
-    updateLinksAfterNodesUpdated(updatedJson);
-    return updatedJson;
-}
-
 export function consolidateLinkNodes(json: JsonData): JsonData {
     json = updateLinksAfterNodesConsolidation(json);
     return json;
