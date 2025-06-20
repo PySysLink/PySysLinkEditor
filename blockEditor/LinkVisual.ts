@@ -340,13 +340,21 @@ export class LinkVisual {
         this.segments.forEach(segment => {
             if (segment.isSelected()) {
                 if (segment.sourceLinkNode instanceof SourceNode) {
-                    newSegments.forEach(newSegment => {
-                        if (newSegment.targetLinkNode.getId() === segment.targetLinkNode.getId()) {
-                            newSegment.select();
-                        }
-                    });
+                    if (segment.targetLinkNode instanceof TargetNode) {
+                        newSegments.forEach(newSegment => {
+                            if (!(newSegment.sourceLinkNode instanceof SourceNode) && !(newSegment.targetLinkNode instanceof TargetNode)) {
+                                newSegment.select();
+                            }
+                        });
+                    } else {
+                        newSegments.forEach(newSegment => {
+                            if (newSegment.targetLinkNode.getId() === segment.targetLinkNode.getId()) {
+                                newSegment.select();
+                            }
+                        });
+                    }
                 }
-                if (segment.targetLinkNode instanceof TargetNode) {
+                else if (segment.targetLinkNode instanceof TargetNode) {
                     newSegments.forEach(newSegment => {
                         if (newSegment.sourceLinkNode.getId() === segment.sourceLinkNode.getId()) {
                             newSegment.select();

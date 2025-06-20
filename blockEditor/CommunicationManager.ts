@@ -1,4 +1,4 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, deleteBlockFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkInJson, updateLinksNodesPosition } from "../shared/JsonManager";
+import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, deleteBlockFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkInJson, updateLinksSourceTargetPosition } from "../shared/JsonManager";
 import { BlockData, IdType, JsonData, LinkData } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
@@ -71,6 +71,7 @@ export class CommunicationManager {
         this.localJson = json;
         this.vscode.setState({ text: JSON.stringify(this.localJson) });
         if (!this.freezed && sendToServer) {
+            this.localJson = consolidateLinkNodes(this.localJson);
             this.sendJsonToServer(this.localJson);
         } 
         this.localJsonChangedCallbacks.forEach(callback => {

@@ -1,5 +1,5 @@
 import { IdType, JsonData, BlockData, LinkData } from "./JsonTypes";
-import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesUpdated } from "./LInkOrganization";
+import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
 
 export function MergeJsons(
     jsonBase: JsonData,
@@ -95,7 +95,8 @@ export function MergeJsons(
         jsonChild2.links
     );
 
-    mergedJson = updateLinksNodesPosition(mergedJson);
+    mergedJson = updateLinksSourceTargetPosition(mergedJson);
+
     mergedJson = updateLinksAfterMerge(mergedJson);
 
 
@@ -156,8 +157,8 @@ export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData): Js
         ...json,
         blocks: json.blocks?.map(block => (block.id === updatedBlock.id ? updatedBlock : block))
     };
-    updatedJson = updateLinksNodesPosition(updatedJson);
-    updatedJson = updateLinksAfterBlockUpdate(updatedJson);
+    updatedJson = updateLinksSourceTargetPosition(updatedJson);
+    updatedJson = updateLinksAfterBlockUpdate(updatedJson, updatedBlock.id);
     return updatedJson;
 }
 
@@ -184,8 +185,10 @@ export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: n
             return block;
         })
     };
+
+    updatedJson = updateLinksSourceTargetPosition(updatedJson);
+
     updatedJson = updateLinksAfterBlockMove(updatedJson, blockId);
-    updatedJson = updateLinksNodesPosition(updatedJson);
     return updatedJson;
 }
 
@@ -227,7 +230,7 @@ export function getPortPosition(json: JsonData, blockId: IdType, portType: "inpu
         return undefined;
     };
 
-export function updateLinksNodesPosition(json: JsonData): JsonData {
+export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
     let updatedJson: JsonData = {
         ...json,
         links: json.links?.map(link => {
@@ -244,7 +247,6 @@ export function updateLinksNodesPosition(json: JsonData): JsonData {
             return link;
         })
     };
-    updatedJson = updateLinksAfterNodesUpdated(updatedJson);
     return updatedJson;
 }
 
@@ -265,7 +267,13 @@ export function moveLinkNode(json: JsonData, nodeId: IdType, x: number, y: numbe
             return link;
         })
     };
+    updateLinksAfterNodesUpdated(updatedJson);
     return updatedJson;
+}
+
+export function consolidateLinkNodes(json: JsonData): JsonData {
+    json = updateLinksAfterNodesConsolidation(json);
+    return json;
 }
 
 export function moveLinkDelta(json: JsonData, linkId: IdType, deltaX: number, deltaY: number): JsonData {

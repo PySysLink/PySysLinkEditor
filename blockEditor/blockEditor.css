@@ -223,8 +223,18 @@ body.pysyslink-light {
     z-index: 4;
 }
 
+.link-line:hover {
+  stroke-width: 4; /* Visual + clickable */
+  stroke: var(--pysyslink-link-highlight);
+}
+
 .link-line.selected {
+    stroke-width: 2;
     stroke: var(--pysyslink-link-selected);
+}
+
+.link-line.selected:hover {
+    stroke-width: 4; /* Thicker line on hover */
 }
 
 .link-node {

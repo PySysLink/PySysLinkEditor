@@ -2,14 +2,16 @@ import { getPortPosition, updateLinkInJson } from "./JsonManager";
 import { IdType, JsonData, LinkData } from "./JsonTypes";
 import { getNonce } from "./util";
 
+const distanceToJoin = 1.1;
+
 export function updateLinksAfterBlockMove(json: JsonData, blockId: IdType): JsonData {
     console.log("updateLinksAfterBlockMove called");
-    return updateLinksDogLeg(json, blockId);
+    return updateLinksDogLeg(json, blockId, false);
 }
 
-export function updateLinksAfterBlockUpdate(json: JsonData): JsonData {
+export function updateLinksAfterBlockUpdate(json: JsonData, blockId: IdType): JsonData {
     console.log("updateLinksAfterBlockUpdate called");
-    return updateLinksDogLeg(json);
+    return updateLinksDogLeg(json, blockId, false);
 }
 
 export function updateLinksAfterMerge(json: JsonData): JsonData {
@@ -19,7 +21,12 @@ export function updateLinksAfterMerge(json: JsonData): JsonData {
 
 export function updateLinksAfterNodesUpdated(json: JsonData): JsonData {
     console.log("updateLinksAfterNodesUpdated called");
-    return updateLinksDogLeg(json);
+    return updateLinksDogLeg(json, undefined, false);
+}
+
+export function updateLinksAfterNodesConsolidation(json: JsonData): JsonData {
+    console.log("updateLinksAfterNodesConsolidation called");
+    return updateLinksDogLeg(json, undefined, true);
 }
 
 
@@ -34,23 +41,39 @@ export function moveLinkSegment(
     let nodes = link.intermediateNodes ?? [];
 
     if (sourceIntermediateNodeId === "SourceNode") {
-        if (nodes[0].id === targetIntermediateNodeId) {
-            nodes.splice(0, 0, {
-                id: `${link.id}_auto_source_${Date.now()}`,
+        if (nodes.length === 0) {
+            nodes.push({
+                id: getNonce(),
                 x: link.sourceX,
                 y: link.sourceY
             });
+            console.log(`Added source node at (${link.sourceX}, ${link.sourceY})`);
+        } else if (nodes[0].id === targetIntermediateNodeId) {
+            nodes.splice(0, 0, {
+                id: getNonce(),
+                x: link.sourceX,
+                y: link.sourceY
+            });
+            console.log(`Added source node at (${link.sourceX}, ${link.sourceY})`);
         }
         sourceIntermediateNodeId = nodes[0].id;
     }
 
     if (targetIntermediateNodeId === "TargetNode") {
-        if (nodes[nodes.length - 1].id === sourceIntermediateNodeId) {
+        if (nodes.length === 0) {
             nodes.push({
-                id: `${link.id}_auto_target_${Date.now()}`,
+                id: getNonce(),
                 x: link.targetX,
                 y: link.targetY
             });
+            console.log(`Added target node at (${link.targetX}, ${link.targetY})`);
+        } else if (nodes[nodes.length - 1].id === sourceIntermediateNodeId) {
+            nodes.push({
+                id: getNonce(),
+                x: link.targetX,
+                y: link.targetY
+            });
+            console.log(`Added target node at (${link.targetX}, ${link.targetY})`);
         }
         targetIntermediateNodeId = nodes[nodes.length - 1].id;
     }
@@ -69,8 +92,8 @@ export function moveLinkSegment(
 
 
     // Check alignment
-    const isHorizontal = nodes[i1].y === nodes[i2].y;
-    const isVertical = nodes[i1].x === nodes[i2].x;
+    const isHorizontal = Math.abs(nodes[i1].y - nodes[i2].y) < distanceToJoin;
+    const isVertical = Math.abs(nodes[i1].x - nodes[i2].x) < distanceToJoin;
 
     if (!isHorizontal && !isVertical) {
         throw new Error(`Segment is not aligned horizontally or vertically`);
@@ -85,8 +108,8 @@ export function moveLinkSegment(
         : nodes[i2 + 1];
 
     // Fix corner before segment
-    const bendInBefore = (isHorizontal && prevPoint.x !== nodes[i1].x) ||
-                         (isVertical && prevPoint.y !== nodes[i1].y);
+    const bendInBefore = (isHorizontal && Math.abs(prevPoint.x - nodes[i1].x) >= distanceToJoin) ||
+                         (isVertical && Math.abs(prevPoint.y - nodes[i1].y) >= distanceToJoin);
 
     let beforeBend: { id: IdType; x: number; y: number } | undefined = undefined;
     if (bendInBefore) {
@@ -98,8 +121,8 @@ export function moveLinkSegment(
     }
 
     // Fix corner after segment
-    const bendInAfter = (isHorizontal && nextPoint.x !== nodes[i2].x) ||
-                        (isVertical && nextPoint.y !== nodes[i2].y);
+    const bendInAfter = (isHorizontal && Math.abs(nextPoint.x - nodes[i2].x) >= distanceToJoin) ||
+                        (isVertical && Math.abs(nextPoint.y - nodes[i2].y) >= distanceToJoin);
 
     let afterBend: { id: IdType; x: number; y: number } | undefined = undefined;
     if (bendInAfter) {
@@ -144,15 +167,15 @@ function realignPoints(
 ): FullPoint[] {
     let isALinkHorizontal: boolean | undefined = undefined;
     if (preA) {
-        isALinkHorizontal = a.y === preA.y;
-        if (!isALinkHorizontal && a.x !== preA.x) {
+        isALinkHorizontal = Math.abs(a.y - preA.y) < distanceToJoin;
+        if (!isALinkHorizontal && Math.abs(a.x - preA.x) >= distanceToJoin) {
             throw new Error(`Points A and preA are not aligned horizontally or vertically: ${JSON.stringify(a)}, ${JSON.stringify(preA)}`);
         }
     } 
     let isBLinkHorizontal: boolean | undefined = undefined;
     if (postB) {
-        isBLinkHorizontal = b.y === postB.y;
-        if (!isBLinkHorizontal && b.x !== postB.x) {
+        isBLinkHorizontal = Math.abs(b.y - postB.y) < distanceToJoin;
+        if (!isBLinkHorizontal && Math.abs(b.x - postB.x) >= distanceToJoin) {
             // B is between two non aligned segments
             if (isALinkHorizontal === undefined) {
                 // A is source, B is between two non-aligned segments
@@ -201,7 +224,7 @@ function realignPoints(
             // A is horizontal, B is target
             console.log(`A is horizontal, B is target: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
             return [a,
-                    { id: "AutoDogLegLeft", x: a.x, y: b.y },
+                    { id: getNonce(), x: a.x, y: b.y },
                     b];
         } else {
             // A is vertical, B is target
@@ -250,7 +273,7 @@ type FullPoint = {
 };
 
 // Main function to update links' intermediate nodes
-function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = undefined): JsonData {
+function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = undefined, removeColinear: boolean = true): JsonData {
     if (!json.links) {return json;}
 
     for (const link of json.links) {
@@ -275,7 +298,7 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
             const a = points[i];
             const b = points[i + 1];
             
-            if (a.x === b.x || a.y === b.y) {
+            if (Math.abs(a.x - b.x) < distanceToJoin || Math.abs(a.y - b.y) < distanceToJoin) {
                 ;
             } else {
                 // Generate dog leg points
@@ -314,18 +337,27 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
             }
         }
 
-        for (let i = 0; i < points.length-2; ++i) {
-            const a = points[i];
-            const b = points[i + 1];
-            const c = points[i + 2];
+        if (removeColinear) {
+            for (let i = 0; i < points.length-2; ++i) {
+                const a = points[i];
+                const b = points[i + 1];
+                const c = points[i + 2];
 
-            // If three points are collinear, remove the middle one
-            if ((a.x === b.x && b.x === c.x) || (a.y === b.y && b.y === c.y)) {
-                console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
-                points.splice(i + 1, 1);
-                i--; // Adjust index after removal
+                // If three points are collinear, remove the middle one
+                if ((Math.abs(a.x - b.x) < distanceToJoin && Math.abs(b.x - c.x) < distanceToJoin)) {
+                    console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
+                    points.splice(i + 1, 1);
+                    points[i + 1].x = a.x;
+                    i--; // Adjust index after removal
+                } else if ((Math.abs(a.y - b.y) < distanceToJoin && Math.abs(b.y - c.y) < distanceToJoin)) {
+                    console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
+                    points.splice(i + 1, 1);
+                    points[i + 1].y = a.y;
+                    i--; // Adjust index after removal
+                }
             }
         }
+        
 
         // Remove last point and convert to FullPoint
         points.pop();
