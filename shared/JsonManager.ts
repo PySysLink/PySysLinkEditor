@@ -184,8 +184,8 @@ export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: n
             return block;
         })
     };
+    updatedJson = updateLinksAfterBlockMove(updatedJson, blockId);
     updatedJson = updateLinksNodesPosition(updatedJson);
-    updatedJson = updateLinksAfterBlockMove(updatedJson);
     return updatedJson;
 }
 

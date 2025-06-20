@@ -130,7 +130,7 @@ export class PySysLinkBlockEditorSession {
 
 		switch (msg.type) {
 			case 'print':
-				console.log(`[python server]: ${msg.message}`);
+				// console.log(`[python server]: ${msg.message}`);
 				break;
 			case 'notification':
 				// In our protocol, notifications carry an `event` + `data`
