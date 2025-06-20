@@ -1,13 +1,13 @@
 {
-  "version": 51,
+  "version": 260,
   "blocks": [
     {
       "id": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 536.7991452991448,
-      "y": 92.75694444444443,
+      "x": 410.64529914529794,
+      "y": 141.98771367521357,
       "inputPorts": 3,
       "outputPorts": 1,
       "properties": {
@@ -41,8 +41,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 53.1347240650648,
-      "y": 94.17954506363961,
+      "x": 146.0578009881418,
+      "y": 88.33339121748578,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -72,8 +72,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 504.2718835172378,
-      "y": 247.8794934640507,
+      "x": 640.1949604403154,
+      "y": 141.03333961789673,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -107,8 +107,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 24.605057910783,
-      "y": 288.46220736178213,
+      "x": 130.79309209881723,
+      "y": 193.65024154981617,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -138,8 +138,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 889.111111111112,
-      "y": 220.67361111111165,
+      "x": 869.1111111111121,
+      "y": 142.89583333333383,
       "inputPorts": 1,
       "outputPorts": 0,
       "properties": {},
@@ -164,8 +164,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 621.8102175602137,
-      "y": 357.2816749223001,
+      "x": 592.9213286713249,
+      "y": 362.837230477855,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -197,45 +197,180 @@
   ],
   "links": [
     {
-      "id": "d2L39uQih0oQ8MEtFt67N2xe3XlYOeDG",
+      "id": "Io7GNGybFnbcepW4sTHnxt9ZJGyVdcIy",
+      "sourceId": "rVku98kvuv74fMESFc2Am01t5OLL3KEu",
+      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 266.0578009881418,
+      "sourceY": 108.33339121748578,
+      "targetX": 410.64529914529794,
+      "targetY": 161.98771367521357,
+      "intermediateNodes": [
+        {
+          "id": "guAYCSBFwecXfrjYc1jddzjgQLxLMi5a",
+          "y": 108.33339121748578,
+          "x": 338.3515500667199
+        },
+        {
+          "id": "todwW6egwzjMMSAPzIYj4m0wzU9ni7sf",
+          "y": 161.98771367521357,
+          "x": 338.3515500667199
+        }
+      ]
+    },
+    {
+      "id": "Mde80fA0H9mihgRN2w6hjzWW7bYQUvmC",
       "sourceId": "xSd0egtPgxMwth16iFs3nG2pXHXOVX1j",
+      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
+      "sourcePort": 0,
+      "targetPort": 1,
+      "sourceX": 250.79309209881723,
+      "sourceY": 213.65024154981617,
+      "targetX": 410.64529914529794,
+      "targetY": 181.98771367521357,
+      "intermediateNodes": [
+        {
+          "id": "9dtZrB8rzgwLiNybhJeYpcIsQMlNEyif",
+          "y": 213.65024154981617,
+          "x": 330.71919562205755
+        },
+        {
+          "id": "4MAC6nfJmq2yW4oEEvdfx2jKPEodlRq8",
+          "y": 181.98771367521357,
+          "x": 330.71919562205755
+        }
+      ]
+    },
+    {
+      "id": "ifmdmKWW2IAdN2IRhPj8zvJlvldOqcOO",
+      "sourceId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
       "targetId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 144.605057910783,
-      "sourceY": 308.46220736178213,
-      "targetX": 504.2718835172378,
-      "targetY": 267.8794934640507,
+      "sourceX": 530.6452991452979,
+      "sourceY": 161.98771367521357,
+      "targetX": 640.1949604403154,
+      "targetY": 161.03333961789673,
       "intermediateNodes": [
         {
-          "id": "nIf1ffQadGogj0u99Muh6woyl7vxommK",
-          "x": 173.93839124411633,
-          "y": 308.46220736178213
+          "id": "j6Wjh6rh3HtHMo1zwYz7qmGherpOWKql",
+          "y": 161.98771367521357,
+          "x": 579.2662836389604
         },
         {
-          "id": "d2L39uQih0oQ8MEtFt67N2xe3XlYOeDG_auto_source_1750424925689",
-          "x": 173.93839124411633,
-          "y": 390.01776291733756
+          "id": "yDdscmNF9zX91SeCMUYKTZ7JQJIeIi65",
+          "y": 161.03333961789673,
+          "x": 579.2662836389604
+        }
+      ]
+    },
+    {
+      "id": "TDyL9zLQJm31tHsrmLcofDyq5jsyHzGb",
+      "sourceId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
+      "targetId": "Of6AFAeXbm40lskvJU6SSKMCOHj8ISQg",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 760.1949604403154,
+      "sourceY": 161.03333961789673,
+      "targetX": 869.1111111111121,
+      "targetY": 162.89583333333383,
+      "intermediateNodes": [
+        {
+          "id": "EpK9MPeuiXcHJP3KUwmP857UqarGWi3h",
+          "y": 161.03333961789673,
+          "x": 814.6530357757138
         },
         {
-          "id": "MpG00CoNJg1uCpROtezUxLa42h5RA9pr",
-          "x": 275.2162484917883,
-          "y": 390.01776291733756
+          "id": "AQCQHM7ZRBjO9gBts067csXYgRnih6Rv",
+          "y": 162.89583333333383,
+          "x": 814.6530357757138
+        }
+      ]
+    },
+    {
+      "id": "LuUDzxko5FNmBYNZhJb8JCqd5bFZYNGu",
+      "sourceId": "bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do",
+      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
+      "sourcePort": 0,
+      "targetPort": 2,
+      "sourceX": 712.9213286713249,
+      "sourceY": 382.837230477855,
+      "targetX": 410.64529914529794,
+      "targetY": 201.98771367521357,
+      "intermediateNodes": [
+        {
+          "id": "LuUDzxko5FNmBYNZhJb8JCqd5bFZYNGu_auto_source_1750427399184",
+          "x": 769.5879953379911,
+          "y": 382.837230477855
         },
         {
-          "id": "xKobvLiFotuGTj1NJmtR3UyADK29FXhz",
-          "x": 275.2162484917883,
-          "y": 172.32393790849517
+          "id": "LuUDzxko5FNmBYNZhJb8JCqd5bFZYNGu_auto_source_1750427396400",
+          "x": 769.5879953379911,
+          "y": 321.7261193667446
         },
         {
-          "id": "d2L39uQih0oQ8MEtFt67N2xe3XlYOeDG_auto_target_1750424919556",
-          "x": 383.160772406127,
-          "y": 172.32393790849517
+          "id": "ujPcsfYAhDmpjAp6lbXyY5M6rNOHTUyK",
+          "y": 321.7261193667446,
+          "x": 561.7833139083114
         },
         {
-          "id": "AutoDogLegLeft",
-          "x": 383.160772406127,
-          "y": 267.8794934640507
+          "id": "vmjz782Qsm2ny6rg8fKHmxrxA4Tmpdte",
+          "y": 321.9877136752132,
+          "x": 561.7833139083114
+        },
+        {
+          "id": "LuUDzxko5FNmBYNZhJb8JCqd5bFZYNGu_auto_target_1750427401280",
+          "x": 363.9786324786313,
+          "y": 321.9877136752132
+        },
+        {
+          "id": "LuUDzxko5FNmBYNZhJb8JCqd5bFZYNGu_auto_target_1750427407360",
+          "x": 363.9786324786313,
+          "y": 201.98771367521357
+        }
+      ]
+    },
+    {
+      "id": "41M6wx4MSujdDziEZtBnXiAdNW1vcPjL",
+      "sourceId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
+      "targetId": "bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 760.1949604403154,
+      "sourceY": 161.03333961789673,
+      "targetX": 592.9213286713249,
+      "targetY": 382.837230477855,
+      "intermediateNodes": [
+        {
+          "id": "41M6wx4MSujdDziEZtBnXiAdNW1vcPjL_auto_source_1750427440696",
+          "x": 796.8616271069818,
+          "y": 161.03333961789673
+        },
+        {
+          "id": "41M6wx4MSujdDziEZtBnXiAdNW1vcPjL_auto_source_1750427435783",
+          "x": 796.8616271069818,
+          "y": 265.47778406234113
+        },
+        {
+          "id": "2jGShb8ffVEbtHfCH6K3N9xABWPZX9oV",
+          "y": 265.47778406234113,
+          "x": 676.5581445558201
+        },
+        {
+          "id": "kaLrZH5CbZzcrnx1ZQzL3ug9lcOTQkxg",
+          "y": 266.1705638111881,
+          "x": 676.5581445558201
+        },
+        {
+          "id": "41M6wx4MSujdDziEZtBnXiAdNW1vcPjL_auto_target_1750427432743",
+          "x": 526.2546620046586,
+          "y": 266.1705638111881
+        },
+        {
+          "id": "41M6wx4MSujdDziEZtBnXiAdNW1vcPjL_auto_target_1750427443120",
+          "x": 526.2546620046586,
+          "y": 382.837230477855
         }
       ]
     }

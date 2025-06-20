@@ -153,7 +153,24 @@ function realignPoints(
     if (postB) {
         isBLinkHorizontal = b.y === postB.y;
         if (!isBLinkHorizontal && b.x !== postB.x) {
-            throw new Error(`Points B and postB are not aligned horizontally or vertically: ${JSON.stringify(b)}, ${JSON.stringify(postB)}`);
+            // B is between two non aligned segments
+            if (isALinkHorizontal === undefined) {
+                // A is source, B is between two non-aligned segments
+                console.log(`B is between two non-aligned segments, A is source: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
+                return [a,
+                        { id: getNonce(), x: b.x, y: a.y },
+                        b];
+            } else if (isALinkHorizontal) {
+                // B is between two non-aligned segments, A is horizontal
+                console.log(`B is between two non-aligned segments, A is horizontal: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
+                a.x = b.x;
+                return [a, b];
+            } else {
+                // B is between two non-aligned segments, A is vertical
+                console.log(`B is between two non-aligned segments, A is vertical: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
+                a.y = b.y;
+                return [a, b];
+            }
         }
     }
 
@@ -240,11 +257,12 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
         // Build the full list of points: source, ...intermediate, target
         let points: Point[] = [
             { x: link.sourceX, y: link.sourceY },
-            ...(link.intermediateNodes || []),
+            ...(structuredClone(link.intermediateNodes) || []),
             { x: link.targetX, y: link.targetY }
         ];
 
-        let newIntermediate: { id: string, x: number, y: number }[] = [];
+        console.log(`Link ${link.id} points before dog leg: ${JSON.stringify(points)}`);
+
 
         let preferenceToMove: "A" | "B" = "A";
         if (movedBlockId && link.sourceId === movedBlockId) {
@@ -258,10 +276,7 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
             const b = points[i + 1];
             
             if (a.x === b.x || a.y === b.y) {
-                // Check if id field exists on a
-                if ('id' in a) {
-                    newIntermediate.push(a);
-                }
+                ;
             } else {
                 // Generate dog leg points
                 let preA: Point | undefined = undefined;
@@ -283,43 +298,43 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
 
                 console.log(`Dog legs: ${JSON.stringify(dogLegs)}`);
                 
-                
-                // Add nodes on dogLegs excluding the last
-                for (let j = 0; j < dogLegs.length - 1; ++j) {
-                    const point = dogLegs[j];
-                    console.log(`Node: ${JSON.stringify(point)} evaluated`);
-                    if (point.id === 'Source' || point.id === 'Target') {
-                        // Skip source and target points
-                        continue;
-                    }
-                    console.log(`Adding intermediate node: ${JSON.stringify(point)}`);
-                    newIntermediate.push({
-                        id: point.id,
-                        x: point.x,
-                        y: point.y
-                    });
-                }
+                points[i].x = dogLegs[0].x;
+                points[i].y = dogLegs[0].y;
                 points[i + 1].x = dogLegs[dogLegs.length - 1].x;
                 points[i + 1].y = dogLegs[dogLegs.length - 1].y;
                 
+                // Add nodes on dogLegs excluding the last
+                for (let j = 1; j < dogLegs.length - 1; ++j) {
+                    const point = dogLegs[j];
+                    console.log(`Node: ${JSON.stringify(point)} evaluated`);
+                    console.log(`Adding intermediate node: ${JSON.stringify(point)}`);
+                    points.splice(i + 1, 0, point);
+                    i++;
+                }
             }
         }
 
-        for (let i = 0; i < newIntermediate.length-2; ++i) {
-            const a = newIntermediate[i];
-            const b = newIntermediate[i + 1];
-            const c = newIntermediate[i + 2];
+        for (let i = 0; i < points.length-2; ++i) {
+            const a = points[i];
+            const b = points[i + 1];
+            const c = points[i + 2];
 
             // If three points are collinear, remove the middle one
             if ((a.x === b.x && b.x === c.x) || (a.y === b.y && b.y === c.y)) {
-                console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}`);
-                newIntermediate.splice(i + 1, 1);
+                console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
+                points.splice(i + 1, 1);
                 i--; // Adjust index after removal
             }
         }
+
+        // Remove last point and convert to FullPoint
+        points.pop();
+        points.shift();
+        let pointsFull = points as FullPoint[];
+
         console.log(`Link ${link.id} intermediate nodes before: ${JSON.stringify(link.intermediateNodes)}`);
-        console.log(`Link ${link.id} intermediate nodes after: ${JSON.stringify(newIntermediate)}`);
-        link.intermediateNodes = newIntermediate;
+        console.log(`Link ${link.id} intermediate nodes after: ${JSON.stringify(pointsFull)}`);
+        link.intermediateNodes = structuredClone(pointsFull);
     }
     return json;
 }
