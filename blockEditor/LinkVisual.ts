@@ -56,28 +56,10 @@ export class LinkNode extends Selectable implements Movable {
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        console.log(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
             const linkIndex = linkData.intermediateNodes.findIndex(node => node.id === this.id);
-
-
-            let targetId;
-            let targetIdForSearch;
-            if (linkIndex === linkData.intermediateNodes.length - 1) {
-                targetId = "TargetNode";
-                targetIdForSearch = this.linkId + "TargetNode";
-            } else {
-                targetId = linkData.intermediateNodes[linkIndex + 1].id;
-                targetIdForSearch = targetId;
-            }
-            let previousSegmentId = this.id + targetIdForSearch;
-            const isPreviousSegmentSelected = selectables.some(selectable => selectable.getId() === previousSegmentId && selectable.isSelected());
-            if (!isPreviousSegmentSelected) {
-                let segmentSelectable = selectables.find(selectable => selectable.getId() === previousSegmentId);
-                if (segmentSelectable && isMovable(segmentSelectable)) {
-                    (segmentSelectable as Movable).moveTo(x, y, communicationManager, selectables);
-                }
-            }
 
             let sourceId;
             let sourceIdForSearch;
@@ -88,10 +70,34 @@ export class LinkNode extends Selectable implements Movable {
                 sourceId = linkData.intermediateNodes[linkIndex - 1].id;
                 sourceIdForSearch = sourceId;
             }
-            let nextSegmentId = sourceIdForSearch + this.id;
+
+            let previousSegmentId = sourceIdForSearch + this.id;
+            const isPreviousSegmentSelected = selectables.some(selectable => selectable.getId() === previousSegmentId && selectable.isSelected());
+            if (!isPreviousSegmentSelected) {
+                let segmentSelectable = selectables.find(selectable => selectable.getId() === previousSegmentId);
+                if (segmentSelectable && isMovable(segmentSelectable)) {
+                    (segmentSelectable as Movable).moveTo(x, y, communicationManager, selectables);
+                }
+            }            
+
+            let targetId;
+            let targetIdForSearch;
+            if (linkIndex === linkData.intermediateNodes.length - 1) {
+                targetId = "TargetNode";
+                targetIdForSearch = this.linkId + "TargetNode";
+            } else {
+                targetId = linkData.intermediateNodes[linkIndex + 1].id;
+                targetIdForSearch = targetId;
+            }
+
+            let nextSegmentId = this.id + targetIdForSearch;
             // Check if the previous segment exists and is selected
             const isNextSegmentSelected = selectables.some(selectable => selectable.getId() === nextSegmentId && selectable.isSelected());
-            if (!isNextSegmentSelected) {
+            let isNextIntermediateNodeSelected = false;
+            if (targetId !== "TargetNode") {
+                isNextIntermediateNodeSelected = selectables.some(selectable => selectable.getId() === targetId && selectable.isSelected());
+            }
+            if (!isNextSegmentSelected && !isNextIntermediateNodeSelected) {
                 let segmentSelectable = selectables.find(selectable => selectable.getId() === nextSegmentId);
                 if (segmentSelectable && isMovable(segmentSelectable)) {
                     (segmentSelectable as Movable).moveTo(x, y, communicationManager, selectables);
@@ -271,9 +277,7 @@ export class LinkSegment extends Selectable implements Movable {
         const sourcePosition = this.sourceLinkNode.getPosition(communicationManager);
         const targetPosition = this.targetLinkNode.getPosition(communicationManager);
         
-        console.log(`Going to update`);
         if (sourcePosition && targetPosition) {
-            console.log(`Let us update x: ${sourcePosition.x}, y: ${sourcePosition.y}`);
             this.getElement().setAttribute("points", `${sourcePosition.x},${sourcePosition.y} ${targetPosition.x},${targetPosition.y}`);
         }
     }
@@ -294,6 +298,7 @@ export class LinkSegment extends Selectable implements Movable {
     };
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        console.log(`Segment with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.sourceLinkNode.getLinkId());
 
         if (linkData) {
@@ -375,6 +380,7 @@ export class LinkVisual {
     
 
     public updateSegments(communicationManager: CommunicationManager) {
+        console.log(`Update segments called on link: ${this.id}`);
         let newSegments: LinkSegment[] = [];
         if (this.intermediateNodes.length === 0) {
             let existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.sourceNode && segment.targetLinkNode === this.targetNode);
@@ -517,6 +523,7 @@ export class LinkVisual {
         if (this.intermediateNodes.length === 0 && this.sourceNode.isSelected() && this.targetNode.isSelected()) {
             this.updateSegments(communicationManager);
             this.segments.forEach(segment => segment.updateFromJson(json, communicationManager));
+            json.links?.find(link => link.id === this.id)?.intermediateNodes.forEach(intermediateNode => communicationManager.deleteIntermediateNode(intermediateNode.id));
             return;
         }
 
@@ -524,14 +531,34 @@ export class LinkVisual {
         const jsonNodes = json.links?.find(link => link.id === this.id)?.intermediateNodes ?? [];
         const newNodes: LinkNode[] = [];
 
+        let previousExistingNode: SourceNode | LinkNode = this.sourceNode;
         for (let i = 0; i < jsonNodes.length; i++) {
             const jsonNode = jsonNodes[i];
+            
             // Try to find an existing node with the same id
             let existingNode = this.intermediateNodes.find(node => node.id === jsonNode.id);
             if (!existingNode) {
-                // Create new node if not found
                 existingNode = new LinkNode(this.id, jsonNode.id, (cm: CommunicationManager) => this.delete(cm));
-            }
+
+                // previousExistingNodeIndexInCurrent will be -1 when previousExistingNode is SourceNode, which is nice for the application
+                const previousExistingNodeIndexInCurrent = this.intermediateNodes.findIndex(intermediateNode => intermediateNode.id === previousExistingNode.id);
+                
+
+                // Check if both adjacent nodes are selected
+                let nextExistingNode: LinkNode | TargetNode | undefined = undefined;
+
+                if (previousExistingNodeIndexInCurrent === this.intermediateNodes.length - 1) {
+                    nextExistingNode = this.targetNode;
+                } else {
+                    nextExistingNode = this.intermediateNodes[previousExistingNodeIndexInCurrent + 1];
+                }
+
+                if (previousExistingNode && nextExistingNode && previousExistingNode.isSelected() && nextExistingNode.isSelected()) {
+                    // Both adjacent nodes are selected, select also new node
+                    existingNode.select();
+                }
+                // Create new node if not found
+            } else {previousExistingNode = existingNode;}
             newNodes.push(existingNode);
             existingNode.updateFromJson(json, communicationManager);
         }

@@ -1,4 +1,4 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, deleteBlockFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkInJson, updateLinksSourceTargetPosition } from "../shared/JsonManager";
+import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, deleteBlockFromJson, deleteIntermediateNodeFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkInJson, updateLinksSourceTargetPosition } from "../shared/JsonManager";
 import { BlockData, IdType, JsonData, LinkData } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
@@ -8,6 +8,7 @@ import { moveLinkSegment, updateLinksAfterBatchMove } from "../shared/LInkOrgani
 export class CommunicationManager {
     vscode: any;
     freezed: boolean = false;
+    freezedLocalJsonCallback: boolean = false;
     disableSending: boolean = false;
 
     private localJson: JsonData | undefined;
@@ -47,6 +48,13 @@ export class CommunicationManager {
         }
     }
 
+    public freezeLocalJsonCallback() {
+        this.print("Freeze local json callbacks");
+        if (!this.freezedLocalJsonCallback) {
+            this.freezedLocalJsonCallback = true;
+        }
+    }
+
     public unfreeze() {
         this.print("Unfreeze called");
         if (this.freezed) {
@@ -67,6 +75,18 @@ export class CommunicationManager {
         }
     }
 
+    public unfreezeLocalJsonCallback() {
+        this.print("Unfreeze local json callback called");
+        if (this.freezedLocalJsonCallback) {
+            this.freezedLocalJsonCallback = false;
+            this.localJsonChangedCallbacks.forEach(callback => {
+                if (this.localJson) {
+                    callback(this.localJson);
+                }
+            });
+        }
+    }
+
     public setLocalJson(json: JsonData, sendToServer: boolean = true) {
         this.localJson = json;
         
@@ -75,11 +95,13 @@ export class CommunicationManager {
             this.localJson = consolidateLinkNodes(this.localJson);
             this.sendJsonToServer(this.localJson);
         } 
-        this.localJsonChangedCallbacks.forEach(callback => {
-            if (this.localJson) {
-                callback(this.localJson);
-            }
-        });
+        if (!this.freezedLocalJsonCallback) {
+            this.localJsonChangedCallbacks.forEach(callback => {
+                if (this.localJson) {
+                    callback(this.localJson);
+                }
+            });
+        }
     }                                                                                                                                                                                                                                                                    
 
     private sendJsonToServer(json: JsonData) {
@@ -148,6 +170,14 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = deleteLinkFromJson(json, linkId);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public deleteIntermediateNode = (nodeId: IdType) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = deleteIntermediateNodeFromJson(json, nodeId);
             this.setLocalJson(newJson, true);
         }
     };

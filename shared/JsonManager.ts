@@ -152,6 +152,23 @@ export function deleteLinkFromJson(json: JsonData, linkId: IdType): JsonData {
     return updatedJson;
 }
 
+export function deleteIntermediateNodeFromJson(json: JsonData, intermediateNodeId: IdType): JsonData {
+    const updatedLinks = json.links?.map(link => {
+        // Remove the intermediate node from this link's intermediateNodes array
+        return {
+            ...link,
+            intermediateNodes: link.intermediateNodes
+                ? link.intermediateNodes.filter(node => node.id !== intermediateNodeId)
+                : []
+        };
+    });
+
+    return {
+        ...json,
+        links: updatedLinks
+    };
+}
+
 export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData): JsonData {
     let updatedJson: JsonData = {
         ...json,

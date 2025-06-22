@@ -291,11 +291,14 @@ export class SelectableManager {
         if (this.isDragging) {
             let selectables = this.getSelectableList();
             let selectedSelectables = this.getSelectedSelectables();
+            this.communicationManager.freezeLocalJsonCallback();
             selectedSelectables.forEach(selectable => {
                 if (isMovable(selectable)) {
                     selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
                 }
             });
+
+            this.communicationManager.unfreezeLocalJsonCallback();
 
 
             this.dragStartX = e.clientX;

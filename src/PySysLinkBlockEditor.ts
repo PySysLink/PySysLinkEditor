@@ -244,6 +244,7 @@ export class PySysLinkBlockEditorSession {
 		this.webviewPanel.webview.onDidReceiveMessage(async e => {
 			switch (e.type) {
 				case 'updateJson':
+					console.log(`update json called`);
 					this.documentLock = this.withDocumentLock(async () => {
 						if (this.document) {
 							const json = this.getDocumentAsJson(this.document);
@@ -518,7 +519,7 @@ export class PySysLinkBlockEditorSession {
 
 	private async getBlockRenderInformation(block: BlockData): Promise<BlockRenderInformation | undefined> {
 		try {
-		console.log("Result requested block libraries");
+		console.log("Result request block render information");
           const result = await this.pythonServer.sendRequestAsync({
             method: "getBlockRenderInformation",
 			params: { block }
