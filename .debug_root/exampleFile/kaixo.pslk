@@ -1,13 +1,13 @@
 {
-  "version": 167,
+  "version": 526,
   "blocks": [
     {
       "id": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 600.0918232094689,
-      "y": 240.99347262214886,
+      "x": 936.6063159630917,
+      "y": 261.7060330086215,
       "inputPorts": 3,
       "outputPorts": 1,
       "properties": {
@@ -41,8 +41,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 220.54574860460622,
-      "y": 176.4884093720326,
+      "x": 477.6050371421563,
+      "y": 133.78759689948012,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -72,8 +72,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1024.2290421081748,
-      "y": 231.89082748107717,
+      "x": 1541.693908159997,
+      "y": 262.95472734932434,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -107,8 +107,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 108.49628541965777,
-      "y": 376.11456045531145,
+      "x": 496.18502059752365,
+      "y": 334.3119693266348,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -138,8 +138,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 1374.7459468635939,
-      "y": 232.53296091163782,
+      "x": 1936.195441813095,
+      "y": 278.37639525507234,
       "inputPorts": 1,
       "outputPorts": 0,
       "properties": {},
@@ -164,8 +164,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 835.5223221074294,
-      "y": 241.4477050651013,
+      "x": 1247.1286023006687,
+      "y": 261.9055443272876,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -202,20 +202,20 @@
       "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 340.5457486046062,
-      "sourceY": 196.4884093720326,
-      "targetX": 600.0918232094689,
-      "targetY": 260.99347262214883,
+      "sourceX": 597.6050371421563,
+      "sourceY": 153.78759689948012,
+      "targetX": 936.6063159630917,
+      "targetY": 281.7060330086215,
       "intermediateNodes": [
         {
-          "id": "z6Zrs8GS0AGIcm3uyfWgBIOyEAt9lwhT",
-          "x": 427.3187859070375,
-          "y": 197.4884093720326
+          "id": "UXwv7RsI9JT5fcGitzZ2rF11F5WoB9Uj",
+          "x": 714.5072110551993,
+          "y": 153.78759689948012
         },
         {
-          "id": "GxkJcdELlCCP6ONhcAyiwrEkw9VRhkRX",
-          "x": 427.3187859070375,
-          "y": 260.99347262214883
+          "id": "0KtBNRXHBhcbG8QGVFkiTjTL3W2fCMTo",
+          "x": 714.5072110551993,
+          "y": 280.8364677912302
         }
       ]
     },
@@ -225,56 +225,11 @@
       "targetId": "bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 720.0918232094689,
-      "sourceY": 260.99347262214883,
-      "targetX": 835.5223221074294,
-      "targetY": 261.44770506510133,
+      "sourceX": 1056.6063159630917,
+      "sourceY": 281.7060330086215,
+      "targetX": 1247.1286023006687,
+      "targetY": 281.9055443272876,
       "intermediateNodes": []
-    },
-    {
-      "id": "cHS1YXrwYyMSaiXqMqGK7mCurff2xNv4",
-      "sourceId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
-      "targetId": "Of6AFAeXbm40lskvJU6SSKMCOHj8ISQg",
-      "sourcePort": 0,
-      "targetPort": 0,
-      "sourceX": 1144.2290421081748,
-      "sourceY": 251.89082748107717,
-      "targetX": 1374.7459468635939,
-      "targetY": 252.53296091163782,
-      "intermediateNodes": []
-    },
-    {
-      "id": "LaGVv1Gue4Me9VpyuJ0MtFArCmZ3ps7t",
-      "sourceId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
-      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
-      "sourcePort": 0,
-      "targetPort": 2,
-      "sourceX": 1144.2290421081748,
-      "sourceY": 251.89082748107717,
-      "targetX": 600.0918232094689,
-      "targetY": 300.99347262214883,
-      "intermediateNodes": [
-        {
-          "id": "AOny6sAe8e8DjtWJXr0IkjmXGRS2RpG6",
-          "x": 1192.6696230326243,
-          "y": 251.89082748107717
-        },
-        {
-          "id": "6odANF0EePTiFmdyXCI2wtbDLVVXVcRs",
-          "x": 1192.6696230326243,
-          "y": 502.0887107173874
-        },
-        {
-          "id": "IvzwzBPQAaVJwJ8MOKBzebuMGPtxfU1s",
-          "x": 571.0322993999453,
-          "y": 502.0887107173874
-        },
-        {
-          "id": "ZWcr1FbZr9EiwQEoH15iWwTxKkjS6hNf",
-          "x": 571.0322993999453,
-          "y": 300.99347262214883
-        }
-      ]
     },
     {
       "id": "wRVtYGRBElzWGySlZqK3OOXnSLMmN4wf",
@@ -282,22 +237,11 @@
       "targetId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 955.5223221074294,
-      "sourceY": 261.44770506510133,
-      "targetX": 1024.2290421081748,
-      "targetY": 251.89082748107717,
-      "intermediateNodes": [
-        {
-          "id": "O4oKwCTZ0DCMV1KLZrLvY9UCzxLHsyL6",
-          "x": 996.0472239263573,
-          "y": 261.44770506510133
-        },
-        {
-          "id": "NLnIRgGEzjScFGo5gSGf2OG8xCamQNeO",
-          "x": 996.0472239263573,
-          "y": 251.89082748107717
-        }
-      ]
+      "sourceX": 1367.1286023006687,
+      "sourceY": 281.9055443272876,
+      "targetX": 1541.693908159997,
+      "targetY": 282.95472734932434,
+      "intermediateNodes": []
     },
     {
       "id": "YXaGBYHtKMC9pzpt70dNV9IwdwMzmaRF",
@@ -305,20 +249,76 @@
       "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
       "sourcePort": 0,
       "targetPort": 1,
-      "sourceX": 228.49628541965777,
-      "sourceY": 396.11456045531145,
-      "targetX": 600.0918232094689,
-      "targetY": 280.99347262214883,
+      "sourceX": 616.1850205975236,
+      "sourceY": 354.3119693266348,
+      "targetX": 936.6063159630917,
+      "targetY": 301.7060330086215,
       "intermediateNodes": [
         {
-          "id": "zfM3K7fffWJ8HTWLfcF23lUP988ZdekX",
-          "x": 418.49628541965774,
-          "y": 396.11456045531145
+          "id": "pEdK3DW1afCWR3LtY4vwAnrHCnCXjsvs",
+          "x": 731.1306727714355,
+          "y": 354.3119693266348
         },
         {
-          "id": "teql6HRHEfYATNAbYdhduxrjL9SDW2o6",
-          "x": 418.49628541965774,
-          "y": 280.99347262214883
+          "id": "RXO1uZVBFAOIN86Uaiv36SOAlXjLN5hT",
+          "x": 731.1306727714355,
+          "y": 301.70603300862143
+        }
+      ]
+    },
+    {
+      "id": "I1UsolGyANOtCf5ip7ytvdY2wZSlNTrH",
+      "sourceId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
+      "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
+      "sourcePort": 0,
+      "targetPort": 2,
+      "sourceX": 1661.693908159997,
+      "sourceY": 282.95472734932434,
+      "targetX": 936.6063159630917,
+      "targetY": 321.7060330086215,
+      "intermediateNodes": [
+        {
+          "id": "XAeEVnsZClFCmpf3KJMoLO0QnRnGAEaR",
+          "y": 282.95472734932434,
+          "x": 1711.0543720527614
+        },
+        {
+          "id": "G2Gb21k4rExSBdoNmTna9dYCjDaF29Kq",
+          "y": 448.7037900824653,
+          "x": 1711.0543720527614
+        },
+        {
+          "id": "6DvJzLBeoCfqyhuvUoXkZLatVDirlQPW",
+          "x": 856.3682207249964,
+          "y": 448.7037900824653
+        },
+        {
+          "id": "Mht7o5SNJJfVn0rTRjx4fPLLEiuZh8A4",
+          "x": 856.3682207249964,
+          "y": 320.8364677912302
+        }
+      ]
+    },
+    {
+      "id": "WNxUwlErM7SIXtjDEROoYZ2nrsEfd03Q",
+      "sourceId": "EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS",
+      "targetId": "Of6AFAeXbm40lskvJU6SSKMCOHj8ISQg",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 1661.693908159997,
+      "sourceY": 282.95472734932434,
+      "targetX": 1936.195441813095,
+      "targetY": 298.37639525507234,
+      "intermediateNodes": [
+        {
+          "id": "hegRaDiH7PETtML8yUEkw84JWhpwbXGk",
+          "y": 282.95472734932434,
+          "x": 1817.8006257990182
+        },
+        {
+          "id": "37z2DNtb0IFYX2Hmkxa0BAwVesycs1sy",
+          "y": 298.37639525507234,
+          "x": 1817.8006257990182
         }
       ]
     }

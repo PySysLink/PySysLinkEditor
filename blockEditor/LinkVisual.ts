@@ -282,9 +282,9 @@ export class LinkSegment extends Selectable implements Movable {
         const sourcePosition = this.sourceLinkNode.getPosition(communicationManager);
         const targetPosition = this.targetLinkNode.getPosition(communicationManager);
         
-        console.log(`Going to update`);
+        // console.log(`Going to update`);
         if (sourcePosition && targetPosition) {
-            console.log(`Let us update x: ${sourcePosition.x}, y: ${sourcePosition.y}`);
+            // console.log(`Let us update x: ${sourcePosition.x}, y: ${sourcePosition.y}`);
             this.getElement().setAttribute("points", `${sourcePosition.x},${sourcePosition.y} ${targetPosition.x},${targetPosition.y}`);
         }
     }
@@ -512,6 +512,14 @@ export class LinkVisual {
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         this.sourceNode.updateFromJson(json, communicationManager);
         this.targetNode.updateFromJson(json, communicationManager);
+        
+        // If no intermediate nodes actually present, and both source and target selected, do not allow new creations
+        if (this.intermediateNodes.length === 0 && this.sourceNode.isSelected() && this.targetNode.isSelected()) {
+            this.updateSegments(communicationManager);
+            this.segments.forEach(segment => segment.updateFromJson(json, communicationManager));
+            return;
+        }
+
         // Sync intermediateNodes with json
         const jsonNodes = json.links?.find(link => link.id === this.id)?.intermediateNodes ?? [];
         const newNodes: LinkNode[] = [];

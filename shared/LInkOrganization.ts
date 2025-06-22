@@ -7,11 +7,13 @@ const distanceToJoin = 1.1;
 export function updateLinksAfterBlockMove(json: JsonData, blockId: IdType): JsonData {
     console.log("updateLinksAfterBlockMove called");
     return updateLinksDogLeg(json, blockId, false);
+    // return json;
 }
 
 export function updateLinksAfterBlockUpdate(json: JsonData, blockId: IdType): JsonData {
     console.log("updateLinksAfterBlockUpdate called");
     return updateLinksDogLeg(json, blockId, false);
+    // return json;
 }
 
 export function updateLinksAfterMerge(json: JsonData): JsonData {
@@ -26,6 +28,11 @@ export function updateLinksAfterNodesUpdated(json: JsonData): JsonData {
 
 export function updateLinksAfterNodesConsolidation(json: JsonData): JsonData {
     console.log("updateLinksAfterNodesConsolidation called");
+    return updateLinksDogLeg(json, undefined, true);
+}
+
+export function updateLinksAfterBatchMove(json: JsonData): JsonData {
+    console.log("updateLinksAfterBatchMove called");
     return updateLinksDogLeg(json, undefined, true);
 }
 

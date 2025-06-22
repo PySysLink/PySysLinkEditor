@@ -289,12 +289,14 @@ export class SelectableManager {
         const scaledDeltaY = (e.clientY - this.dragStartY) / this.getZoomLevelReal();
         
         if (this.isDragging) {
-            let selectables = this.getSelectedSelectables();
-            selectables.forEach(selectable => {
+            let selectables = this.getSelectableList();
+            let selectedSelectables = this.getSelectedSelectables();
+            selectedSelectables.forEach(selectable => {
                 if (isMovable(selectable)) {
                     selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
                 }
             });
+
 
             this.dragStartX = e.clientX;
             this.dragStartY = e.clientY;

@@ -1,0 +1,293 @@
+{
+  "version": 250,
+  "blocks": [
+    {
+      "id": "ui2fCl1fkBJFcfCk3L3CENHSDqsELZXJ",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 425.294117647059,
+      "y": 194.1066176470588,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "dnJfAf9WCHXwOPwOCDJ94sVRNsKdK0er",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 862.7647058823514,
+      "y": 194.93014705882376,
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            1
+          ]
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "circle",
+        "icon": "",
+        "text": "Adder",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 2,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "EfRtEwxx7DU5sNF8XegPmPmdIWgxxDA6",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Integrator",
+      "label": "Integrator",
+      "x": 1224.5882352941178,
+      "y": 194.57720588235338,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "InitialValue": {
+          "type": "float",
+          "value": 0
+        },
+        "ContinuousSampleTimeGroup": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Integrator",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "jMsuWJvm90tRhFj9pzV4bCuBlGUX3YWt",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 632.7647058823537,
+      "y": 214.93014705882317,
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            1
+          ]
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "circle",
+        "icon": "",
+        "text": "Adder",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 2,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "aBhkYH7prNpM5gXNzTs5BkKop6HjLdCo",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 1487.8823529411777,
+      "y": 194.57720588235355,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Display",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
+    },
+    {
+      "id": "FCrGF7bPt3cbDTBOINZZXy0RQ7njHo2M",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 424.2352941176473,
+      "y": 262.04779411764656,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "ojuqI4CxipJ3p2hwShCBTP2wkUt2RvFe",
+      "sourceId": "ui2fCl1fkBJFcfCk3L3CENHSDqsELZXJ",
+      "targetId": "dnJfAf9WCHXwOPwOCDJ94sVRNsKdK0er",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 545.294117647059,
+      "sourceY": 214.1066176470588,
+      "targetX": 862.7647058823514,
+      "targetY": 214.93014705882376,
+      "intermediateNodes": []
+    },
+    {
+      "id": "WQkAsnWgI4Dz6quP63aHmXZrumQad7Bx",
+      "sourceId": "ui2fCl1fkBJFcfCk3L3CENHSDqsELZXJ",
+      "targetId": "jMsuWJvm90tRhFj9pzV4bCuBlGUX3YWt",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 545.294117647059,
+      "sourceY": 214.1066176470588,
+      "targetX": 632.7647058823537,
+      "targetY": 234.93014705882317,
+      "intermediateNodes": [
+        {
+          "id": "2ao1Vmh2stvf7linsCfIBX313kG8fQJJ",
+          "y": 214.1066176470588,
+          "x": 601.9705882352941
+        },
+        {
+          "id": "XozPAeLFPUftK9lCHbJ3aMwLSkHkQLnX",
+          "y": 234.93014705882317,
+          "x": 601.9705882352941
+        }
+      ]
+    },
+    {
+      "id": "AQjX0Kea0ogudCoQp4PdMMl6eviLXeD5",
+      "sourceId": "jMsuWJvm90tRhFj9pzV4bCuBlGUX3YWt",
+      "targetId": "dnJfAf9WCHXwOPwOCDJ94sVRNsKdK0er",
+      "sourcePort": 0,
+      "targetPort": 1,
+      "sourceX": 752.7647058823537,
+      "sourceY": 234.93014705882317,
+      "targetX": 862.7647058823514,
+      "targetY": 234.93014705882376,
+      "intermediateNodes": []
+    },
+    {
+      "id": "VRKooib97qZ2ff7b9GxbU0c33MMJXO0z",
+      "sourceId": "FCrGF7bPt3cbDTBOINZZXy0RQ7njHo2M",
+      "targetId": "jMsuWJvm90tRhFj9pzV4bCuBlGUX3YWt",
+      "sourcePort": 0,
+      "targetPort": 1,
+      "sourceX": 544.2352941176473,
+      "sourceY": 282.04779411764656,
+      "targetX": 632.7647058823537,
+      "targetY": 254.93014705882317,
+      "intermediateNodes": [
+        {
+          "id": "F0BUPP45sxlXGh3XaajFtR0xrTd3LcEx",
+          "y": 282.04779411764656,
+          "x": 583.205882352941
+        },
+        {
+          "id": "SEvCikAIiDsaLXVtKnimIFH1IAYy9vA7",
+          "y": 254.93014705882317,
+          "x": 583.205882352941
+        }
+      ]
+    },
+    {
+      "id": "JJQmRTyXBjw3b9NHCikiGmXcLrMElqoP",
+      "sourceId": "EfRtEwxx7DU5sNF8XegPmPmdIWgxxDA6",
+      "targetId": "aBhkYH7prNpM5gXNzTs5BkKop6HjLdCo",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 1344.5882352941178,
+      "sourceY": 214.57720588235338,
+      "targetX": 1487.8823529411777,
+      "targetY": 214.57720588235355,
+      "intermediateNodes": []
+    },
+    {
+      "id": "Em1tYgqnBPxLrlqRBfaAu52XJkqr5JLW",
+      "sourceId": "dnJfAf9WCHXwOPwOCDJ94sVRNsKdK0er",
+      "targetId": "EfRtEwxx7DU5sNF8XegPmPmdIWgxxDA6",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 982.7647058823514,
+      "sourceY": 214.93014705882376,
+      "targetX": 1224.5882352941178,
+      "targetY": 214.57720588235338,
+      "intermediateNodes": []
+    }
+  ],
+  "simulation_configuration": ""
+}

@@ -2,7 +2,7 @@ import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, 
 import { BlockData, IdType, JsonData, LinkData } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
-import { moveLinkSegment } from "../shared/LInkOrganization";
+import { moveLinkSegment, updateLinksAfterBatchMove } from "../shared/LInkOrganization";
 
 
 export class CommunicationManager {
@@ -69,6 +69,7 @@ export class CommunicationManager {
 
     public setLocalJson(json: JsonData, sendToServer: boolean = true) {
         this.localJson = json;
+        
         this.vscode.setState({ text: JSON.stringify(this.localJson) });
         if (!this.freezed && sendToServer) {
             this.localJson = consolidateLinkNodes(this.localJson);
@@ -290,6 +291,14 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = moveLinkSegment(json, link, sourceIntermediateNodeId, targetIntermediateNodeId, targetPositionX, targetPositionY);
+            this.setLocalJson(newJson, true);
+        }
+    }
+
+    public updateLinksAfterBatchMove() {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = updateLinksAfterBatchMove(json);
             this.setLocalJson(newJson, true);
         }
     }
