@@ -149,14 +149,16 @@ export function moveLinkSegment(
 
     console.log(`Intermediate nodes after move:`, JSON.stringify(nodes));
 
-    if (beforeBend) {
-        nodes.splice(i1, 0, beforeBend);
-        // Adjust indices since we added a node before i1
-        i2 += 1;
-    }
-    if (afterBend) {
-        nodes.splice(i2 + 1, 0, afterBend);
-    }
+    // if (beforeBend) {
+    //     nodes.splice(i1, 0, beforeBend);
+    //     // Adjust indices since we added a node before i1
+    //     i2 += 1;
+    // }
+    // if (afterBend) {
+    //     nodes.splice(i2 + 1, 0, afterBend);
+    // }
+
+    console.log(`Before bend: ${beforeBend}, after: ${afterBend}`);
 
     console.log(`Final intermediate nodes after move:`, JSON.stringify(nodes));
     
@@ -173,16 +175,22 @@ function realignPoints(
     preferenceToMove: "A" | "B" = "A"
 ): FullPoint[] {
     let isALinkHorizontal: boolean | undefined = undefined;
+    let isALinkVertical: boolean | undefined = undefined;
+    console.log(`Realigning points: ${a}, ${b}, preA: ${preA}, postB: ${postB}`);
     if (preA) {
         isALinkHorizontal = Math.abs(a.y - preA.y) < distanceToJoin;
-        if (!isALinkHorizontal && Math.abs(a.x - preA.x) >= distanceToJoin) {
+        isALinkVertical = Math.abs(a.x - preA.x) < distanceToJoin;
+        if (!isALinkHorizontal && !isALinkVertical) {
             throw new Error(`Points A and preA are not aligned horizontally or vertically: ${JSON.stringify(a)}, ${JSON.stringify(preA)}`);
         }
     } 
     let isBLinkHorizontal: boolean | undefined = undefined;
+    let isBLinkVertical: boolean | undefined = undefined;
     if (postB) {
         isBLinkHorizontal = Math.abs(b.y - postB.y) < distanceToJoin;
-        if (!isBLinkHorizontal && Math.abs(b.x - postB.x) >= distanceToJoin) {
+        isBLinkVertical = Math.abs(b.x - postB.x) < distanceToJoin;
+
+        if (!isBLinkHorizontal && !isBLinkVertical) {
             // B is between two non aligned segments
             if (isALinkHorizontal === undefined) {
                 // A is source, B is between two non-aligned segments
@@ -212,32 +220,32 @@ function realignPoints(
                     { id: getNonce(), y: a.y, x: (a.x + b.x)/2 },
                     { id: getNonce(), y: b.y, x: (a.x + b.x)/2 },
                     b];
-        } else if (isBLinkHorizontal) {
+        } else if (isBLinkVertical) { // If B is both vertical and horizontal, do not create new nodes
+            // A is source, B is vertical
+            console.log(`A is source, B is vertical: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
+            b.y = a.y;
+            return [a, b];
+        } else {
             // A is source, B is horizontal
             console.log(`A is source, B is horizontal: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
             return [a,
                     { id: getNonce(), x: b.x, y: a.y },
                     b];
-        } else {
-            // A is source, B is vertical
-            console.log(`A is source, B is vertical: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-            b.y = a.y;
-            return [a, b];
         }
     }
 
     if (isBLinkHorizontal === undefined) {
-        if (isALinkHorizontal) {
+        if (isALinkVertical) { // If A is both vertical and horizontal, do not create new nodes
+            // A is vertical, B is target
+            console.log(`A is vertical, B is target: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
+            a.y = b.y;
+            return [a, b];
+        } else {
             // A is horizontal, B is target
             console.log(`A is horizontal, B is target: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
             return [a,
                     { id: getNonce(), x: a.x, y: b.y },
                     b];
-        } else {
-            // A is vertical, B is target
-            console.log(`A is vertical, B is target: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-            a.y = b.y;
-            return [a, b];
         }
     }
 
@@ -321,7 +329,7 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
                 const dogLegs = realignPoints(
                     preA,
                     { id: 'id' in a ? a.id : 'Source', x: a.x, y: a.y },
-                    { id: 'id' in a ? a.id : 'Target', x: b.x, y: b.y },
+                    { id: 'id' in b ? b.id : 'Target', x: b.x, y: b.y },
                     postB,
                     preferenceToMove
                 );

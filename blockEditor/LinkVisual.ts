@@ -380,7 +380,6 @@ export class LinkVisual {
     
 
     public updateSegments(communicationManager: CommunicationManager) {
-        console.log(`Update segments called on link: ${this.id}`);
         let newSegments: LinkSegment[] = [];
         if (this.intermediateNodes.length === 0) {
             let existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.sourceNode && segment.targetLinkNode === this.targetNode);
