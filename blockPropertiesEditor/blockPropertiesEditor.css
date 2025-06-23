@@ -1,0 +1,116 @@
+/* make each form‐group a flex row, center‐vertically */
+vscode-form-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 8px; /* tweak spacing between rows */
+}
+
+/* give your labels a fixed width so all inputs line up */
+vscode-form-group vscode-label {
+  flex: 0 0 120px;      /* or whatever width you prefer */
+  margin-right: 8px;    /* space between label and control */
+  display: block;
+  overflow: hidden;
+}
+
+/* let each control take up the rest of the space */
+vscode-form-group vscode-textfield,
+vscode-form-group input[type="checkbox"],
+vscode-form-group button,
+vscode-form-group span {
+  flex: 1;
+}
+
+vscode-form-group div {
+  flex: 1;
+  min-width: 0; /* Allows shrinking below content size */
+}
+
+/* make all form‐groups a bit more compact */
+vscode-form-group {
+  display: flex;
+  min-width: 0;
+  margin-bottom: 4px;   /* tighten vertical spacing */
+  gap: 8px;             /* space between label & control */
+}
+
+/* Crucial addition: Style the label's shadow DOM slot */
+vscode-form-group vscode-label::part(label) {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+
+/* target the “info” spans for truncation */
+vscode-form-group span {
+  display: inline-block;       /* so width & ellipsis work */
+  white-space: nowrap;         /* don’t wrap to next line */
+  overflow: hidden;            /* hide the overflow */
+  text-overflow: ellipsis;     /* show “…” */
+  max-width: calc(100% - 120px); /* leave room for the label */
+}
+
+
+/* limit width of property labels and ellipsize */
+vscode-form-group vscode-label {
+  flex: 0 0 120px;
+  max-width: 120px;
+  display: block;
+  overflow: hidden;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   1) Array container: flex-wrap row, small gap, subtle inset
+────────────────────────────────────────────────────────── */
+vscode-form-group > div {
+  display: grid;
+  grid-template-columns: 80px auto;
+  column-gap: 4px;
+  row-gap: 4px;
+  padding: 4px 0;
+  margin-top: 4px;
+  min-width: 0;
+}
+
+/* ──────────────────────────────────────────────────────────
+   2) Each array input: fixed (but small) width
+────────────────────────────────────────────────────────── */
+vscode-form-group > div > vscode-textfield {
+  flex: 0 0 80px;         /* all fields same small width */
+  min-width: 0;           /* allow shrink if needed */
+}
+
+/* ──────────────────────────────────────────────────────────
+   3) Remove buttons “✕”: icon-style, hover feedback
+────────────────────────────────────────────────────────── */
+vscode-form-group > div > button[type="button"] {
+  background: none;
+  border: none;
+  color: var(--vscode-button-foreground);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: background-color 0.2s;
+}
+
+vscode-form-group > div > button[type="button"]:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+/* ──────────────────────────────────────────────────────────
+   4) Add button “+” (last child): bolder, standout color
+────────────────────────────────────────────────────────── */
+vscode-form-group > div > button[type="button"]:last-child {
+  font-weight: bold;
+  font-size: 16px;
+  margin-left: 8px;
+  color: var(--vscode-button-secondaryForeground);
+}
+

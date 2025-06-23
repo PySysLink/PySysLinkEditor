@@ -28,6 +28,8 @@ export class BlockPropertiesProvider implements vscode.WebviewViewProvider {
         vscode.Uri.joinPath(this.context.extensionUri, 'out', 'blockPropertiesEditor', 'blockPropertiesEditor.js')
       );
       const elementsBundled = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', '@vscode-elements', 'elements', 'dist', 'bundled.js'));
+      const styleMainUri = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(
+            this.context.extensionUri, 'blockPropertiesEditor', 'blockPropertiesEditor.css'));
 
       webviewView.webview.html = /* html */`
         <!DOCTYPE html>
@@ -37,6 +39,7 @@ export class BlockPropertiesProvider implements vscode.WebviewViewProvider {
               src="${elementsBundled}"
               type="module"
             ></script>
+            <link href="${styleMainUri}" rel="stylesheet" />
           </head>
           <body>
             <div id="app"></div>

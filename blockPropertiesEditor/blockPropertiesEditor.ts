@@ -64,11 +64,22 @@ function buildForm(block: BlockData) {
 	}
 }
 
+function truncateText(text: string, maxChars: number): string {
+    if (text.length <= maxChars) {
+        return text;
+    }
+    // leave room for the ellipsis character
+    return text.slice(0, maxChars - 1) + '…';
+}
+
 function appendField(container: HTMLElement, key: string, value: string | number, type: string = 'text') {
         const group = document.createElement('vscode-form-group');
         const labelEl = document.createElement('vscode-label');
         labelEl.setAttribute('for', key);
-        labelEl.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+        const fullLabel = key.charAt(0).toUpperCase() + key.slice(1);
+        labelEl.title = fullLabel;
+
+        labelEl.textContent = truncateText(fullLabel, 15);
 
         const input = document.createElement('vscode-textfield');
         input.id = key;
@@ -79,80 +90,83 @@ function appendField(container: HTMLElement, key: string, value: string | number
         container.appendChild(group);
     }
 
-    function appendPropertyField(container: HTMLElement, key: string, property: {type: string, value: any }) {
-        const group = document.createElement('vscode-form-group');
-        const labelEl = document.createElement('vscode-label');
-        labelEl.setAttribute('for', key);
-        labelEl.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+function appendPropertyField(container: HTMLElement, key: string, property: {type: string, value: any }) {
+    const group = document.createElement('vscode-form-group');
+    const labelEl = document.createElement('vscode-label');
+    labelEl.setAttribute('for', key);
+    const fullLabel = key.charAt(0).toUpperCase() + key.slice(1);
+    labelEl.title = fullLabel;
 
-        let input: HTMLElement;
+    labelEl.textContent = truncateText(fullLabel, 15);
 
-        if (property.type === 'bool') {
-            input = document.createElement('input');
-            input.id = key;
-            input.setAttribute('type', 'checkbox');
-            (input as HTMLInputElement).checked = property.value;
-        } else if (property.type === 'float' || property.type === 'int') {
-            input = document.createElement('vscode-textfield');
-            input.id = key;
-            input.setAttribute('type', 'number');
-            input.setAttribute('value', property.value.toString());
-        } else if (property.type === 'string') {
-            input = document.createElement('vscode-textfield');
-            input.id = key;
-            input.setAttribute('type', 'text');
-            input.setAttribute('value', property.value);
-        } else if (property.type.endsWith('[]') && Array.isArray(property.value)) {
-            input = document.createElement('div');
-            input.id = key;
-            property.value.forEach((item: any, idx: number) => {
-                const itemInput = document.createElement('vscode-textfield');
-                itemInput.id = `${key}__${idx}`;
-                itemInput.setAttribute('value', item.toString());
-                itemInput.setAttribute('style', 'margin-right:4px;');
-                input.appendChild(itemInput);
+    let input: HTMLElement;
 
-                const removeBtn = document.createElement('button');
-                removeBtn.textContent = '✕';
-                removeBtn.setAttribute('type', 'button');
-                removeBtn.onclick = () => {
-                    input.removeChild(itemInput);
-                    input.removeChild(removeBtn);
-                };
-                input.appendChild(removeBtn);
-            });
-            const addBtn = document.createElement('button');
-            addBtn.textContent = '+';
-            addBtn.setAttribute('type', 'button');
-            addBtn.onclick = () => {
-                const idx = input.querySelectorAll('vscode-textfield').length;
-                const itemInput = document.createElement('vscode-textfield');
-                itemInput.id = `${key}__${idx}`;
-                itemInput.setAttribute('value', '');
-                itemInput.setAttribute('style', 'margin-right:4px;');
-                input.insertBefore(itemInput, addBtn);
-                const removeBtn = document.createElement('button');
-                removeBtn.textContent = '✕';
-                removeBtn.setAttribute('type', 'button');
-                removeBtn.onclick = () => {
-                    input.removeChild(itemInput);
-                    input.removeChild(removeBtn);
-                };
-                input.insertBefore(removeBtn, addBtn);
+    if (property.type === 'bool') {
+        input = document.createElement('input');
+        input.id = key;
+        input.setAttribute('type', 'checkbox');
+        (input as HTMLInputElement).checked = property.value;
+    } else if (property.type === 'float' || property.type === 'int') {
+        input = document.createElement('vscode-textfield');
+        input.id = key;
+        input.setAttribute('type', 'number');
+        input.setAttribute('value', property.value.toString());
+    } else if (property.type === 'string') {
+        input = document.createElement('vscode-textfield');
+        input.id = key;
+        input.setAttribute('type', 'text');
+        input.setAttribute('value', property.value);
+    } else if (property.type.endsWith('[]') && Array.isArray(property.value)) {
+        input = document.createElement('div');
+        input.id = key;
+        property.value.forEach((item: any, idx: number) => {
+            const itemInput = document.createElement('vscode-textfield');
+            itemInput.id = `${key}__${idx}`;
+            itemInput.setAttribute('value', item.toString());
+            itemInput.setAttribute('style', 'margin-right:4px;');
+            input.appendChild(itemInput);
+
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '✕';
+            removeBtn.setAttribute('type', 'button');
+            removeBtn.onclick = () => {
+                input.removeChild(itemInput);
+                input.removeChild(removeBtn);
             };
-            input.appendChild(addBtn);
-        } else {
-            // fallback: string
-            input = document.createElement('vscode-textfield');
-            input.id = key;
-            input.setAttribute('type', 'text');
-            input.setAttribute('value', property.value?.toString() ?? '');
-        }
-
-        group.appendChild(labelEl);
-        group.appendChild(input);
-        container.appendChild(group);
+            input.appendChild(removeBtn);
+        });
+        const addBtn = document.createElement('button');
+        addBtn.textContent = '+';
+        addBtn.setAttribute('type', 'button');
+        addBtn.onclick = () => {
+            const idx = input.querySelectorAll('vscode-textfield').length;
+            const itemInput = document.createElement('vscode-textfield');
+            itemInput.id = `${key}__${idx}`;
+            itemInput.setAttribute('value', '');
+            itemInput.setAttribute('style', 'margin-right:4px;');
+            input.insertBefore(itemInput, addBtn);
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '✕';
+            removeBtn.setAttribute('type', 'button');
+            removeBtn.onclick = () => {
+                input.removeChild(itemInput);
+                input.removeChild(removeBtn);
+            };
+            input.insertBefore(removeBtn, addBtn);
+        };
+        input.appendChild(addBtn);
+    } else {
+        // fallback: string
+        input = document.createElement('vscode-textfield');
+        input.id = key;
+        input.setAttribute('type', 'text');
+        input.setAttribute('value', property.value?.toString() ?? '');
     }
+
+    group.appendChild(labelEl);
+    group.appendChild(input);
+    container.appendChild(group);
+}
 
 
 /**
