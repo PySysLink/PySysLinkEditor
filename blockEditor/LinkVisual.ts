@@ -76,6 +76,7 @@ export class LinkNode extends Selectable implements Movable {
             if (!isPreviousSegmentSelected) {
                 let segmentSelectable = selectables.find(selectable => selectable.getId() === previousSegmentId);
                 if (segmentSelectable && isMovable(segmentSelectable)) {
+                    console.log(`Everything OK, moving previous segment: ${segmentSelectable.getId()}`);
                     (segmentSelectable as Movable).moveTo(x, y, communicationManager, selectables);
                 }
             }            
@@ -96,10 +97,12 @@ export class LinkNode extends Selectable implements Movable {
             let isNextIntermediateNodeSelected = false;
             if (targetId !== "TargetNode") {
                 isNextIntermediateNodeSelected = selectables.some(selectable => selectable.getId() === targetId && selectable.isSelected());
+                console.log(`Next intermediate node: ${targetId} is selected: ${isNextIntermediateNodeSelected}`);
             }
             if (!isNextSegmentSelected && !isNextIntermediateNodeSelected) {
                 let segmentSelectable = selectables.find(selectable => selectable.getId() === nextSegmentId);
                 if (segmentSelectable && isMovable(segmentSelectable)) {
+                    console.log(`Everything OK, moving next segment: ${segmentSelectable.getId()}`);
                     (segmentSelectable as Movable).moveTo(x, y, communicationManager, selectables);
                 } 
             }
