@@ -8,6 +8,7 @@ interface SimulationConfig {
   run_in_natural_time: boolean;
   natural_time_speed_multiplier: number;
   simulation_options_file: string;
+  initialization_script_file: string;
 }
 interface ProgressMessage { progress: number; }
 interface ResultMessage { result: any; }
@@ -25,6 +26,8 @@ function buildUI() {
 
   // Form container
   const form = document.createElement('vscode-form-container') as any;
+
+  form.appendChild(makeDisplayGroup('current_pslk', 'Current pslk', 'Select a file...'));
 
   // Start Time
   form.appendChild(makeFormGroup('start_time', 'Start Time', 'number', '0'));
@@ -46,8 +49,9 @@ function buildUI() {
 
   // Simulation Options File (text field + browse button)
   const grpFile = document.createElement('vscode-form-group') as any;
+  const grpFileBtn = document.createElement('vscode-form-group') as any;
   const lblFile = document.createElement('vscode-label');
-  lblFile.textContent = 'Simulation Options File';
+  lblFile.textContent = 'Simulation Options';
   lblFile.setAttribute('for', 'simulation_options_file');
   const inputFile = document.createElement('vscode-textfield') as any;
   inputFile.id = 'simulation_options_file';
@@ -61,8 +65,31 @@ function buildUI() {
   });
   grpFile.appendChild(lblFile);
   grpFile.appendChild(inputFile);
-  grpFile.appendChild(browseBtn);
+  grpFileBtn.appendChild(browseBtn);
   form.appendChild(grpFile);
+  form.appendChild(grpFileBtn);
+  
+  // Initialization Script File (text field + browse button)
+  const grpFileInit = document.createElement('vscode-form-group') as any;
+  const grpFileInitBtn = document.createElement('vscode-form-group') as any;
+  const lblFileInit = document.createElement('vscode-label');
+  lblFileInit.textContent = 'Initialization Script';
+  lblFileInit.setAttribute('for', 'initialization_script_file');
+  const inputFileInit = document.createElement('vscode-textfield') as any;
+  inputFileInit.id = 'initialization_script_file';
+  inputFileInit.setAttribute('type', 'text');
+  inputFileInit.setAttribute('placeholder', 'Select a file...');
+  inputFileInit.addEventListener('input', notifyConfigChanged);
+  const browseBtnInit = document.createElement('vscode-button') as any;
+  browseBtnInit.textContent = 'Browse';
+  browseBtnInit.addEventListener('click', () => {
+    vscode.postMessage({ type: 'openInitializationScriptFileSelector' });
+  });
+  grpFileInit.appendChild(lblFileInit);
+  grpFileInit.appendChild(inputFileInit);
+  grpFileInitBtn.appendChild(browseBtnInit);
+  form.appendChild(grpFileInit);
+  form.appendChild(grpFileInitBtn);
 
   // Buttons
   const runBtn  = document.createElement('vscode-button') as any;
@@ -116,6 +143,24 @@ function makeFormGroup(
   return group;
 }
 
+function makeDisplayGroup(
+  id: string,
+  label: string,
+  value: string
+) {
+  const group = document.createElement('vscode-form-group') as any;
+  const lbl = document.createElement('vscode-label');
+  lbl.setAttribute('for', id);
+  lbl.textContent = label;
+  const info = document.createElement('span');
+  info.id = id;
+  info.textContent = value;
+  info.style.marginLeft = '8px';
+  group.appendChild(lbl);
+  group.appendChild(info);
+  return group;
+}
+
 /** Gather form values into a SimulationConfig */
 function readConfig(): SimulationConfig {
   const start_time = Number((document.getElementById('start_time') as any).value);
@@ -123,7 +168,8 @@ function readConfig(): SimulationConfig {
   const run_in_natural_time = (document.getElementById('run_in_natural_time') as any).checked;
   const natural_time_speed_multiplier = Number((document.getElementById('natural_time_speed_multiplier') as any).value);
   const simulation_options_file = (document.getElementById('simulation_options_file') as any).value;
-  return { start_time, stop_time, run_in_natural_time, natural_time_speed_multiplier: natural_time_speed_multiplier, simulation_options_file };
+  const initialization_script_file = (document.getElementById('initialization_script_file') as any).value;
+  return { start_time, stop_time, run_in_natural_time, natural_time_speed_multiplier: natural_time_speed_multiplier, simulation_options_file, initialization_script_file };
 }
 
 function notifyConfigChanged() {
@@ -211,11 +257,13 @@ window.addEventListener('message', (event) => {
 
   if (msg.type === 'setSimulationConfig' && msg.config) {
     const cfg = msg.config;
+    (document.getElementById('current_pslk') as any).textContent = cfg.current_pslk ?? '';
     (document.getElementById('start_time') as any).value = cfg.start_time ?? '';
     (document.getElementById('stop_time') as any).value = cfg.stop_time ?? '';
     (document.getElementById('natural_time_speed_multiplier') as any).value = cfg.natural_time_speed_multiplier ?? '';
     (document.getElementById('run_in_natural_time') as any).checked = !!cfg.run_in_natural_time;
     (document.getElementById('simulation_options_file') as any).value = cfg.simulation_options_file ?? '';
+    (document.getElementById('initialization_script_file') as any).value = cfg.initialization_script_file ?? '';
     updateStatus('Simulation configuration loaded.');
     return;
   }

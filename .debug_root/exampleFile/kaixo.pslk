@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 16,
   "blocks": [
     {
       "id": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
@@ -41,8 +41,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 675.9726842009796,
-      "y": 316.9598658070434,
+      "x": 491.97268420097953,
+      "y": 271.62653247371003,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -202,15 +202,15 @@
       "targetId": "38zrGhvsAMSsX8eaZTg7fdyffRhOio6u",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 795.9726842009796,
-      "sourceY": 336.9598658070434,
+      "sourceX": 611.9726842009795,
+      "sourceY": 291.62653247371003,
       "targetX": 1116.8563159630917,
       "targetY": 520.3488901514786,
       "intermediateNodes": [
         {
           "id": "esIutwAoeYZOGH8DAbTlf0kZ9aIx3mpn",
           "x": 924.5219169375514,
-          "y": 336.9598658070434
+          "y": 291.62653247371003
         },
         {
           "id": "UXwv7RsI9JT5fcGitzZ2rF11F5WoB9Uj",
@@ -312,5 +312,6 @@
       ]
     }
   ],
-  "simulation_configuration": "/home/pello/pysyslink-editor/.debug_root/exampleFile/options.yaml"
+  "simulation_configuration": "options.yaml",
+  "initialization_python_script_path": "initParam.py"
 }

@@ -9,6 +9,7 @@ export function MergeJsons(
     let mergedJson: JsonData = {
         version: Math.max(jsonBase.version, jsonChildPriority.version, jsonChild2.version),
         simulation_configuration: "",
+        initialization_python_script_path: "",
         blocks: [],
         links: [],
     };
@@ -94,6 +95,17 @@ export function MergeJsons(
         jsonChildPriority.links,
         jsonChild2.links
     );
+
+    function addId(value: any) {
+        return {id: "dummy", value: value};
+    }
+    mergedJson.simulation_configuration = mergeObject(addId(jsonBase.simulation_configuration),
+                                                    addId(jsonChildPriority.simulation_configuration),
+                                                    addId(jsonChild2.simulation_configuration)).value;
+                                                    
+    mergedJson.initialization_python_script_path = mergeObject(addId(jsonBase.initialization_python_script_path),
+                                                    addId(jsonChildPriority.initialization_python_script_path),
+                                                    addId(jsonChild2.initialization_python_script_path)).value;
 
     mergedJson = updateLinksSourceTargetPosition(mergedJson);
 

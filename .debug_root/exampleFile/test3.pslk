@@ -1,0 +1,89 @@
+{
+  "version": 23,
+  "blocks": [
+    {
+      "id": "hXJ8n6A4P1dPXZInrYLtPnAPmvuQtTuu",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 166,
+      "y": 198.609375,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "Exudv4oE0S6QXJarLtZ4WMe4AtN3misX",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 454,
+      "y": 166.609375,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Display",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "t1vHjSXwc72INlIhTcaENCL4aHzvEEcp",
+      "sourceId": "hXJ8n6A4P1dPXZInrYLtPnAPmvuQtTuu",
+      "targetId": "Exudv4oE0S6QXJarLtZ4WMe4AtN3misX",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 286,
+      "sourceY": 218.609375,
+      "targetX": 454,
+      "targetY": 186.609375,
+      "intermediateNodes": [
+        {
+          "id": "eNdJyBG3NY2aC69ld2Cs2LLZ0UcHqpPY",
+          "y": 218.609375,
+          "x": 394.5
+        },
+        {
+          "id": "xtisZsUMQLaumbUmInNGjf0eKBP5YVKM",
+          "y": 186.609375,
+          "x": 394.5
+        }
+      ]
+    }
+  ],
+  "simulation_configuration": "options.yaml",
+  "initialization_python_script_path": "initParam.py"
+}

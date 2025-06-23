@@ -1,72 +1,41 @@
 Blocks:
-- Id: 38zrGhvsAMSsX8eaZTg7fdyffRhOio6u
+- Id: PSoZXroTzEQnjGXYiheYeZWR1WTQSeJl
   Name: Adder
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Adder
   Gains:
   - 1.0
   - 1.0
-  - -1.0
-- Id: rVku98kvuv74fMESFc2Am01t5OLL3KEu
+- Id: nx0MITpddR4PS825bmSZzPmHFqtCAu6b
   Name: Constant
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Constant
-  Value: 1.0
-- Id: EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS
-  Name: Integrator
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Integrator
-  InitialValue: 0.0
-  ContinuousSampleTimeGroup: 1.0
-- Id: xSd0egtPgxMwth16iFs3nG2pXHXOVX1j
-  Name: Constant
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Constant
-  Value: 1.0
-- Id: Of6AFAeXbm40lskvJU6SSKMCOHj8ISQg
+  Value: 1.25
+- Id: VsmFcVusEveFq8J2t7FECwq5WHD7liYX
   Name: Display
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Display
-- Id: bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do
-  Name: Integrator
+- Id: NTKoQcfqWRVENOkZlgxdPrvZyYKH0Pgn
+  Name: Constant
   BlockType: BasicCpp
-  BlockClass: BasicBlocks/Integrator
-  InitialValue: 0.0
-  ContinuousSampleTimeGroup: 1.0
+  BlockClass: BasicBlocks/Constant
+  Value: 1.0
 Links:
-- Id: HB31doRTE5gWxCKoVB3J1rfTSGO3LLra
-  Name: HB31doRTE5gWxCKoVB3J1rfTSGO3LLra
-  SourceBlockId: rVku98kvuv74fMESFc2Am01t5OLL3KEu
+- Id: jgd3QXUQgb5GHcof2626gAD5x4RvTINH
+  Name: jgd3QXUQgb5GHcof2626gAD5x4RvTINH
+  SourceBlockId: nx0MITpddR4PS825bmSZzPmHFqtCAu6b
   SourcePortIdx: 0
-  DestinationBlockId: 38zrGhvsAMSsX8eaZTg7fdyffRhOio6u
+  DestinationBlockId: PSoZXroTzEQnjGXYiheYeZWR1WTQSeJl
   DestinationPortIdx: 0
-- Id: FEwmlAsSQsc82ZB4AFw2XrLkd5WA1XeF
-  Name: FEwmlAsSQsc82ZB4AFw2XrLkd5WA1XeF
-  SourceBlockId: 38zrGhvsAMSsX8eaZTg7fdyffRhOio6u
+- Id: uXVMriyUjksmwuIhDzStfZd6Whpv1P1G
+  Name: uXVMriyUjksmwuIhDzStfZd6Whpv1P1G
+  SourceBlockId: PSoZXroTzEQnjGXYiheYeZWR1WTQSeJl
   SourcePortIdx: 0
-  DestinationBlockId: bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do
+  DestinationBlockId: VsmFcVusEveFq8J2t7FECwq5WHD7liYX
   DestinationPortIdx: 0
-- Id: cHS1YXrwYyMSaiXqMqGK7mCurff2xNv4
-  Name: cHS1YXrwYyMSaiXqMqGK7mCurff2xNv4
-  SourceBlockId: EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS
+- Id: 56HgwjlZPQyUwNfhYrJmvIsH810E4uev
+  Name: 56HgwjlZPQyUwNfhYrJmvIsH810E4uev
+  SourceBlockId: NTKoQcfqWRVENOkZlgxdPrvZyYKH0Pgn
   SourcePortIdx: 0
-  DestinationBlockId: Of6AFAeXbm40lskvJU6SSKMCOHj8ISQg
-  DestinationPortIdx: 0
-- Id: LaGVv1Gue4Me9VpyuJ0MtFArCmZ3ps7t
-  Name: LaGVv1Gue4Me9VpyuJ0MtFArCmZ3ps7t
-  SourceBlockId: EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS
-  SourcePortIdx: 0
-  DestinationBlockId: 38zrGhvsAMSsX8eaZTg7fdyffRhOio6u
-  DestinationPortIdx: 2
-- Id: wRVtYGRBElzWGySlZqK3OOXnSLMmN4wf
-  Name: wRVtYGRBElzWGySlZqK3OOXnSLMmN4wf
-  SourceBlockId: bJnWjkuNOjYMEQsgpt7ZRbDijo6F16Do
-  SourcePortIdx: 0
-  DestinationBlockId: EtH08AW43KkpNj9aYRO8OjtAWT6kM0NS
-  DestinationPortIdx: 0
-- Id: YXaGBYHtKMC9pzpt70dNV9IwdwMzmaRF
-  Name: YXaGBYHtKMC9pzpt70dNV9IwdwMzmaRF
-  SourceBlockId: xSd0egtPgxMwth16iFs3nG2pXHXOVX1j
-  SourcePortIdx: 0
-  DestinationBlockId: 38zrGhvsAMSsX8eaZTg7fdyffRhOio6u
+  DestinationBlockId: PSoZXroTzEQnjGXYiheYeZWR1WTQSeJl
   DestinationPortIdx: 1

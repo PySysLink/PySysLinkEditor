@@ -28,6 +28,7 @@ export interface LinkData {
 export interface JsonData {
     version: number;
     simulation_configuration: string;
+    initialization_python_script_path: string;
     blocks: BlockData[] | undefined;
     links: LinkData[] | undefined;
 }

@@ -30,6 +30,10 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 			if (simPath) {
 				this.simulationManager.setCurrentSimulationOptionsPath(simPath);
 			}
+			let initPath = session.getInitializationScriptPath();
+			if (initPath) {
+				this.simulationManager.setCurrentInitializationScriptPath(initPath);
+			}
 		}
 	}
 
@@ -114,6 +118,7 @@ export class PySysLinkBlockEditorSession {
 		this.pythonServer.addMessageListener((msg) => this.handlePythonMessage(msg));
 		this.blockPropertiesProvider.registerOnUpdateCallback(this.updateBlockParameters);
 		this.simulationManager.registerCurrentSimulationOptionsFileChangedHandler(this.changeSimulationsOptionsFile);
+		this.simulationManager.registerCurrentInitializationScriptFileChangedHandler(this.changeInitializationScriptFile);
 
 
 		this.context.subscriptions.push(
@@ -280,6 +285,10 @@ export class PySysLinkBlockEditorSession {
 		let simPath = this.getSimulationOptionsPath();
 		if (simPath) {
 			this.simulationManager.setCurrentSimulationOptionsPath(simPath);
+		}
+		let initPath = this.getInitializationScriptPath();
+		if (initPath) {
+			this.simulationManager.setCurrentInitializationScriptPath(initPath);
 		}
 	}
 
@@ -466,7 +475,7 @@ export class PySysLinkBlockEditorSession {
 		const text = document.getText();
 		if (text.trim().length === 0) {
 			this.lastVersion += 1;
-			return { version: this.lastVersion, blocks: [], links: [], simulation_configuration: "" };
+			return { version: this.lastVersion, blocks: [], links: [], simulation_configuration: "", initialization_python_script_path: "" };
 		}
 	
 		try {
@@ -571,6 +580,14 @@ export class PySysLinkBlockEditorSession {
 		}
 		return undefined;
 	};
+	
+	public getInitializationScriptPath = (): string | undefined => {
+		if (this.document) {
+			const json = this.getDocumentAsJson(this.document);
+			return json.initialization_python_script_path;
+		}
+		return undefined;
+	};
 
 	public changeSimulationsOptionsFile = (newPath: string): void => {
 		if (this.document) {
@@ -582,6 +599,19 @@ export class PySysLinkBlockEditorSession {
 			});
 
 			this.simulationManager.setCurrentSimulationOptionsPath(newPath);
+		}
+	};
+	
+	public changeInitializationScriptFile = (newPath: string): void => {
+		if (this.document) {
+			
+			this.withDocumentLock(async () => {
+				const json = this.getDocumentAsJson(this.document);
+				json.initialization_python_script_path = newPath;	
+				await this.updateTextDocument(this.document!, json);
+			});
+
+			this.simulationManager.setCurrentInitializationScriptPath(newPath);
 		}
 	};
 }

@@ -9,9 +9,11 @@ import * as yaml from 'js-yaml';
 export class SimulationManager implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
     private currentSimulationOptionsFileChangedHandler: ((newPath: string) => void)[] = [];
+    private currentInitializationScriptFileChangedHandler: ((newPath: string) => void)[] = [];
 
     private currentPslkPath: string | undefined = undefined;
     private currentSimulationOptionsPath: string | undefined = undefined;
+    private currentInitializationScriptPath: string | undefined = undefined;
 
     private pslkCallbacks: Map<string, (msg: any) => void> = new Map();
 
@@ -20,6 +22,10 @@ export class SimulationManager implements vscode.WebviewViewProvider {
 
     public registerCurrentSimulationOptionsFileChangedHandler(handler: ((currentSimulationPath: string) => void)): void {
       this.currentSimulationOptionsFileChangedHandler.push(handler);
+    }
+    
+    public registerCurrentInitializationScriptFileChangedHandler(handler: ((currentInitializationScriptPath: string) => void)): void {
+      this.currentInitializationScriptFileChangedHandler.push(handler);
     }
 
     public resolveWebviewView(
@@ -34,6 +40,8 @@ export class SimulationManager implements vscode.WebviewViewProvider {
         vscode.Uri.joinPath(this.context.extensionUri, 'out', 'simulationManager', 'simulationManager.js')
       );
       const elementsBundled = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', '@vscode-elements', 'elements', 'dist', 'bundled.js'));
+      const styleMainUri = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(
+            this.context.extensionUri, 'simulationManager', 'simulationManager.css'));
 
       webviewView.webview.html = /* html */`
         <!DOCTYPE html>
@@ -43,6 +51,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
               src="${elementsBundled}"
               type="module"
             ></script>
+            <link href="${styleMainUri}" rel="stylesheet" />
           </head>
           <body>
             <div id="app"></div>
@@ -83,6 +92,9 @@ export class SimulationManager implements vscode.WebviewViewProvider {
             break;
           case 'openSimulationOptionsFileSelector':
             this.openSimulationOptionsFileSelector();
+            break;
+          case 'openInitializationScriptFileSelector':
+            this.openInitializationScriptFileSelector();
             break;
           case 'simulationConfigChanged':
             this.saveSimulationConfigToFile(msg.config);
@@ -133,10 +145,16 @@ export class SimulationManager implements vscode.WebviewViewProvider {
     public setCurrentPslkPath(pslkPath: string, callback?: (msg: any) => void) {
       this.currentPslkPath = pslkPath;
       this.pslkCallbacks.set(pslkPath, callback || ((msg: any) => {}));    
+      this.sendSimulationConfigToWebview();
     }
 
     public setCurrentSimulationOptionsPath(currentSimulationOptionsPath: string) {
       this.currentSimulationOptionsPath = currentSimulationOptionsPath;
+      this.sendSimulationConfigToWebview();
+    }
+
+    public setCurrentInitializationScriptPath(currentInitializationScriptPath: string) {
+      this.currentInitializationScriptPath = currentInitializationScriptPath;
       this.sendSimulationConfigToWebview();
     }
 
@@ -146,16 +164,50 @@ export class SimulationManager implements vscode.WebviewViewProvider {
         canSelectMany: false,
         openLabel: 'Open',
         canSelectFiles: true,
-        defaultUri: this.currentSimulationOptionsPath ? vscode.Uri.file(this.currentSimulationOptionsPath) : undefined
+        defaultUri: this.currentSimulationOptionsPath && this.currentPslkPath ? vscode.Uri.file(path.resolve(path.dirname(this.currentPslkPath), this.currentSimulationOptionsPath)) : undefined
       };
 
       vscode.window.showOpenDialog(options).then(fileUri => {
           if (fileUri && fileUri[0]) {
               console.log('Selected file: ' + fileUri[0].fsPath);
-              this.currentSimulationOptionsPath = fileUri[0].fsPath;
+              let selectedPath = fileUri[0].fsPath;
+              if (this.currentPslkPath) {
+                const baseDir = path.dirname(this.currentPslkPath);
+                selectedPath = path.relative(baseDir, selectedPath);
+              }
+              this.currentSimulationOptionsPath = selectedPath;
               // Notify all registered handlers about the change
               this.currentSimulationOptionsFileChangedHandler.forEach(handler => {
                 handler(this.currentSimulationOptionsPath!);
+              });
+              // Post message to webview to update the UI
+              this.sendSimulationConfigToWebview();
+               
+          }
+      });
+    }
+    
+    
+    private async openInitializationScriptFileSelector() {
+      const options: vscode.OpenDialogOptions = {
+        canSelectMany: false,
+        openLabel: 'Open',
+        canSelectFiles: true,
+        defaultUri: this.currentInitializationScriptPath && this.currentPslkPath ? vscode.Uri.file(path.resolve(path.dirname(this.currentPslkPath), this.currentInitializationScriptPath)) : undefined
+      };
+
+      vscode.window.showOpenDialog(options).then(fileUri => {
+          if (fileUri && fileUri[0]) {
+              console.log('Selected file: ' + fileUri[0].fsPath);
+              let selectedPath = fileUri[0].fsPath;
+              if (this.currentPslkPath) {
+                const baseDir = path.dirname(this.currentPslkPath);
+                selectedPath = path.relative(baseDir, selectedPath);
+              }
+              this.currentInitializationScriptPath = selectedPath;
+              // Notify all registered handlers about the change
+              this.currentInitializationScriptFileChangedHandler.forEach(handler => {
+                handler(this.currentInitializationScriptPath!);
               });
               // Post message to webview to update the UI
               this.sendSimulationConfigToWebview();
@@ -179,6 +231,8 @@ export class SimulationManager implements vscode.WebviewViewProvider {
         }
       }
 
+      const currentPslkFilename = this.currentPslkPath ? path.basename(this.currentPslkPath) : '';
+
       this._view.webview.postMessage({
         type: 'setSimulationConfig',
         config: {
@@ -186,7 +240,9 @@ export class SimulationManager implements vscode.WebviewViewProvider {
           stop_time: configFromFile.stop_time ?? 10,
           run_in_natural_time: configFromFile.run_in_natural_time ?? false,
           natural_time_speed_multiplier: configFromFile.natural_time_speed_multiplier ?? 1,
-          simulation_options_file: this.currentSimulationOptionsPath || ''
+          simulation_options_file: this.currentSimulationOptionsPath || '',
+          initialization_script_file: this.currentInitializationScriptPath || '',
+          current_pslk: currentPslkFilename
         }
       });
     }

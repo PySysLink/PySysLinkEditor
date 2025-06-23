@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 6,
   "blocks": [
     {
       "id": "ui2fCl1fkBJFcfCk3L3CENHSDqsELZXJ",
@@ -166,14 +166,14 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Nire konstantea",
-      "x": 287.8139997257658,
-      "y": 293.25401926504856,
+      "x": 272.3524612642274,
+      "y": 433.8694038804329,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
         "Value": {
           "type": "float",
-          "value": 1
+          "value": "max(3,4)"
         }
       },
       "blockRenderInformation": {
@@ -269,30 +269,20 @@
       "targetId": "jMsuWJvm90tRhFj9pzV4bCuBlGUX3YWt",
       "sourcePort": 0,
       "targetPort": 1,
-      "sourceX": 407.8139997257658,
-      "sourceY": 313.25401926504856,
+      "sourceX": 392.3524612642274,
+      "sourceY": 453.8694038804329,
       "targetX": 704.67496229261,
       "targetY": 347.35963423831106,
       "intermediateNodes": [
         {
           "id": "KXfKdURMcjz5ZOdxMGF7YcxcTwEpE2Zg",
-          "y": 313.25401926504856,
+          "y": 453.8694038804329,
           "x": 592.8033045386019
         },
         {
           "id": "z3FUTkOMxC1bZ0I33RTIxKjEoLtKAL7g",
-          "y": 405.4331636500767,
+          "y": 347.4331636500767,
           "x": 592.8033045386019
-        },
-        {
-          "id": "BPJ0Fb13L8loKTcYwyQftrOpa6hAvtwZ",
-          "x": 623.67496229261,
-          "y": 405.4331636500767
-        },
-        {
-          "id": "MAq7Yvzlz8jZyOuNxC3MWl52kqP2yJdC",
-          "x": 623.67496229261,
-          "y": 347.35963423831106
         }
       ]
     },
@@ -321,5 +311,5 @@
       "intermediateNodes": []
     }
   ],
-  "simulation_configuration": ""
+  "simulation_configuration": "options.yaml"
 }

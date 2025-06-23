@@ -8,3 +8,4 @@ solvers_configuration:
     ControlledSolver: rosenbrock4_controller
     AbsoluteTolerance: 1.e-8
     RelativeTolerance: 1.e-8
+initialization_script_file: ''
