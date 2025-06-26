@@ -135,7 +135,7 @@ export class PySysLinkBlockEditorSession {
 
 		switch (msg.type) {
 			case 'print':
-				// console.log(`[python server]: ${msg.message}`);
+				console.log(`[python server]: ${msg.message}`);
 				break;
 			case 'notification':
 				// In our protocol, notifications carry an `event` + `data`
@@ -272,7 +272,9 @@ export class PySysLinkBlockEditorSession {
 					this.loadBlockLibraries();
 					return;
 				case 'doubleClickOnBlock':
-					this.displayBlockHTML(e.blockId);
+					if (this.pythonServer.isRunning()) {
+						this.displayBlockHTML(e.blockId);
+					}
 					return;
 				default:
 					console.log(`Type of message not recognized: ${e.type}`);

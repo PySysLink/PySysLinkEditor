@@ -117,14 +117,10 @@ async def get_libraries():
 
 async def get_block_render_information(block: str, pslkPath: str):
     render_information = get_toolkit().get_block_render_information("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml", block, pslkPath)
-    print(render_information)
     return render_information.to_json()
 
 async def get_block_html(block: str, pslkPath: str):
-    fig = plt.figure()
-    plt.plot([3,1,4,1,5])
-    html_str = mpld3.fig_to_html(fig)
-    
+    html_str = get_toolkit().get_block_html("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml", block, pslkPath)
     return { "html": html_str }
     
 

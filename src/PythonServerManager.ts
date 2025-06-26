@@ -104,10 +104,10 @@ export class PythonServerManager {
         rl.on('line', (line: string) => {
             try {
             const msg = JSON.parse(line);
-            // console.log('[Python JSON-RPC]', msg);
+            console.log('[Python JSON-RPC]', msg);
             this.notifyListeners(msg); 
             } catch (e) {
-            // console.error('[Protocol error] Invalid JSON:', line);
+            console.error('[Protocol error] Invalid JSON:', line);
             }
         });
         }

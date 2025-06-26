@@ -61,6 +61,10 @@ export class BlockVisual extends Selectable implements Movable {
         // Assemble
         this.blockElement.appendChild(this.labelElement);
 
+        this.blockElement.addEventListener('dblclick', (e: MouseEvent) => {
+            this.onDoubleClickCallbacks.forEach(cb => cb(e, this));
+        });
+
         const portWidth = 40;
         const portHeigh = 20;
 
@@ -78,10 +82,6 @@ export class BlockVisual extends Selectable implements Movable {
             
             inputPort.addEventListener('mousedown', (e: any) => {
                 this.onMouseDownInPort(e, "input", j);
-            });
-
-            this.blockElement.addEventListener('dblclick', (e: MouseEvent) => {
-                this.onDoubleClickCallbacks.forEach(cb => cb(e, this));
             });
 
             this.blockElement.appendChild(inputPort);
