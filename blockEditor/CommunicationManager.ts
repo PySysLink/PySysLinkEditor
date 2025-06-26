@@ -141,6 +141,10 @@ export class CommunicationManager {
         }
     };
 
+    public notifyDoubleClickOnBlock(id: string) {
+        this.vscode.postMessage({ type: 'doubleClickOnBlock', blockId: id});
+    }
+
     public deleteBlock = (blockId: IdType) => {
         let json = this.getLocalJson();
         if (json) {

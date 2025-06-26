@@ -27,6 +27,8 @@ export class BlockVisual extends Selectable implements Movable {
 
 
     onMouseDownOnPortCallbacks: ((e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
+    
+    onDoubleClickCallbacks: ((e: MouseEvent, block: BlockVisual) => void)[] = [];
 
     private onDelete: (block: BlockVisual) => void;
 
@@ -76,6 +78,10 @@ export class BlockVisual extends Selectable implements Movable {
             
             inputPort.addEventListener('mousedown', (e: any) => {
                 this.onMouseDownInPort(e, "input", j);
+            });
+
+            this.blockElement.addEventListener('dblclick', (e: MouseEvent) => {
+                this.onDoubleClickCallbacks.forEach(cb => cb(e, this));
             });
 
             this.blockElement.appendChild(inputPort);
@@ -177,6 +183,10 @@ export class BlockVisual extends Selectable implements Movable {
 
     public registerOnMouseDownOnPortCallback(callback: (e: any, portType: "input" | "output", portIndex: number) => void): void {
         this.onMouseDownOnPortCallbacks.push(callback);
+    }
+
+    public registerOnDoubleClickCallback(callback: (e: MouseEvent, block: BlockVisual) => void): void {
+        this.onDoubleClickCallbacks.push(callback);
     }
 
 

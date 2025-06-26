@@ -21,6 +21,7 @@ export class BlockInteractionManager {
 
     public createBlockVisual(blockData: BlockData): void {
         const block = new BlockVisual(blockData, this.communicationManager, this.deleteBlock);
+        block.registerOnDoubleClickCallback(this.doubleClickOnBlock);
         block.registerOnMouseDownOnPortCallback((e: any, portType: "input" | "output", portIndex: number) => {
             this.onMouseDownOnPort(block, e, portType, portIndex);
         });
@@ -80,5 +81,9 @@ export class BlockInteractionManager {
             this.blocks.splice(index, 1);
         }
         this.onDeleteCallbacks.forEach(callback => callback(block));
+    };
+
+    public doubleClickOnBlock = (e: MouseEvent, block: BlockVisual): void => {
+        this.communicationManager.notifyDoubleClickOnBlock(block.id);
     };
 }

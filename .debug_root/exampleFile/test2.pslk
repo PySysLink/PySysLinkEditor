@@ -1,13 +1,13 @@
 {
-  "version": 75,
+  "version": 31,
   "blocks": [
     {
       "id": "HRN8NXU3gibjtYpWFSO9nA4CHTf5cFVQ",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 162,
-      "y": 185.609375,
+      "x": 102,
+      "y": 143.609375,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -37,8 +37,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 408.8235294117647,
-      "y": 199.3152573529412,
+      "x": 398.8235294117647,
+      "y": 138.3152573529412,
       "inputPorts": 1,
       "outputPorts": 0,
       "properties": {},
@@ -66,19 +66,19 @@
       "targetId": "YC6Cp1syevrBxPq0GglF1o4rDxXgk9Dr",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 282,
-      "sourceY": 205.609375,
-      "targetX": 408.8235294117647,
-      "targetY": 219.3152573529412,
+      "sourceX": 222,
+      "sourceY": 163.609375,
+      "targetX": 398.8235294117647,
+      "targetY": 158.3152573529412,
       "intermediateNodes": [
         {
           "id": "GEmEsUjlbIXsjqjiwbfvmOg4FmIDy72l",
-          "y": 205.609375,
+          "y": 162.609375,
           "x": 345.4117647058823
         },
         {
           "id": "j6RspvtAx5W17151QoOW0SD7lbmkPrSU",
-          "y": 219.3152573529412,
+          "y": 158.3152573529412,
           "x": 345.4117647058823
         }
       ]

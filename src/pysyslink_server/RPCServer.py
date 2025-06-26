@@ -2,6 +2,8 @@ import json, asyncio
 import sys
 import time
 from typing import Any, Dict, Callable
+import warnings
+warnings.filterwarnings("ignore")
 
 class Protocol:
     """Serialize/deserialize and validate protocol messages."""

@@ -271,6 +271,9 @@ export class PySysLinkBlockEditorSession {
 				case 'updateBlockPalette':
 					this.loadBlockLibraries();
 					return;
+				case 'doubleClickOnBlock':
+					this.displayBlockHTML(e.blockId);
+					return;
 				default:
 					console.log(`Type of message not recognized: ${e.type}`);
 					return;
@@ -458,6 +461,59 @@ export class PySysLinkBlockEditorSession {
 		}
 		return false;
 	};
+
+	public async displayBlockHTML(blockId: IdType) {
+		let block = this.getDocumentAsJson(this.document).blocks?.find(block => block.id === blockId);
+		if (block === undefined) {
+			vscode.window.showErrorMessage(`Block with id: ${blockId} not found on document json`);
+			return;
+		}
+		try {
+			console.log("Result request block HTML");
+			const result = await this.pythonServer.sendRequestAsync({
+				method: "getBlockHTML",
+				params: { 
+					block: block,
+					pslkPath: this.document.uri.fsPath 
+				}
+			}, 10000);
+
+			const panel = vscode.window.createWebviewPanel(
+				'pysyslink-plot',
+				`Plot for block ${block.label}`,
+				vscode.ViewColumn.Active,
+				{ enableScripts: true }
+			);
+
+			await vscode.commands.executeCommand('workbench.action.moveEditorToNewWindow');
+			console.log(result);
+			panel.webview.html = `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    html, body {
+      background-color: white !important;
+      color: black;
+      margin: 0;
+      padding: 0;
+    }
+    /* Ensure plot area (the div with your figure) is white */
+    div[id^="fig_el"] {
+      background-color: white !important;
+    }
+  </style>
+</head>
+<body>
+  ${result.html}
+<body>
+<html>`;
+        } catch (error) {
+          console.error(`Error on python server while getting block HTML: ${error}`);
+          vscode.window.showErrorMessage(
+            `Error on python server while getting block HTML: ${error}`
+          );
+        }
+	}
 
 	private async withDocumentLock<T>(callback: () => Promise<T>): Promise<T> {
 		console.log('Acquiring lock...');
