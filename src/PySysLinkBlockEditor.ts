@@ -210,8 +210,7 @@ export class PySysLinkBlockEditorSession {
 			id: id,
 			method: 'runSimulation',
 			params: { 
-			pslkPath: this.document.uri.fsPath, 
-			configFile: this.getSimulationOptionsPath() || ''
+			pslkPath: this.document.uri.fsPath
 		}
 		};
 
@@ -495,7 +494,7 @@ export class PySysLinkBlockEditorSession {
 		if (this.pythonServer.isRunning()) {
 			const blockPromises = (json.blocks ?? []).map(async block => {
 				try {
-					const renderInfo = await this.getBlockRenderInformation(block);
+					const renderInfo = await this.getBlockRenderInformation(block, document.uri.fsPath);
 					if (renderInfo) {
 						block.blockRenderInformation = renderInfo;
 						block.inputPorts = renderInfo.input_ports;
@@ -526,12 +525,15 @@ export class PySysLinkBlockEditorSession {
 		return vscode.workspace.applyEdit(edit);
 	};
 
-	private async getBlockRenderInformation(block: BlockData): Promise<BlockRenderInformation | undefined> {
+	private async getBlockRenderInformation(block: BlockData, pslkPath: string): Promise<BlockRenderInformation | undefined> {
 		try {
 		console.log("Result request block render information");
           const result = await this.pythonServer.sendRequestAsync({
             method: "getBlockRenderInformation",
-			params: { block }
+			params: { 
+				block: block,
+				pslkPath: this.document.uri.fsPath 
+			}
           }, 10000);
 
 		  return JSON.parse(result) as BlockRenderInformation;

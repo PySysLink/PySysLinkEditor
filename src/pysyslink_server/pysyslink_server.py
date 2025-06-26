@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import sys
 import yaml
 
@@ -37,10 +38,30 @@ def get_toolkit():
     return _toolkit
 
 
-async def run_simulation(pslkPath: str, configFile: str):
+async def run_simulation(pslkPath: str):
     toolkit = get_toolkit()
 
-    with open(configFile, "r") as f:
+    # Compile high-level to low-level YAML
+    result = toolkit.compile_system(
+        "/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml",
+        pslkPath,
+        "simulation_output.yaml"
+    )
+    print(f"Compilation result: {result}")
+
+    with open(pslkPath, "r") as f:
+        system_json = json.load(f)
+
+    simulation_configuration_yaml_path = system_json.get("simulation_configuration", [])
+
+    # Resolve to absolute path if not already absolute
+    if not os.path.isabs(simulation_configuration_yaml_path):
+        pslk_dir = os.path.dirname(os.path.abspath(pslkPath))
+        simulation_configuration_yaml_path = os.path.normpath(
+            os.path.join(pslk_dir, simulation_configuration_yaml_path)
+        )
+
+    with open(simulation_configuration_yaml_path, "r") as f:
         sim_config = yaml.safe_load(f)
     stop_time = sim_config.get("stop_time", 10)
     start_time = sim_config.get("start_time", 0)
@@ -74,19 +95,11 @@ async def run_simulation(pslkPath: str, configFile: str):
                     data={"progress": percent}
                 )
 
-    # Compile high-level to low-level YAML
-    result = toolkit.compile_system(
-        "/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml",
-        pslkPath,
-        "simulation_output.yaml"
-    )
-    print(f"Compilation result: {result}")
-
 
     result = await toolkit.run_simulation(
         "/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml",
         "simulation_output.yaml",
-        configFile,  # adapt this line to your toolkit's API
+        simulation_configuration_yaml_path,  
         "simulation_output.txt",
         display_callback=display_callback
     )
@@ -97,8 +110,8 @@ async def get_libraries():
     # Return only essential information
     return json.dumps(libraries)
 
-async def get_block_render_information(block: str):
-    render_information = get_toolkit().get_block_render_information("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml", block)
+async def get_block_render_information(block: str, pslkPath: str):
+    render_information = get_toolkit().get_block_render_information("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml", block, pslkPath)
     print(render_information)
     return render_information.to_json()
     
