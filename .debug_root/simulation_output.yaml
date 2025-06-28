@@ -1,17 +1,92 @@
 Blocks:
-- Id: HRN8NXU3gibjtYpWFSO9nA4CHTf5cFVQ
+- Id: ljdA11TE3xprkwNXklK9XY7RNFaxzsld
   Name: Constant
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Constant
-  Value: 1.61245154965971
-- Id: YC6Cp1syevrBxPq0GglF1o4rDxXgk9Dr
+  Value: 1.0
+- Id: CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx
+  Name: Adder
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Adder
+  Gains:
+  - 1.0
+  - 1.0
+- Id: UXc2o9GlGcVzNK9mkKupskfkz6VTshP7
   Name: Display
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Display
+- Id: p86TQ2zckWmf4qE4KIYirkBMUNXyap6p
+  Name: Constant
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Constant
+  Value: 1.0
+- Id: dwZC2okhEIsgLSztdDhQ0IpY35qwIwdf
+  Name: Display
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Display
+- Id: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_gain0
+  Name: Gain 1
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Gain
+  Gain: 1
+- Id: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_offset
+  Name: Offset
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Constant
+  Value: 1
+- Id: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_adder
+  Name: Adder
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Adder
+  Gains:
+  - 1.0
+  - 1.0
 Links:
-- Id: RtCdzPDcsy1AXguz8qD7GDb0UnQXvnvl
-  Name: RtCdzPDcsy1AXguz8qD7GDb0UnQXvnvl
-  SourceBlockId: HRN8NXU3gibjtYpWFSO9nA4CHTf5cFVQ
+- Id: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_link0
+  Name: link_gain1_to_adder
+  SourceBlockId: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_gain0
   SourcePortIdx: 0
-  DestinationBlockId: YC6Cp1syevrBxPq0GglF1o4rDxXgk9Dr
+  DestinationBlockId: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_adder
+  DestinationPortIdx: 0
+- Id: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_link1
+  Name: link_offset_to_adder
+  SourceBlockId: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_offset
+  SourcePortIdx: 0
+  DestinationBlockId: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_adder
+  DestinationPortIdx: 1
+- Id: ZDi4iftQSZEhAHJu7z5kn3CAEdscw1j2
+  Name: ZDi4iftQSZEhAHJu7z5kn3CAEdscw1j2
+  SourceBlockId: ljdA11TE3xprkwNXklK9XY7RNFaxzsld
+  SourcePortIdx: 0
+  DestinationBlockId: CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx
+  DestinationPortIdx: 0
+- Id: 9mRZH2E6xrn8uoXyxDaJIknbzk1Ua698
+  Name: 9mRZH2E6xrn8uoXyxDaJIknbzk1Ua698
+  SourceBlockId: CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx
+  SourcePortIdx: 0
+  DestinationBlockId: UXc2o9GlGcVzNK9mkKupskfkz6VTshP7
+  DestinationPortIdx: 0
+- Id: qUYAj9OpSa0AyvioSuWeQ4R81O1ktDkl
+  Name: qUYAj9OpSa0AyvioSuWeQ4R81O1ktDkl
+  SourceBlockId: p86TQ2zckWmf4qE4KIYirkBMUNXyap6p
+  SourcePortIdx: 0
+  DestinationBlockId: CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx
+  DestinationPortIdx: 1
+- Id: d5KuNHfQq5wwxNhKZP9oTRtcge6IPVOP
+  Name: d5KuNHfQq5wwxNhKZP9oTRtcge6IPVOP
+  SourceBlockId: ljdA11TE3xprkwNXklK9XY7RNFaxzsld
+  SourcePortIdx: 0
+  DestinationBlockId: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_gain0
+  DestinationPortIdx: 0
+- Id: 2mHXs4ggF6fcxYzIqzL7i6e0T5Iywk1d
+  Name: 2mHXs4ggF6fcxYzIqzL7i6e0T5Iywk1d
+  SourceBlockId: p86TQ2zckWmf4qE4KIYirkBMUNXyap6p
+  SourcePortIdx: 0
+  DestinationBlockId: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_offset
+  DestinationPortIdx: 0
+- Id: gWj2DyPqI19BIX39EcKeSxfeClEmITTg
+  Name: gWj2DyPqI19BIX39EcKeSxfeClEmITTg
+  SourceBlockId: pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO_adder
+  SourcePortIdx: 0
+  DestinationBlockId: dwZC2okhEIsgLSztdDhQ0IpY35qwIwdf
   DestinationPortIdx: 0

@@ -1,4 +1,6 @@
 import asyncio
+import dataclasses
+from enum import Enum
 import json
 import os
 import sys
@@ -27,8 +29,8 @@ def try_import_toolkit():
     try:
         import pysyslink_toolkit
         _toolkit = pysyslink_toolkit
-    except ImportError:
-        raise RuntimeError(toolkit_error_msg)
+    except ImportError as e:
+        raise RuntimeError(toolkit_error_msg + f"\nError: {e}")
     
 def is_toolkit_imported():
     return _toolkit is not None
@@ -110,10 +112,16 @@ async def run_simulation(pslkPath: str):
     )
     return result
 
+class EnumEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Enum):
+            return obj.value
+        return super().default(obj)
+
 async def get_libraries():
     libraries = get_toolkit().get_available_block_libraries("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml")
     # Return only essential information
-    return json.dumps(libraries)
+    return json.dumps([dataclasses.asdict(library) for library in libraries], cls=EnumEncoder)
 
 async def get_block_render_information(block: str, pslkPath: str):
     render_information = get_toolkit().get_block_render_information("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml", block, pslkPath)

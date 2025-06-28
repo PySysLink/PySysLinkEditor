@@ -6,7 +6,7 @@ export interface BlockConfigurationValue {
 
 export interface BlockType {
   name: string;
-  configurationValues?: BlockConfigurationValue[];
+  configurationValues?: { [name: string]: BlockConfigurationValue };
 }
 
 export interface Library {

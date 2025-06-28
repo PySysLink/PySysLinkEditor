@@ -294,11 +294,14 @@ export class CommunicationManager {
         }
 
         let properties: Record<string, {type: string, value: any}> = {};
-        if (blockDef.configurationValues && Array.isArray(blockDef.configurationValues)) {
-            for (const conf of blockDef.configurationValues) {
+        if (blockDef.configurationValues) {
+            for (const key in blockDef.configurationValues) {
+                const conf = blockDef.configurationValues[key];
                 properties[conf.name] = {type: conf.type, value: conf.defaultValue};
             }
         }
+
+        this.print(`Properties are: ${JSON.stringify(properties)}, from configuration values: ${JSON.stringify(blockDef.configurationValues)}`);
 
         // Create the BlockData object
         const newBlock: BlockData = {

@@ -1,40 +1,14 @@
 {
-  "version": 16,
+  "version": 25,
   "blocks": [
     {
-      "id": "YC6Cp1syevrBxPq0GglF1o4rDxXgk9Dr",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Display",
-      "label": "Display",
-      "x": 414.8235294117647,
-      "y": 225.3152573529412,
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {},
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "No text",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "sXPaBrpWBgwp7cQV3PK6ihcRNpTZZoOB",
+      "id": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 105,
-      "y": 143,
-      "inputPorts": 1,
+      "x": 89,
+      "y": 118,
+      "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
         "Value": {
@@ -45,7 +19,7 @@
       "blockRenderInformation": {
         "shape": "square",
         "icon": "",
-        "text": "No text",
+        "text": "Constant",
         "show_image_and_text": false,
         "figure": null,
         "default_width": 120,
@@ -54,18 +28,18 @@
         "min_height": 25,
         "max_width": 360,
         "max_height": 150,
-        "input_ports": 1,
+        "input_ports": 0,
         "output_ports": 1
       }
     },
     {
-      "id": "9QkXnYAZJ92XxNhQFDOvfdj39c8Vo62A",
+      "id": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 402,
-      "y": 65,
-      "inputPorts": 1,
+      "x": 344,
+      "y": 143,
+      "inputPorts": 2,
       "outputPorts": 1,
       "properties": {
         "Gains": {
@@ -77,9 +51,35 @@
         }
       },
       "blockRenderInformation": {
+        "shape": "circle",
+        "icon": "",
+        "text": "Adder",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 2,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "UXc2o9GlGcVzNK9mkKupskfkz6VTshP7",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 584.0000000000001,
+      "y": 142,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
         "shape": "square",
         "icon": "",
-        "text": "No text",
+        "text": "Display",
         "show_image_and_text": false,
         "figure": null,
         "default_width": 120,
@@ -89,24 +89,84 @@
         "max_width": 360,
         "max_height": 150,
         "input_ports": 1,
+        "output_ports": 0
+      }
+    },
+    {
+      "id": "p86TQ2zckWmf4qE4KIYirkBMUNXyap6p",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 87,
+      "y": 290,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
         "output_ports": 1
       }
     },
     {
-      "id": "jnVi5eYCvABzRPnnmSxNZ9RAkmyhifXg",
+      "id": "dwZC2okhEIsgLSztdDhQ0IpY35qwIwdf",
       "blockLibrary": "core_BasicBlocks",
-      "blockType": "Integrator",
-      "label": "Integrator",
-      "x": 132,
-      "y": 333,
+      "blockType": "Display",
+      "label": "Display",
+      "x": 659,
+      "y": 286,
       "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Display",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
+    },
+    {
+      "id": "pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO",
+      "blockLibrary": "neuron_library",
+      "blockType": "neuron",
+      "label": "neuron",
+      "x": 435.8421052631587,
+      "y": 298.1578947368428,
+      "inputPorts": 2,
       "outputPorts": 1,
       "properties": {
-        "InitialValue": {
-          "type": "float",
-          "value": 0
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            1
+          ]
         },
-        "ContinuousSampleTimeGroup": {
+        "Offset": {
           "type": "float",
           "value": 1
         }
@@ -123,32 +183,136 @@
         "min_height": 25,
         "max_width": 360,
         "max_height": 150,
-        "input_ports": 1,
+        "input_ports": 2,
         "output_ports": 1
       }
     }
   ],
   "links": [
     {
-      "id": "RtCdzPDcsy1AXguz8qD7GDb0UnQXvnvl",
-      "sourceId": "sXPaBrpWBgwp7cQV3PK6ihcRNpTZZoOB",
-      "targetId": "YC6Cp1syevrBxPq0GglF1o4rDxXgk9Dr",
+      "id": "ZDi4iftQSZEhAHJu7z5kn3CAEdscw1j2",
+      "sourceId": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
+      "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 225,
-      "sourceY": 163,
-      "targetX": 414.8235294117647,
-      "targetY": 245.3152573529412,
+      "sourceX": 209,
+      "sourceY": 138,
+      "targetX": 344,
+      "targetY": 163,
       "intermediateNodes": [
         {
-          "id": "GEmEsUjlbIXsjqjiwbfvmOg4FmIDy72l",
-          "y": 162.609375,
-          "x": 345.4117647058823
+          "id": "TMby2RFB86LDVc29ZgHct2vgUuNyYarT",
+          "y": 138,
+          "x": 276.5
         },
         {
-          "id": "j6RspvtAx5W17151QoOW0SD7lbmkPrSU",
-          "y": 244.3152573529412,
-          "x": 345.4117647058823
+          "id": "h39frm3LWAHDTX1UeJGG7oiYrSAc7JH0",
+          "y": 163,
+          "x": 276.5
+        }
+      ]
+    },
+    {
+      "id": "9mRZH2E6xrn8uoXyxDaJIknbzk1Ua698",
+      "sourceId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
+      "targetId": "UXc2o9GlGcVzNK9mkKupskfkz6VTshP7",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 464,
+      "sourceY": 163,
+      "targetX": 584.0000000000001,
+      "targetY": 162,
+      "intermediateNodes": []
+    },
+    {
+      "id": "qUYAj9OpSa0AyvioSuWeQ4R81O1ktDkl",
+      "sourceId": "p86TQ2zckWmf4qE4KIYirkBMUNXyap6p",
+      "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
+      "sourcePort": 0,
+      "targetPort": 1,
+      "sourceX": 207,
+      "sourceY": 310,
+      "targetX": 344,
+      "targetY": 183,
+      "intermediateNodes": [
+        {
+          "id": "fmCmsW0ZNoLa8Na9AJTnymjomGHGp0eR",
+          "y": 310,
+          "x": 275.5
+        },
+        {
+          "id": "k9d0DOk8sCCfxVWPzyfIeStGVe2KcjGP",
+          "y": 183,
+          "x": 275.5
+        }
+      ]
+    },
+    {
+      "id": "d5KuNHfQq5wwxNhKZP9oTRtcge6IPVOP",
+      "sourceId": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
+      "targetId": "pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 209,
+      "sourceY": 138,
+      "targetX": 435.8421052631587,
+      "targetY": 318.1578947368428,
+      "intermediateNodes": [
+        {
+          "id": "nnI2BnD3HaDzSVc2LaGuICZvA7SwKEw9",
+          "y": 138,
+          "x": 315.83333333333326
+        },
+        {
+          "id": "kgUSKALCUKGUQwVgT5TuDXAMnBC88lAa",
+          "y": 318.1578947368428,
+          "x": 315.83333333333326
+        }
+      ]
+    },
+    {
+      "id": "2mHXs4ggF6fcxYzIqzL7i6e0T5Iywk1d",
+      "sourceId": "p86TQ2zckWmf4qE4KIYirkBMUNXyap6p",
+      "targetId": "pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO",
+      "sourcePort": 0,
+      "targetPort": 1,
+      "sourceX": 207,
+      "sourceY": 310,
+      "targetX": 435.8421052631587,
+      "targetY": 338.1578947368428,
+      "intermediateNodes": [
+        {
+          "id": "dHSQVbh0vs4S1lcD18CirhhnyHC93L8w",
+          "y": 310,
+          "x": 314.83333333333326
+        },
+        {
+          "id": "jO2GZE9ul7DZrdwBTo16O56hEAXARuiA",
+          "y": 338.1578947368428,
+          "x": 314.83333333333326
+        }
+      ]
+    },
+    {
+      "id": "gWj2DyPqI19BIX39EcKeSxfeClEmITTg",
+      "sourceId": "pKTa3j8YAqIglQEzWChdKbyaLqq1JvPO",
+      "targetId": "dwZC2okhEIsgLSztdDhQ0IpY35qwIwdf",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 555.8421052631587,
+      "sourceY": 318.1578947368428,
+      "targetX": 659,
+      "targetY": 306,
+      "intermediateNodes": [
+        {
+          "id": "9VnYMsLSpQvSPxPImevqEpYI5uWFtgjV",
+          "y": 318.1578947368428,
+          "x": 604.5175438596491
+        },
+        {
+          "id": "Kzjo8XSpv5ktqNGMZQ8tDr1wptfd1OSU",
+          "y": 306,
+          "x": 604.5175438596491
         }
       ]
     }
