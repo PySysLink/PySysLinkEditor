@@ -52,7 +52,7 @@ async def run_simulation(pslkPath: str):
     result = toolkit.compile_system(
         "/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml",
         pslkPath,
-        "simulation_output.yaml"
+        "low_level_system.yaml"
     )
     print(f"Compilation result: {result}")
 
@@ -105,9 +105,8 @@ async def run_simulation(pslkPath: str):
 
     result = await toolkit.run_simulation(
         "/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml",
-        "simulation_output.yaml",
+        "low_level_system.yaml",
         simulation_configuration_yaml_path,  
-        "simulation_output.txt",
         display_callback=display_callback
     )
     return result

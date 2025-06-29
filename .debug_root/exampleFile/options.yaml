@@ -1,5 +1,5 @@
 start_time: 0
-stop_time: 10
+stop_time: 40
 run_in_natural_time: false
 natural_time_speed_multiplier: 1
 solvers_configuration:
@@ -9,3 +9,4 @@ solvers_configuration:
     AbsoluteTolerance: 1.e-8
     RelativeTolerance: 1.e-8
 initialization_script_file: ''
+simulation_output_filename: simulation_output.txt
