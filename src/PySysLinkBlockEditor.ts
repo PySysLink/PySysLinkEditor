@@ -607,7 +607,10 @@ export class PySysLinkBlockEditorSession {
         try {
 		console.log("Result requested block libraries");
           const result = await this.pythonServer.sendRequestAsync({
-            method: "getLibraries"
+            method: "getLibraries",
+			params: { 
+				pslkPath: this.document.uri.fsPath 
+			}
           }, 10000);
 
 		  console.log(`Result obtained block libraries: ${result}`);

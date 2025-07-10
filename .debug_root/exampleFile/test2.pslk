@@ -1,13 +1,13 @@
 {
-  "version": 501,
+  "version": 17,
   "blocks": [
     {
       "id": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 97.75,
-      "y": 140.5,
+      "x": 734.8088235294118,
+      "y": 209.9117647058824,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -37,8 +37,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 345.25,
-      "y": 140.5,
+      "x": 992.3088235294118,
+      "y": 209.9117647058824,
       "inputPorts": 3,
       "outputPorts": 1,
       "properties": {
@@ -47,7 +47,7 @@
           "value": [
             1,
             -2,
-            -5
+            -1
           ]
         }
       },
@@ -72,8 +72,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 535,
-      "y": 140.90625,
+      "x": 1182.0588235294122,
+      "y": 210.3180147058824,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -107,15 +107,15 @@
       "blockLibrary": "scope_library",
       "blockType": "scope",
       "label": "scope",
-      "x": 953.9166666666652,
-      "y": 141.16940789473682,
+      "x": 1600.975490196077,
+      "y": 210.58117260061923,
       "inputPorts": 1,
       "outputPorts": 0,
       "properties": {},
       "blockRenderInformation": {
         "shape": "square",
         "icon": "",
-        "text": "No text",
+        "text": "Scope",
         "show_image_and_text": false,
         "figure": null,
         "default_width": 120,
@@ -133,8 +133,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 735.2280701754377,
-      "y": 141.40625,
+      "x": 1382.2868937048497,
+      "y": 210.8180147058824,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -171,10 +171,10 @@
       "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 217.75,
-      "sourceY": 160.5,
-      "targetX": 345.25,
-      "targetY": 160.5,
+      "sourceX": 854.8088235294118,
+      "sourceY": 229.9117647058824,
+      "targetX": 992.3088235294118,
+      "targetY": 229.9117647058824,
       "intermediateNodes": []
     },
     {
@@ -183,10 +183,10 @@
       "targetId": "yexIaDXh8CvEsJXNyCHfsLmspbDhL6gh",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 465.25,
-      "sourceY": 160.5,
-      "targetX": 535,
-      "targetY": 160.90625,
+      "sourceX": 1112.3088235294117,
+      "sourceY": 229.9117647058824,
+      "targetX": 1182.0588235294122,
+      "targetY": 230.3180147058824,
       "intermediateNodes": []
     },
     {
@@ -195,10 +195,10 @@
       "targetId": "MGyY5ws33Yw9LGVbN94J9a6BgdG9MpBw",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 655,
-      "sourceY": 160.90625,
-      "targetX": 735.2280701754377,
-      "targetY": 161.40625,
+      "sourceX": 1302.0588235294122,
+      "sourceY": 230.3180147058824,
+      "targetX": 1382.2868937048497,
+      "targetY": 230.8180147058824,
       "intermediateNodes": []
     },
     {
@@ -207,30 +207,30 @@
       "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "sourcePort": 0,
       "targetPort": 1,
-      "sourceX": 855.2280701754377,
-      "sourceY": 161.40625,
-      "targetX": 345.25,
-      "targetY": 180.5,
+      "sourceX": 1502.2868937048497,
+      "sourceY": 230.8180147058824,
+      "targetX": 992.3088235294118,
+      "targetY": 249.9117647058824,
       "intermediateNodes": [
         {
           "id": "HD2MubLa1qm13cpXbAXXLHKjxkCI4viZ",
-          "x": 897.1228070175424,
-          "y": 161.40625
+          "x": 1544.1816305469545,
+          "y": 230.8180147058824
         },
         {
           "id": "uxWLxvemsOWIKlr6gvILmqW81TLhDPXe",
-          "x": 897.1228070175424,
-          "y": 340.6973684210526
+          "x": 1544.1816305469545,
+          "y": 410.10913312693503
         },
         {
           "id": "psemVIGeB7fufViUC8K1XMnO6AWdj1q9",
-          "x": 275.64473684210543,
-          "y": 340.6973684210526
+          "x": 922.7035603715173,
+          "y": 410.10913312693503
         },
         {
           "id": "xjFWrlxULQNkMZJ01rl3REPfkTL0j5Fq",
-          "x": 275.64473684210543,
-          "y": 180.5
+          "x": 922.7035603715173,
+          "y": 249.9117647058824
         }
       ]
     },
@@ -240,30 +240,30 @@
       "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "sourcePort": 0,
       "targetPort": 2,
-      "sourceX": 655,
-      "sourceY": 160.90625,
-      "targetX": 345.25,
-      "targetY": 200.5,
+      "sourceX": 1302.0588235294122,
+      "sourceY": 230.3180147058824,
+      "targetX": 992.3088235294118,
+      "targetY": 269.91176470588243,
       "intermediateNodes": [
         {
           "id": "TcPgmqTBpXNef14aioxMobiNrDz9R3Nh",
-          "y": 160.90625,
-          "x": 708.973684210526
+          "y": 230.3180147058824,
+          "x": 1356.032507739938
         },
         {
           "id": "cJmRQVXUjUBH4tnBvAlsy2VoUCpinsIy",
-          "y": 283.8552631578948,
-          "x": 708.973684210526
+          "y": 353.26702786377723,
+          "x": 1356.032507739938
         },
         {
           "id": "rP7VqQ8vVFe6gI4epazeA2Jgt4bTB0IY",
-          "x": 310.25,
-          "y": 283.8552631578948
+          "x": 957.3088235294118,
+          "y": 353.26702786377723
         },
         {
           "id": "SzqCz86mXMD9EnODzhuMR4o7JkMEjLhR",
-          "x": 310.25,
-          "y": 200.5
+          "x": 957.3088235294118,
+          "y": 269.91176470588243
         }
       ]
     },
@@ -273,10 +273,10 @@
       "targetId": "9sMRZi16PKNLlhVZs3NOdiY1U5FaZMNZ",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 855.2280701754377,
-      "sourceY": 161.40625,
-      "targetX": 953.9166666666652,
-      "targetY": 161.16940789473682,
+      "sourceX": 1502.2868937048497,
+      "sourceY": 230.8180147058824,
+      "targetX": 1600.975490196077,
+      "targetY": 230.58117260061923,
       "intermediateNodes": []
     }
   ],

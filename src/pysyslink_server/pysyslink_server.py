@@ -24,6 +24,49 @@ toolkit_error_msg = (
 toolkit_module_name = "pysyslink_toolkit"
 _toolkit = None 
 
+
+def get_simulation_configuration(pslkPath: str):
+    """
+    Load the simulation configuration from the given PSLK path.
+    """
+    with open(pslkPath, "r") as f:
+        system_json = json.load(f)
+
+    sim_config_path = system_json.get("simulation_configuration", [])
+    print(f"Simulation configuration path: {sim_config_path}")
+    # Resolve to absolute path if not already absolute
+    if not os.path.isabs(sim_config_path):
+        pslk_dir = os.path.dirname(os.path.abspath(pslkPath))
+        sim_config_path = os.path.normpath(
+            os.path.join(pslk_dir, sim_config_path)
+        )
+
+    with open(sim_config_path, "r") as f:
+        sim_config = yaml.safe_load(f)
+    
+    return sim_config, sim_config_path
+
+def get_toolkit_config_path(pslkPath: str) -> str | None:
+    """
+    Get the toolkit configuration path from the PSLK file.
+    """
+    sim_config, _ = get_simulation_configuration(pslkPath)
+    toolkit_config_path = sim_config.get("toolkit_config_path", None)
+
+    if toolkit_config_path is None:
+        return toolkit_config_path
+
+    # Resolve to absolute path if not already absolute
+    if not os.path.isabs(toolkit_config_path):
+        pslk_dir = os.path.dirname(os.path.abspath(pslkPath))
+        toolkit_config_path = os.path.normpath(
+            os.path.join(pslk_dir, toolkit_config_path)
+        )
+
+    print(f"Resolved toolkit configuration path: {toolkit_config_path}")
+    
+    return toolkit_config_path
+
 def try_import_toolkit():
     global _toolkit
     try:
@@ -48,28 +91,17 @@ def get_toolkit():
 async def run_simulation(pslkPath: str):
     toolkit = get_toolkit()
 
+    sim_config, sim_config_path = get_simulation_configuration(pslkPath)
+    low_level_system_yaml_path = sim_config.get("low_level_system_yaml_path", "low_level_system.yaml")
+
     # Compile high-level to low-level YAML
     result = toolkit.compile_system(
-        "/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml",
+        get_toolkit_config_path(pslkPath),
         pslkPath,
-        "low_level_system.yaml"
+        low_level_system_yaml_path
     )
     print(f"Compilation result: {result}")
 
-    with open(pslkPath, "r") as f:
-        system_json = json.load(f)
-
-    simulation_configuration_yaml_path = system_json.get("simulation_configuration", [])
-
-    # Resolve to absolute path if not already absolute
-    if not os.path.isabs(simulation_configuration_yaml_path):
-        pslk_dir = os.path.dirname(os.path.abspath(pslkPath))
-        simulation_configuration_yaml_path = os.path.normpath(
-            os.path.join(pslk_dir, simulation_configuration_yaml_path)
-        )
-
-    with open(simulation_configuration_yaml_path, "r") as f:
-        sim_config = yaml.safe_load(f)
     stop_time = sim_config.get("stop_time", 10)
     start_time = sim_config.get("start_time", 0)
     total_time = stop_time - start_time
@@ -104,9 +136,9 @@ async def run_simulation(pslkPath: str):
 
 
     result = await toolkit.run_simulation(
-        "/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml",
-        "low_level_system.yaml",
-        simulation_configuration_yaml_path,  
+        get_toolkit_config_path(pslkPath),
+        low_level_system_yaml_path,
+        sim_config_path,  
         display_callback=display_callback
     )
     return result
@@ -117,17 +149,17 @@ class EnumEncoder(json.JSONEncoder):
             return obj.value
         return super().default(obj)
 
-async def get_libraries():
-    libraries = get_toolkit().get_available_block_libraries("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml")
+async def get_libraries(pslkPath: str):
+    libraries = get_toolkit().get_available_block_libraries(get_toolkit_config_path(pslkPath))
     # Return only essential information
     return json.dumps([dataclasses.asdict(library) for library in libraries], cls=EnumEncoder)
 
 async def get_block_render_information(block: str, pslkPath: str):
-    render_information = get_toolkit().get_block_render_information("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml", block, pslkPath)
+    render_information = get_toolkit().get_block_render_information(get_toolkit_config_path(pslkPath), block, pslkPath)
     return render_information.to_json()
 
 async def get_block_html(block: str, pslkPath: str):
-    html_str = get_toolkit().get_block_html("/home/pello/PySysLinkToolkit/tests/data/toolkit_config.yaml", block, pslkPath)
+    html_str = get_toolkit().get_block_html(get_toolkit_config_path(pslkPath), block, pslkPath)
     return { "html": html_str }
     
 
