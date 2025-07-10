@@ -1,5 +1,5 @@
 {
-  "version": 17,
+  "version": 14,
   "blocks": [
     {
       "id": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
@@ -281,5 +281,6 @@
     }
   ],
   "simulation_configuration": "options.yaml",
-  "initialization_python_script_path": "initParam.py"
+  "initialization_python_script_path": "initParam.py",
+  "toolkit_configuration_path": "toolkit_config.yaml"
 }

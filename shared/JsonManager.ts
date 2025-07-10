@@ -10,6 +10,7 @@ export function MergeJsons(
         version: Math.max(jsonBase.version, jsonChildPriority.version, jsonChild2.version),
         simulation_configuration: "",
         initialization_python_script_path: "",
+        toolkit_configuration_path: "",
         blocks: [],
         links: [],
     };

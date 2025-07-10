@@ -10,5 +10,3 @@ solvers_configuration:
     RelativeTolerance: 1.e-8
 initialization_script_file: ''
 simulation_output_filename: simulation_output.txt
-
-toolkit_config_path: toolkit_config.yaml

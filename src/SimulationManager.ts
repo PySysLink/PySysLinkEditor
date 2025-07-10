@@ -10,10 +10,12 @@ export class SimulationManager implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
     private currentSimulationOptionsFileChangedHandler: ((newPath: string) => void)[] = [];
     private currentInitializationScriptFileChangedHandler: ((newPath: string) => void)[] = [];
+    private currentToolkitConfigurationFileChangedHandler: ((newPath: string) => void)[] = [];
 
     private currentPslkPath: string | undefined = undefined;
     private currentSimulationOptionsPath: string | undefined = undefined;
     private currentInitializationScriptPath: string | undefined = undefined;
+    private currentToolkitConfigurationFilePath: string | undefined = undefined;
 
     private pslkCallbacks: Map<string, (msg: any) => void> = new Map();
 
@@ -26,6 +28,10 @@ export class SimulationManager implements vscode.WebviewViewProvider {
     
     public registerCurrentInitializationScriptFileChangedHandler(handler: ((currentInitializationScriptPath: string) => void)): void {
       this.currentInitializationScriptFileChangedHandler.push(handler);
+    }
+
+    public registerCurrentToolkitConfigurationFileChangedHandler(handler: ((currentToolkitConfigurationPath: string) => void)): void {
+      this.currentToolkitConfigurationFileChangedHandler.push(handler);
     }
 
     public resolveWebviewView(
@@ -96,6 +102,9 @@ export class SimulationManager implements vscode.WebviewViewProvider {
           case 'openInitializationScriptFileSelector':
             this.openInitializationScriptFileSelector();
             break;
+          case 'openToolkitConfigurationFileSelector':
+            this.openToolkitConfigurationFileSelector();
+            break;
           case 'simulationConfigChanged':
             this.saveSimulationConfigToFile(msg.config);
             break;
@@ -157,6 +166,11 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       this.currentInitializationScriptPath = currentInitializationScriptPath;
       this.sendSimulationConfigToWebview();
     }
+    
+    public setCurrentToolkitConfigurationFilePath(currentToolkitConfigurationFilePath: string) {
+      this.currentToolkitConfigurationFilePath = currentToolkitConfigurationFilePath;
+      this.sendSimulationConfigToWebview();
+    }
 
 
     private async openSimulationOptionsFileSelector() {
@@ -215,6 +229,34 @@ export class SimulationManager implements vscode.WebviewViewProvider {
           }
       });
     }
+    
+    private async openToolkitConfigurationFileSelector() {
+      const options: vscode.OpenDialogOptions = {
+        canSelectMany: false,
+        openLabel: 'Open',
+        canSelectFiles: true,
+        defaultUri: this.currentToolkitConfigurationFilePath && this.currentPslkPath ? vscode.Uri.file(path.resolve(path.dirname(this.currentPslkPath), this.currentToolkitConfigurationFilePath)) : undefined
+      };
+
+      vscode.window.showOpenDialog(options).then(fileUri => {
+          if (fileUri && fileUri[0]) {
+              console.log('Selected file: ' + fileUri[0].fsPath);
+              let selectedPath = fileUri[0].fsPath;
+              if (this.currentPslkPath) {
+                const baseDir = path.dirname(this.currentPslkPath);
+                selectedPath = path.relative(baseDir, selectedPath);
+              }
+              this.currentToolkitConfigurationFilePath = selectedPath;
+              // Notify all registered handlers about the change
+              this.currentToolkitConfigurationFileChangedHandler.forEach(handler => {
+                handler(this.currentToolkitConfigurationFilePath!);
+              });
+              // Post message to webview to update the UI
+              this.sendSimulationConfigToWebview();
+               
+          }
+      });
+    }
 
     private sendSimulationConfigToWebview() {
       if (!this._view) {
@@ -242,6 +284,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
           natural_time_speed_multiplier: configFromFile.natural_time_speed_multiplier ?? 1,
           simulation_options_file: this.currentSimulationOptionsPath || '',
           initialization_script_file: this.currentInitializationScriptPath || '',
+          toolkit_configuration_file: this.currentToolkitConfigurationFilePath || '',
           current_pslk: currentPslkFilename
         }
       });

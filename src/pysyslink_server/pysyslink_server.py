@@ -50,10 +50,13 @@ def get_toolkit_config_path(pslkPath: str) -> str | None:
     """
     Get the toolkit configuration path from the PSLK file.
     """
-    sim_config, _ = get_simulation_configuration(pslkPath)
-    toolkit_config_path = sim_config.get("toolkit_config_path", None)
+    with open(pslkPath, "r") as f:
+        system_json = json.load(f)
+
+    toolkit_config_path = system_json.get("toolkit_configuration_path", None)
 
     if toolkit_config_path is None:
+        print("No toolkit configuration path specified in the PSLK file.")
         return toolkit_config_path
 
     # Resolve to absolute path if not already absolute

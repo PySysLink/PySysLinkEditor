@@ -9,6 +9,7 @@ interface SimulationConfig {
   natural_time_speed_multiplier: number;
   simulation_options_file: string;
   initialization_script_file: string;
+  toolkit_configuration_file: string;
 }
 interface ProgressMessage { progress: number; }
 interface ResultMessage { result: any; }
@@ -90,6 +91,29 @@ function buildUI() {
   grpFileInitBtn.appendChild(browseBtnInit);
   form.appendChild(grpFileInit);
   form.appendChild(grpFileInitBtn);
+  
+  
+  // Toolkit Configuration Script File (text field + browse button)
+  const grpFileToolkit = document.createElement('vscode-form-group') as any;
+  const grpFileToolkitBtn = document.createElement('vscode-form-group') as any;
+  const lblFileToolkit = document.createElement('vscode-label');
+  lblFileToolkit.textContent = 'Toolkit Config File';
+  lblFileToolkit.setAttribute('for', 'toolkit_configuration_file');
+  const inputFileToolkit = document.createElement('vscode-textfield') as any;
+  inputFileToolkit.id = 'toolkit_configuration_file';
+  inputFileToolkit.setAttribute('type', 'text');
+  inputFileToolkit.setAttribute('placeholder', 'Select a file...');
+  inputFileToolkit.addEventListener('input', notifyConfigChanged);
+  const browseBtnToolkit = document.createElement('vscode-button') as any;
+  browseBtnToolkit.textContent = 'Browse';
+  browseBtnToolkit.addEventListener('click', () => {
+    vscode.postMessage({ type: 'openToolkitConfigurationFileSelector' });
+  });
+  grpFileToolkit.appendChild(lblFileToolkit);
+  grpFileToolkit.appendChild(inputFileToolkit);
+  grpFileToolkitBtn.appendChild(browseBtnToolkit);
+  form.appendChild(grpFileToolkit);
+  form.appendChild(grpFileToolkitBtn);
 
   // Buttons
   const runBtn  = document.createElement('vscode-button') as any;
@@ -169,7 +193,8 @@ function readConfig(): SimulationConfig {
   const natural_time_speed_multiplier = Number((document.getElementById('natural_time_speed_multiplier') as any).value);
   const simulation_options_file = (document.getElementById('simulation_options_file') as any).value;
   const initialization_script_file = (document.getElementById('initialization_script_file') as any).value;
-  return { start_time, stop_time, run_in_natural_time, natural_time_speed_multiplier: natural_time_speed_multiplier, simulation_options_file, initialization_script_file };
+  const toolkit_configuration_file = (document.getElementById('toolkit_configuration_file') as any).value;
+  return { start_time, stop_time, run_in_natural_time, natural_time_speed_multiplier: natural_time_speed_multiplier, simulation_options_file, initialization_script_file, toolkit_configuration_file };
 }
 
 function notifyConfigChanged() {
@@ -264,6 +289,7 @@ window.addEventListener('message', (event) => {
     (document.getElementById('run_in_natural_time') as any).checked = !!cfg.run_in_natural_time;
     (document.getElementById('simulation_options_file') as any).value = cfg.simulation_options_file ?? '';
     (document.getElementById('initialization_script_file') as any).value = cfg.initialization_script_file ?? '';
+    (document.getElementById('toolkit_configuration_file') as any).value = cfg.toolkit_configuration_file ?? '';
     updateStatus('Simulation configuration loaded.');
     return;
   }
