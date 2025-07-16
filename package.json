@@ -3,6 +3,7 @@
   "displayName": "PySysLinkEditor",
   "description": "Block based dynamic system simulator",
   "version": "0.1.0",
+  "publisher": "PySysLink",
   "repository": {
     "type": "git",
     "url": "https://github.com/PySysLink/PySysLinkEditor.git"
