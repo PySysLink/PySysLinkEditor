@@ -1,11 +1,19 @@
+# Leave VS Code config files
 .vscode/**
 .vscode-test/**
+
+# Exclude TS and source, but keep compiled JS in out/
 src/**
-.gitignore
-.yarnrc
-vsc-extension-quickstart.md
-**/tsconfig.json
-**/eslint.config.mjs
-**/*.map
 **/*.ts
-**/.vscode-test.*
+
+# Keep out/ directory, essential compiled output
+!out/**
+
+# Exclude large or unnecessary resources:
+venv/
+.env/
+__pycache__/
+node_modules/
+.debug_root/
+build/
+*.loc
