@@ -1,71 +1,88 @@
-# pysyslink-editor README
+# PySysLink VS Code Extension
 
-This is the README for your extension "pysyslink-editor". After writing up a brief description, we recommend including the following sections.
+A Visual Studio Code extension for **PySysLink**, a block‑diagram simulation environment similar to Simulink.  
+This extension provides:
 
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+- **Block Editor**: Draw, arrange and connect high‑level blocks in a graphical canvas.  
+- **Property Inspector**: Edit block parameters, including expressions and initialization scripts.  
+- **Live Simulation**: Launch a Python‑based simulation server (using your selected Python interpreter) and receive progress, display, and plot events in the editor.  
+- **Block Palette**: Browse installed block libraries and drag‑and‑drop blocks into your diagram.
 
 ---
 
-## Following extension guidelines
+## 🔧 Prerequisites
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+1. **Python 3.7+** installed on your system.  
+2. **PySysLink Toolkit** installed in your Python environment:  
+   ```bash
+   pip install pysyslink-toolkit
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+3. **VS Code Python Extension** by Microsoft (automatically prompted on first run).
 
-## Working with Markdown
+---
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+## 🚀 Features & Quick Start
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+1. **Open or Create** a `.pslk` model file (JSON).
+2. **Launch the Block Editor**:
 
-## For more information
+   * Right‑click your file in Explorer ▶ **Open With** ▶ **PySysLink Block Editor**.
+3. **Draw your Diagram**:
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+   * Drag blocks from the **Block Palette** sidebar onto the canvas.
+   * Connect ports by clicking and dragging between blocks.
+4. **Edit Parameters**:
 
-**Enjoy!**
+   * Select a block ▶ edit its properties (literals or expressions) in the sidebar form.
+   * (Optional) Define a top‑level `initScript` in your JSON to run custom initialization code.
+5. **Run Simulation**:
+
+   * Click the ▶ “Play” button in the editor toolbar.
+   * Watch progress notifications and view display/plot events inline.
+
+---
+
+## 📄 Model JSON Format
+
+Your `.pslk` file is plain JSON:
+
+```jsonc
+{
+  "version": 1,
+  "initScript": "gain = np.sin(angle)",
+  "blocks": [
+    {
+      "id": "block1",
+      "label": "Gain",
+      "x": 200,
+      "y": 150,
+      "properties": {
+        "angle": "45",
+        "gain": "np.sin(angle * pi/180)"
+      }
+    }
+  ],
+  "links": [
+    /* … */
+  ]
+}
+```
+
+* **`initScript`** (optional): Python code run once before converting block parameters.
+* **`properties`**: strings are evaluated as expressions (with `numpy` available as `np`).
+
+---
+
+## ⚙️ Configuration
+
+* **Python Interpreter**: The extension uses the active interpreter from the VS Code Python extension.
+* **Toolkit Location**: Make sure `pysyslink-toolkit` is installed in that environment.
+
+---
+
+## 📝 License
+
+Apache License Version 2.0 © Pello Usabiaga
+
+---
+

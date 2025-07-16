@@ -3,6 +3,10 @@
   "displayName": "PySysLinkEditor",
   "description": "Block based dynamic system simulator",
   "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PySysLink/PySysLinkEditor.git"
+  },
   "engines": {
     "vscode": "^1.99.0"
   },
@@ -66,6 +70,7 @@
   },
   "scripts": {
     "webpack": "webpack",
+    "compile": "webpack --mode production",
     "vscode:prepublish": "npm run compile",
     "compile-server": "tsc -p tsconfig.server.json",
     "build": "npm run webpack && npm run compile-server",
