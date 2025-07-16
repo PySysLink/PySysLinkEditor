@@ -2,7 +2,7 @@
   "name": "pysyslink-editor",
   "displayName": "PySysLinkEditor",
   "description": "Block based dynamic system simulator",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.99.0"
   },
@@ -17,7 +17,7 @@
         {
           "id": "pysyslink_BlockPropertiesActivityBar",
           "title": "Properties",
-          "icon": "$(heart)"
+          "icon": "$(graph-line)"
         }
       ]
     },
@@ -39,13 +39,13 @@
           "type": "webview",
           "id": "pysyslink-editor.blockPropertiesView",
           "name": "Block Properties",
-          "icon": "$(heart)"
+          "icon": "$(graph-line)"
         },
         {
           "type": "webview",
           "id": "pysyslink-editor.simulationManager",
           "name": "Simulation Manager",
-          "icon": "$(heart)"
+          "icon": "$(graph-line)"
         }
       ]
     },

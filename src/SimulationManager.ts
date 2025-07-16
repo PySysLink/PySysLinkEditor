@@ -113,6 +113,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
               `[SimulationManager] unrecognized message type: ${msg.type}`
             );
         }
+        this.sendSimulationConfigToWebview();
       });
     }
 
@@ -152,7 +153,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
     
 
     public setCurrentPslkPath(pslkPath: string, callback?: (msg: any) => void) {
-      this.currentPslkPath = pslkPath;
+      this.currentPslkPath = pslkPath; 
       this.pslkCallbacks.set(pslkPath, callback || ((msg: any) => {}));    
       this.sendSimulationConfigToWebview();
     }
