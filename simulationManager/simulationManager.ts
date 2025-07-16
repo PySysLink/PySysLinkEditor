@@ -1,4 +1,5 @@
 // simulationView.ts
+import '@vscode-elements/elements/dist/bundled.js';
 
 declare const acquireVsCodeApi: any;
 

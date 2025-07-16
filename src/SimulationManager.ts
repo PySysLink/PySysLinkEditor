@@ -45,7 +45,6 @@ export class SimulationManager implements vscode.WebviewViewProvider {
       const scriptUri = webviewView.webview.asWebviewUri(
         vscode.Uri.joinPath(this.context.extensionUri, 'out', 'simulationManager', 'simulationManager.js')
       );
-      const elementsBundled = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', '@vscode-elements', 'elements', 'dist', 'bundled.js'));
       const styleMainUri = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(
             this.context.extensionUri, 'simulationManager', 'simulationManager.css'));
 
@@ -53,10 +52,6 @@ export class SimulationManager implements vscode.WebviewViewProvider {
         <!DOCTYPE html>
         <html lang="en">
           <head>
-            <script
-              src="${elementsBundled}"
-              type="module"
-            ></script>
             <link href="${styleMainUri}" rel="stylesheet" />
           </head>
           <body>

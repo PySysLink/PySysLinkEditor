@@ -10,6 +10,7 @@ import { JsonData } from '../shared/JsonTypes';
 import { CommunicationManager } from './CommunicationManager';
 import { getNonce } from './util';
 import { Library } from '../shared/BlockPalette';
+import '@vscode-elements/elements/dist/bundled.js';
 
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();

@@ -15,7 +15,7 @@
     "Other"
   ],
   "activationEvents": [],
-  "main": "./out/server/src/extension.js",
+  "main": "./out/extension.bundle.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -73,8 +73,7 @@
     "webpack": "webpack",
     "compile": "webpack --mode production",
     "vscode:prepublish": "npm run compile",
-    "compile-server": "tsc -p tsconfig.server.json",
-    "build": "npm run webpack && npm run compile-server",
+    "build": "webpack --mode production",
     "watch": "tsc -w -p tsconfig.server.json & webpack --watch",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
@@ -89,6 +88,7 @@
     "@vscode-elements/webview-playground": "^1.7.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "copy-webpack-plugin": "^13.0.0",
     "eslint": "^9.23.0",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.2",

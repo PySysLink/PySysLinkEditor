@@ -392,14 +392,6 @@ export class PySysLinkBlockEditorSession {
 
 		// Use a nonce to whitelist which scripts can be run
 		const nonce = getNonce();
-	  	
-		const elementsBundled = webview.asWebviewUri(
-			vscode.Uri.joinPath(this.context.extensionUri, 
-								'node_modules', 
-								'@vscode-elements', 
-								'elements', 
-								'dist', 
-								'bundled.js'));
 
 		return /* html */`
 			<!DOCTYPE html>
@@ -420,12 +412,6 @@ export class PySysLinkBlockEditorSession {
 				<link href="${styleMainUri}" rel="stylesheet" />
 
 				<title>PySysLink</title>
-
-				<script
-					nonce="${nonce}"
-					src="${elementsBundled}"
-					type="module"
-				></script>
 			</head>
 			<body>
 			<div class="main">

@@ -66,7 +66,7 @@ export class PythonServerManager {
 
   public async startServer() {
     const scriptPath = this.context.asAbsolutePath(
-      path.join('src', 'pysyslink_server/pysyslink_server.py')
+      path.join('out', 'pysyslink_server', 'pysyslink_server.py')
     );
 
     if (this.pythonApi) {

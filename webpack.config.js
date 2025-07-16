@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = [
     {
@@ -87,5 +88,53 @@ module.exports = [
         },
         mode: 'development', // Use 'production' for optimized builds
         devtool: 'source-map', // Generate source maps for debugging
+    },
+    {
+        name: 'extension',
+        target: 'node',                        // VS Code’s extension host is Node.js
+        entry: './src/extension.ts',     // point at your TS entry
+        output: {
+            path: path.resolve(__dirname, 'out'),
+            filename: 'extension.bundle.js',
+            libraryTarget: 'commonjs2',          // required for VS Code
+        },
+        resolve: {
+        extensions: ['.ts', '.js'],
+        alias: {
+            shared: path.resolve(__dirname, 'shared'),
+        }
+        },
+        module: {
+        rules: [
+            {
+            test: /\.ts$/,
+            use: [
+                {
+                    loader: 'ts-loader',
+                    options: {
+                        configFile: path.resolve(__dirname, 'tsconfig.server.json'),
+                    },
+                }
+            ],
+            exclude: /node_modules/
+            }
+        ]
+        },
+        externals: {
+        // don’t bundle the built‑in vscode API
+        vscode: 'commonjs vscode'
+        },
+        devtool: 'source-map',
+        plugins: [
+            new CopyPlugin({
+            patterns: [
+                {
+                from: path.resolve(__dirname, 'src', 'pysyslink_server'),
+                to: path.resolve(__dirname, 'out', 'pysyslink_server')
+                }
+            ]
+            })
+        ]
+
     }
 ];

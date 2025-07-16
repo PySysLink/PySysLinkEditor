@@ -2,6 +2,7 @@
    handles messages from the extension backend, and sends updates back. */
 
 import { BlockData } from "../shared/JsonTypes";
+import '@vscode-elements/elements/dist/bundled.js';
 
 declare const acquireVsCodeApi: any;
 
