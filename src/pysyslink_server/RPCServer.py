@@ -4,6 +4,7 @@ import time
 from typing import Any, Dict, Callable
 import warnings
 warnings.filterwarnings("ignore")
+import traceback
 
 class Protocol:
     """Serialize/deserialize and validate protocol messages."""
@@ -54,7 +55,7 @@ class RPCServer:
                 self.before_request()
         except Exception as e:
             # on any other error, send an error response
-            self._send({"type": "error", "id": req_id, "error": str(e)})
+            self._send({"type": "error", "id": req_id, "error": traceback.format_exc()})
             return
 
         method = msg["method"]
@@ -76,7 +77,7 @@ class RPCServer:
             self._send({"type": "response", "id": req_id, "result": {"status": "cancelled"}})
         except Exception as e:
             # on any other error, send an error response
-            self._send({"type": "error", "id": req_id, "error": str(e)})
+            self._send({"type": "error", "id": req_id, "error": traceback.format_exc()})
         finally:
             self._tasks.pop(req_id, None)
 

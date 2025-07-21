@@ -1,0 +1,8 @@
+{
+  "version": 8,
+  "blocks": [],
+  "links": [],
+  "simulation_configuration": "",
+  "initialization_python_script_path": "",
+  "toolkit_configuration_path": "toolkit_config.yaml"
+}

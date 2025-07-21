@@ -2,7 +2,7 @@
   "name": "pysyslink-editor",
   "displayName": "PySysLinkEditor",
   "description": "Block based dynamic system simulator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "PySysLink",
   "repository": {
     "type": "git",
@@ -38,6 +38,11 @@
         "priority": "default"
       }
     ],
+    "configurationDefaults": {
+      "files.associations": {
+        "*.pslk": "json"
+      }
+    },
     "views": {
       "pysyslink_BlockPropertiesActivityBar": [
         {
@@ -53,21 +58,7 @@
           "icon": "$(graph-line)"
         }
       ]
-    },
-    "commands": [
-      {
-        "command": "pysyslink-editor.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "pysyslink-editor.openEditor",
-        "title": "Open PySysLink Editor"
-      },
-      {
-        "command": "pysyslink-editor.doRefactor",
-        "title": "PySysLink Cat Refactor"
-      }
-    ]
+    }
   },
   "scripts": {
     "webpack": "webpack",

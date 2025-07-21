@@ -51,8 +51,12 @@ def get_toolkit_config_path(pslkPath: str) -> str | None:
     Get the toolkit configuration path from the PSLK file.
     """
     with open(pslkPath, "r") as f:
-        system_json = json.load(f)
-
+        try:
+            system_json = json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"Invalid PSLK file format: {e}")
+            return None
+        
     toolkit_config_path = system_json.get("toolkit_configuration_path", None)
 
     if toolkit_config_path is None:
