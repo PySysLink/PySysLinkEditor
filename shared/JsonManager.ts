@@ -242,23 +242,32 @@ export function attachLinkToPort(json: JsonData, linkId: IdType, blockId: IdType
     return json;
 }
 
-export function getPortPosition(json: JsonData, blockId: IdType, portType: "input" | "output", portIndex: number): { x: number, y: number } | undefined {
-        const portSpacing = 20; // Spacing between ports
-        const blockWidth = 120;
-        const portOffset = portIndex * portSpacing;
-        
-        if (json) {
-            let block = json.blocks?.find(b => b.id === blockId);
-            if (block) {
-                if (portType === "input") {
-                    return { x: block.x, y: block.y + portOffset + 20 };
-                } else {
-                    return { x: block.x + blockWidth, y: block.y + portOffset + 20 };
-                }
-            }
-        }
-        return undefined;
-    };
+export function getPortPosition(
+    json: JsonData,
+    blockId: IdType,
+    portType: "input" | "output",
+    portIndex: number
+): { x: number; y: number } | undefined {
+    const portSpacing = 20;  // vertical spacing between ports
+    const blockWidth = 120;
+    const blockHeight = 50;
+
+    if (!json) {return undefined;}
+
+    const block = json.blocks?.find(b => b.id === blockId);
+    if (!block) {return undefined;}
+
+    const totalPorts = portType === "input" ? block.inputPorts : block.outputPorts;
+
+    // Calculate center-based y-offset
+    const totalSpan = (totalPorts - 1) * portSpacing;
+    const yOffset = portIndex * portSpacing - totalSpan / 2;
+
+    const x = portType === "input" ? block.x : block.x + blockWidth;
+    const y = block.y + blockHeight / 2 + yOffset;
+
+    return { x, y };
+}
 
 export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
     let updatedJson: JsonData = {
