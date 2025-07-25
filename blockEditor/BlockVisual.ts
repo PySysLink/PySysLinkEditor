@@ -73,7 +73,7 @@ export class BlockVisual extends Selectable implements Movable {
             inputPort.classList.add('input-port');
             inputPort.textContent = `In ${j + 1}`;
 
-            const position = communicationManager.getPortPosition(this.id, "input", j);
+            const position = communicationManager.getPortPosition(this.id, "input", j, true);
             const thisPosition = this.getPosition(communicationManager);
             if (position && thisPosition) {
                 inputPort.style.left = `${position.x - thisPosition.x - portWidth/4}px`;
@@ -94,7 +94,7 @@ export class BlockVisual extends Selectable implements Movable {
             outputPort.classList.add('output-port');
             outputPort.textContent = `Out ${i + 1}`;
 
-            const position = communicationManager.getPortPosition(this.id, "output", i);
+            const position = communicationManager.getPortPosition(this.id, "output", i, true);
             const thisPosition = this.getPosition(communicationManager);
             if (position && thisPosition) {
                 outputPort.style.left = `${position.x - thisPosition.x - 3*portWidth/4}px`;
@@ -196,6 +196,9 @@ export class BlockVisual extends Selectable implements Movable {
             this.labelElement.textContent = blockData.label;
             this.blockElement.style.left = `${blockData.x}px`;
             this.blockElement.style.top = `${blockData.y}px`;
+            this.blockElement.style.transform = `rotate(${blockData.rotation}deg)`;
+            this.blockElement.style.transformOrigin = "center center";
+
 
             // --- Update ports if the amount has changed ---
             const portWidth = 40;
@@ -216,7 +219,7 @@ export class BlockVisual extends Selectable implements Movable {
                     inputPort.classList.add('input-port');
                     inputPort.textContent = `In ${j + 1}`;
 
-                    const position = communicationManager.getPortPosition(this.id, "input", j);
+                    const position = communicationManager.getPortPosition(this.id, "input", j, true);
                     const thisPosition = this.getPosition(communicationManager);
                     if (position && thisPosition) {
                         inputPort.style.left = `${position.x - thisPosition.x - portWidth/4}px`;
@@ -245,7 +248,7 @@ export class BlockVisual extends Selectable implements Movable {
                     outputPort.classList.add('output-port');
                     outputPort.textContent = `Out ${i + 1}`;
 
-                    const position = communicationManager.getPortPosition(this.id, "output", i);
+                    const position = communicationManager.getPortPosition(this.id, "output", i, true);
                     const thisPosition = this.getPosition(communicationManager);
                     if (position && thisPosition) {
                         outputPort.style.left = `${position.x - thisPosition.x - 3*portWidth/4}px`;

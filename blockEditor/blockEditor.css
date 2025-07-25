@@ -257,7 +257,7 @@ body.pysyslink-light {
 
 .input-port,
 .output-port {
-  position: absolute;        /* relative to the .block */
+  position: absolute;        
   display: flex;             /* to line up dot + text horizontally */
   align-items: center;       /* vertically center the contents */
   width: 40px;               /* wider than 20px */

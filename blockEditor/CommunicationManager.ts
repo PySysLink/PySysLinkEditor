@@ -224,10 +224,10 @@ export class CommunicationManager {
         return undefined;
     };
 
-    public getPortPosition = (blockId: IdType, portType: "input" | "output", portIndex: number): { x: number, y: number } | undefined => {
+    public getPortPosition = (blockId: IdType, portType: "input" | "output", portIndex: number, ignoreRotation: boolean = false): { x: number, y: number } | undefined => {
         let json = this.getLocalJson();
         if (json) {
-            return getPortPosition(json, blockId, portType, portIndex);
+            return getPortPosition(json, blockId, portType, portIndex, ignoreRotation);
         }
         return undefined;
     };
@@ -311,6 +311,7 @@ export class CommunicationManager {
             label: blockType,
             x,
             y,
+            rotation: 0,
             inputPorts: 0,
             outputPorts: 0, 
             properties: properties

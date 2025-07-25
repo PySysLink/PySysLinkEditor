@@ -9,7 +9,7 @@ export interface BlockData {
     blockType: string;
     label: string;
     x: number; y: number;
-    // rotation: Rotation;
+    rotation: Rotation;
     inputPorts: number; outputPorts: number;
     properties: Record<string, {type: string, value: any}>;
     blockRenderInformation?: BlockRenderInformation;

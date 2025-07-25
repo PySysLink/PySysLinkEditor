@@ -246,7 +246,8 @@ export function getPortPosition(
     json: JsonData,
     blockId: IdType,
     portType: "input" | "output",
-    portIndex: number
+    portIndex: number,
+    ignoreRotation: boolean = false
 ): { x: number; y: number } | undefined {
     const portSpacing = 20;  // vertical spacing between ports
     const blockWidth = 120;
@@ -263,10 +264,50 @@ export function getPortPosition(
     const totalSpan = (totalPorts - 1) * portSpacing;
     const yOffset = portIndex * portSpacing - totalSpan / 2;
 
-    const x = portType === "input" ? block.x : block.x + blockWidth;
-    const y = block.y + blockHeight / 2 + yOffset;
+    // Unrotated position
+    const localX = portType === "input" ? 0 : blockWidth;
+    const localY = blockHeight / 2 + yOffset;
 
-    return { x, y };
+    let rotation = block.rotation ?? 0;
+    if (ignoreRotation) {
+        rotation = 0; 
+    }
+
+    // Rotate point around the center of the block
+    const cx = block.x + blockWidth / 2;
+    const cy = block.y + blockHeight / 2;
+
+    let dx = localX - blockWidth / 2;
+    let dy = localY - blockHeight / 2;
+
+    let rotatedX: number, rotatedY: number;
+
+    switch (rotation) {
+        case 0:
+            rotatedX = dx;
+            rotatedY = dy;
+            break;
+        case 90:
+            rotatedX = -dy;
+            rotatedY = dx;
+            break;
+        case 180:
+            rotatedX = -dx;
+            rotatedY = -dy;
+            break;
+        case 270:
+            rotatedX = dy;
+            rotatedY = -dx;
+            break;
+        default:
+            rotatedX = dx;
+            rotatedY = dy;
+    }
+
+    return {
+        x: cx + rotatedX,
+        y: cy + rotatedY
+    };
 }
 
 export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
