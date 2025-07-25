@@ -7,6 +7,7 @@
 			"ES2022"
 		],
 		"sourceMap": true,
+		"types": ["node"],
 		"rootDir": ".",
 		"strict": true,   
 		"esModuleInterop": true,

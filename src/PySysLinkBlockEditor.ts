@@ -1,10 +1,25 @@
 import * as vscode from 'vscode';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { BlockData, BlockRenderInformation, IdType, JsonData } from '../shared/JsonTypes';
-import { getBlockData, updateBlockParameters, updateLinksSourceTargetPosition } from '../shared/JsonManager';
+import { getBlockData, updateBlockParameters } from '../shared/JsonManager';
 import { PythonServerManager } from './PythonServerManager';
 import { SimulationManager } from './SimulationManager';
 import { getNonce } from '../shared/util';
+import * as crypto from 'crypto';
+
+export function hashBlockKey(block: BlockData): string {
+	const relevant = {
+		blockLibrary: block.blockLibrary,
+		blockType: block.blockType,
+		label: block.label,
+		inputPorts: block.inputPorts,
+		outputPorts: block.outputPorts,
+		properties: block.properties
+	};
+
+	const json = JSON.stringify(relevant);
+	return crypto.createHash('sha256').update(json).digest('hex');
+}
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
 	private sessions = new Map<string, PySysLinkBlockEditorSession>();
@@ -95,6 +110,8 @@ export class PySysLinkBlockEditorSession {
 
 	private requestId = 0;
 	private runningSimulationId = 0;
+
+	private renderInfoCache: Map<string, BlockRenderInformation> = new Map();
 
 
 	constructor(
@@ -223,6 +240,22 @@ export class PySysLinkBlockEditorSession {
 		console.log(`[Extension] Sent runSimulation request #${id}`, request);
 	}
 	
+	private printJsonDiff(obj1: any, obj2: any, path: string = ''): void {
+        if (typeof obj1 !== 'object' || typeof obj2 !== 'object') {
+            if (obj1 !== obj2) {
+                console.log(`Value mismatch server at ${path}: ${obj1} !== ${obj2}`);
+            }
+            return;
+        }
+
+        const keys = new Set([...Object.keys(obj1 || {}), ...Object.keys(obj2 || {})]);
+
+        for (const key of keys) {
+            const newPath = path ? `${path}.${key}` : key;
+            this.printJsonDiff(obj1?.[key], obj2?.[key], newPath);
+        }
+    }
+
 	public renderWebview(
 	): void {
 		// Setup initial content for the webview
@@ -231,15 +264,13 @@ export class PySysLinkBlockEditorSession {
 		};
 		console.log('before get html');
 		this.webviewPanel.webview.html = this.getHtmlForWebview(this.webviewPanel.webview);
-		console.log('after get html');
-
-
-		
+		console.log('after get html');		
 
 
 		const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
 			if (e.document.uri.toString() === this.document.uri.toString()) {
 				this.notifySelectedBlock();
+				console.log(`Document changed, updating webview for ${this.document.uri.toString()}`);
 				this.updateWebview();
 			}
 		});
@@ -256,12 +287,12 @@ export class PySysLinkBlockEditorSession {
 					console.log(`update json called`);
 					this.documentLock = this.withDocumentLock(async () => {
 						if (this.document) {
-							const json = this.getDocumentAsJson(this.document);
+							let json = this.getDocumentAsJson(this.document);
 							json.version = json.version + 1;
 							json.blocks = e.json.blocks;
 							json.links = e.json.links;
+							json = await this.updateBlockRenderInformation(json);
 							await this.updateTextDocument(this.document, json);
-							
 						}
 					});
 					return;
@@ -351,9 +382,19 @@ export class PySysLinkBlockEditorSession {
 		}
 	}
 
+	private lastJson: JsonData | undefined;
+
 	private updateWebview = () => {
 		if (this.document && this.webviewPanel) {
 			const json  = this.getDocumentAsJson(this.document);	
+			if (this.lastJson && JSON.stringify(this.lastJson) === JSON.stringify(json)) {
+				console.log('No changes detected, skipping webview update.');
+				return;
+			} else if (this.lastJson) {
+				console.log('Changes detected, updating webview.');
+				this.printJsonDiff(this.lastJson, json);
+			}
+			this.lastJson = json; // Store the last JSON for comparison
 			this.webviewPanel.webview.postMessage({
 				type: 'update',
 				json: json,
@@ -441,6 +482,7 @@ export class PySysLinkBlockEditorSession {
 			if (this.document) {
 				let json = this.getDocumentAsJson(this.document);
 				json = updateBlockParameters(json, block);
+				json = await this.updateBlockRenderInformation(json);
 				await this.updateTextDocument(this.document, json);
 			}
 		});
@@ -543,11 +585,15 @@ export class PySysLinkBlockEditorSession {
 		}
 	};
 
-	private updateTextDocument = async (document: vscode.TextDocument, json: JsonData) => {
+	private updateBlockRenderInformation = async (json: JsonData): Promise<JsonData> => {
+		if (!this.document) {
+			console.log('Document is not available for updating block render information.');
+			return json;
+		}
 		if (this.pythonServer.isRunning()) {
 			const blockPromises = (json.blocks ?? []).map(async block => {
 				try {
-					const renderInfo = await this.getBlockRenderInformation(block, document.uri.fsPath);
+					const renderInfo = await this.getBlockRenderInformation(block, this.document.uri.fsPath);
 					if (renderInfo) {
 						block.blockRenderInformation = renderInfo;
 						block.inputPorts = renderInfo.input_ports;
@@ -563,9 +609,11 @@ export class PySysLinkBlockEditorSession {
 		} else {
 			console.warn('Python server is not running, skipping block render information update.');
 		}
+		return json;
+	};
 
-		// Update links node positions as before
-		json = updateLinksSourceTargetPosition(json);
+	private updateTextDocument = async (document: vscode.TextDocument, json: JsonData) => {
+		console.log('Updating text document with new JSON data...');
 
 		// Replace the entire document
 		const edit = new vscode.WorkspaceEdit();
@@ -579,22 +627,29 @@ export class PySysLinkBlockEditorSession {
 	};
 
 	private async getBlockRenderInformation(block: BlockData, pslkPath: string): Promise<BlockRenderInformation | undefined> {
+		const cacheKey = hashBlockKey(block);
+		const cached = this.renderInfoCache.get(cacheKey);
+		if (cached) {return cached;}
+		
 		try {
-		console.log("Result request block render information");
-          const result = await this.pythonServer.sendRequestAsync({
-            method: "getBlockRenderInformation",
-			params: { 
-				block: block,
-				pslkPath: this.document.uri.fsPath 
-			}
-          }, 10000);
+			console.log("Result request block render information");
+			const result = await this.pythonServer.sendRequestAsync({
+				method: "getBlockRenderInformation",
+				params: { 
+					block: block,
+					pslkPath: this.document.uri.fsPath 
+				}
+			}, 10000);
 
-		  return JSON.parse(result) as BlockRenderInformation;
+		  	const parsed = JSON.parse(result) as BlockRenderInformation;
+			this.renderInfoCache.set(cacheKey, parsed);
+			return parsed;
+
         } catch (error) {
-          console.error(`Error on python server while getting block render information: ${error}`);
-          vscode.window.showErrorMessage(
-            `Error on python server while getting block render information: ${error}`
-          );
+			console.error(`Error on python server while getting block render information: ${error}`);
+			vscode.window.showErrorMessage(
+				`Error on python server while getting block render information: ${error}`
+			);
         } 
 	}
 
@@ -672,8 +727,9 @@ export class PySysLinkBlockEditorSession {
 		if (this.document) {
 			
 			this.withDocumentLock(async () => {
-				const json = this.getDocumentAsJson(this.document);
-				json.initialization_python_script_path = newPath;	
+				let json = this.getDocumentAsJson(this.document);
+				json.initialization_python_script_path = newPath;
+				json = await this.updateBlockRenderInformation(json);	
 				await this.updateTextDocument(this.document!, json);
 			});
 
@@ -685,8 +741,9 @@ export class PySysLinkBlockEditorSession {
 		if (this.document) {
 			
 			this.withDocumentLock(async () => {
-				const json = this.getDocumentAsJson(this.document);
+				let json = this.getDocumentAsJson(this.document);
 				json.toolkit_configuration_path = newPath;	
+				json = await this.updateBlockRenderInformation(json);
 				await this.updateTextDocument(this.document!, json);
 			});
 

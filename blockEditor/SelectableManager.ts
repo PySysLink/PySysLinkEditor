@@ -3,6 +3,7 @@ import { Movable, isMovable } from "./Movable";
 import { CanvasElement } from "./CanvasElement";
 import { CommunicationManager } from "./CommunicationManager";
 import { IdType } from "../shared/JsonTypes";
+import { isRotatable } from "./Rotatable";
 
 export class SelectableManager {
     private dragStartX = 0;
@@ -10,6 +11,9 @@ export class SelectableManager {
 
     private dragThreshold = 5; // Minimum distance to detect a drag
     private isDragging = false;
+
+    private pendingRotations = 0;
+    private rotationTimer: number | null = null;
 
     private selectionBox: HTMLElement | null = null;
 
@@ -46,7 +50,27 @@ export class SelectableManager {
             this.communicationManager.unfreeze();
             
             this.unselectAll();
+            return;
         } 
+
+        // Handle Ctrl+R (or Cmd+R on Mac) for rotate
+        const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+        if (isCtrlOrCmd && e.key.toLowerCase() === 'r') {
+            e.preventDefault(); // prevent browser refresh
+            e.stopPropagation(); // prevent event from bubbling up
+
+            this.pendingRotations++;
+            if (this.rotationTimer !== null) {
+                clearTimeout(this.rotationTimer);
+            }
+
+            this.rotationTimer = window.setTimeout(() => {
+                this.rotateSelectables();
+                this.pendingRotations = 0;
+                this.rotationTimer = null;
+            }, 300); 
+            return;
+        }
     };
 
     private setDragging(value: boolean) {
@@ -309,6 +333,22 @@ export class SelectableManager {
             callback(e);
         });
     };
+
+    public rotateSelectables(): void {
+        this.communicationManager.freeze();
+        while (this.pendingRotations > 0) {
+            this.communicationManager.print(`Rotate selectables`);
+            const selectedSelectables = this.getSelectedSelectables();
+
+            selectedSelectables.forEach(selectable => {
+                if (isRotatable(selectable)) {
+                    selectable.rotateClockwise(this.communicationManager, selectedSelectables);
+                }
+            });
+            this.pendingRotations--;
+        }
+        this.communicationManager.unfreeze();
+    }
 
     public addOnMouseMoveListener(callback: (e: MouseEvent) => void): void {
         this.onMouseMoveCallbacks.push(callback);

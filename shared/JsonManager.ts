@@ -1,4 +1,4 @@
-import { IdType, JsonData, BlockData, LinkData } from "./JsonTypes";
+import { IdType, JsonData, BlockData, LinkData, Rotation } from "./JsonTypes";
 import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
 
 export function MergeJsons(
@@ -210,6 +210,26 @@ export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: n
                     ...block,
                     x: x,  
                     y: y
+                };
+            }
+            return block;
+        })
+    };
+
+    updatedJson = updateLinksSourceTargetPosition(updatedJson);
+
+    updatedJson = updateLinksAfterBlockMove(updatedJson, blockId);
+    return updatedJson;
+}
+
+export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation): JsonData {
+    let updatedJson: JsonData = {
+        ...json,
+        blocks: json.blocks?.map(block => {
+            if (block.id === blockId) {
+                return {
+                    ...block,
+                    rotation: rotation
                 };
             }
             return block;

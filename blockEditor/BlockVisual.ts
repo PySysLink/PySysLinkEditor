@@ -1,9 +1,10 @@
-import { BlockData, BlockRenderInformation, IdType, JsonData } from "../shared/JsonTypes";
+import { BlockData, BlockRenderInformation, IdType, JsonData, Rotation } from "../shared/JsonTypes";
 import { CommunicationManager } from "./CommunicationManager";
 import { Movable } from "./Movable";
+import { Rotatable } from "./Rotatable";
 import { Selectable } from "./Selectable";
 
-export class BlockVisual extends Selectable implements Movable {
+export class BlockVisual extends Selectable implements Movable, Rotatable {
     id: string;
     _isSelected: boolean = false;
 
@@ -108,6 +109,42 @@ export class BlockVisual extends Selectable implements Movable {
             this.blockElement.appendChild(outputPort);
             this.outputPorts.push(outputPort);
         }
+    }
+    getRotation(communicationManager: CommunicationManager): Rotation {
+        const blockData = communicationManager.getLocalJson()?.blocks?.find((block: BlockData) => block.id === this.id);
+        return blockData?.rotation ?? 0; // Default rotation is 0 if not found
+    }
+
+    applyRotation(rotation: Rotation, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        communicationManager.rotateBlock(this.id, rotation);
+    }
+    rotateClockwise(communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        const currentRotation = this.getRotation(communicationManager);
+        let newRotation: Rotation = 0;
+        if (currentRotation === 270) {
+            newRotation = 0;
+        } else if (currentRotation === 0) {
+            newRotation = 90;
+        } else if (currentRotation === 90) {
+            newRotation = 180;
+        } else if (currentRotation === 180) {
+            newRotation = 270;
+        }
+        this.applyRotation(newRotation, communicationManager, selectables);
+    }
+    rotateCounterClockwise(communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        const currentRotation = this.getRotation(communicationManager);
+        let newRotation: Rotation = 0;
+        if (currentRotation === 0) {
+            newRotation = 270;
+        } else if (currentRotation === 90) {
+            newRotation = 0;
+        } else if (currentRotation === 180) {
+            newRotation = 90;
+        } else if (currentRotation === 270) {
+            newRotation = 180;
+        }
+        this.applyRotation(newRotation, communicationManager, selectables);
     }
 
     private applyRenderInfo(renderInfo?: BlockRenderInformation | null) {

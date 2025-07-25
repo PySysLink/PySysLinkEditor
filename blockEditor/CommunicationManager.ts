@@ -1,5 +1,5 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, deleteBlockFromJson, deleteIntermediateNodeFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, updateBlockFromJson, updateLinkInJson, updateLinksSourceTargetPosition } from "../shared/JsonManager";
-import { BlockData, IdType, JsonData, LinkData } from "../shared/JsonTypes";
+import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, deleteBlockFromJson, deleteIntermediateNodeFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, rotateBlock, updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
+import { BlockData, IdType, JsonData, LinkData, Rotation } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
 import { moveLinkSegment, updateLinksAfterBatchMove } from "../shared/LInkOrganization";
@@ -67,7 +67,7 @@ export class CommunicationManager {
                 mergedJson = MergeJsons(this.serverJsonBeforeFreeze, this.localJson, this.localJson);
             }
             if (mergedJson) {
-                console.log("set merged json");
+                this.print("set merged json");
                 this.setLocalJson(mergedJson);
                 this.serverJson = undefined;
                 this.serverJsonBeforeFreeze = undefined;
@@ -87,7 +87,31 @@ export class CommunicationManager {
         }
     }
 
+    private printJsonDiff(obj1: any, obj2: any, path: string = ''): void {
+        if (typeof obj1 !== 'object' || typeof obj2 !== 'object') {
+            if (obj1 !== obj2) {
+                this.print(`Value mismatch at ${path}: ${obj1} !== ${obj2}`);
+            }
+            return;
+        }
+
+        const keys = new Set([...Object.keys(obj1 || {}), ...Object.keys(obj2 || {})]);
+
+        for (const key of keys) {
+            const newPath = path ? `${path}.${key}` : key;
+            this.printJsonDiff(obj1?.[key], obj2?.[key], newPath);
+        }
+    }
+
     public setLocalJson(json: JsonData, sendToServer: boolean = true) {
+        this.print(`Setting local JSON`);
+        if (JSON.stringify(json) === JSON.stringify(this.localJson)) {
+            return;
+        } else {
+            this.print('JSON changed:');
+            this.printJsonDiff(this.localJson, json);
+        }
+
         this.localJson = json;
         
         this.vscode.setState({ text: JSON.stringify(this.localJson) });
@@ -126,8 +150,10 @@ export class CommunicationManager {
         else {
             let localJson = this.getLocalJson();
             if (localJson === undefined) {
+                this.print('No local JSON, setting new JSON from server');
                 this.setLocalJson(json, false);
             } else {
+                this.print('Setting local JSON with server JSON');
                 this.setLocalJson(json, false);
             }
         }
@@ -182,6 +208,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = deleteIntermediateNodeFromJson(json, nodeId);
+            this.print(`Delete intermediate node: ${nodeId}`);
             this.setLocalJson(newJson, true);
         }
     };
@@ -190,6 +217,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = updateBlockFromJson(json, block);
+            this.print(`Update block: ${block.id}`);
             this.setLocalJson(newJson, true);
         }
     };
@@ -198,6 +226,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = updateLinkInJson(json, link);
+            this.print(`Update link: ${link.id}`);
             this.setLocalJson(newJson, true);
         }
     };
@@ -218,6 +247,7 @@ export class CommunicationManager {
                 intermediateNodes: []
             };
             let newJson = addLinkToJson(json, newLink);
+            this.print(`Create new link from port: ${JSON.stringify(newLink)}`);
             this.setLocalJson(newJson, true);
             return newLink;
         }
@@ -244,6 +274,16 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = moveBlockInJson(json, blockId, x, y);
+            this.print(`Move block: ${blockId} to position (${x}, ${y})`);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public rotateBlock = (blockId: IdType, rotation: Rotation) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = rotateBlock(json, blockId, rotation);
+            this.print(`Rotate block: ${blockId} to rotation ${rotation}`);
             this.setLocalJson(newJson, true);
         }
     };
@@ -252,6 +292,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = moveLinkDelta(json, linkId, deltaX, deltaY);
+            this.print(`Move link: ${linkId} by delta (${deltaX}, ${deltaY})`);
             this.setLocalJson(newJson, true);
         }
     };
@@ -261,6 +302,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = moveSourceNode(json, linkId, x, y);
+            this.print(`Move source node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
     };
@@ -269,6 +311,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = moveTargetNode(json, linkId, x, y);
+            this.print(`Move target node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
     };

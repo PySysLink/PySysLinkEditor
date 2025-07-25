@@ -525,7 +525,6 @@ export class LinkVisual {
         if (this.intermediateNodes.length === 0 && this.sourceNode.isSelected() && this.targetNode.isSelected()) {
             this.updateSegments(communicationManager);
             this.segments.forEach(segment => segment.updateFromJson(json, communicationManager));
-            json.links?.find(link => link.id === this.id)?.intermediateNodes.forEach(intermediateNode => communicationManager.deleteIntermediateNode(intermediateNode.id));
             return;
         }
 
