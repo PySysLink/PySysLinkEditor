@@ -1,13 +1,13 @@
 {
-  "version": 84,
+  "version": 460,
   "blocks": [
     {
       "id": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
-      "label": "Constant",
-      "x": 744.4109158815037,
-      "y": 161.73860453272277,
+      "label": "ConstantBad",
+      "x": 912.9674769674765,
+      "y": 422.26801629742897,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
@@ -38,8 +38,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 980.7936720142598,
-      "y": 209.91176470588235,
+      "x": 1218.3502331002321,
+      "y": 513.4411764705884,
       "inputPorts": 3,
       "outputPorts": 1,
       "properties": {
@@ -74,8 +74,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1182.0588235294122,
-      "y": 210.3180147058824,
+      "x": 1381.968325791856,
+      "y": 527.9650735294116,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -110,8 +110,8 @@
       "blockLibrary": "scope_library",
       "blockType": "scope",
       "label": "scope",
-      "x": 1706.9871861025088,
-      "y": 209.32553350287492,
+      "x": 2093.4408060120113,
+      "y": 580.4284746793456,
       "inputPorts": 1,
       "outputPorts": 0,
       "properties": {},
@@ -137,8 +137,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1420.0290521312188,
-      "y": 209.3778233183226,
+      "x": 1666.482672040721,
+      "y": 539.3042939065576,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -167,43 +167,98 @@
         "output_ports": 1
       },
       "rotation": 0
+    },
+    {
+      "id": "fzKDhjbi7mS1IR3LHRlzNetCfC2ZOlSi",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 1525.0441067165784,
+      "y": 222.92713511348524,
+      "rotation": 0,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "s5DYDJLzOyHelezXbTCq7QGuhyjXTiTQ",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 1733.7058823529399,
+      "y": 322.05882352941205,
+      "rotation": 0,
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            1
+          ]
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "circle",
+        "icon": "",
+        "text": "Adder",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 2,
+        "output_ports": 1
+      }
     }
   ],
   "links": [
-    {
-      "id": "ZDi4iftQSZEhAHJu7z5kn3CAEdscw1j2",
-      "sourceId": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
-      "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
-      "sourcePort": 0,
-      "targetPort": 0,
-      "sourceX": 864.4109158815037,
-      "sourceY": 186.73860453272277,
-      "targetX": 980.7936720142598,
-      "targetY": 214.91176470588235,
-      "intermediateNodes": [
-        {
-          "id": "6Adljvsn2qE9PZc6bGrH7ZhDNAEXsyYj",
-          "y": 186.73860453272277,
-          "x": 911.6022939478817
-        },
-        {
-          "id": "Nc0Pn0wfnFy7YrvxbErK2motLNQEvVO8",
-          "y": 214.91176470588235,
-          "x": 911.6022939478817
-        }
-      ]
-    },
     {
       "id": "ENQKNPLQ8IpxQXjwYbSpIsX4mAlDzWat",
       "sourceId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "targetId": "yexIaDXh8CvEsJXNyCHfsLmspbDhL6gh",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 1100.7936720142598,
-      "sourceY": 234.91176470588235,
-      "targetX": 1182.0588235294122,
-      "targetY": 235.3180147058824,
-      "intermediateNodes": []
+      "sourceX": 1338.3502331002321,
+      "sourceY": 538.4411764705884,
+      "targetX": 1381.968325791856,
+      "targetY": 552.9650735294116,
+      "intermediateNodes": [
+        {
+          "id": "xtPHaKEdWdWke7Ms4676YLHOuNS6heZG",
+          "y": 538.4411764705884,
+          "x": 1365.4533970931034
+        },
+        {
+          "id": "lGLgzo38CixeZoI0caYdU2kHgkYOL1K7",
+          "y": 552.9650735294116,
+          "x": 1365.4533970931034
+        }
+      ]
     },
     {
       "id": "QYSYEH9waUG15PCwiVP3TZ6p9OefqM2i",
@@ -211,11 +266,27 @@
       "targetId": "MGyY5ws33Yw9LGVbN94J9a6BgdG9MpBw",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 1302.0588235294122,
-      "sourceY": 235.3180147058824,
-      "targetX": 1420.0290521312188,
-      "targetY": 234.3778233183226,
-      "intermediateNodes": []
+      "sourceX": 1501.968325791856,
+      "sourceY": 552.9650735294116,
+      "targetX": 1666.482672040721,
+      "targetY": 564.3042939065576,
+      "intermediateNodes": [
+        {
+          "id": "p2SxAPbmvV9MhhMZHx0EpTmahtAXHMuD",
+          "x": 1501.968325791856,
+          "y": 554.2150735294116
+        },
+        {
+          "id": "npViwhrRoaheEyHCFzDdG6c2Bl79wf9d",
+          "y": 554.2150735294116,
+          "x": 1631.468145975112
+        },
+        {
+          "id": "lzxOMU03YONCHMx2vzKmgnXw90G1g5eB",
+          "y": 564.3042939065576,
+          "x": 1631.468145975112
+        }
+      ]
     },
     {
       "id": "Hh6IDqjvkf9yioGPq8XanJgrPmqngcba",
@@ -223,30 +294,30 @@
       "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "sourcePort": 0,
       "targetPort": 1,
-      "sourceX": 1540.0290521312188,
-      "sourceY": 234.3778233183226,
-      "targetX": 980.7936720142598,
-      "targetY": 234.91176470588235,
+      "sourceX": 1786.482672040721,
+      "sourceY": 564.3042939065576,
+      "targetX": 1218.3502331002321,
+      "targetY": 538.4411764705884,
       "intermediateNodes": [
         {
           "id": "HD2MubLa1qm13cpXbAXXLHKjxkCI4viZ",
-          "x": 1560.8950808393524,
-          "y": 234.3778233183226
+          "x": 1807.3487007488548,
+          "y": 564.3042939065576
         },
         {
           "id": "uxWLxvemsOWIKlr6gvILmqW81TLhDPXe",
-          "x": 1560.8950808393524,
-          "y": 410.10913312693503
+          "x": 1807.3487007488548,
+          "y": 727.756191950464
         },
         {
           "id": "psemVIGeB7fufViUC8K1XMnO6AWdj1q9",
-          "x": 949.3702270381835,
-          "y": 410.10913312693503
+          "x": 1149.2797293006272,
+          "y": 727.756191950464
         },
         {
           "id": "xjFWrlxULQNkMZJ01rl3REPfkTL0j5Fq",
-          "x": 949.3702270381835,
-          "y": 234.91176470588235
+          "x": 1149.2797293006272,
+          "y": 538.4411764705884
         }
       ]
     },
@@ -256,44 +327,101 @@
       "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "sourcePort": 0,
       "targetPort": 2,
-      "sourceX": 1302.0588235294122,
-      "sourceY": 235.3180147058824,
-      "targetX": 980.7936720142598,
-      "targetY": 254.91176470588235,
+      "sourceX": 1501.968325791856,
+      "sourceY": 552.9650735294116,
+      "targetX": 1218.3502331002321,
+      "targetY": 558.4411764705884,
       "intermediateNodes": [
         {
           "id": "TcPgmqTBpXNef14aioxMobiNrDz9R3Nh",
-          "y": 235.3180147058824,
-          "x": 1321.588063295494
+          "y": 552.9650735294116,
+          "x": 1521.4975655579378
         },
         {
           "id": "cJmRQVXUjUBH4tnBvAlsy2VoUCpinsIy",
-          "y": 353.26702786377723,
-          "x": 1321.588063295494
+          "y": 670.9140866873063,
+          "x": 1521.4975655579378
         },
         {
           "id": "rP7VqQ8vVFe6gI4epazeA2Jgt4bTB0IY",
-          "x": 983.9754901960781,
-          "y": 353.26702786377723
+          "x": 1183.884992458522,
+          "y": 670.9140866873063
         },
         {
           "id": "SzqCz86mXMD9EnODzhuMR4o7JkMEjLhR",
-          "x": 983.9754901960781,
-          "y": 254.91176470588235
+          "x": 1183.884992458522,
+          "y": 558.4411764705884
         }
       ]
     },
     {
-      "id": "ehuGEi2tAXb8zNnkpLL1a4fwT59EyqTL",
+      "id": "4ZANaq69AlI5n2YDnt7pWlymUPj85mKM",
+      "sourceId": "fzKDhjbi7mS1IR3LHRlzNetCfC2ZOlSi",
+      "targetId": "s5DYDJLzOyHelezXbTCq7QGuhyjXTiTQ",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 1645.0441067165784,
+      "sourceY": 247.92713511348524,
+      "targetX": 1733.7058823529399,
+      "targetY": 337.05882352941205,
+      "intermediateNodes": [
+        {
+          "id": "8OqEDD44jJVcCbxDC6ta0vvRUbtqkkVl",
+          "y": 247.92713511348524,
+          "x": 1735.488551161026
+        },
+        {
+          "id": "QgQTkxMONPZfvIDyemrYmEdr3a4q6pDL",
+          "y": 337.05882352941205,
+          "x": 1735.488551161026
+        }
+      ]
+    },
+    {
+      "id": "Aln5G0FLGul8Bcr79qu3cLGjjFRZOWUn",
+      "sourceId": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
+      "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 1032.9674769674766,
+      "sourceY": 447.26801629742897,
+      "targetX": 1218.3502331002321,
+      "targetY": 518.4411764705884,
+      "intermediateNodes": [
+        {
+          "id": "Eg2KetoKl2sEpJwsXy0oAw0rVhQu2Yut",
+          "y": 447.26801629742897,
+          "x": 1098.6000315044405
+        },
+        {
+          "id": "vMdvgXepr7s0w6NbruKegPuJ5wIHXeDP",
+          "y": 518.4411764705884,
+          "x": 1098.6000315044405
+        }
+      ]
+    },
+    {
+      "id": "Ar3fFihOl9LUt6kuTJt6ht5MBfuZCqLU",
       "sourceId": "MGyY5ws33Yw9LGVbN94J9a6BgdG9MpBw",
       "targetId": "9sMRZi16PKNLlhVZs3NOdiY1U5FaZMNZ",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 1540.0290521312188,
-      "sourceY": 234.3778233183226,
-      "targetX": 1706.9871861025088,
-      "targetY": 234.32553350287492,
-      "intermediateNodes": []
+      "sourceX": 1786.482672040721,
+      "sourceY": 564.3042939065576,
+      "targetX": 2093.4408060120113,
+      "targetY": 605.4284746793456,
+      "intermediateNodes": [
+        {
+          "id": "5jRudfiNrtW2MCYCKTEDVHCQ6DCD6Nrv",
+          "y": 564.3042939065576,
+          "x": 1956.211739026366
+        },
+        {
+          "id": "xbK0AKC58hqBuOB5N2JDtkfLy7c91gCZ",
+          "y": 605.4284746793456,
+          "x": 1956.211739026366
+        }
+      ]
     }
   ],
   "simulation_configuration": "options.yaml",

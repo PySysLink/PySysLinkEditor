@@ -337,14 +337,38 @@ export class SelectableManager {
     public rotateSelectables(): void {
         this.communicationManager.freeze();
         while (this.pendingRotations > 0) {
+            let centerPosition = { x: 0, y: 0 };
+            let count = 0;
+
             this.communicationManager.print(`Rotate selectables`);
             const selectedSelectables = this.getSelectedSelectables();
 
             selectedSelectables.forEach(selectable => {
+                if (isMovable(selectable)) {
+                    const position = selectable.getPosition(this.communicationManager);
+                    const element = selectable.getElement();
+                    if (position) {
+                        centerPosition.x += position.x + (element instanceof HTMLElement ? element.offsetWidth / 2 : 0);
+                        centerPosition.y += position.y + (element instanceof HTMLElement ? element.offsetHeight / 2 : 0);
+                        count++;
+                    }
+                }
                 if (isRotatable(selectable)) {
                     selectable.rotateClockwise(this.communicationManager, selectedSelectables);
                 }
             });
+
+            if (count > 0) {
+                centerPosition.x /= count;
+                centerPosition.y /= count;
+
+                selectedSelectables.forEach(selectable => {
+                    if (isMovable(selectable)) {
+                        selectable.moveClockwiseAround(centerPosition.x, centerPosition.y, this.communicationManager, selectedSelectables);
+                    }
+                });
+            }
+
             this.pendingRotations--;
         }
         this.communicationManager.unfreeze();

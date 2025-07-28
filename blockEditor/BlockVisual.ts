@@ -147,6 +147,40 @@ export class BlockVisual extends Selectable implements Movable, Rotatable {
         this.applyRotation(newRotation, communicationManager, selectables);
     }
 
+    moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let centralPosition = this.getPosition(communicationManager);
+        if (centralPosition) {
+            centralPosition.x += this.blockElement.offsetWidth / 2;
+            centralPosition.y += this.blockElement.offsetHeight / 2;
+            const deltaX = centerX - centralPosition.x;
+            const deltaY = centerY - centralPosition.y;
+
+            let targetPosition = {
+                x: centerX + deltaY - this.blockElement.offsetWidth / 2,
+                y: centerY - deltaX - this.blockElement.offsetHeight / 2
+            };
+
+            this.moveTo(targetPosition.x, targetPosition.y, communicationManager, []);
+        }
+    }
+
+    moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let centralPosition = this.getPosition(communicationManager);
+        if (centralPosition) {
+            centralPosition.x += this.blockElement.offsetWidth / 2;
+            centralPosition.y += this.blockElement.offsetHeight / 2;
+            const deltaX = centerX - centralPosition.x;
+            const deltaY = centerY - centralPosition.y;
+
+            let targetPosition = {
+                x: centerX - deltaY - this.blockElement.offsetWidth / 2,
+                y: centerY + deltaX - this.blockElement.offsetHeight / 2
+            };
+
+            this.moveTo(targetPosition.x, targetPosition.y, communicationManager, []);
+        }
+    }
+    
     private applyRenderInfo(renderInfo?: BlockRenderInformation | null) {
         if (!renderInfo) {return;}
         // Shape classes: square, circle, triangle

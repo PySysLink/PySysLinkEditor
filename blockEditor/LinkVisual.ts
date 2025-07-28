@@ -55,6 +55,10 @@ export class LinkNode extends Selectable implements Movable {
         return undefined;
     }
 
+    private forceNewPosition(communicationManager: CommunicationManager, x: number, y: number): void {
+        communicationManager.setPositionForLinkNode(this.linkId, this.id, x, y);
+    }
+
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         console.log(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
@@ -115,6 +119,36 @@ export class LinkNode extends Selectable implements Movable {
             const newX = position.x + deltaX;
             const newY = position.y + deltaY;
             this.moveTo(newX, newY, communicationManager, selectables);
+        }
+    }
+
+    moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let centralPosition = this.getPosition(communicationManager);
+        if (centralPosition) {
+            const deltaX = centerX - centralPosition.x;
+            const deltaY = centerY - centralPosition.y;
+
+            let targetPosition = {
+                x: centerX + deltaY,
+                y: centerY - deltaX
+            };
+
+            this.forceNewPosition(communicationManager, targetPosition.x, targetPosition.y);
+        }
+    }
+
+    moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let centralPosition = this.getPosition(communicationManager);
+        if (centralPosition) {
+            const deltaX = centerX - centralPosition.x;
+            const deltaY = centerY - centralPosition.y;
+
+            let targetPosition = {
+                x: centerX - deltaY,
+                y: centerY + deltaX
+            };
+
+            this.forceNewPosition(communicationManager, targetPosition.x, targetPosition.y);
         }
     }
 
@@ -199,6 +233,14 @@ export class SourceNode extends LinkNode implements Movable {
         }
         return undefined;
     }
+
+    moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        ;
+    }
+
+    moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        ;
+    }
 }
 export class TargetNode extends LinkNode {
     public getId(): IdType {
@@ -245,6 +287,14 @@ export class TargetNode extends LinkNode {
             return { x: linkData.targetX, y: linkData.targetY };
         }
         return undefined;
+    }
+
+    moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        ;
+    }
+
+    moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        ;
     }
 }
 
@@ -349,6 +399,30 @@ export class LinkSegment extends Selectable implements Movable {
             const newX = position.x + deltaX;
             const newY = position.y + deltaY;
             this.moveTo(newX, newY, communicationManager, selectables);
+        }
+    }
+
+    moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
+        let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
+        
+        if (!isSourceLinkSelected) {
+            this.sourceLinkNode.moveClockwiseAround(centerX, centerY, communicationManager, selectables);
+        }
+        if (!isTargetLinkSelected) {
+            this.targetLinkNode.moveClockwiseAround(centerX, centerY, communicationManager, selectables);
+        }
+    }
+
+    moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
+        let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
+        
+        if (!isSourceLinkSelected) {
+            this.sourceLinkNode.moveCounterClockwiseAround(centerX, centerY, communicationManager, selectables);
+        }
+        if (!isTargetLinkSelected) {
+            this.targetLinkNode.moveCounterClockwiseAround(centerX, centerY, communicationManager, selectables);
         }
     }
 

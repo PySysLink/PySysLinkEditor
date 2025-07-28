@@ -182,6 +182,22 @@ export function deleteIntermediateNodeFromJson(json: JsonData, intermediateNodeI
     };
 }
 
+export function setPositionForLinkNode(json: JsonData, linkId: IdType, nodeId: IdType, x: number, y: number): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            if (link.id === linkId) {
+                const nodeIndex = link.intermediateNodes.findIndex(node => node.id === nodeId);
+                if (nodeIndex !== -1) {
+                    link.intermediateNodes[nodeIndex] = { id: nodeId, x: x, y: y };
+                }
+            }
+            return link;
+        })
+    };
+    return updatedJson;
+}
+
 export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData): JsonData {
     let updatedJson: JsonData = {
         ...json,
