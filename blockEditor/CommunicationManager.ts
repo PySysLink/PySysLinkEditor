@@ -402,9 +402,10 @@ export class CommunicationManager {
         targetIntermediateNodeId: IdType,
         targetPositionX: number,
         targetPositionY: number) {
-
+        
         let json = this.getLocalJson();
         if (json) {
+            this.print(`Move link segment from ${sourceIntermediateNodeId} to ${targetIntermediateNodeId} at position (${targetPositionX}, ${targetPositionY})`);
             let newJson = moveLinkSegment(json, link, sourceIntermediateNodeId, targetIntermediateNodeId, targetPositionX, targetPositionY);
             this.setLocalJson(newJson, true);
         }

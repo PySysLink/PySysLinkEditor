@@ -318,7 +318,7 @@ export class SelectableManager {
             this.communicationManager.freezeLocalJsonCallback();
             selectedSelectables.forEach(selectable => {
                 if (isMovable(selectable)) {
-                    this.communicationManager.print(`Move selectable: ${selectable}`);
+                    this.communicationManager.print(`Move selectable: ${selectable.getId()}`);
                     selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
                 }
             });

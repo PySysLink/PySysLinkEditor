@@ -36,27 +36,63 @@ export class LinkInteractionManager {
     }
 
     public getAllLinkSegments(): LinkSegment[] {
-        let result: LinkSegment[] = [];
+        const seenIds = new Set<string>();
+        const result: LinkSegment[] = [];
+
         this.links.forEach(link => {
             link.segments.forEach(segment => {
-                result.push(segment);
+                if (!seenIds.has(segment.getId())) {
+                    seenIds.add(segment.getId());
+                    result.push(segment);
+                }
+                else {
+                    this.communicationManager.print(`Duplicate segment found: ${segment.getId()}`);
+                }
             });
         });
+
         return result;
     }
+
     public getAllLinkNodes(): LinkNode[] {
-        let result: LinkNode[] = [];
+        const seenIds = new Set<string>();
+        const result: LinkNode[] = [];
+
         this.links.forEach(link => {
             link.intermediateNodes.forEach(node => {
-                result.push(node);
+                if (!seenIds.has(node.getId())) {
+                    seenIds.add(node.getId());
+                    result.push(node);
+                }
+                else {
+                    this.communicationManager.print(`Duplicate node found: ${node.getId()}`);
+                }
+                
             });
-            result.push(link.sourceNode);
-            result.push(link.targetNode);
+            if (!seenIds.has(link.sourceNode.getId())) {
+                seenIds.add(link.sourceNode.getId());
+                result.push(link.sourceNode);
+            }
+            else {
+                this.communicationManager.print(`Duplicate source node found: ${link.sourceNode.getId()}`);
+            }
+            if (!seenIds.has(link.targetNode.getId())) {
+                seenIds.add(link.targetNode.getId());
+                result.push(link.targetNode);
+            }
+            else {
+                this.communicationManager.print(`Duplicate target node found: ${link.targetNode.getId()}`);
+            }
         });
         return result;
     }
 
     public createLinkVisual(linkData: LinkData): LinkVisual {
+        this.communicationManager.print(`Creating link visual for link: ${linkData.id}`);
+        if (this.links.find(link => link.id === linkData.id)) {
+            this.communicationManager.print(`Link visual with id ${linkData.id} already exists, skipping creation.`);
+            return this.links.find(link => link.id === linkData.id)!;
+        }
         let newLink = new LinkVisual(
             linkData,
             this.deleteLink
@@ -102,6 +138,7 @@ export class LinkInteractionManager {
 
             let newLinkData = this.communicationManager.createNewLinkFromPort(block.id, portType, portIndex);
             if (newLinkData) {
+                this.communicationManager.print(`Creating new link visual due to click on port id: ${newLinkData.id}`);
                 newLink = this.createLinkVisual(newLinkData);
                 newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
                 newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
@@ -137,6 +174,7 @@ export class LinkInteractionManager {
         json.links?.forEach(linkData => {
             var link = this.links.find(l => l.id === linkData.id);
             if (!link) {
+                this.communicationManager.print(`Creating new link visual due to not found id: ${linkData.id}`);
                 this.createLinkVisual(linkData);
             }
         });
@@ -200,6 +238,7 @@ export class LinkInteractionManager {
     }
 
     public deleteLink = (link: LinkVisual): void => {
+        this.communicationManager.print(`Deleting link visual: ${link.id}`);
         link.removeFromSvg(this.linksSvg);
         const index = this.links.indexOf(link);
         if (index !== -1) {
