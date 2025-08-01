@@ -73,29 +73,11 @@ body.pysyslink-light {
   align-items: center;
 }
 
-.block {
-  position: relative;
-  /* remove fixed width/height if using shape modifiers */
-  background: var(--pysyslink-block-body);
-  color: var(--pysyslink-block-text);
-  cursor: move;
-  user-select: none;
-  z-index: 2;
-  box-shadow: 0 1px 3px var(--vscode-widget-shadow);
-}
-
-/* Shapes */
-.block--square { /* default rounded rectangle */ }
-.block.block--circle {
-  border-radius: 50%;
-}
-.block--triangle {
-  background: transparent;
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-}
-
 /* Content inside the block */
 .block-content {
+  position: absolute;
+  top: 0px;
+  left: 0px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,23 +118,35 @@ body.pysyslink-light {
     position: absolute;
     width: 120px;
     height: 50px;
-    background: var(--pysyslink-block-body);
-    color: var(--pysyslink-block-text);
-    border-radius: 4px;
-    padding: 8px;
-    padding-left: 40px;
-    padding-right: 40px;
+
     cursor: move;
     user-select: none;
     z-index: 2;
-    box-shadow: 0 1px 3px var(--vscode-widget-shadow);
 
     backface-visibility: hidden;
     transform: translateZ(0);
     -webkit-font-smoothing: subpixel-antialiased;
 }
 
-.block.selected {
+.block-visual {
+  position: relative;
+}
+
+/* Shapes */
+.block--square { 
+    width: 120px;
+    height: 50px;
+    background: var(--pysyslink-block-body);
+    color: var(--pysyslink-block-text);
+
+    border-radius: 4px;
+    padding: 8px;
+    padding-left: 40px;
+    padding-right: 40px;
+    box-shadow: 0 1px 3px var(--vscode-widget-shadow);
+ }
+
+ .block--square.selected {
     border: 2px dashed var(--pysyslink-block-selected-border);
     background: var(--pysyslink-block-selected-bg);
 
@@ -160,6 +154,54 @@ body.pysyslink-light {
     transform: translateZ(0);
     -webkit-font-smoothing: subpixel-antialiased;
 }
+
+.block--circle {
+  width: 120px;
+  height: 50px;
+  background: var(--pysyslink-block-body);
+  color: var(--pysyslink-block-text);
+  border-radius: 50%;
+}
+
+.block--circle.selected {
+    border: 2px dashed var(--pysyslink-block-selected-border);
+    background: var(--pysyslink-block-selected-bg);
+
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.block--triangle {
+    color: var(--pysyslink-block-text);
+    width: 0;
+    height: 0;
+    border-top: 25px solid transparent;
+    border-left: 120px solid var(--pysyslink-block-body);
+    border-bottom: 25px solid transparent;
+}
+
+.block--triangle.selected {
+    width: 0;
+    height: 0;
+    border-top: 27px solid transparent;
+    border-left: 124px solid var(--pysyslink-block-selected-border);
+    border-bottom: 27px solid transparent;
+    transform: translateZ(0);
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.block--triangle.selected::before {
+    content: "";
+    position: absolute;
+    top: -25px;
+    left: -122px;
+    border-top: 25px solid transparent;
+    border-left: 120px solid gray; /* this simulates the dashed border */
+    border-bottom: 25px solid transparent;
+}
+
+
 
 .selection-box {
     position: absolute;

@@ -17,6 +17,7 @@ export class BlockVisual extends Selectable implements Movable, Rotatable {
     }
 
     private blockElement: HTMLElement;
+    private blockVisual: HTMLElement;
     private labelElement: HTMLElement;
     private contentElement: HTMLElement;
 
@@ -45,6 +46,10 @@ export class BlockVisual extends Selectable implements Movable, Rotatable {
         this.blockElement = document.createElement('div');
         this.blockElement.classList.add('block');
         this.blockElement.style.position = 'absolute';
+
+        this.blockVisual = document.createElement('div');
+        this.blockVisual.classList.add('block-visual');
+        this.blockElement.appendChild(this.blockVisual);
 
 
         // Content container inside the block
@@ -184,7 +189,7 @@ export class BlockVisual extends Selectable implements Movable, Rotatable {
     private applyRenderInfo(renderInfo?: BlockRenderInformation | null) {
         if (!renderInfo) {return;}
         // Shape classes: square, circle, triangle
-        this.blockElement.classList.add(`block--${renderInfo.shape}`);
+        this.blockVisual.classList.add(`block--${renderInfo.shape}`);
 
         // Size constraints
         this.blockElement.style.width = `${renderInfo.default_width}px`;
@@ -215,14 +220,24 @@ export class BlockVisual extends Selectable implements Movable, Rotatable {
         }
 
         if (renderInfo.shape === "circle") {
-            this.blockElement.classList.add('block--circle');
+            this.blockVisual.classList.add('block--circle');
         }
         else if (renderInfo.shape === "triangle") {
-            this.blockElement.classList.add('block--triangle');
+            this.blockVisual.classList.add('block--triangle');
         }
         else {
-            this.blockElement.classList.add('block--square');
+            this.blockVisual.classList.add('block--square');
         }
+    }
+
+    public select(): void {
+        super.select();
+        this.blockVisual.classList.add('selected');
+    }
+
+    public unselect(): void {
+        super.unselect();
+        this.blockVisual.classList.remove('selected');
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
