@@ -318,6 +318,7 @@ export class SelectableManager {
             this.communicationManager.freezeLocalJsonCallback();
             selectedSelectables.forEach(selectable => {
                 if (isMovable(selectable)) {
+                    this.communicationManager.print(`Move selectable: ${selectable}`);
                     selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
                 }
             });
@@ -342,6 +343,8 @@ export class SelectableManager {
 
             this.communicationManager.print(`Rotate selectables`);
             const selectedSelectables = this.getSelectedSelectables();
+
+            this.communicationManager.freezeLinkUpdates();
 
             selectedSelectables.forEach(selectable => {
                 if (isMovable(selectable)) {
@@ -368,6 +371,8 @@ export class SelectableManager {
                     }
                 });
             }
+
+            this.communicationManager.unfreezeLinkUpdates();
 
             this.pendingRotations--;
         }

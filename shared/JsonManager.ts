@@ -4,7 +4,8 @@ import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfte
 export function MergeJsons(
     jsonBase: JsonData,
     jsonChildPriority: JsonData,
-    jsonChild2: JsonData
+    jsonChild2: JsonData,
+    updateLinks: boolean = true
 ): JsonData {
     let mergedJson: JsonData = {
         version: Math.max(jsonBase.version, jsonChildPriority.version, jsonChild2.version),
@@ -110,8 +111,9 @@ export function MergeJsons(
 
     mergedJson = updateLinksSourceTargetPosition(mergedJson);
 
-    mergedJson = updateLinksAfterMerge(mergedJson);
-
+    if (updateLinks) {
+        mergedJson = updateLinksAfterMerge(mergedJson);
+    }
 
     return mergedJson;
 }
@@ -198,13 +200,15 @@ export function setPositionForLinkNode(json: JsonData, linkId: IdType, nodeId: I
     return updatedJson;
 }
 
-export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData): JsonData {
+export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData, updateLinks: boolean = true): JsonData {
     let updatedJson: JsonData = {
         ...json,
         blocks: json.blocks?.map(block => (block.id === updatedBlock.id ? updatedBlock : block))
     };
     updatedJson = updateLinksSourceTargetPosition(updatedJson);
-    updatedJson = updateLinksAfterBlockUpdate(updatedJson, updatedBlock.id);
+    if (updateLinks) {
+        updatedJson = updateLinksAfterBlockUpdate(updatedJson, updatedBlock.id);
+    }
     return updatedJson;
 }
 
@@ -217,7 +221,7 @@ export function updateLinkInJson(json: JsonData, updatedLink: LinkData): JsonDat
 }
 
 
-export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: number): JsonData {
+export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: number, updateLinks: boolean = true): JsonData {
     let updatedJson: JsonData = {
         ...json,
         blocks: json.blocks?.map(block => {
@@ -233,12 +237,13 @@ export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: n
     };
 
     updatedJson = updateLinksSourceTargetPosition(updatedJson);
-
-    updatedJson = updateLinksAfterBlockMove(updatedJson, blockId);
+    if (updateLinks) {
+        updatedJson = updateLinksAfterBlockMove(updatedJson, blockId);
+    }
     return updatedJson;
 }
 
-export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation): JsonData {
+export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation, updateLinks: boolean = true): JsonData {
     let updatedJson: JsonData = {
         ...json,
         blocks: json.blocks?.map(block => {
@@ -254,7 +259,9 @@ export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation)
 
     updatedJson = updateLinksSourceTargetPosition(updatedJson);
 
-    updatedJson = updateLinksAfterBlockMove(updatedJson, blockId);
+    if (updateLinks) {
+        updatedJson = updateLinksAfterBlockMove(updatedJson, blockId);
+    }
     return updatedJson;
 }
 

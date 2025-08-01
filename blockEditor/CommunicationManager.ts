@@ -9,6 +9,7 @@ export class CommunicationManager {
     vscode: any;
     freezed: boolean = false;
     freezedLocalJsonCallback: boolean = false;
+    freezedLinkUpdates: boolean = false;
     disableSending: boolean = false;
 
     private localJson: JsonData | undefined;
@@ -55,6 +56,13 @@ export class CommunicationManager {
         }
     }
 
+    public freezeLinkUpdates() {
+        this.print("Freeze link updates");
+        if (!this.freezedLinkUpdates) {
+            this.freezedLinkUpdates = true;
+        }
+    }
+
     public unfreeze() {
         this.print("Unfreeze called");
         if (this.freezed) {
@@ -84,6 +92,14 @@ export class CommunicationManager {
                     callback(this.localJson);
                 }
             });
+        }
+    }
+
+    public unfreezeLinkUpdates() {
+        this.print("Unfreeze link updates called");
+        if (this.freezedLinkUpdates) {
+            this.freezedLinkUpdates = false;
+            this.consolidateLinks();
         }
     }
 
@@ -225,7 +241,7 @@ export class CommunicationManager {
     public updateBlock = (block: BlockData) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = updateBlockFromJson(json, block);
+            let newJson = updateBlockFromJson(json, block, !this.freezedLinkUpdates);
             this.print(`Update block: ${block.id}`);
             this.setLocalJson(newJson, true);
         }
@@ -236,6 +252,15 @@ export class CommunicationManager {
         if (json) {
             let newJson = updateLinkInJson(json, link);
             this.print(`Update link: ${link.id}`);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public consolidateLinks = () => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = consolidateLinkNodes(json);
+            this.print(`Consolidate links`);
             this.setLocalJson(newJson, true);
         }
     };
@@ -282,7 +307,7 @@ export class CommunicationManager {
     public moveBlock = (blockId: IdType, x: number, y: number) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveBlockInJson(json, blockId, x, y);
+            let newJson = moveBlockInJson(json, blockId, x, y, !this.freezedLinkUpdates);
             this.print(`Move block: ${blockId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
@@ -291,7 +316,7 @@ export class CommunicationManager {
     public rotateBlock = (blockId: IdType, rotation: Rotation) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = rotateBlock(json, blockId, rotation);
+            let newJson = rotateBlock(json, blockId, rotation, !this.freezedLinkUpdates);
             this.print(`Rotate block: ${blockId} to rotation ${rotation}`);
             this.setLocalJson(newJson, true);
         }

@@ -60,7 +60,7 @@ export class LinkNode extends Selectable implements Movable {
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        console.log(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
+        communicationManager.print(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
             const linkIndex = linkData.intermediateNodes.findIndex(node => node.id === this.id);
@@ -206,6 +206,7 @@ export class SourceNode extends LinkNode implements Movable {
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        communicationManager.print(`Source node with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
             const connectedBlock = selectables.find(selectable => selectable.getId() === linkData.sourceId);
@@ -261,6 +262,7 @@ export class TargetNode extends LinkNode {
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        communicationManager.print(`Target node with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
             const connectedBlock = selectables.find(selectable => selectable.getId() === linkData.targetId);
@@ -351,7 +353,7 @@ export class LinkSegment extends Selectable implements Movable {
     };
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        console.log(`Segment with id: ${this.getId()} moving to ${x}, ${y}`);
+        communicationManager.print(`Segment with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.sourceLinkNode.getLinkId());
 
         if (linkData) {
