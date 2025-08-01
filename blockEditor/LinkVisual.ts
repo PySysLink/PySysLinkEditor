@@ -55,8 +55,12 @@ export class LinkNode extends Selectable implements Movable {
         return undefined;
     }
 
+    private forceNewPosition(communicationManager: CommunicationManager, x: number, y: number): void {
+        communicationManager.setPositionForLinkNode(this.linkId, this.id, x, y);
+    }
+
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        console.log(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
+        communicationManager.print(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
             const linkIndex = linkData.intermediateNodes.findIndex(node => node.id === this.id);
@@ -118,6 +122,36 @@ export class LinkNode extends Selectable implements Movable {
         }
     }
 
+    moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let centralPosition = this.getPosition(communicationManager);
+        if (centralPosition) {
+            const deltaX = centerX - centralPosition.x;
+            const deltaY = centerY - centralPosition.y;
+
+            let targetPosition = {
+                x: centerX + deltaY,
+                y: centerY - deltaX
+            };
+
+            this.forceNewPosition(communicationManager, targetPosition.x, targetPosition.y);
+        }
+    }
+
+    moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let centralPosition = this.getPosition(communicationManager);
+        if (centralPosition) {
+            const deltaX = centerX - centralPosition.x;
+            const deltaY = centerY - centralPosition.y;
+
+            let targetPosition = {
+                x: centerX - deltaY,
+                y: centerY + deltaX
+            };
+
+            this.forceNewPosition(communicationManager, targetPosition.x, targetPosition.y);
+        }
+    }
+
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         const nodeData = json.links
                             ?.flatMap(link => link.intermediateNodes)
@@ -172,6 +206,7 @@ export class SourceNode extends LinkNode implements Movable {
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        communicationManager.print(`Source node with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
             const connectedBlock = selectables.find(selectable => selectable.getId() === linkData.sourceId);
@@ -199,6 +234,14 @@ export class SourceNode extends LinkNode implements Movable {
         }
         return undefined;
     }
+
+    moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        ;
+    }
+
+    moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        ;
+    }
 }
 export class TargetNode extends LinkNode {
     public getId(): IdType {
@@ -219,6 +262,7 @@ export class TargetNode extends LinkNode {
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        communicationManager.print(`Target node with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
             const connectedBlock = selectables.find(selectable => selectable.getId() === linkData.targetId);
@@ -245,6 +289,14 @@ export class TargetNode extends LinkNode {
             return { x: linkData.targetX, y: linkData.targetY };
         }
         return undefined;
+    }
+
+    moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        ;
+    }
+
+    moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        ;
     }
 }
 
@@ -301,7 +353,7 @@ export class LinkSegment extends Selectable implements Movable {
     };
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        console.log(`Segment with id: ${this.getId()} moving to ${x}, ${y}`);
+        communicationManager.print(`Segment with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.sourceLinkNode.getLinkId());
 
         if (linkData) {
@@ -349,6 +401,30 @@ export class LinkSegment extends Selectable implements Movable {
             const newX = position.x + deltaX;
             const newY = position.y + deltaY;
             this.moveTo(newX, newY, communicationManager, selectables);
+        }
+    }
+
+    moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
+        let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
+        
+        if (!isSourceLinkSelected) {
+            this.sourceLinkNode.moveClockwiseAround(centerX, centerY, communicationManager, selectables);
+        }
+        if (!isTargetLinkSelected) {
+            this.targetLinkNode.moveClockwiseAround(centerX, centerY, communicationManager, selectables);
+        }
+    }
+
+    moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
+        let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
+        
+        if (!isSourceLinkSelected) {
+            this.sourceLinkNode.moveCounterClockwiseAround(centerX, centerY, communicationManager, selectables);
+        }
+        if (!isTargetLinkSelected) {
+            this.targetLinkNode.moveCounterClockwiseAround(centerX, centerY, communicationManager, selectables);
         }
     }
 
@@ -525,7 +601,6 @@ export class LinkVisual {
         if (this.intermediateNodes.length === 0 && this.sourceNode.isSelected() && this.targetNode.isSelected()) {
             this.updateSegments(communicationManager);
             this.segments.forEach(segment => segment.updateFromJson(json, communicationManager));
-            json.links?.find(link => link.id === this.id)?.intermediateNodes.forEach(intermediateNode => communicationManager.deleteIntermediateNode(intermediateNode.id));
             return;
         }
 

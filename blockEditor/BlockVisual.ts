@@ -1,9 +1,10 @@
-import { BlockData, BlockRenderInformation, IdType, JsonData } from "../shared/JsonTypes";
+import { BlockData, BlockRenderInformation, IdType, JsonData, Rotation } from "../shared/JsonTypes";
 import { CommunicationManager } from "./CommunicationManager";
 import { Movable } from "./Movable";
+import { Rotatable } from "./Rotatable";
 import { Selectable } from "./Selectable";
 
-export class BlockVisual extends Selectable implements Movable {
+export class BlockVisual extends Selectable implements Movable, Rotatable {
     id: string;
     _isSelected: boolean = false;
 
@@ -16,6 +17,7 @@ export class BlockVisual extends Selectable implements Movable {
     }
 
     private blockElement: HTMLElement;
+    private blockVisual: HTMLElement;
     private labelElement: HTMLElement;
     private contentElement: HTMLElement;
 
@@ -45,6 +47,10 @@ export class BlockVisual extends Selectable implements Movable {
         this.blockElement.classList.add('block');
         this.blockElement.style.position = 'absolute';
 
+        this.blockVisual = document.createElement('div');
+        this.blockVisual.classList.add('block-visual');
+        this.blockElement.appendChild(this.blockVisual);
+
 
         // Content container inside the block
         this.contentElement = document.createElement('div');
@@ -73,7 +79,7 @@ export class BlockVisual extends Selectable implements Movable {
             inputPort.classList.add('input-port');
             inputPort.textContent = `In ${j + 1}`;
 
-            const position = communicationManager.getPortPosition(this.id, "input", j);
+            const position = communicationManager.getPortPosition(this.id, "input", j, true);
             const thisPosition = this.getPosition(communicationManager);
             if (position && thisPosition) {
                 inputPort.style.left = `${position.x - thisPosition.x - portWidth/4}px`;
@@ -94,7 +100,7 @@ export class BlockVisual extends Selectable implements Movable {
             outputPort.classList.add('output-port');
             outputPort.textContent = `Out ${i + 1}`;
 
-            const position = communicationManager.getPortPosition(this.id, "output", i);
+            const position = communicationManager.getPortPosition(this.id, "output", i, true);
             const thisPosition = this.getPosition(communicationManager);
             if (position && thisPosition) {
                 outputPort.style.left = `${position.x - thisPosition.x - 3*portWidth/4}px`;
@@ -109,11 +115,81 @@ export class BlockVisual extends Selectable implements Movable {
             this.outputPorts.push(outputPort);
         }
     }
+    getRotation(communicationManager: CommunicationManager): Rotation {
+        const blockData = communicationManager.getLocalJson()?.blocks?.find((block: BlockData) => block.id === this.id);
+        return blockData?.rotation ?? 0; // Default rotation is 0 if not found
+    }
 
+    applyRotation(rotation: Rotation, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        communicationManager.rotateBlock(this.id, rotation);
+    }
+    rotateClockwise(communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        const currentRotation = this.getRotation(communicationManager);
+        let newRotation: Rotation = 0;
+        if (currentRotation === 270) {
+            newRotation = 0;
+        } else if (currentRotation === 0) {
+            newRotation = 90;
+        } else if (currentRotation === 90) {
+            newRotation = 180;
+        } else if (currentRotation === 180) {
+            newRotation = 270;
+        }
+        this.applyRotation(newRotation, communicationManager, selectables);
+    }
+    rotateCounterClockwise(communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        const currentRotation = this.getRotation(communicationManager);
+        let newRotation: Rotation = 0;
+        if (currentRotation === 0) {
+            newRotation = 270;
+        } else if (currentRotation === 90) {
+            newRotation = 0;
+        } else if (currentRotation === 180) {
+            newRotation = 90;
+        } else if (currentRotation === 270) {
+            newRotation = 180;
+        }
+        this.applyRotation(newRotation, communicationManager, selectables);
+    }
+
+    moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let centralPosition = this.getPosition(communicationManager);
+        if (centralPosition) {
+            centralPosition.x += this.blockElement.offsetWidth / 2;
+            centralPosition.y += this.blockElement.offsetHeight / 2;
+            const deltaX = centerX - centralPosition.x;
+            const deltaY = centerY - centralPosition.y;
+
+            let targetPosition = {
+                x: centerX + deltaY - this.blockElement.offsetWidth / 2,
+                y: centerY - deltaX - this.blockElement.offsetHeight / 2
+            };
+
+            this.moveTo(targetPosition.x, targetPosition.y, communicationManager, []);
+        }
+    }
+
+    moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
+        let centralPosition = this.getPosition(communicationManager);
+        if (centralPosition) {
+            centralPosition.x += this.blockElement.offsetWidth / 2;
+            centralPosition.y += this.blockElement.offsetHeight / 2;
+            const deltaX = centerX - centralPosition.x;
+            const deltaY = centerY - centralPosition.y;
+
+            let targetPosition = {
+                x: centerX - deltaY - this.blockElement.offsetWidth / 2,
+                y: centerY + deltaX - this.blockElement.offsetHeight / 2
+            };
+
+            this.moveTo(targetPosition.x, targetPosition.y, communicationManager, []);
+        }
+    }
+    
     private applyRenderInfo(renderInfo?: BlockRenderInformation | null) {
         if (!renderInfo) {return;}
         // Shape classes: square, circle, triangle
-        this.blockElement.classList.add(`block--${renderInfo.shape}`);
+        this.blockVisual.classList.add(`block--${renderInfo.shape}`);
 
         // Size constraints
         this.blockElement.style.width = `${renderInfo.default_width}px`;
@@ -144,14 +220,24 @@ export class BlockVisual extends Selectable implements Movable {
         }
 
         if (renderInfo.shape === "circle") {
-            this.blockElement.classList.add('block--circle');
+            this.blockVisual.classList.add('block--circle');
         }
         else if (renderInfo.shape === "triangle") {
-            this.blockElement.classList.add('block--triangle');
+            this.blockVisual.classList.add('block--triangle');
         }
         else {
-            this.blockElement.classList.add('block--square');
+            this.blockVisual.classList.add('block--square');
         }
+    }
+
+    public select(): void {
+        super.select();
+        this.blockVisual.classList.add('selected');
+    }
+
+    public unselect(): void {
+        super.unselect();
+        this.blockVisual.classList.remove('selected');
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -196,6 +282,9 @@ export class BlockVisual extends Selectable implements Movable {
             this.labelElement.textContent = blockData.label;
             this.blockElement.style.left = `${blockData.x}px`;
             this.blockElement.style.top = `${blockData.y}px`;
+            this.blockElement.style.transform = `rotate(${blockData.rotation}deg)`;
+            this.blockElement.style.transformOrigin = "center center";
+
 
             // --- Update ports if the amount has changed ---
             const portWidth = 40;
@@ -216,7 +305,7 @@ export class BlockVisual extends Selectable implements Movable {
                     inputPort.classList.add('input-port');
                     inputPort.textContent = `In ${j + 1}`;
 
-                    const position = communicationManager.getPortPosition(this.id, "input", j);
+                    const position = communicationManager.getPortPosition(this.id, "input", j, true);
                     const thisPosition = this.getPosition(communicationManager);
                     if (position && thisPosition) {
                         inputPort.style.left = `${position.x - thisPosition.x - portWidth/4}px`;
@@ -245,7 +334,7 @@ export class BlockVisual extends Selectable implements Movable {
                     outputPort.classList.add('output-port');
                     outputPort.textContent = `Out ${i + 1}`;
 
-                    const position = communicationManager.getPortPosition(this.id, "output", i);
+                    const position = communicationManager.getPortPosition(this.id, "output", i, true);
                     const thisPosition = this.getPosition(communicationManager);
                     if (position && thisPosition) {
                         outputPort.style.left = `${position.x - thisPosition.x - 3*portWidth/4}px`;

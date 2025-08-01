@@ -1,13 +1,13 @@
 {
-  "version": 23,
+  "version": 69,
   "blocks": [
     {
       "id": "hXJ8n6A4P1dPXZInrYLtPnAPmvuQtTuu",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 166,
-      "y": 198.609375,
+      "x": 159.74999999999986,
+      "y": 238.6093750000001,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
@@ -30,15 +30,16 @@
         "max_height": 150,
         "input_ports": 0,
         "output_ports": 1
-      }
+      },
+      "rotation": 0
     },
     {
       "id": "Exudv4oE0S6QXJarLtZ4WMe4AtN3misX",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 454,
-      "y": 166.609375,
+      "x": 478.9999999999999,
+      "y": 150.35937500000009,
       "inputPorts": 1,
       "outputPorts": 0,
       "properties": {},
@@ -56,6 +57,39 @@
         "max_height": 150,
         "input_ports": 1,
         "output_ports": 0
+      },
+      "rotation": 0
+    },
+    {
+      "id": "IChMdLiGQmeBrDuzqk8ywEGZ3hOpStMz",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Gain",
+      "label": "Gain",
+      "x": 404.5,
+      "y": 338,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "Gain": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "triangle",
+        "icon": "",
+        "text": "Gain",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 1
       }
     }
   ],
@@ -66,24 +100,25 @@
       "targetId": "Exudv4oE0S6QXJarLtZ4WMe4AtN3misX",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 286,
-      "sourceY": 218.609375,
-      "targetX": 454,
-      "targetY": 186.609375,
+      "sourceX": 279.7499999999999,
+      "sourceY": 263.6093750000001,
+      "targetX": 478.9999999999999,
+      "targetY": 175.35937500000009,
       "intermediateNodes": [
         {
           "id": "eNdJyBG3NY2aC69ld2Cs2LLZ0UcHqpPY",
-          "y": 218.609375,
-          "x": 394.5
+          "x": 388.2499999999999,
+          "y": 263.6093750000001
         },
         {
           "id": "xtisZsUMQLaumbUmInNGjf0eKBP5YVKM",
-          "y": 186.609375,
-          "x": 394.5
+          "x": 388.2499999999999,
+          "y": 175.35937500000009
         }
       ]
     }
   ],
   "simulation_configuration": "options.yaml",
-  "initialization_python_script_path": "initParam.py"
+  "initialization_python_script_path": "initParam.py",
+  "toolkit_configuration_path": "toolkit_config.yaml"
 }

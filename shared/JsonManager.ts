@@ -1,10 +1,11 @@
-import { IdType, JsonData, BlockData, LinkData } from "./JsonTypes";
+import { IdType, JsonData, BlockData, LinkData, Rotation } from "./JsonTypes";
 import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
 
 export function MergeJsons(
     jsonBase: JsonData,
     jsonChildPriority: JsonData,
-    jsonChild2: JsonData
+    jsonChild2: JsonData,
+    updateLinks: boolean = true
 ): JsonData {
     let mergedJson: JsonData = {
         version: Math.max(jsonBase.version, jsonChildPriority.version, jsonChild2.version),
@@ -110,8 +111,9 @@ export function MergeJsons(
 
     mergedJson = updateLinksSourceTargetPosition(mergedJson);
 
-    mergedJson = updateLinksAfterMerge(mergedJson);
-
+    if (updateLinks) {
+        mergedJson = updateLinksAfterMerge(mergedJson);
+    }
 
     return mergedJson;
 }
@@ -182,13 +184,31 @@ export function deleteIntermediateNodeFromJson(json: JsonData, intermediateNodeI
     };
 }
 
-export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData): JsonData {
+export function setPositionForLinkNode(json: JsonData, linkId: IdType, nodeId: IdType, x: number, y: number): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            if (link.id === linkId) {
+                const nodeIndex = link.intermediateNodes.findIndex(node => node.id === nodeId);
+                if (nodeIndex !== -1) {
+                    link.intermediateNodes[nodeIndex] = { id: nodeId, x: x, y: y };
+                }
+            }
+            return link;
+        })
+    };
+    return updatedJson;
+}
+
+export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData, updateLinks: boolean = true): JsonData {
     let updatedJson: JsonData = {
         ...json,
         blocks: json.blocks?.map(block => (block.id === updatedBlock.id ? updatedBlock : block))
     };
     updatedJson = updateLinksSourceTargetPosition(updatedJson);
-    updatedJson = updateLinksAfterBlockUpdate(updatedJson, updatedBlock.id);
+    if (updateLinks) {
+        updatedJson = updateLinksAfterBlockUpdate(updatedJson, updatedBlock.id);
+    }
     return updatedJson;
 }
 
@@ -201,7 +221,7 @@ export function updateLinkInJson(json: JsonData, updatedLink: LinkData): JsonDat
 }
 
 
-export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: number): JsonData {
+export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: number, updateLinks: boolean = true): JsonData {
     let updatedJson: JsonData = {
         ...json,
         blocks: json.blocks?.map(block => {
@@ -217,8 +237,31 @@ export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: n
     };
 
     updatedJson = updateLinksSourceTargetPosition(updatedJson);
+    if (updateLinks) {
+        updatedJson = updateLinksAfterBlockMove(updatedJson, blockId);
+    }
+    return updatedJson;
+}
 
-    updatedJson = updateLinksAfterBlockMove(updatedJson, blockId);
+export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation, updateLinks: boolean = true): JsonData {
+    let updatedJson: JsonData = {
+        ...json,
+        blocks: json.blocks?.map(block => {
+            if (block.id === blockId) {
+                return {
+                    ...block,
+                    rotation: rotation
+                };
+            }
+            return block;
+        })
+    };
+
+    updatedJson = updateLinksSourceTargetPosition(updatedJson);
+
+    if (updateLinks) {
+        updatedJson = updateLinksAfterBlockMove(updatedJson, blockId);
+    }
     return updatedJson;
 }
 
@@ -242,23 +285,73 @@ export function attachLinkToPort(json: JsonData, linkId: IdType, blockId: IdType
     return json;
 }
 
-export function getPortPosition(json: JsonData, blockId: IdType, portType: "input" | "output", portIndex: number): { x: number, y: number } | undefined {
-        const portSpacing = 20; // Spacing between ports
-        const blockWidth = 120;
-        const portOffset = portIndex * portSpacing;
-        
-        if (json) {
-            let block = json.blocks?.find(b => b.id === blockId);
-            if (block) {
-                if (portType === "input") {
-                    return { x: block.x, y: block.y + portOffset + 20 };
-                } else {
-                    return { x: block.x + blockWidth, y: block.y + portOffset + 20 };
-                }
-            }
-        }
-        return undefined;
+export function getPortPosition(
+    json: JsonData,
+    blockId: IdType,
+    portType: "input" | "output",
+    portIndex: number,
+    ignoreRotation: boolean = false
+): { x: number; y: number } | undefined {
+    const portSpacing = 20;  // vertical spacing between ports
+    const blockWidth = 120;
+    const blockHeight = 50;
+
+    if (!json) {return undefined;}
+
+    const block = json.blocks?.find(b => b.id === blockId);
+    if (!block) {return undefined;}
+
+    const totalPorts = portType === "input" ? block.inputPorts : block.outputPorts;
+
+    // Calculate center-based y-offset
+    const totalSpan = (totalPorts - 1) * portSpacing;
+    const yOffset = portIndex * portSpacing - totalSpan / 2;
+
+    // Unrotated position
+    const localX = portType === "input" ? 0 : blockWidth;
+    const localY = blockHeight / 2 + yOffset;
+
+    let rotation = block.rotation ?? 0;
+    if (ignoreRotation) {
+        rotation = 0; 
+    }
+
+    // Rotate point around the center of the block
+    const cx = block.x + blockWidth / 2;
+    const cy = block.y + blockHeight / 2;
+
+    let dx = localX - blockWidth / 2;
+    let dy = localY - blockHeight / 2;
+
+    let rotatedX: number, rotatedY: number;
+
+    switch (rotation) {
+        case 0:
+            rotatedX = dx;
+            rotatedY = dy;
+            break;
+        case 90:
+            rotatedX = -dy;
+            rotatedY = dx;
+            break;
+        case 180:
+            rotatedX = -dx;
+            rotatedY = -dy;
+            break;
+        case 270:
+            rotatedX = dy;
+            rotatedY = -dx;
+            break;
+        default:
+            rotatedX = dx;
+            rotatedY = dy;
+    }
+
+    return {
+        x: cx + rotatedX,
+        y: cy + rotatedY
     };
+}
 
 export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
     let updatedJson: JsonData = {

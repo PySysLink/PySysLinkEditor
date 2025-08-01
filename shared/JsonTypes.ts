@@ -1,6 +1,7 @@
 
 export type IdType = string;
 
+export type Rotation = 0 | 90 | 180 | 270;
 
 export interface BlockData {
     id: IdType;
@@ -8,6 +9,7 @@ export interface BlockData {
     blockType: string;
     label: string;
     x: number; y: number;
+    rotation: Rotation;
     inputPorts: number; outputPorts: number;
     properties: Record<string, {type: string, value: any}>;
     blockRenderInformation?: BlockRenderInformation;

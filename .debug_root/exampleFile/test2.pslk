@@ -1,19 +1,20 @@
 {
-  "version": 36,
+  "version": 62,
   "blocks": [
     {
       "id": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
-      "label": "Constant",
-      "x": 695.8088235294118,
-      "y": 208.9117647058824,
+      "label": "ConstantBad",
+      "x": 848.1982461982459,
+      "y": 404.11417014358267,
+      "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
         "Value": {
           "type": "float",
-          "value": 1
+          "value": "2"
         }
       },
       "blockRenderInformation": {
@@ -37,8 +38,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 992.3088235294118,
-      "y": 209.9117647058824,
+      "x": 1137.581002331,
+      "y": 479.2873303167421,
       "inputPorts": 3,
       "outputPorts": 1,
       "properties": {
@@ -65,15 +66,16 @@
         "max_height": 150,
         "input_ports": 3,
         "output_ports": 1
-      }
+      },
+      "rotation": 0
     },
     {
       "id": "yexIaDXh8CvEsJXNyCHfsLmspbDhL6gh",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1182.0588235294122,
-      "y": 210.3180147058824,
+      "x": 1311.968325791856,
+      "y": 479.96507352941126,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -100,15 +102,16 @@
         "max_height": 150,
         "input_ports": 1,
         "output_ports": 1
-      }
+      },
+      "rotation": 0
     },
     {
       "id": "9sMRZi16PKNLlhVZs3NOdiY1U5FaZMNZ",
       "blockLibrary": "scope_library",
       "blockType": "scope",
       "label": "scope",
-      "x": 1600.975490196077,
-      "y": 210.58117260061923,
+      "x": 2023.4408060120113,
+      "y": 532.4284746793455,
       "inputPorts": 1,
       "outputPorts": 0,
       "properties": {},
@@ -126,15 +129,16 @@
         "max_height": 150,
         "input_ports": 1,
         "output_ports": 0
-      }
+      },
+      "rotation": 0
     },
     {
       "id": "MGyY5ws33Yw9LGVbN94J9a6BgdG9MpBw",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1382.2868937048497,
-      "y": 210.8180147058824,
+      "x": 1596.482672040721,
+      "y": 491.3042939065574,
       "inputPorts": 1,
       "outputPorts": 1,
       "properties": {
@@ -161,32 +165,88 @@
         "max_height": 150,
         "input_ports": 1,
         "output_ports": 1
+      },
+      "rotation": 0
+    },
+    {
+      "id": "fzKDhjbi7mS1IR3LHRlzNetCfC2ZOlSi",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 1208.8902605627313,
+      "y": 209.3886735750234,
+      "rotation": 0,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "s5DYDJLzOyHelezXbTCq7QGuhyjXTiTQ",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 1441.506787330315,
+      "y": 311.85972850678763,
+      "rotation": 0,
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            1
+          ]
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "circle",
+        "icon": "",
+        "text": "Adder",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 2,
+        "output_ports": 1
       }
     }
   ],
   "links": [
-    {
-      "id": "ZDi4iftQSZEhAHJu7z5kn3CAEdscw1j2",
-      "sourceId": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
-      "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
-      "sourcePort": 0,
-      "targetPort": 0,
-      "sourceX": 815.8088235294118,
-      "sourceY": 228.9117647058824,
-      "targetX": 992.3088235294118,
-      "targetY": 229.9117647058824,
-      "intermediateNodes": []
-    },
     {
       "id": "ENQKNPLQ8IpxQXjwYbSpIsX4mAlDzWat",
       "sourceId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "targetId": "yexIaDXh8CvEsJXNyCHfsLmspbDhL6gh",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 1112.3088235294117,
-      "sourceY": 229.9117647058824,
-      "targetX": 1182.0588235294122,
-      "targetY": 230.3180147058824,
+      "sourceX": 1257.581002331,
+      "sourceY": 504.2873303167421,
+      "targetX": 1311.968325791856,
+      "targetY": 504.96507352941126,
       "intermediateNodes": []
     },
     {
@@ -195,11 +255,32 @@
       "targetId": "MGyY5ws33Yw9LGVbN94J9a6BgdG9MpBw",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 1302.0588235294122,
-      "sourceY": 230.3180147058824,
-      "targetX": 1382.2868937048497,
-      "targetY": 230.8180147058824,
-      "intermediateNodes": []
+      "sourceX": 1431.968325791856,
+      "sourceY": 504.96507352941126,
+      "targetX": 1596.482672040721,
+      "targetY": 516.3042939065574,
+      "intermediateNodes": [
+        {
+          "id": "YPTrTLGcl9EqCoLqpcPu5bmMp50jKfHp",
+          "x": 1465.968325791856,
+          "y": 504.96507352941126
+        },
+        {
+          "id": "p2SxAPbmvV9MhhMZHx0EpTmahtAXHMuD",
+          "x": 1465.968325791856,
+          "y": 506.21507352941126
+        },
+        {
+          "id": "npViwhrRoaheEyHCFzDdG6c2Bl79wf9d",
+          "x": 1561.4681459751118,
+          "y": 506.21507352941126
+        },
+        {
+          "id": "lzxOMU03YONCHMx2vzKmgnXw90G1g5eB",
+          "x": 1561.4681459751118,
+          "y": 516.3042939065574
+        }
+      ]
     },
     {
       "id": "Hh6IDqjvkf9yioGPq8XanJgrPmqngcba",
@@ -207,30 +288,30 @@
       "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "sourcePort": 0,
       "targetPort": 1,
-      "sourceX": 1502.2868937048497,
-      "sourceY": 230.8180147058824,
-      "targetX": 992.3088235294118,
-      "targetY": 249.9117647058824,
+      "sourceX": 1716.482672040721,
+      "sourceY": 516.3042939065574,
+      "targetX": 1137.581002331,
+      "targetY": 504.2873303167421,
       "intermediateNodes": [
         {
           "id": "HD2MubLa1qm13cpXbAXXLHKjxkCI4viZ",
-          "x": 1544.1816305469545,
-          "y": 230.8180147058824
+          "x": 1737.3487007488548,
+          "y": 516.3042939065574
         },
         {
           "id": "uxWLxvemsOWIKlr6gvILmqW81TLhDPXe",
-          "x": 1544.1816305469545,
-          "y": 410.10913312693503
+          "x": 1737.3487007488548,
+          "y": 679.7561919504637
         },
         {
           "id": "psemVIGeB7fufViUC8K1XMnO6AWdj1q9",
-          "x": 922.7035603715173,
-          "y": 410.10913312693503
+          "x": 1068.5104985313951,
+          "y": 679.7561919504637
         },
         {
           "id": "xjFWrlxULQNkMZJ01rl3REPfkTL0j5Fq",
-          "x": 922.7035603715173,
-          "y": 249.9117647058824
+          "x": 1068.5104985313951,
+          "y": 504.2873303167421
         }
       ]
     },
@@ -240,44 +321,101 @@
       "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
       "sourcePort": 0,
       "targetPort": 2,
-      "sourceX": 1302.0588235294122,
-      "sourceY": 230.3180147058824,
-      "targetX": 992.3088235294118,
-      "targetY": 269.91176470588243,
+      "sourceX": 1431.968325791856,
+      "sourceY": 504.96507352941126,
+      "targetX": 1137.581002331,
+      "targetY": 524.2873303167421,
       "intermediateNodes": [
         {
           "id": "TcPgmqTBpXNef14aioxMobiNrDz9R3Nh",
-          "y": 230.3180147058824,
-          "x": 1356.032507739938
+          "x": 1451.4975655579378,
+          "y": 504.96507352941126
         },
         {
           "id": "cJmRQVXUjUBH4tnBvAlsy2VoUCpinsIy",
-          "y": 353.26702786377723,
-          "x": 1356.032507739938
+          "x": 1451.4975655579378,
+          "y": 622.914086687306
         },
         {
           "id": "rP7VqQ8vVFe6gI4epazeA2Jgt4bTB0IY",
-          "x": 957.3088235294118,
-          "y": 353.26702786377723
+          "x": 1103.1157616892901,
+          "y": 622.914086687306
         },
         {
           "id": "SzqCz86mXMD9EnODzhuMR4o7JkMEjLhR",
-          "x": 957.3088235294118,
-          "y": 269.91176470588243
+          "x": 1103.1157616892901,
+          "y": 524.2873303167421
         }
       ]
     },
     {
-      "id": "ehuGEi2tAXb8zNnkpLL1a4fwT59EyqTL",
+      "id": "4ZANaq69AlI5n2YDnt7pWlymUPj85mKM",
+      "sourceId": "fzKDhjbi7mS1IR3LHRlzNetCfC2ZOlSi",
+      "targetId": "s5DYDJLzOyHelezXbTCq7QGuhyjXTiTQ",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 1328.8902605627313,
+      "sourceY": 234.3886735750234,
+      "targetX": 1441.506787330315,
+      "targetY": 326.85972850678763,
+      "intermediateNodes": [
+        {
+          "id": "8OqEDD44jJVcCbxDC6ta0vvRUbtqkkVl",
+          "x": 1391.6423973148717,
+          "y": 234.3886735750234
+        },
+        {
+          "id": "QgQTkxMONPZfvIDyemrYmEdr3a4q6pDL",
+          "x": 1391.6423973148717,
+          "y": 326.85972850678763
+        }
+      ]
+    },
+    {
+      "id": "Aln5G0FLGul8Bcr79qu3cLGjjFRZOWUn",
+      "sourceId": "ljdA11TE3xprkwNXklK9XY7RNFaxzsld",
+      "targetId": "CMSyR0uV9Nkdb2INZZHDAUOkrMi4Fxhx",
+      "sourcePort": 0,
+      "targetPort": 0,
+      "sourceX": 968.1982461982459,
+      "sourceY": 429.11417014358267,
+      "targetX": 1137.581002331,
+      "targetY": 484.2873303167421,
+      "intermediateNodes": [
+        {
+          "id": "Eg2KetoKl2sEpJwsXy0oAw0rVhQu2Yut",
+          "x": 1017.8308007352084,
+          "y": 429.11417014358267
+        },
+        {
+          "id": "vMdvgXepr7s0w6NbruKegPuJ5wIHXeDP",
+          "x": 1017.8308007352084,
+          "y": 484.2873303167421
+        }
+      ]
+    },
+    {
+      "id": "Ar3fFihOl9LUt6kuTJt6ht5MBfuZCqLU",
       "sourceId": "MGyY5ws33Yw9LGVbN94J9a6BgdG9MpBw",
       "targetId": "9sMRZi16PKNLlhVZs3NOdiY1U5FaZMNZ",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 1502.2868937048497,
-      "sourceY": 230.8180147058824,
-      "targetX": 1600.975490196077,
-      "targetY": 230.58117260061923,
-      "intermediateNodes": []
+      "sourceX": 1716.482672040721,
+      "sourceY": 516.3042939065574,
+      "targetX": 2023.4408060120113,
+      "targetY": 557.4284746793455,
+      "intermediateNodes": [
+        {
+          "id": "5jRudfiNrtW2MCYCKTEDVHCQ6DCD6Nrv",
+          "x": 1886.211739026366,
+          "y": 516.3042939065574
+        },
+        {
+          "id": "xbK0AKC58hqBuOB5N2JDtkfLy7c91gCZ",
+          "x": 1886.211739026366,
+          "y": 557.4284746793455
+        }
+      ]
     }
   ],
   "simulation_configuration": "options.yaml",

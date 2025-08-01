@@ -8,6 +8,7 @@
             "DOM" // Include DOM types for client-side code
         ],
         "sourceMap": true,
+        "types": ["node"],
         "rootDir": ".",
         "strict": true,
         "esModuleInterop": true,
