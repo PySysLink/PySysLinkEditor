@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 35,
   "blocks": [
     {
       "id": "fJ96dGkOBB5ahg53it7jd1xD99gk4MyA",
@@ -262,8 +262,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Gain",
       "label": "Gain",
-      "x": 370.73684210526324,
-      "y": 272.3157894736843,
+      "x": 436.89068825910954,
+      "y": 292.3157894736844,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 1,

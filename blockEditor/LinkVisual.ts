@@ -16,7 +16,7 @@ export class LinkNode extends Selectable implements Movable {
     public getId(): IdType {
         return this.id;    
     }
-    nodeElement: SVGCircleElement;
+    nodeElement: SVGElement;
     isHighlighted: boolean = false;
 
     private onDeleteCallbacks: ((communicationManager: CommunicationManager) => void)[] = [];
@@ -34,7 +34,8 @@ export class LinkNode extends Selectable implements Movable {
             this.onDeleteCallbacks.push(onDelete);
         }
 
-        this.nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        this.nodeElement = this.createNodeElement();
+        
         this.nodeElement.classList.add('link-node');
         if (this._isSelected) {
             this.nodeElement.classList.add('selected');
@@ -42,6 +43,11 @@ export class LinkNode extends Selectable implements Movable {
         if (this.isHighlighted) {
             this.nodeElement.classList.add('highlighted');
         }
+    }
+
+    protected createNodeElement(): SVGElement {
+        console.log("Creating a link node element");
+        return document.createElementNS("http://www.w3.org/2000/svg", "circle");
     }
     
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
@@ -244,6 +250,36 @@ export class SourceNode extends LinkNode implements Movable {
     }
 }
 export class TargetNode extends LinkNode {
+
+
+    private setArrowDirection(direction: string): void {
+        const poly = this.nodeElement as SVGPolygonElement;
+        if (!poly || poly.tagName !== 'polygon') {
+            console.warn("Not a polygon, can't set arrow");
+            return;
+        }
+
+        console.log(`Setting arrow direction to: ${direction} on arrow polygon: ${poly}`);
+        switch (direction) {
+            case 'up':
+                poly.setAttribute("points", "0,-6 6,6 -6,6"); // up-pointing arrow
+                break;
+            case 'down':
+                poly.setAttribute("points", "0,6 6,-6 -6,-6"); // down-pointing arrow
+                break;
+            case 'left':
+                poly.setAttribute("points", "-6,0 6,6 6,-6"); // left-pointing arrow
+                break;
+            case 'right':
+                poly.setAttribute("points", "6,0 -6,6 -6,-6"); // right-pointing arrow
+                break;
+            default:
+                console.warn(`Unknown direction: ${direction}. Using default right-pointing arrow.`);
+                poly.setAttribute("points", "-6,-6 6,0 -6,6"); // default right-pointing arrow
+                break;
+        }
+    }
+
     public getId(): IdType {
         return this.linkId + "TargetNode";    
     }
@@ -252,12 +288,46 @@ export class TargetNode extends LinkNode {
         this.nodeElement.classList.add('target-node');
     }
 
+    protected createNodeElement(): SVGElement {
+        console.log("Creating a target node element with arrow");
+        const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        return poly;
+    }
+
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         const linkData = json.links?.find(link => link.id === this.linkId);
 
         if (linkData) {
-            this.getElement().setAttribute("cx", String(linkData.targetX));
-            this.getElement().setAttribute("cy", String(linkData.targetY));
+            this.getElement().setAttribute('transform',
+                `translate(${String(linkData.targetX)}, ${String(linkData.targetY)})`
+            );
+
+            let previousNodePosition : { x: number; y: number; } | undefined = undefined;
+
+            if (linkData.intermediateNodes.length > 0) {
+                previousNodePosition = linkData.intermediateNodes[linkData.intermediateNodes.length - 1];
+            } else {
+                previousNodePosition = { x: linkData.sourceX, y: linkData.sourceY };
+            }
+
+            const deltaX = linkData.targetX - previousNodePosition.x;
+            const deltaY = linkData.targetY - previousNodePosition.y;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                // Horizontal movement
+                if (deltaX > 0) {
+                    this.setArrowDirection('right');
+                } else {
+                    this.setArrowDirection('left');
+                }
+            } else {
+                // Vertical movement
+                if (deltaY > 0) {
+                    this.setArrowDirection('down');
+                } else {
+                    this.setArrowDirection('up');
+                }
+            }
         } 
     }
 
