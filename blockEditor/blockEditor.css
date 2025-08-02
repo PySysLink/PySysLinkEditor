@@ -288,7 +288,7 @@ body.pysyslink-light {
     z-index: 4;
 }
 
-.link-node.hover {
+.link-node:hover {
     fill: var(--pysyslink-link);
     stroke: var(--pysyslink-link-highlight);
     stroke-width: 3px;
@@ -299,6 +299,10 @@ body.pysyslink-light {
 }
 
 .target-node {
+    fill: var(--pysyslink-link);
+}
+
+.source-node {
     fill: var(--pysyslink-link);
 }
 
