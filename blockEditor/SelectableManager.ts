@@ -117,6 +117,12 @@ export class SelectableManager {
         else {
             selectable = canvasElement as Selectable;
         }
+        
+        // Ignore Ctrl + Left Click
+        if (e.button === 0 && (e.ctrlKey || e.metaKey)) {
+            this.communicationManager.print(`[link log]: Ctrl + Left Click ignored`);
+            return;
+        }
         if (e.button !== 1) {
             this.communicationManager.print(`button not 1`);
             let wasSelectableSelected = selectable.isSelected();

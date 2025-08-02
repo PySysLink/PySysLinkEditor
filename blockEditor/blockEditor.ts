@@ -103,6 +103,7 @@ const vscode = acquireVsCodeApi();
     selectableManager.addOnMouseMoveListener(linkInteractionManager.highlightNodesNearPorts);
     selectableManager.addOnMouseUpListener(linkInteractionManager.connectNodesToPorts);
     selectableManager.updateSelectables();
+    linkInteractionManager.updateLinkAndNodeClickCallback();
 
 
     function getZoomLevelReal(): number {
@@ -148,6 +149,7 @@ const vscode = acquireVsCodeApi();
 
         blockInteractionManager.updateFromJson(json);
         selectableManager.updateSelectables();   
+        linkInteractionManager.updateLinkAndNodeClickCallback();
         
         blockPalette.renderPalette(blockPaletteContent);
     }

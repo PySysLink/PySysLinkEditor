@@ -291,6 +291,29 @@ type FullPoint = {
 function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = undefined, removeColinear: boolean = true): JsonData {
     if (!json.links) {return json;}
 
+    json.links.forEach(link => {
+        if (link.masterLinkId) {
+            if (!link.branchNodeId) {
+                console.warn(`Link ${link.id} has masterLinkId but no branchNodeId, skipping dog leg update.`);
+            } else {
+                const referenceLink = json.links?.find(l => l.id === link.masterLinkId);
+                if (!referenceLink) {
+                    console.warn(`Master link ${link.masterLinkId} not found for link ${link.id}, skipping dog leg update.`);
+                } else {
+                    const referenceBranchNode = referenceLink.intermediateNodes?.find(n => n.id === link.branchNodeId);
+                    if (!referenceBranchNode) {
+                        console.warn(`Branch node ${link.branchNodeId} not found in master link ${link.masterLinkId}, skipping dog leg update for link ${link.id}.`);
+                    } else {
+                        // Use the reference branch node position for the source node
+                        link.sourceX = referenceBranchNode.x;
+                        link.sourceY = referenceBranchNode.y;
+                        console.log(`Link ${link.id} source position updated to reference branch node: (${link.sourceX}, ${link.sourceY})`);
+                    }
+                }
+            }
+        }
+    });
+
     for (const link of json.links) {
         // Build the full list of points: source, ...intermediate, target
         let points: Point[] = [
