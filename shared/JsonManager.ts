@@ -160,28 +160,85 @@ export function addLinkToJson(json: JsonData, link: LinkData): JsonData {
 }
 
 export function deleteLinkFromJson(json: JsonData, linkId: IdType): JsonData {
-    const updatedJson: JsonData = {
-        ...json,
-        links: json.links?.filter(link => link.id !== linkId)
-    };
-    return updatedJson;
+  if (!json.links) {
+    return json;
+  }
+
+  // Find the link the user wants to delete
+  const target = json.links.find(l => l.id === linkId);
+  if (!target) {
+    return json; // nothing to delete
+  }
+
+  // Determine the “master” link whose entire branch we should remove
+  // If the target is a slave, its master is target.masterLinkId
+  // Otherwise the target is itself the master
+  const masterId = target.masterLinkId ?? target.id;
+
+  // Keep only links that are neither the master nor one of its slaves
+  const filtered = json.links.filter(l =>
+    l.id !== masterId && l.masterLinkId !== masterId
+  );
+
+  return { ...json, links: filtered };
 }
 
 export function deleteIntermediateNodeFromJson(json: JsonData, intermediateNodeId: IdType): JsonData {
-    const updatedLinks = json.links?.map(link => {
-        // Remove the intermediate node from this link's intermediateNodes array
-        return {
-            ...link,
-            intermediateNodes: link.intermediateNodes
-                ? link.intermediateNodes.filter(node => node.id !== intermediateNodeId)
-                : []
-        };
-    });
+    if (!json.links) {
+        return json;
+    }
 
-    return {
+    // 1. Find the link that contains this intermediate node
+    const parentLink = json.links.find(link =>
+        link.intermediateNodes.some(node => node.id === intermediateNodeId)
+    );
+    if (!parentLink) {
+        // nothing to delete
+        return json;
+    }
+
+    const nodes = parentLink.intermediateNodes;
+    const idx = nodes.findIndex(node => node.id === intermediateNodeId);
+    const len = nodes.length;
+
+    // 2. Determine replacement branch node:
+    //    previous if available, else next, else cancel
+    let replacementNodeId: IdType | undefined;
+    if (idx > 0) {
+        replacementNodeId = nodes[idx - 1].id;
+    } else if (idx + 1 < len) {
+        replacementNodeId = nodes[idx + 1].id;
+    } else {
+        // this was the only intermediate node — undefined for future abortion
+        replacementNodeId = undefined;
+    }
+
+    for (const link of json.links) {
+        if (link.branchNodeId !== undefined && link.branchNodeId === intermediateNodeId) {
+            // 3. Update branch node ID to replacement node ID
+            if (replacementNodeId === undefined) {
+                // If no replacement node, cancel the deletion
+                return json;
+            } else {
+                link.branchNodeId = replacementNodeId;
+            }
+        }
+    }
+
+    // 4. Remove the intermediate node from the parent link
+    const updatedJson: JsonData = {
         ...json,
-        links: updatedLinks
+        links: json.links.map(link => {
+            if (link.id === parentLink.id) {
+                return {
+                    ...link,
+                    intermediateNodes: link.intermediateNodes.filter(node => node.id !== intermediateNodeId)
+                };
+            }
+            return link;
+        })
     };
+    return updatedJson;
 }
 
 export function setPositionForLinkNode(json: JsonData, linkId: IdType, nodeId: IdType, x: number, y: number): JsonData {

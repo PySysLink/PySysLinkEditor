@@ -443,6 +443,17 @@ export class LinkSegment extends Selectable implements Movable {
                         return;
                     }
                 }
+                if (linkData.masterLinkId !== undefined) {
+                    if (linkData.branchNodeId === undefined) {
+                        console.error("Master link ID is undefined, this should not happen.");
+                    } else {
+                        let isBranchNodeSelected = selectables.some(selectable => selectable.getId() === linkData.branchNodeId && selectable.isSelected());
+                        if (isBranchNodeSelected) {
+                            // Do not move if the branch node is selected
+                            return;
+                        }
+                    }
+                }
                 sourceId = "SourceNode";
             }
             if (this.targetLinkNode instanceof TargetNode) {
@@ -518,9 +529,11 @@ export class LinkVisual {
 
     constructor(
         linkData: LinkData,
-        onDelete: (link: LinkVisual) => void
+        onDelete: (link: LinkVisual) => void,
+        communicationManager: CommunicationManager
     ) {
         this.id = linkData.id;
+
         this.sourceNode = new SourceNode(this.id, (communicationManager: CommunicationManager) => this.delete(communicationManager));
         this.targetNode = new TargetNode(this.id, (communicationManager: CommunicationManager) => this.delete(communicationManager));
         this.intermediateNodes = linkData.intermediateNodes.map(nodeData => new LinkNode(this.id, nodeData.id, (communicationManager: CommunicationManager) => this.delete(communicationManager)));

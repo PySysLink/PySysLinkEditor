@@ -24,6 +24,8 @@ export interface LinkData {
     sourceX: number; sourceY: number;
     targetX: number; targetY: number;
     intermediateNodes: { id: IdType; x: number; y: number }[];
+    masterLinkId?: IdType;
+    branchNodeId?: IdType;
 }
 
 export interface JsonData {

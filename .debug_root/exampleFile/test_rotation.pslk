@@ -1,5 +1,5 @@
 {
-  "version": 35,
+  "version": 62,
   "blocks": [
     {
       "id": "fJ96dGkOBB5ahg53it7jd1xD99gk4MyA",
@@ -203,8 +203,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 465.00000000000045,
-      "y": 460.9999999999991,
+      "x": 452.57894736842087,
+      "y": 512.8421052631568,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
@@ -235,8 +235,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 718.0000000000001,
-      "y": 537.3333333333323,
+      "x": 772.55616313511,
+      "y": 584.0309865573024,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 0,
@@ -258,25 +258,20 @@
       }
     },
     {
-      "id": "pXkUGUTdBWo2IHjIp5G6WBKKtWB9Tc3a",
+      "id": "sdCgnVs3x2ym15mWuVpQRtW2BPGlktuu",
       "blockLibrary": "core_BasicBlocks",
-      "blockType": "Gain",
-      "label": "Gain",
-      "x": 436.89068825910954,
-      "y": 292.3157894736844,
+      "blockType": "Display",
+      "label": "Display",
+      "x": 783,
+      "y": 464,
       "rotation": 0,
       "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {
-        "Gain": {
-          "type": "float",
-          "value": 1
-        }
-      },
+      "outputPorts": 0,
+      "properties": {},
       "blockRenderInformation": {
-        "shape": "triangle",
+        "shape": "square",
         "icon": "",
-        "text": "Gain",
+        "text": "Display",
         "show_image_and_text": false,
         "figure": null,
         "default_width": 120,
@@ -286,7 +281,7 @@
         "max_width": 360,
         "max_height": 150,
         "input_ports": 1,
-        "output_ports": 1
+        "output_ports": 0
       }
     }
   ],
@@ -430,25 +425,35 @@
       ]
     },
     {
-      "id": "0MMPbunVtVTTgscbr9a2hOSB8t489heY",
+      "id": "Nw4wzoHWL2IHk96iMDbTc8TzuHLj4p5c",
       "sourceId": "NvneP76PxGHeRAfcWnoiVsYlh19nIj9F",
-      "targetId": "Rn13jnzXjfJ51SRBjNrOjXfyTtFWxaQR",
+      "targetId": "sdCgnVs3x2ym15mWuVpQRtW2BPGlktuu",
       "sourcePort": 0,
       "targetPort": 0,
-      "sourceX": 585.0000000000005,
-      "sourceY": 485.9999999999991,
-      "targetX": 718.0000000000001,
-      "targetY": 562.3333333333323,
+      "sourceX": 572.5789473684208,
+      "sourceY": 537.8421052631568,
+      "targetX": 783,
+      "targetY": 489,
       "intermediateNodes": [
         {
-          "id": "SDWBA9i9P4Kvmyt4x7G88711qtiHeH4U",
-          "x": 636.5000000000005,
-          "y": 485.9999999999991
+          "id": "xoY7ohSqT0upcbTcCPZBF8NPaUcYONRu",
+          "x": 628.5789473684208,
+          "y": 537.8421052631568
         },
         {
-          "id": "Elv7np1aQxr8pjBqaRSsd0HzWeVe2CG4",
-          "x": 636.5000000000005,
-          "y": 562.3333333333323
+          "id": "A4d2PncmM2j1SrVJszBGjOA0MGlM2Syx",
+          "x": 628.5789473684208,
+          "y": 580.8421052631568
+        },
+        {
+          "id": "981MttMwiw5Ta6hJ1EJSZxAe0tzCsTC3",
+          "y": 580.8421052631568,
+          "x": 677.7894736842104
+        },
+        {
+          "id": "dd7YRrV8NkjtcoM3CgJ8ebo7Bb1YWnpk",
+          "y": 489,
+          "x": 677.7894736842104
         }
       ]
     }

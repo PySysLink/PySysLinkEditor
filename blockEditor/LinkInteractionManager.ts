@@ -95,7 +95,8 @@ export class LinkInteractionManager {
         }
         let newLink = new LinkVisual(
             linkData,
-            this.deleteLink
+            this.deleteLink,
+            this.communicationManager
         );
 
         this.links.push(newLink);
