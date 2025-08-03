@@ -430,6 +430,36 @@ export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
     return updatedJson;
 }
 
+export function updateChildLinksSourcePosition(json: JsonData): JsonData {
+    if (!json.links) {return json;}
+
+    json.links.forEach(link => {
+        if (link.masterLinkId) {
+            if (!link.branchNodeId) {
+                console.warn(`Link ${link.id} has masterLinkId but no branchNodeId, skipping dog leg update.`);
+            } else {
+                console.warn(`Link ${link.id} has masterLinkId ${link.masterLinkId} and branchNodeId ${link.branchNodeId}, updating source position to match reference branch node.`);
+                const referenceLink = json.links?.find(l => l.id === link.masterLinkId);
+                if (!referenceLink) {
+                    console.warn(`Master link ${link.masterLinkId} not found for link ${link.id}, skipping dog leg update.`);
+                } else {
+                    const referenceBranchNode = referenceLink.intermediateNodes?.find(n => n.id === link.branchNodeId);
+                    if (!referenceBranchNode) {
+                        console.warn(`Branch node ${link.branchNodeId} not found in master link ${link.masterLinkId}, skipping dog leg update for link ${link.id}.`);
+                    } else {
+                        // Use the reference branch node position for the source node
+                        link.sourceX = referenceBranchNode.x;
+                        link.sourceY = referenceBranchNode.y;
+                        console.log(`Link ${link.id} source position updated to reference branch node: (${link.sourceX}, ${link.sourceY})`);
+                    }
+                }
+            }
+        }
+    });
+
+    return json;
+}
+
 
 export function consolidateLinkNodes(json: JsonData): JsonData {
     json = updateLinksAfterNodesConsolidation(json);

@@ -1,4 +1,4 @@
-import { getPortPosition, updateLinkInJson } from "./JsonManager";
+import { deleteIntermediateNodeFromJson, getPortPosition, updateChildLinksSourcePosition, updateLinkInJson } from "./JsonManager";
 import { IdType, JsonData, LinkData } from "./JsonTypes";
 import { getNonce } from "./util";
 
@@ -164,7 +164,9 @@ export function moveLinkSegment(
     
     link.intermediateNodes = nodes;
 
-    return updateLinkInJson(json, link);
+    json = updateLinkInJson(json, link);
+    json = updateChildLinksSourcePosition(json);
+    return updateLinksDogLeg(json, undefined, false);
 }
 
 function realignPoints(
@@ -289,32 +291,12 @@ type FullPoint = {
 
 // Main function to update links' intermediate nodes
 function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = undefined, removeColinear: boolean = true): JsonData {
+
+    json = updateChildLinksSourcePosition(json);
+
     if (!json.links) {return json;}
 
-    json.links.forEach(link => {
-        if (link.masterLinkId) {
-            if (!link.branchNodeId) {
-                console.warn(`Link ${link.id} has masterLinkId but no branchNodeId, skipping dog leg update.`);
-            } else {
-                const referenceLink = json.links?.find(l => l.id === link.masterLinkId);
-                if (!referenceLink) {
-                    console.warn(`Master link ${link.masterLinkId} not found for link ${link.id}, skipping dog leg update.`);
-                } else {
-                    const referenceBranchNode = referenceLink.intermediateNodes?.find(n => n.id === link.branchNodeId);
-                    if (!referenceBranchNode) {
-                        console.warn(`Branch node ${link.branchNodeId} not found in master link ${link.masterLinkId}, skipping dog leg update for link ${link.id}.`);
-                    } else {
-                        // Use the reference branch node position for the source node
-                        link.sourceX = referenceBranchNode.x;
-                        link.sourceY = referenceBranchNode.y;
-                        console.log(`Link ${link.id} source position updated to reference branch node: (${link.sourceX}, ${link.sourceY})`);
-                    }
-                }
-            }
-        }
-    });
-
-    for (const link of json.links) {
+    for (let link of json.links) {
         // Build the full list of points: source, ...intermediate, target
         let points: Point[] = [
             { x: link.sourceX, y: link.sourceY },
@@ -381,17 +363,37 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
                 const b = points[i + 1];
                 const c = points[i + 2];
 
+                const bId = link.intermediateNodes[i]?.id || 'Unknown';
+                const isBBranchNode = json.links?.some(link => link.branchNodeId === bId) ?? false;
+
+                if (isBBranchNode) {
+                    console.log(`Skipping collinear check for branch node: ${bId}`);
+                    continue;
+                }
+
                 // If three points are collinear, remove the middle one
                 if ((Math.abs(a.x - b.x) < distanceToJoin && Math.abs(b.x - c.x) < distanceToJoin)) {
                     console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
-                    points.splice(i + 1, 1);
-                    points[i + 1].x = a.x;
-                    i--; // Adjust index after removal
+                    console.log(`link.intermediateNodes: ${JSON.stringify(link.intermediateNodes)}`);
+                    json = deleteIntermediateNodeFromJson(json, link.intermediateNodes[i].id);
+                    link = json.links?.find(l => l.id === link.id) || link; // Refresh link after deletion
+                    console.log(`link.intermediateNodes after: ${JSON.stringify(link.intermediateNodes)}`);
+                    if (link.intermediateNodes.length < points.length - 2) {
+                        points.splice(i + 1, 1);
+                        points[i + 1].x = a.x;
+                        i--; // Adjust index after removal
+                    }
                 } else if ((Math.abs(a.y - b.y) < distanceToJoin && Math.abs(b.y - c.y) < distanceToJoin)) {
                     console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
-                    points.splice(i + 1, 1);
-                    points[i + 1].y = a.y;
-                    i--; // Adjust index after removal
+                    console.log(`link.intermediateNodes: ${JSON.stringify(link.intermediateNodes)}`);
+                    json = deleteIntermediateNodeFromJson(json, link.intermediateNodes[i].id);
+                    link = json.links?.find(l => l.id === link.id) || link; // Refresh link after deletion
+                    console.log(`link.intermediateNodes after: ${JSON.stringify(link.intermediateNodes)}`);
+                    if (link.intermediateNodes.length < points.length - 2) {
+                        points.splice(i + 1, 1);
+                        points[i + 1].y = a.y;
+                        i--; // Adjust index after removal
+                    }
                 }
             }
         }
