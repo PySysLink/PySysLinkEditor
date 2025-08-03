@@ -26,14 +26,14 @@ export function updateLinksAfterNodesUpdated(json: JsonData): JsonData {
     return updateLinksDogLeg(json, undefined, false);
 }
 
-export function updateLinksAfterNodesConsolidation(json: JsonData): JsonData {
+export function updateLinksAfterNodesConsolidation(json: JsonData, removeColinear: boolean = true): JsonData {
     console.log("updateLinksAfterNodesConsolidation called");
-    return updateLinksDogLeg(json, undefined, true);
+    return updateLinksDogLeg(json, undefined, removeColinear);
 }
 
 export function updateLinksAfterBatchMove(json: JsonData): JsonData {
     console.log("updateLinksAfterBatchMove called");
-    return updateLinksDogLeg(json, undefined, true);
+    return updateLinksDogLeg(json, undefined, false);
 }
 
 
@@ -352,6 +352,11 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
                     console.log(`Node: ${JSON.stringify(point)} evaluated`);
                     console.log(`Adding intermediate node: ${JSON.stringify(point)}`);
                     points.splice(i + 1, 0, point);
+                    link.intermediateNodes.splice(i + 1, 0, {
+                        id: point.id,
+                        x: point.x,
+                        y: point.y
+                    });
                     i++;
                 }
             }
@@ -363,36 +368,39 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
                 const b = points[i + 1];
                 const c = points[i + 2];
 
-                const bId = link.intermediateNodes[i]?.id || 'Unknown';
+                const bId = (b as FullPoint).id || 'Unknown';
                 const isBBranchNode = json.links?.some(link => link.branchNodeId === bId) ?? false;
 
                 if (isBBranchNode) {
                     console.log(`Skipping collinear check for branch node: ${bId}`);
-                    continue;
-                }
+                    console.log(`b id: ${(b as FullPoint).id}, x: ${b.x}, y: ${b.y}`);
+                } else {
 
-                // If three points are collinear, remove the middle one
-                if ((Math.abs(a.x - b.x) < distanceToJoin && Math.abs(b.x - c.x) < distanceToJoin)) {
-                    console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
-                    console.log(`link.intermediateNodes: ${JSON.stringify(link.intermediateNodes)}`);
-                    json = deleteIntermediateNodeFromJson(json, link.intermediateNodes[i].id);
-                    link = json.links?.find(l => l.id === link.id) || link; // Refresh link after deletion
-                    console.log(`link.intermediateNodes after: ${JSON.stringify(link.intermediateNodes)}`);
-                    if (link.intermediateNodes.length < points.length - 2) {
-                        points.splice(i + 1, 1);
-                        points[i + 1].x = a.x;
-                        i--; // Adjust index after removal
-                    }
-                } else if ((Math.abs(a.y - b.y) < distanceToJoin && Math.abs(b.y - c.y) < distanceToJoin)) {
-                    console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
-                    console.log(`link.intermediateNodes: ${JSON.stringify(link.intermediateNodes)}`);
-                    json = deleteIntermediateNodeFromJson(json, link.intermediateNodes[i].id);
-                    link = json.links?.find(l => l.id === link.id) || link; // Refresh link after deletion
-                    console.log(`link.intermediateNodes after: ${JSON.stringify(link.intermediateNodes)}`);
-                    if (link.intermediateNodes.length < points.length - 2) {
-                        points.splice(i + 1, 1);
-                        points[i + 1].y = a.y;
-                        i--; // Adjust index after removal
+                    // If three points are collinear, remove the middle one
+                    if ((Math.abs(a.x - b.x) < distanceToJoin && Math.abs(b.x - c.x) < distanceToJoin)) {
+                        console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
+                        console.log(`All master nodes are: ${json.links?.map(l => l.branchNodeId)}`);
+                        console.log(`link.intermediateNodes: ${JSON.stringify(link.intermediateNodes)}`);
+                        json = deleteIntermediateNodeFromJson(json, bId);
+                        link = json.links?.find(l => l.id === link.id) || link; // Refresh link after deletion
+                        console.log(`link.intermediateNodes after: ${JSON.stringify(link.intermediateNodes)}`);
+                        if (link.intermediateNodes.length < points.length - 2) {
+                            points.splice(i + 1, 1);
+                            points[i + 1].x = a.x;
+                            i--; // Adjust index after removal
+                        }
+                    } else if ((Math.abs(a.y - b.y) < distanceToJoin && Math.abs(b.y - c.y) < distanceToJoin)) {
+                        console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
+                        console.log(`All master nodes are: ${json.links?.map(l => l.branchNodeId)}`);
+                        console.log(`link.intermediateNodes: ${JSON.stringify(link.intermediateNodes)}`);
+                        json = deleteIntermediateNodeFromJson(json, bId);
+                        link = json.links?.find(l => l.id === link.id) || link; // Refresh link after deletion
+                        console.log(`link.intermediateNodes after: ${JSON.stringify(link.intermediateNodes)}`);
+                        if (link.intermediateNodes.length < points.length - 2) {
+                            points.splice(i + 1, 1);
+                            points[i + 1].y = a.y;
+                            i--; // Adjust index after removal
+                        }
                     }
                 }
             }

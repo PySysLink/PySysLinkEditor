@@ -461,8 +461,8 @@ export function updateChildLinksSourcePosition(json: JsonData): JsonData {
 }
 
 
-export function consolidateLinkNodes(json: JsonData): JsonData {
-    json = updateLinksAfterNodesConsolidation(json);
+export function consolidateLinkNodes(json: JsonData, removeColinear: boolean = true): JsonData {
+    json = updateLinksAfterNodesConsolidation(json, removeColinear);
     return json;
 }
 
@@ -539,6 +539,24 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
                 finalY = portPosition.y;
                 finalId = port.blockId;
                 finalPort = port.portIndex;
+            }
+        }
+    }
+
+    const linkData = json.links?.find(link => link.id === linkId);
+    if (!linkData) {
+        console.warn(`Link with id ${linkId} not found.`);
+        return json; // No link found, return original json
+    } else {
+        if (linkData.masterLinkId !== undefined) {
+            if (linkData.branchNodeId !== undefined) {
+                const masterLink = json.links?.find(link => link.id === linkData.masterLinkId);
+                const branchNode = masterLink?.intermediateNodes.find(node => node.id === linkData.branchNodeId);
+                if (branchNode && masterLink) {
+                    json = setPositionForLinkNode(json, masterLink.id, branchNode.id, x, y);
+                } else {
+                    console.warn(`Branch node with id ${linkData.branchNodeId} not found in link ${linkId}.`);
+                }
             }
         }
     }

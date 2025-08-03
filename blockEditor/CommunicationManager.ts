@@ -95,11 +95,15 @@ export class CommunicationManager {
         }
     }
 
-    public unfreezeLinkUpdates() {
+    public unfreezeLinkUpdates(removeColinear: boolean = true) {
         this.print("Unfreeze link updates called");
         if (this.freezedLinkUpdates) {
             this.freezedLinkUpdates = false;
-            this.consolidateLinks();
+            if (removeColinear) {
+                this.consolidateLinks();
+            } else {
+                this.consolidateLinks(false);
+            }
         }
     }
 
@@ -256,10 +260,10 @@ export class CommunicationManager {
         }
     };
 
-    public consolidateLinks = () => {
+    public consolidateLinks = (removeColinear: boolean = true) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = consolidateLinkNodes(json);
+            let newJson = consolidateLinkNodes(json, removeColinear);
             this.print(`Consolidate links`);
             this.setLocalJson(newJson, true);
         }

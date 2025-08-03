@@ -322,12 +322,15 @@ export class SelectableManager {
             let selectables = this.getSelectableList();
             let selectedSelectables = this.getSelectedSelectables();
             this.communicationManager.freezeLocalJsonCallback();
+            this.communicationManager.freezeLinkUpdates();
             selectedSelectables.forEach(selectable => {
                 if (isMovable(selectable)) {
                     this.communicationManager.print(`Move selectable: ${selectable.getId()}`);
                     selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
                 }
             });
+
+            this.communicationManager.unfreezeLinkUpdates(false);
 
             this.communicationManager.unfreezeLocalJsonCallback();
 

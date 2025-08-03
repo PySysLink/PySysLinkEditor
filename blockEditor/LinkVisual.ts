@@ -69,6 +69,9 @@ export class LinkNode extends Selectable implements Movable {
         communicationManager.print(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
         const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
+            if (linkData.masterLinkId !== undefined) {
+                console.log(`Link node with id: ${this.getId()} is part of a master link, attention.`);
+            }
             const linkIndex = linkData.intermediateNodes.findIndex(node => node.id === this.id);
 
             let sourceId;
@@ -220,7 +223,22 @@ export class SourceNode extends LinkNode implements Movable {
                 // Do not move if the connected block is selected
                 return;
             }
+
+            // if (linkData.masterLinkId !== undefined) {
+            //     if (linkData.branchNodeId === undefined) {
+            //         console.error("Master link ID is undefined, this should not happen.");
+                // } else {
+                //     let isBranchNodeSelected = selectables.some(selectable => selectable.getId() === linkData.branchNodeId && selectable.isSelected());
+                //     if (isBranchNodeSelected) {
+                //         // Do not move if the branch node is selected
+                //         return;
+                //     }
+                // }
+            // }
         }
+
+        console.log(`Moving source node on moveTo with id: ${this.getId()} to ${x}, ${y}`);
+
         communicationManager.moveSourceNode(this.linkId, x, y);
     }
 
