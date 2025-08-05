@@ -1,5 +1,5 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, deleteBlockFromJson, deleteIntermediateNodeFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, rotateBlock, setPositionForLinkNode, updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
-import { BlockData, IdType, JsonData, LinkData, Rotation } from "../shared/JsonTypes";
+import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, getNeighboringSegmentsToNode, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, rotateBlock, updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
+import { BlockData, IdType, IntermediateSegment, JsonData, LinkData, Rotation } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
 import { moveLinkSegment, updateLinksAfterBatchMove } from "../shared/LInkOrganization";
@@ -224,24 +224,6 @@ export class CommunicationManager {
         }
     };
 
-    public deleteIntermediateNode = (nodeId: IdType) => {
-        let json = this.getLocalJson();
-        if (json) {
-            let newJson = deleteIntermediateNodeFromJson(json, nodeId);
-            this.print(`Delete intermediate node: ${nodeId}`);
-            this.setLocalJson(newJson, true);
-        }
-    };
-
-    public setPositionForLinkNode = (linkId: IdType, nodeId: IdType, x: number, y: number) => {
-        let json = this.getLocalJson();
-        if (json) {
-            let newJson = setPositionForLinkNode(json, linkId, nodeId, x, y);
-            this.print(`Set position for link node: ${nodeId} of link: ${linkId} to (${x}, ${y})`);
-            this.setLocalJson(newJson, true);
-        }
-    };
-
     public updateBlock = (block: BlockData) => {
         let json = this.getLocalJson();
         if (json) {
@@ -282,7 +264,7 @@ export class CommunicationManager {
                 sourceY: this.getPortPosition(blockId, portType, portIndex)?.y || 0,
                 targetX: this.getPortPosition(blockId, portType, portIndex)?.x || 0,
                 targetY: this.getPortPosition(blockId, portType, portIndex)?.y || 0,
-                intermediateNodes: []
+                intermediateSegments: []
             };
             let newJson = addLinkToJson(json, newLink);
             this.print(`Create new link from port: ${JSON.stringify(newLink)}`);
@@ -292,114 +274,133 @@ export class CommunicationManager {
         return undefined;
     };
 
-    public createNewChildLinkFromNode(nodeId: IdType): LinkData | undefined {
-        const json = this.getLocalJson();
-        if (!json) {return;}
-
-        // Find the link and node data
-        const parentLink = json.links?.find(link =>
-            link.intermediateNodes.some(node => node.id === nodeId)
-        );
-        if (!parentLink) {return;}
-
-        const node = parentLink.intermediateNodes.find(n => n.id === nodeId);
-        if (!node) {return;}
-
-        // Create new child link with the same path before branch
-        const newLink: LinkData = {
-            id: getNonce(),
-            sourceId: "undefined",
-            sourcePort: -1,
-            targetId: "undefined",
-            targetPort: -1,
-            sourceX: node.x,
-            sourceY: node.y,
-            targetX: node.x,
-            targetY: node.y,
-            intermediateNodes: [],
-            masterLinkId: parentLink.id,
-            branchNodeId: nodeId,
-        };
-
-        // Update JSON
-        const newJson = addLinkToJson(json, newLink);
-        this.print(`Create child link from node: ${JSON.stringify(newLink)}`);
-        this.setLocalJson(newJson, true);
-
-        return newLink;
-    }
-
-    public createNewChildLinkFromSegment(sourceNodeId: IdType, targetNodeId: IdType, clickX: number, clickY: number): LinkData | undefined {
-        const json = this.getLocalJson();
-        if (!json) {return;}
-
-        const parentLinkIndex = json.links?.findIndex(link => {
-            const nodeIds = link.intermediateNodes.map(n => n.id);
-            return nodeIds.includes(sourceNodeId) && nodeIds.includes(targetNodeId);
-        });
-        if (parentLinkIndex === -1 || parentLinkIndex === undefined) {return;}
-
-        // Find the parent link that includes the given segment
-        const parentLink = json.links?.find(link => {
-            const nodeIds = link.intermediateNodes.map(n => n.id);
-            return nodeIds.includes(sourceNodeId) && nodeIds.includes(targetNodeId);
-        });
-        if (!parentLink) {return;}
-
-        const sourceIndex = parentLink.intermediateNodes.findIndex(n => n.id === sourceNodeId);
-        const targetIndex = parentLink.intermediateNodes.findIndex(n => n.id === targetNodeId);
-        if (sourceIndex === -1 || targetIndex === -1 || Math.abs(sourceIndex - targetIndex) !== 1) {return;}
-
-        // Determine where to insert: before the higher index
-        const insertIndex = Math.max(sourceIndex, targetIndex);
-        const newNodeId = getNonce();
-
-        const newBranchNode = { id: newNodeId, x: clickX, y: clickY };
-
-        // Insert new node into intermediateNodes array
-        const newParentLink: LinkData = {
-            ...parentLink,
-            intermediateNodes: [
-                ...parentLink.intermediateNodes.slice(0, insertIndex),
-                newBranchNode,
-                ...parentLink.intermediateNodes.slice(insertIndex)
-            ]
-        };
-
-
-        const newLink: LinkData = {
-            id: getNonce(),
-            sourceId: "undefined",
-            sourcePort: -1,
-            targetId: "undefined",
-            targetPort: -1,
-            sourceX: newBranchNode.x,
-            sourceY: newBranchNode.y,
-            targetX: clickX,
-            targetY: clickY,
-            intermediateNodes: [],
-            masterLinkId: parentLink.id,
-            branchNodeId: newNodeId,
-        };
-
-        // Replace parent link and add new link
-        if (!json.links) {
-            json.links = [];
+    public getNeighboringSegmentsToNode = (nodeId: IdType, jsonToSearch: JsonData | undefined = undefined) : { before: IntermediateSegment, after: IntermediateSegment } | undefined => {
+        if (jsonToSearch) {
+            return getNeighboringSegmentsToNode(jsonToSearch, nodeId);
+        } else {
+            let json = this.getLocalJson();
+            if (json) {
+                return getNeighboringSegmentsToNode(json, nodeId);
+            }
+            return undefined;
         }
-        const updatedLinks = [...json.links];
-        updatedLinks[parentLinkIndex] = newParentLink;
-        updatedLinks.push(newLink);
+    };
 
-        const newJson: JsonData = {
-            ...json,
-            links: updatedLinks
-        };
+    public getLimitsOfSegment = (segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined => {
+        let json = this.getLocalJson();
+        if (json) {
+            return getLimitsOfSegment(json, segmentId);
+        }
+    };
 
-        this.print(`Inserted new intermediate node on parent and created child link: ${JSON.stringify(newLink)}`);
-        this.setLocalJson(newJson, true);
+    // public createNewChildLinkFromNode(nodeId: IdType): LinkData | undefined {
+    //     const json = this.getLocalJson();
+    //     if (!json) {return;}
 
-        return newLink;
-    }
+    //     // Find the link and node data
+    //     const parentLink = json.links?.find(link =>
+    //         link.intermediateNodes.some(node => node.id === nodeId)
+    //     );
+    //     if (!parentLink) {return;}
+
+    //     const node = parentLink.intermediateNodes.find(n => n.id === nodeId);
+    //     if (!node) {return;}
+
+    //     // Create new child link with the same path before branch
+    //     const newLink: LinkData = {
+    //         id: getNonce(),
+    //         sourceId: "undefined",
+    //         sourcePort: -1,
+    //         targetId: "undefined",
+    //         targetPort: -1,
+    //         sourceX: node.x,
+    //         sourceY: node.y,
+    //         targetX: node.x,
+    //         targetY: node.y,
+    //         intermediateNodes: [],
+    //         masterLinkId: parentLink.id,
+    //         branchNodeId: nodeId,
+    //     };
+
+    //     // Update JSON
+    //     const newJson = addLinkToJson(json, newLink);
+    //     this.print(`Create child link from node: ${JSON.stringify(newLink)}`);
+    //     this.setLocalJson(newJson, true);
+
+    //     return newLink;
+    // }
+
+    // public createNewChildLinkFromSegment(sourceNodeId: IdType, targetNodeId: IdType, clickX: number, clickY: number): LinkData | undefined {
+    //     const json = this.getLocalJson();
+    //     if (!json) {return;}
+
+    //     const parentLinkIndex = json.links?.findIndex(link => {
+    //         const nodeIds = link.intermediateNodes.map(n => n.id);
+    //         return nodeIds.includes(sourceNodeId) && nodeIds.includes(targetNodeId);
+    //     });
+    //     if (parentLinkIndex === -1 || parentLinkIndex === undefined) {return;}
+
+    //     // Find the parent link that includes the given segment
+    //     const parentLink = json.links?.find(link => {
+    //         const nodeIds = link.intermediateNodes.map(n => n.id);
+    //         return nodeIds.includes(sourceNodeId) && nodeIds.includes(targetNodeId);
+    //     });
+    //     if (!parentLink) {return;}
+
+    //     const sourceIndex = parentLink.intermediateNodes.findIndex(n => n.id === sourceNodeId);
+    //     const targetIndex = parentLink.intermediateNodes.findIndex(n => n.id === targetNodeId);
+    //     if (sourceIndex === -1 || targetIndex === -1 || Math.abs(sourceIndex - targetIndex) !== 1) {return;}
+
+    //     // Determine where to insert: before the higher index
+    //     const insertIndex = Math.max(sourceIndex, targetIndex);
+    //     const newNodeId = getNonce();
+
+    //     const newBranchNode = { id: newNodeId, x: clickX, y: clickY };
+
+    //     // Insert new node into intermediateNodes array
+    //     const newParentLink: LinkData = {
+    //         ...parentLink,
+    //         intermediateNodes: [
+    //             ...parentLink.intermediateNodes.slice(0, insertIndex),
+    //             newBranchNode,
+    //             ...parentLink.intermediateNodes.slice(insertIndex)
+    //         ]
+    //     };
+
+
+    //     const newLink: LinkData = {
+    //         id: getNonce(),
+    //         sourceId: "undefined",
+    //         sourcePort: -1,
+    //         targetId: "undefined",
+    //         targetPort: -1,
+    //         sourceX: newBranchNode.x,
+    //         sourceY: newBranchNode.y,
+    //         targetX: clickX,
+    //         targetY: clickY,
+    //         intermediateNodes: [],
+    //         masterLinkId: parentLink.id,
+    //         branchNodeId: newNodeId,
+    //     };
+
+    //     // Replace parent link and add new link
+    //     if (!json.links) {
+    //         json.links = [];
+    //     }
+    //     const updatedLinks = [...json.links];
+    //     updatedLinks[parentLinkIndex] = newParentLink;
+    //     updatedLinks.push(newLink);
+
+    //     const newJson: JsonData = {
+    //         ...json,
+    //         links: updatedLinks
+    //     };
+
+    //     this.print(`Inserted new intermediate node on parent and created child link: ${JSON.stringify(newLink)}`);
+    //     this.setLocalJson(newJson, true);
+
+    //     return newLink;
+    // }
 
     public getPortPosition = (blockId: IdType, portType: "input" | "output", portIndex: number, ignoreRotation: boolean = false): { x: number, y: number } | undefined => {
         let json = this.getLocalJson();
@@ -445,19 +446,19 @@ export class CommunicationManager {
     };
 
 
-    public moveSourceNode = (linkId: IdType, x: number, y: number) => {
+    public moveSourceNode = (linkId: IdType, x: number, y: number, selectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveSourceNode(json, linkId, x, y);
+            let newJson = moveSourceNode(json, linkId, x, y, selectableIds);
             this.print(`Move source node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
     };
 
-    public moveTargetNode = (linkId: IdType, x: number, y: number) => {
+    public moveTargetNode = (linkId: IdType, x: number, y: number, selectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveTargetNode(json, linkId, x, y);
+            let newJson = moveTargetNode(json, linkId, x, y, selectableIds);
             this.print(`Move target node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
@@ -510,16 +511,16 @@ export class CommunicationManager {
         this.addBlock(newBlock);
     }
 
-    public moveLinkSegment(link: LinkData,
-        sourceIntermediateNodeId: IdType,
-        targetIntermediateNodeId: IdType,
+    public moveLinkSegment(segmentId: IdType,
         targetPositionX: number,
-        targetPositionY: number) {
+        targetPositionY: number,
+        selectableIds: IdType[]
+    ) {
         
         let json = this.getLocalJson();
         if (json) {
-            this.print(`Move link segment from ${sourceIntermediateNodeId} to ${targetIntermediateNodeId} at position (${targetPositionX}, ${targetPositionY})`);
-            let newJson = moveLinkSegment(json, link, sourceIntermediateNodeId, targetIntermediateNodeId, targetPositionX, targetPositionY);
+            this.print(`Move link segment ${segmentId} at position (${targetPositionX}, ${targetPositionY})`);
+            let newJson = moveLinkSegment(json, segmentId, targetPositionX, targetPositionY, selectableIds);
             this.setLocalJson(newJson, true);
         }
     }

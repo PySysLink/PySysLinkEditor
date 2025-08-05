@@ -2,6 +2,7 @@
 export type IdType = string;
 
 export type Rotation = 0 | 90 | 180 | 270;
+export type Orientation = "Horizontal" | "Vertical";
 
 export interface BlockData {
     id: IdType;
@@ -15,6 +16,10 @@ export interface BlockData {
     blockRenderInformation?: BlockRenderInformation;
 }
 
+export interface IntermediateSegment {
+    id: IdType, orientation: Orientation; xOrY: number
+}
+
 export interface LinkData {
     id: IdType;
     sourceId: IdType;
@@ -23,7 +28,7 @@ export interface LinkData {
     targetPort: number;
     sourceX: number; sourceY: number;
     targetX: number; targetY: number;
-    intermediateNodes: { id: IdType; x: number; y: number }[];
+    intermediateSegments: IntermediateSegment[];
     masterLinkId?: IdType;
     branchNodeId?: IdType;
 }

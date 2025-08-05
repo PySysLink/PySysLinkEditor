@@ -1,4 +1,4 @@
-import { IdType, JsonData, BlockData, LinkData, Rotation } from "./JsonTypes";
+import { IdType, JsonData, BlockData, LinkData, Rotation, IntermediateSegment } from "./JsonTypes";
 import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
 
 export function MergeJsons(
@@ -183,80 +183,6 @@ export function deleteLinkFromJson(json: JsonData, linkId: IdType): JsonData {
   return { ...json, links: filtered };
 }
 
-export function deleteIntermediateNodeFromJson(json: JsonData, intermediateNodeId: IdType): JsonData {
-    if (!json.links) {
-        return json;
-    }
-
-    // 1. Find the link that contains this intermediate node
-    const parentLink = json.links.find(link =>
-        link.intermediateNodes.some(node => node.id === intermediateNodeId)
-    );
-    if (!parentLink) {
-        // nothing to delete
-        return json;
-    }
-
-    const nodes = parentLink.intermediateNodes;
-    const idx = nodes.findIndex(node => node.id === intermediateNodeId);
-    const len = nodes.length;
-
-    // 2. Determine replacement branch node:
-    //    previous if available, else next, else cancel
-    let replacementNodeId: IdType | undefined;
-    if (idx > 0) {
-        replacementNodeId = nodes[idx - 1].id;
-    } else if (idx + 1 < len) {
-        replacementNodeId = nodes[idx + 1].id;
-    } else {
-        // this was the only intermediate node — undefined for future abortion
-        replacementNodeId = undefined;
-    }
-
-    for (const link of json.links) {
-        if (link.branchNodeId !== undefined && link.branchNodeId === intermediateNodeId) {
-            // 3. Update branch node ID to replacement node ID
-            if (replacementNodeId === undefined) {
-                // If no replacement node, cancel the deletion
-                return json;
-            } else {
-                link.branchNodeId = replacementNodeId;
-            }
-        }
-    }
-
-    // 4. Remove the intermediate node from the parent link
-    const updatedJson: JsonData = {
-        ...json,
-        links: json.links.map(link => {
-            if (link.id === parentLink.id) {
-                return {
-                    ...link,
-                    intermediateNodes: link.intermediateNodes.filter(node => node.id !== intermediateNodeId)
-                };
-            }
-            return link;
-        })
-    };
-    return updatedJson;
-}
-
-export function setPositionForLinkNode(json: JsonData, linkId: IdType, nodeId: IdType, x: number, y: number): JsonData {
-    const updatedJson: JsonData = {
-        ...json,
-        links: json.links?.map(link => {
-            if (link.id === linkId) {
-                const nodeIndex = link.intermediateNodes.findIndex(node => node.id === nodeId);
-                if (nodeIndex !== -1) {
-                    link.intermediateNodes[nodeIndex] = { id: nodeId, x: x, y: y };
-                }
-            }
-            return link;
-        })
-    };
-    return updatedJson;
-}
-
 export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData, updateLinks: boolean = true): JsonData {
     let updatedJson: JsonData = {
         ...json,
@@ -430,35 +356,35 @@ export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
     return updatedJson;
 }
 
-export function updateChildLinksSourcePosition(json: JsonData): JsonData {
-    if (!json.links) {return json;}
+// export function updateChildLinksSourcePosition(json: JsonData): JsonData {
+//     if (!json.links) {return json;}
 
-    json.links.forEach(link => {
-        if (link.masterLinkId) {
-            if (!link.branchNodeId) {
-                console.warn(`Link ${link.id} has masterLinkId but no branchNodeId, skipping dog leg update.`);
-            } else {
-                console.warn(`Link ${link.id} has masterLinkId ${link.masterLinkId} and branchNodeId ${link.branchNodeId}, updating source position to match reference branch node.`);
-                const referenceLink = json.links?.find(l => l.id === link.masterLinkId);
-                if (!referenceLink) {
-                    console.warn(`Master link ${link.masterLinkId} not found for link ${link.id}, skipping dog leg update.`);
-                } else {
-                    const referenceBranchNode = referenceLink.intermediateNodes?.find(n => n.id === link.branchNodeId);
-                    if (!referenceBranchNode) {
-                        console.warn(`Branch node ${link.branchNodeId} not found in master link ${link.masterLinkId}, skipping dog leg update for link ${link.id}.`);
-                    } else {
-                        // Use the reference branch node position for the source node
-                        link.sourceX = referenceBranchNode.x;
-                        link.sourceY = referenceBranchNode.y;
-                        console.log(`Link ${link.id} source position updated to reference branch node: (${link.sourceX}, ${link.sourceY})`);
-                    }
-                }
-            }
-        }
-    });
+//     json.links.forEach(link => {
+//         if (link.masterLinkId) {
+//             if (!link.branchNodeId) {
+//                 console.warn(`Link ${link.id} has masterLinkId but no branchNodeId, skipping dog leg update.`);
+//             } else {
+//                 console.warn(`Link ${link.id} has masterLinkId ${link.masterLinkId} and branchNodeId ${link.branchNodeId}, updating source position to match reference branch node.`);
+//                 const referenceLink = json.links?.find(l => l.id === link.masterLinkId);
+//                 if (!referenceLink) {
+//                     console.warn(`Master link ${link.masterLinkId} not found for link ${link.id}, skipping dog leg update.`);
+//                 } else {
+//                     const referenceBranchNode = referenceLink.intermediateNodes?.find(n => n.id === link.branchNodeId);
+//                     if (!referenceBranchNode) {
+//                         console.warn(`Branch node ${link.branchNodeId} not found in master link ${link.masterLinkId}, skipping dog leg update for link ${link.id}.`);
+//                     } else {
+//                         // Use the reference branch node position for the source node
+//                         link.sourceX = referenceBranchNode.x;
+//                         link.sourceY = referenceBranchNode.y;
+//                         console.log(`Link ${link.id} source position updated to reference branch node: (${link.sourceX}, ${link.sourceY})`);
+//                     }
+//                 }
+//             }
+//         }
+//     });
 
-    return json;
-}
+//     return json;
+// }
 
 
 export function consolidateLinkNodes(json: JsonData, removeColinear: boolean = true): JsonData {
@@ -475,10 +401,13 @@ export function moveLinkDelta(json: JsonData, linkId: IdType, deltaX: number, de
                 link.sourceY += deltaY;
                 link.targetX += deltaX;
                 link.targetY += deltaY;
-                link.intermediateNodes = link.intermediateNodes.map(node => {
-                    node.x += deltaX;
-                    node.y += deltaY;
-                    return node;
+                link.intermediateSegments = link.intermediateSegments.map(segment => {
+                    if (segment.orientation === "Horizontal") {
+                        segment.xOrY += deltaY;
+                    } else {
+                        segment.xOrY += deltaX;
+                    }
+                    return segment;
                 });
             }
             return link;
@@ -524,7 +453,7 @@ function isWithinDistance(
     return Math.sqrt(dx * dx + dy * dy) <= maxDistance;
 }
 
-export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, attachLinkToPort: boolean=false): JsonData {
+export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, selectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
     let finalX = x;
     let finalY = y;
     let finalId = "undefined";
@@ -543,23 +472,23 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
         }
     }
 
-    const linkData = json.links?.find(link => link.id === linkId);
-    if (!linkData) {
-        console.warn(`Link with id ${linkId} not found.`);
-        return json; // No link found, return original json
-    } else {
-        if (linkData.masterLinkId !== undefined) {
-            if (linkData.branchNodeId !== undefined) {
-                const masterLink = json.links?.find(link => link.id === linkData.masterLinkId);
-                const branchNode = masterLink?.intermediateNodes.find(node => node.id === linkData.branchNodeId);
-                if (branchNode && masterLink) {
-                    json = setPositionForLinkNode(json, masterLink.id, branchNode.id, x, y);
-                } else {
-                    console.warn(`Branch node with id ${linkData.branchNodeId} not found in link ${linkId}.`);
-                }
-            }
-        }
-    }
+    // const linkData = json.links?.find(link => link.id === linkId);
+    // if (!linkData) {
+    //     console.warn(`Link with id ${linkId} not found.`);
+    //     return json; // No link found, return original json
+    // } else {
+    //     if (linkData.masterLinkId !== undefined) {
+    //         if (linkData.branchNodeId !== undefined) {
+    //             const masterLink = json.links?.find(link => link.id === linkData.masterLinkId);
+    //             const branchNode = masterLink?.intermediateNodes.find(node => node.id === linkData.branchNodeId);
+    //             if (branchNode && masterLink) {
+    //                 json = setPositionForLinkNode(json, masterLink.id, branchNode.id, x, y);
+    //             } else {
+    //                 console.warn(`Branch node with id ${linkData.branchNodeId} not found in link ${linkId}.`);
+    //             }
+    //         }
+    //     }
+    // }
         
     let updatedJson: JsonData = {
         ...json,
@@ -575,7 +504,7 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
     };
     return updatedJson;
 }
-export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: number, attachLinkToPort: boolean=false): JsonData {
+export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: number, selectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
     let finalX = x;
     let finalY = y;
     let finalId = "undefined";
@@ -608,6 +537,31 @@ export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: num
         })
     };
     return updatedJson;
+}
+
+export function getNeighboringSegmentsToNode(json: JsonData, nodeId: IdType): {before: IntermediateSegment, after: IntermediateSegment} | undefined {
+
+    let before: IntermediateSegment | undefined = undefined;
+    let after: IntermediateSegment | undefined = undefined;
+
+    json.links?.forEach(link => {
+        link.intermediateSegments.forEach(segment => {
+            if (segment.id.startsWith(nodeId)) {
+                after = segment;
+            } else if (segment.id.endsWith(nodeId)) {
+                before = segment;
+            }
+        });
+    });
+
+    if (before && after) {
+        return {before: before, after: after};
+    }
+    return undefined;
+}
+
+export function getLimitsOfSegment(json: JsonData, segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined {
+    return undefined;
 }
 
 export function updateBlockParameters(json: JsonData, updatedBlock: BlockData): JsonData {

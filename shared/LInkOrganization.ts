@@ -39,11 +39,10 @@ export function updateLinksAfterBatchMove(json: JsonData): JsonData {
 
 export function moveLinkSegment(
     json: JsonData,
-    link: LinkData,
-    sourceIntermediateNodeId: IdType,
-    targetIntermediateNodeId: IdType,
+    segmentId: IdType,
     targetPositionX: number,
-    targetPositionY: number
+    targetPositionY: number,
+    selectableIds: IdType[]
 ): JsonData {
     let nodes = link.intermediateNodes ?? [];
 

@@ -1,7 +1,7 @@
 import { debug, timeStamp } from 'console';
 import { BlockVisual } from './BlockVisual';
 import { Selectable } from './Selectable';
-import { IdType, JsonData, LinkData } from '../shared/JsonTypes';
+import { IdType, IntermediateSegment, JsonData, LinkData } from '../shared/JsonTypes';
 import { getNonce } from './util';
 import { isMovable, Movable } from './Movable';
 import { CommunicationManager } from './CommunicationManager';
@@ -51,74 +51,30 @@ export class LinkNode extends Selectable implements Movable {
     }
     
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
-        let linkData = communicationManager.getLocalJson()?.links?.find(link => link.intermediateNodes.some(node => node.id === this.id));
-        if (linkData) {
-            let nodeData = linkData.intermediateNodes.find(node => node.id === this.id);
-            if (nodeData) {
-                return { x: nodeData.x, y: nodeData.y };
+        let beforeAndAfterSegments = communicationManager.getNeighboringSegmentsToNode(this.id);
+        if (beforeAndAfterSegments) {
+            if (beforeAndAfterSegments.before.orientation === "Horizontal" 
+                && beforeAndAfterSegments.after.orientation === "Vertical") {
+                return {x: beforeAndAfterSegments.after.xOrY, y: beforeAndAfterSegments.before.xOrY};
+            }
+            else if (beforeAndAfterSegments.before.orientation === "Vertical" 
+                && beforeAndAfterSegments.after.orientation === "Horizontal") {
+                return {x: beforeAndAfterSegments.before.xOrY, y: beforeAndAfterSegments.after.xOrY};
+            }
+            else {
+                throw RangeError(`Orientations should be opposed, they where before: ${beforeAndAfterSegments.before.orientation}, after: ${beforeAndAfterSegments.after.orientation}`)
             }
         }
         return undefined;
     }
 
-    private forceNewPosition(communicationManager: CommunicationManager, x: number, y: number): void {
-        communicationManager.setPositionForLinkNode(this.linkId, this.id, x, y);
-    }
-
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
-        const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
-        if (linkData) {
-            if (linkData.masterLinkId !== undefined) {
-                console.log(`Link node with id: ${this.getId()} is part of a master link, attention.`);
-            }
-            const linkIndex = linkData.intermediateNodes.findIndex(node => node.id === this.id);
-
-            let sourceId;
-            let sourceIdForSearch;
-            if (linkIndex === 0) {
-                sourceId = "SourceNode";
-                sourceIdForSearch = this.linkId + "SourceNode";
-            } else {
-                sourceId = linkData.intermediateNodes[linkIndex - 1].id;
-                sourceIdForSearch = sourceId;
-            }
-
-            let previousSegmentId = sourceIdForSearch + this.id;
-            const isPreviousSegmentSelected = selectables.some(selectable => selectable.getId() === previousSegmentId && selectable.isSelected());
-            if (!isPreviousSegmentSelected) {
-                let segmentSelectable = selectables.find(selectable => selectable.getId() === previousSegmentId);
-                if (segmentSelectable && isMovable(segmentSelectable)) {
-                    console.log(`Everything OK, moving previous segment: ${segmentSelectable.getId()}`);
-                    (segmentSelectable as Movable).moveTo(x, y, communicationManager, selectables);
-                }
-            }            
-
-            let targetId;
-            let targetIdForSearch;
-            if (linkIndex === linkData.intermediateNodes.length - 1) {
-                targetId = "TargetNode";
-                targetIdForSearch = this.linkId + "TargetNode";
-            } else {
-                targetId = linkData.intermediateNodes[linkIndex + 1].id;
-                targetIdForSearch = targetId;
-            }
-
-            let nextSegmentId = this.id + targetIdForSearch;
-            // Check if the previous segment exists and is selected
-            const isNextSegmentSelected = selectables.some(selectable => selectable.getId() === nextSegmentId && selectable.isSelected());
-            let isNextIntermediateNodeSelected = false;
-            if (targetId !== "TargetNode") {
-                isNextIntermediateNodeSelected = selectables.some(selectable => selectable.getId() === targetId && selectable.isSelected());
-                console.log(`Next intermediate node: ${targetId} is selected: ${isNextIntermediateNodeSelected}`);
-            }
-            if (!isNextSegmentSelected && !isNextIntermediateNodeSelected) {
-                let segmentSelectable = selectables.find(selectable => selectable.getId() === nextSegmentId);
-                if (segmentSelectable && isMovable(segmentSelectable)) {
-                    console.log(`Everything OK, moving next segment: ${segmentSelectable.getId()}`);
-                    (segmentSelectable as Movable).moveTo(x, y, communicationManager, selectables);
-                } 
-            }
+        let beforeAndAfterSegments = communicationManager.getNeighboringSegmentsToNode(this.id);
+        if (beforeAndAfterSegments) {
+            const selectableIds: IdType[] = selectables.map(selectable => selectable.getId());
+            communicationManager.moveLinkSegment(beforeAndAfterSegments.after.id, x, y, selectableIds);
+            communicationManager.moveLinkSegment(beforeAndAfterSegments.before.id, x, y, selectableIds);
         }
     }
 
@@ -142,7 +98,7 @@ export class LinkNode extends Selectable implements Movable {
                 y: centerY - deltaX
             };
 
-            this.forceNewPosition(communicationManager, targetPosition.x, targetPosition.y);
+            // this.forceNewPosition(communicationManager, targetPosition.x, targetPosition.y);
         }
     }
 
@@ -157,18 +113,26 @@ export class LinkNode extends Selectable implements Movable {
                 y: centerY + deltaX
             };
 
-            this.forceNewPosition(communicationManager, targetPosition.x, targetPosition.y);
+            // this.forceNewPosition(communicationManager, targetPosition.x, targetPosition.y);
         }
     }
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
-        const nodeData = json.links
-                            ?.flatMap(link => link.intermediateNodes)
-                            .find(node => node.id === this.id);
+        const beforeAndAfterSegments = communicationManager.getNeighboringSegmentsToNode(this.id, json);
 
-        if (nodeData) {
-            this.getElement().setAttribute("cx", String(nodeData.x));
-            this.getElement().setAttribute("cy", String(nodeData.y));
+        if (beforeAndAfterSegments) {
+            if (beforeAndAfterSegments.before.orientation === "Horizontal" 
+                && beforeAndAfterSegments.after.orientation === "Vertical") {
+                this.getElement().setAttribute("cx", String(beforeAndAfterSegments.after.xOrY));
+                this.getElement().setAttribute("cy", String(beforeAndAfterSegments.before.xOrY));
+            }
+            else if (beforeAndAfterSegments.before.orientation === "Vertical" 
+                && beforeAndAfterSegments.after.orientation === "Horizontal") {
+                this.getElement().setAttribute("cx", String(beforeAndAfterSegments.before.xOrY));
+                this.getElement().setAttribute("cy", String(beforeAndAfterSegments.after.xOrY));            }
+            else {
+                throw RangeError(`Orientations should be opposed, they where before: ${beforeAndAfterSegments.before.orientation}, after: ${beforeAndAfterSegments.after.orientation}`)
+            }
         } 
     }
 
@@ -216,30 +180,9 @@ export class SourceNode extends LinkNode implements Movable {
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Source node with id: ${this.getId()} moving to ${x}, ${y}`);
-        const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
-        if (linkData) {
-            const connectedBlock = selectables.find(selectable => selectable.getId() === linkData.sourceId);
-            if (connectedBlock && connectedBlock.isSelected()) {
-                // Do not move if the connected block is selected
-                return;
-            }
 
-            // if (linkData.masterLinkId !== undefined) {
-            //     if (linkData.branchNodeId === undefined) {
-            //         console.error("Master link ID is undefined, this should not happen.");
-                // } else {
-                //     let isBranchNodeSelected = selectables.some(selectable => selectable.getId() === linkData.branchNodeId && selectable.isSelected());
-                //     if (isBranchNodeSelected) {
-                //         // Do not move if the branch node is selected
-                //         return;
-                //     }
-                // }
-            // }
-        }
-
-        console.log(`Moving source node on moveTo with id: ${this.getId()} to ${x}, ${y}`);
-
-        communicationManager.moveSourceNode(this.linkId, x, y);
+        const selectableIds: IdType[] = selectables.map(selectable => selectable.getId());
+        communicationManager.moveSourceNode(this.linkId, x, y, selectableIds);
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -320,30 +263,43 @@ export class TargetNode extends LinkNode {
                 `translate(${String(linkData.targetX)}, ${String(linkData.targetY)})`
             );
 
-            let previousNodePosition : { x: number; y: number; } | undefined = undefined;
+            const previousSegment: IntermediateSegment | undefined = linkData.intermediateSegments?.at(-1);
+            const antePreviousSegment: IntermediateSegment | undefined = linkData.intermediateSegments?.at(-2);
+            const targetNodePosition = {x: linkData.targetX, y: linkData.targetY};
 
-            if (linkData.intermediateNodes.length > 0) {
-                previousNodePosition = linkData.intermediateNodes[linkData.intermediateNodes.length - 1];
-            } else {
-                previousNodePosition = { x: linkData.sourceX, y: linkData.sourceY };
-            }
-
-            const deltaX = linkData.targetX - previousNodePosition.x;
-            const deltaY = linkData.targetY - previousNodePosition.y;
-
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                // Horizontal movement
-                if (deltaX > 0) {
-                    this.setArrowDirection('right');
-                } else {
+            if (!previousSegment) {
+                if (targetNodePosition.x < linkData.sourceX) {
                     this.setArrowDirection('left');
+                } else {
+                    this.setArrowDirection('right');
+                }
+            } else if (!antePreviousSegment) {
+                if (previousSegment.orientation === "Horizontal") {
+                    if (targetNodePosition.x < linkData.sourceX) {
+                        this.setArrowDirection('left');
+                    } else {
+                        this.setArrowDirection('right');
+                    }
+                } else {
+                    if (targetNodePosition.y < linkData.sourceY) {
+                        this.setArrowDirection('up');
+                    } else {
+                        this.setArrowDirection('down');
+                    }
                 }
             } else {
-                // Vertical movement
-                if (deltaY > 0) {
-                    this.setArrowDirection('down');
+                if (antePreviousSegment.orientation === "Vertical") {
+                    if (targetNodePosition.x < antePreviousSegment.xOrY) {
+                        this.setArrowDirection('left');
+                    } else {
+                        this.setArrowDirection('right');
+                    }
                 } else {
-                    this.setArrowDirection('up');
+                    if (targetNodePosition.y < antePreviousSegment.xOrY) {
+                        this.setArrowDirection('up');
+                    } else {
+                        this.setArrowDirection('down');
+                    }
                 }
             }
         } 
@@ -351,15 +307,9 @@ export class TargetNode extends LinkNode {
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Target node with id: ${this.getId()} moving to ${x}, ${y}`);
-        const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
-        if (linkData) {
-            const connectedBlock = selectables.find(selectable => selectable.getId() === linkData.targetId);
-            if (connectedBlock && connectedBlock.isSelected()) {
-                // Do not move if the connected block is selected
-                return;
-            }
-        }
-        communicationManager.moveTargetNode(this.linkId, x, y);
+        
+        const selectableIds: IdType[] = selectables.map(selectable => selectable.getId());
+        communicationManager.moveTargetNode(this.linkId, x, y, selectableIds);
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -390,11 +340,10 @@ export class TargetNode extends LinkNode {
 
 
 export class LinkSegment extends Selectable implements Movable {
-    sourceLinkNode: LinkNode;
-    targetLinkNode: LinkNode;
+    id: IdType;
     segmentElement: SVGPolylineElement;
     public getId(): IdType {
-        return this.sourceLinkNode.getId() + this.targetLinkNode.getId();    
+        return this.id;    
     }
 
     private onDelete: () => void;
@@ -403,11 +352,10 @@ export class LinkSegment extends Selectable implements Movable {
         return this.segmentElement;
     }
 
-    constructor (sourceLinkNode: LinkNode, targetLinkNode: LinkNode, onDelete: () => void, communicationManager: CommunicationManager) {
+    constructor (id: IdType, onDelete: () => void, communicationManager: CommunicationManager) {
         super();
         this.onDelete = onDelete;
-        this.sourceLinkNode = sourceLinkNode;
-        this.targetLinkNode = targetLinkNode;
+        this.id = id;
         
         this.segmentElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
         this.segmentElement.classList.add('link-line');
@@ -417,22 +365,18 @@ export class LinkSegment extends Selectable implements Movable {
             this.segmentElement.classList.add('selected');
         }
 
-        const sourcePosition = this.sourceLinkNode.getPosition(communicationManager);
-        const targetPosition = this.targetLinkNode.getPosition(communicationManager);
+        const segmentLimits = communicationManager.getLimitsOfSegment(this.id);
         
-        if (sourcePosition && targetPosition) {
-            this.getElement().setAttribute("points", `${sourcePosition.x},${sourcePosition.y} ${targetPosition.x},${targetPosition.y}`);
+        if (segmentLimits) {
+            this.getElement().setAttribute("points", `${segmentLimits.before.x},${segmentLimits.before.y} ${segmentLimits.after.x},${segmentLimits.after.y}`);
         }
     }
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
-        const sourcePosition = this.sourceLinkNode.getPosition(communicationManager);
-        const targetPosition = this.targetLinkNode.getPosition(communicationManager);
+        const segmentLimits = communicationManager.getLimitsOfSegment(this.id);
         
-        // console.log(`Going to update`);
-        if (sourcePosition && targetPosition) {
-            // console.log(`Let us update x: ${sourcePosition.x}, y: ${sourcePosition.y}`);
-            this.getElement().setAttribute("points", `${sourcePosition.x},${sourcePosition.y} ${targetPosition.x},${targetPosition.y}`);
+        if (segmentLimits) {
+            this.getElement().setAttribute("points", `${segmentLimits.before.x},${segmentLimits.before.y} ${segmentLimits.after.x},${segmentLimits.after.y}`);
         }
     }
 
@@ -442,56 +386,9 @@ export class LinkSegment extends Selectable implements Movable {
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Segment with id: ${this.getId()} moving to ${x}, ${y}`);
-        const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.sourceLinkNode.getLinkId());
-
-        if (linkData) {
-            let sourceId = this.sourceLinkNode.getId();
-            let targetId = this.targetLinkNode.getId();
-            if (this.sourceLinkNode instanceof SourceNode) {
-                let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
-                if (isSourceLinkSelected) {
-                    // Do not move if the source link is selected
-                    return;
-                }
-                if (linkData.sourceId !== "undefined") {
-                    let sourceBlockId = communicationManager.getLocalJson()?.blocks?.find(block => block.id === linkData.sourceId)?.id;
-                    let isSourceBlockSelected = selectables.some(selectable => selectable.getId() === sourceBlockId && selectable.isSelected());
-                    if (isSourceBlockSelected) {
-                        // Do not move if the source block is selected
-                        return;
-                    }
-                }
-                if (linkData.masterLinkId !== undefined) {
-                    if (linkData.branchNodeId === undefined) {
-                        console.error("Master link ID is undefined, this should not happen.");
-                    } else {
-                        let isBranchNodeSelected = selectables.some(selectable => selectable.getId() === linkData.branchNodeId && selectable.isSelected());
-                        if (isBranchNodeSelected) {
-                            // Do not move if the branch node is selected
-                            return;
-                        }
-                    }
-                }
-                sourceId = "SourceNode";
-            }
-            if (this.targetLinkNode instanceof TargetNode) {
-                let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
-                if (isTargetLinkSelected) {
-                    // Do not move if the target link is selected
-                    return;
-                }
-                if (linkData.targetId !== "undefined") {
-                    let targetBlockId = communicationManager.getLocalJson()?.blocks?.find(block => block.id === linkData.targetId)?.id;
-                    let isTargetBlockSelected = selectables.some(selectable => selectable.getId() === targetBlockId && selectable.isSelected());
-                    if (isTargetBlockSelected) {
-                        // Do not move if the target block is selected
-                        return;
-                    }
-                }
-                targetId = "TargetNode";
-            }
-            communicationManager.moveLinkSegment(linkData, sourceId, targetId, x, y);
-        }
+        
+        const selectableIds: IdType[] = selectables.map(selectable => selectable.getId());
+        communicationManager.moveLinkSegment(this.id, x, y, selectableIds);
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -507,28 +404,28 @@ export class LinkSegment extends Selectable implements Movable {
         let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
         let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
         
-        if (!isSourceLinkSelected) {
-            this.sourceLinkNode.moveClockwiseAround(centerX, centerY, communicationManager, selectables);
-        }
-        if (!isTargetLinkSelected) {
-            this.targetLinkNode.moveClockwiseAround(centerX, centerY, communicationManager, selectables);
-        }
+        // if (!isSourceLinkSelected) {
+        //     this.sourceLinkNode.moveClockwiseAround(centerX, centerY, communicationManager, selectables);
+        // }
+        // if (!isTargetLinkSelected) {
+        //     this.targetLinkNode.moveClockwiseAround(centerX, centerY, communicationManager, selectables);
+        // }
     }
 
     moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
         let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
         
-        if (!isSourceLinkSelected) {
-            this.sourceLinkNode.moveCounterClockwiseAround(centerX, centerY, communicationManager, selectables);
-        }
-        if (!isTargetLinkSelected) {
-            this.targetLinkNode.moveCounterClockwiseAround(centerX, centerY, communicationManager, selectables);
-        }
+        // if (!isSourceLinkSelected) {
+        //     this.sourceLinkNode.moveCounterClockwiseAround(centerX, centerY, communicationManager, selectables);
+        // }
+        // if (!isTargetLinkSelected) {
+        //     this.targetLinkNode.moveCounterClockwiseAround(centerX, centerY, communicationManager, selectables);
+        // }
     }
 
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
-        return this.sourceLinkNode.getPosition(communicationManager);
+        return communicationManager.getLimitsOfSegment(this.id)?.before;
     }
 
     public selectCondition(): "Intersect" | "FullyWithing" {

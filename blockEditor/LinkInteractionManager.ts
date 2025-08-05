@@ -348,7 +348,7 @@ export class LinkInteractionManager {
         this.communicationManager.print(`[link log]: Segment clicked`);
         if (e.button === 0 && (e.ctrlKey || e.metaKey)) { // Left click + Ctrl or Meta
             const segment = canvasElement as LinkSegment;
-            this.communicationManager.createNewChildLinkFromSegment(segment.sourceLinkNode.getId(), segment.targetLinkNode.getId(), e.clientX, e.clientY);
+            // this.communicationManager.createNewChildLinkFromSegment(segment.sourceLinkNode.getId(), segment.targetLinkNode.getId(), e.clientX, e.clientY);
             e.stopPropagation();
         }
     };
@@ -357,7 +357,7 @@ export class LinkInteractionManager {
         this.communicationManager.print(`[link log]: Node clicked`);
         if (e.button === 0 && (e.ctrlKey || e.metaKey)) { // Left click + Ctrl or Meta
             const node = canvasElement as LinkNode;
-            this.communicationManager.createNewChildLinkFromNode(node.getId());
+            // this.communicationManager.createNewChildLinkFromNode(node.getId());
             e.stopPropagation();
         }
     };
