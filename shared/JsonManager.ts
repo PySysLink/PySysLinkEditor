@@ -454,6 +454,13 @@ function isWithinDistance(
 }
 
 export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
+    let attachedBlock = json.links?.find(link => link.id === linkId)?.sourceId;
+    if (attachedBlock) {
+        if (selectedSelectableIds.includes(attachedBlock)) {
+            return json; // Do not move if the source node is selected
+        }
+    }
+
     let finalX = x;
     let finalY = y;
     let finalId = "undefined";
@@ -505,6 +512,13 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
     return updatedJson;
 }
 export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
+    let attachedBlock = json.links?.find(link => link.id === linkId)?.targetId;
+    if (attachedBlock) {
+        if (selectedSelectableIds.includes(attachedBlock)) {
+            return json; // Do not move if the source node is selected
+        }
+    }
+
     let finalX = x;
     let finalY = y;
     let finalId = "undefined";

@@ -86,43 +86,61 @@ export function moveLinkSegment(
     }
 
     if (segmentIndex === 0) {
-        if (segments[segmentIndex].orientation === "Horizontal") {
-            segments.splice(segmentIndex, 0, {
-                id: getNonce(),
-                orientation: "Vertical",
-                xOrY: targetPositionX
-            });
-        } else {
-            segments.splice(segmentIndex, 0, {
-                id: getNonce(),
-                orientation: "Horizontal",
-                xOrY: targetPositionY
-            });
+        const connectedBlockId = json.links?.find(link => link.id === linkId)?.sourceId ?? undefined;
+        let isSourceSelected = false;
+        if (connectedBlockId) {
+            if (selectedSelectableIds.includes(connectedBlockId)) {
+                isSourceSelected = true;
+            }
+        }
+        if (!isSourceSelected) {
+            if (segments[segmentIndex].orientation === "Horizontal") {
+                segments.splice(segmentIndex, 0, {
+                    id: getNonce(),
+                    orientation: "Vertical",
+                    xOrY: targetPositionX
+                });
+            } else {
+                segments.splice(segmentIndex, 0, {
+                    id: getNonce(),
+                    orientation: "Horizontal",
+                    xOrY: targetPositionY
+                });
+            }
         }
 
         segmentIndex++;
     }
 
     if (segmentIndex === segments.length - 1) {
-        if (segments[segmentIndex].orientation === "Horizontal") {
-            segments.splice(segmentIndex + 1, 0, {
-                id: getNonce(),
-                orientation: "Vertical",
-                xOrY: targetPositionX
-            });
-        } else {
-            segments.splice(segmentIndex + 1, 0, {
-                id: getNonce(),
-                orientation: "Horizontal",
-                xOrY: targetPositionY
-            });
+        const connectedBlockId = json.links?.find(link => link.id === linkId)?.targetId ?? undefined;
+        let isTargetSelected = false;
+        if (connectedBlockId) {
+            if (selectedSelectableIds.includes(connectedBlockId)) {
+                isTargetSelected = true;
+            }
+        }
+        if (!isTargetSelected) {
+            if (segments[segmentIndex].orientation === "Horizontal") {
+                segments.splice(segmentIndex + 1, 0, {
+                    id: getNonce(),
+                    orientation: "Vertical",
+                    xOrY: targetPositionX
+                });
+            } else {
+                segments.splice(segmentIndex + 1, 0, {
+                    id: getNonce(),
+                    orientation: "Horizontal",
+                    xOrY: targetPositionY
+                });
+            }
         }
     }
         
 
     json = updateSegmentsOnLink(json, linkId, segments);
     // json = updateChildLinksSourcePosition(json);
-    return updateLinksDogLeg(json, undefined, false);
+    return json;
 }
 
 function findPrevNextX(
@@ -282,6 +300,23 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
                     }
                 }
             }
+            
+            if (removeColinear) {
+                for (let i = 0; i < segments.length - 2; ++i) {
+                    const a = segments[i];
+                    const b = segments[i + 1];
+                    const c = segments[i + 2];
+
+                    const removalThreshold = 2; // Threshold to consider segments collinear
+
+                    if (a.orientation === c.orientation &&
+                        Math.abs(a.xOrY - c.xOrY) < removalThreshold) {
+                        segments.splice(i + 1, 2);
+                        continue;
+                    }
+                }
+            }
+
             allAligned = true;
         }
 
