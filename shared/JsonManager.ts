@@ -561,7 +561,46 @@ export function getNeighboringSegmentsToNode(json: JsonData, nodeId: IdType): {b
 }
 
 export function getLimitsOfSegment(json: JsonData, segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined {
-    return undefined;
+    let link = json.links?.find(link => link.intermediateSegments.some(segment => segment.id === segmentId));
+    if (!link) {
+        console.warn(`Segment with id ${segmentId} not found in any link.`);
+        return undefined;
+    }
+
+    let lastPoint = { x: link.sourceX, y: link.sourceY };
+
+    for (let i = 0; i < link.intermediateSegments.length - 1; i++) {
+        let currentSegment = link.intermediateSegments[i];
+        let nextSegment = link.intermediateSegments[i + 1];
+
+        if (currentSegment.orientation === "Horizontal") {
+            lastPoint = { x: lastPoint.x, y: currentSegment.xOrY };
+        } else {
+            lastPoint = { x: currentSegment.xOrY, y: lastPoint.y };
+        }
+        if (currentSegment.id === segmentId) {
+            return {
+                before: lastPoint,
+                after: { 
+                    x: nextSegment.orientation === "Horizontal" ? lastPoint.x : nextSegment.xOrY, 
+                    y: nextSegment.orientation === "Vertical" ? lastPoint.y : nextSegment.xOrY 
+                }
+            };
+        }
+    }
+}
+
+export function updateSegmentsOnLink(json: JsonData, linkId: IdType, segments: IntermediateSegment[]): JsonData {
+    let updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            if (link.id === linkId) {
+                link.intermediateSegments = segments;
+            }
+            return link;
+        })
+    };
+    return updatedJson;
 }
 
 export function updateBlockParameters(json: JsonData, updatedBlock: BlockData): JsonData {

@@ -1,8 +1,8 @@
-import { deleteIntermediateNodeFromJson, getPortPosition, updateChildLinksSourcePosition, updateLinkInJson } from "./JsonManager";
-import { IdType, JsonData, LinkData } from "./JsonTypes";
+import { link } from "fs";
+import { getPortPosition, updateLinkInJson, updateSegmentsOnLink } from "./JsonManager";
+import { IdType, IntermediateSegment, JsonData, LinkData } from "./JsonTypes";
 import { getNonce } from "./util";
 
-const distanceToJoin = 1.1;
 
 export function updateLinksAfterBlockMove(json: JsonData, blockId: IdType): JsonData {
     console.log("updateLinksAfterBlockMove called");
@@ -44,266 +44,130 @@ export function moveLinkSegment(
     targetPositionY: number,
     selectableIds: IdType[]
 ): JsonData {
-    let nodes = link.intermediateNodes ?? [];
+    let segments: IntermediateSegment[] = json.links?.find(link => link.intermediateSegments.map(segment => segment.id).indexOf(segmentId) > -1)?.intermediateSegments ?? [];
+    const linkId: IdType = json.links?.find(link => link.intermediateSegments.map(segment => segment.id).indexOf(segmentId) > -1)?.id ?? "undefinedLink";
 
-    if (sourceIntermediateNodeId === "SourceNode") {
-        if (nodes.length === 0) {
-            nodes.push({
+    if (!segments || segments.length === 0) {
+        throw new Error(`No segments found for segmentId ${segmentId} in link ${linkId}`);
+    }
+    if (linkId === "undefinedLink") {
+        throw new Error(`Link with segmentId ${segmentId} not found`);
+    }
+
+    let segmentIndex = segments.findIndex(segment => segment.id === segmentId);
+
+    if (segmentIndex === -1) {
+        throw new Error(`Segment with id ${segmentId} not found in any link.`);
+    }
+
+    if (segments[segmentIndex].orientation === "Horizontal") {
+            segments[segmentIndex].xOrY = targetPositionY;
+    } else {
+        segments[segmentIndex].xOrY = targetPositionX;
+    }
+
+    if (segmentIndex === 0) {
+        if (segments[segmentIndex].orientation === "Horizontal") {
+            segments.splice(segmentIndex, 0, {
                 id: getNonce(),
-                x: link.sourceX,
-                y: link.sourceY
+                orientation: "Vertical",
+                xOrY: targetPositionX
             });
-            console.log(`Added source node at (${link.sourceX}, ${link.sourceY})`);
-        } else if (nodes[0].id === targetIntermediateNodeId) {
-            nodes.splice(0, 0, {
+        } else {
+            segments.splice(segmentIndex, 0, {
                 id: getNonce(),
-                x: link.sourceX,
-                y: link.sourceY
+                orientation: "Horizontal",
+                xOrY: targetPositionY
             });
-            console.log(`Added source node at (${link.sourceX}, ${link.sourceY})`);
         }
-        sourceIntermediateNodeId = nodes[0].id;
+
+        segmentIndex++;
     }
 
-    if (targetIntermediateNodeId === "TargetNode") {
-        if (nodes.length === 0) {
-            nodes.push({
+    if (segmentIndex === segments.length - 1) {
+        if (segments[segmentIndex].orientation === "Horizontal") {
+            segments.splice(segmentIndex + 1, 0, {
                 id: getNonce(),
-                x: link.targetX,
-                y: link.targetY
+                orientation: "Vertical",
+                xOrY: targetPositionX
             });
-            console.log(`Added target node at (${link.targetX}, ${link.targetY})`);
-        } else if (nodes[nodes.length - 1].id === sourceIntermediateNodeId) {
-            nodes.push({
+        } else {
+            segments.splice(segmentIndex + 1, 0, {
                 id: getNonce(),
-                x: link.targetX,
-                y: link.targetY
+                orientation: "Horizontal",
+                xOrY: targetPositionY
             });
-            console.log(`Added target node at (${link.targetX}, ${link.targetY})`);
         }
-        targetIntermediateNodeId = nodes[nodes.length - 1].id;
     }
+        
 
-    const i1 = nodes.findIndex(n => n.id === sourceIntermediateNodeId);
-    let i2 = nodes.findIndex(n => n.id === targetIntermediateNodeId);
-
-    console.log(`Moving link nodes: ${JSON.stringify(nodes)}, indexes: ${i1}, ${i2}`);
-
-    if (i1 === -1 || i2 === -1) {
-        throw new Error(`Intermediate node(s) not found in link ${link.id}`);
-    }
-    if (i2 - i1 !== 1) {
-        throw new Error(`Intermediate nodes must be adjacent in link ${link.id}`);
-    }
-
-
-    // Check alignment
-    const isHorizontal = Math.abs(nodes[i1].y - nodes[i2].y) < distanceToJoin;
-    const isVertical = Math.abs(nodes[i1].x - nodes[i2].x) < distanceToJoin;
-
-    if (!isHorizontal && !isVertical) {
-        throw new Error(`Segment is not aligned horizontally or vertically`);
-    }
-
-    // Get neighboring points (can be source or target)
-    const prevPoint = i1 === 0
-        ? { x: link.sourceX, y: link.sourceY }
-        : nodes[i1 - 1];
-    const nextPoint = i2 === nodes.length - 1
-        ? { x: link.targetX, y: link.targetY }
-        : nodes[i2 + 1];
-
-    // Fix corner before segment
-    const bendInBefore = (isHorizontal && Math.abs(prevPoint.x - nodes[i1].x) >= distanceToJoin) ||
-                         (isVertical && Math.abs(prevPoint.y - nodes[i1].y) >= distanceToJoin);
-
-    let beforeBend: { id: IdType; x: number; y: number } | undefined = undefined;
-    if (bendInBefore) {
-        beforeBend = {
-            id: `${link.id}_auto_pre_${Date.now()}`,
-            x: isHorizontal ? nodes[i1].x : prevPoint.x,
-            y: isVertical ? nodes[i1].y : prevPoint.y
-        };
-    }
-
-    // Fix corner after segment
-    const bendInAfter = (isHorizontal && Math.abs(nextPoint.x - nodes[i2].x) >= distanceToJoin) ||
-                        (isVertical && Math.abs(nextPoint.y - nodes[i2].y) >= distanceToJoin);
-
-    let afterBend: { id: IdType; x: number; y: number } | undefined = undefined;
-    if (bendInAfter) {
-        afterBend = {
-            id: `${link.id}_auto_post_${Date.now()}`,
-            x: isHorizontal ? nodes[i2].x : nextPoint.x,
-            y: isVertical ? nodes[i2].y : nextPoint.y
-        };
-    }
-
-    console.log(`Intermediate nodes before move:`, JSON.stringify(nodes));
-    console.log(`Moving segment nodes ${i1} and ${i2} of link ${link.id} to position (${targetPositionX}, ${targetPositionY})`);
-    nodes[i1].x = isHorizontal ? nodes[i1].x : targetPositionX;
-    nodes[i1].y = isVertical ? nodes[i1].y : targetPositionY;
-    nodes[i2].x = isHorizontal ? nodes[i2].x : targetPositionX;
-    nodes[i2].y = isVertical ? nodes[i2].y : targetPositionY;
-
-    console.log(`Intermediate nodes after move:`, JSON.stringify(nodes));
-
-    // if (beforeBend) {
-    //     nodes.splice(i1, 0, beforeBend);
-    //     // Adjust indices since we added a node before i1
-    //     i2 += 1;
-    // }
-    // if (afterBend) {
-    //     nodes.splice(i2 + 1, 0, afterBend);
-    // }
-
-    console.log(`Before bend: ${beforeBend}, after: ${afterBend}`);
-
-    console.log(`Final intermediate nodes after move:`, JSON.stringify(nodes));
-    
-    link.intermediateNodes = nodes;
-
-    json = updateLinkInJson(json, link);
-    json = updateChildLinksSourcePosition(json);
+    json = updateSegmentsOnLink(json, linkId, segments);
+    // json = updateChildLinksSourcePosition(json);
     return updateLinksDogLeg(json, undefined, false);
 }
 
-function realignPoints(
-    preA: Point | undefined,
-    a: FullPoint,
-    b: FullPoint,
-    postB: Point | undefined,
-    preferenceToMove: "A" | "B" = "A"
-): FullPoint[] {
-    let isALinkHorizontal: boolean | undefined = undefined;
-    let isALinkVertical: boolean | undefined = undefined;
-    console.log(`Realigning points: ${a}, ${b}, preA: ${preA}, postB: ${postB}`);
-    if (preA) {
-        isALinkHorizontal = Math.abs(a.y - preA.y) < distanceToJoin;
-        isALinkVertical = Math.abs(a.x - preA.x) < distanceToJoin;
-        if (!isALinkHorizontal && !isALinkVertical) {
-            throw new Error(`Points A and preA are not aligned horizontally or vertically: ${JSON.stringify(a)}, ${JSON.stringify(preA)}`);
-        }
-    } 
-    let isBLinkHorizontal: boolean | undefined = undefined;
-    let isBLinkVertical: boolean | undefined = undefined;
-    if (postB) {
-        isBLinkHorizontal = Math.abs(b.y - postB.y) < distanceToJoin;
-        isBLinkVertical = Math.abs(b.x - postB.x) < distanceToJoin;
-
-        if (!isBLinkHorizontal && !isBLinkVertical) {
-            // B is between two non aligned segments
-            if (isALinkHorizontal === undefined) {
-                // A is source, B is between two non-aligned segments
-                console.log(`B is between two non-aligned segments, A is source: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-                return [a,
-                        { id: getNonce(), x: b.x, y: a.y },
-                        b];
-            } else if (isALinkHorizontal) {
-                // B is between two non-aligned segments, A is horizontal
-                console.log(`B is between two non-aligned segments, A is horizontal: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-                a.x = b.x;
-                return [a, b];
-            } else {
-                // B is between two non-aligned segments, A is vertical
-                console.log(`B is between two non-aligned segments, A is vertical: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-                a.y = b.y;
-                return [a, b];
-            }
+function findPrevNextX(
+    segments: IntermediateSegment[],
+    firstIndex: number,
+    link: { sourceX: number; targetX: number }
+): { prevX: number; nextX: number } {
+    // Find previous vertical segment to the left
+    let prevX = link.sourceX;
+    for (let i = firstIndex - 1; i >= 0; --i) {
+        if (segments[i].orientation === "Vertical") {
+            prevX = segments[i].xOrY;
+            break;
         }
     }
 
-    if (isALinkHorizontal === undefined) {
-        if (isBLinkHorizontal === undefined) {
-            // Both points are source and target
-            console.log(`Both points are source and target: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-            return [a,
-                    { id: getNonce(), y: a.y, x: (a.x + b.x)/2 },
-                    { id: getNonce(), y: b.y, x: (a.x + b.x)/2 },
-                    b];
-        } else if (isBLinkVertical) { // If B is both vertical and horizontal, do not create new nodes
-            // A is source, B is vertical
-            console.log(`A is source, B is vertical: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-            b.y = a.y;
-            return [a, b];
-        } else {
-            // A is source, B is horizontal
-            console.log(`A is source, B is horizontal: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-            return [a,
-                    { id: getNonce(), x: b.x, y: a.y },
-                    b];
+    // Find next vertical segment to the right
+    let nextX = link.targetX;
+    for (let i = firstIndex + 1; i < segments.length; ++i) {
+        if (segments[i].orientation === "Vertical") {
+            nextX = segments[i].xOrY;
+            break;
         }
     }
 
-    if (isBLinkHorizontal === undefined) {
-        if (isALinkVertical) { // If A is both vertical and horizontal, do not create new nodes
-            // A is vertical, B is target
-            console.log(`A is vertical, B is target: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-            a.y = b.y;
-            return [a, b];
-        } else {
-            // A is horizontal, B is target
-            console.log(`A is horizontal, B is target: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-            return [a,
-                    { id: getNonce(), x: a.x, y: b.y },
-                    b];
-        }
-    }
-
-    if (isALinkHorizontal && isBLinkHorizontal) {
-        // Both points are horizontal
-        console.log(`Both points are horizontal: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-        a.x = b.x;
-        return [a, b];
-    } else if (isALinkHorizontal && !isBLinkHorizontal) {
-        // A is horizontal, B is vertical
-        console.log(`A is horizontal, B is vertical: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-        a.x = b.x;
-        return [a, b];
-    } else if (!isALinkHorizontal && isBLinkHorizontal) {
-        // A is vertical, B is horizontal
-        console.log(`A is vertical, B is horizontal: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-        a.y = b.y;
-        return [a, b];
-    } else {
-        // Both points are vertical
-        console.log(`Both points are vertical: ${JSON.stringify(a)}, ${JSON.stringify(b)}`);
-        a.y = b.y;  
-        return [a, b];
-    }
+    return { prevX, nextX };
 }
 
-type Point = {
-    id: IdType;
-    x: number;
-    y: number;
-} | {
-    x: number;
-    y: number;
+function findPrevNextY(
+    segments: IntermediateSegment[],
+    firstIndex: number,
+    link: { sourceY: number; targetY: number }
+): { prevY: number; nextY: number } {
+    // Find previous horizontal segment above
+    let prevY = link.sourceY;
+    for (let i = firstIndex - 1; i >= 0; --i) {
+        if (segments[i].orientation === "Horizontal") {
+            prevY = segments[i].xOrY;
+            break;
+        }
+    }
+
+    // Find next horizontal segment below
+    let nextY = link.targetY;
+    for (let i = firstIndex + 1; i < segments.length; ++i) {
+        if (segments[i].orientation === "Horizontal") {
+            nextY = segments[i].xOrY;
+            break;
+        }
+    }
+
+    return { prevY, nextY };
 }
 
-type FullPoint = {
-    id: IdType;
-    x: number;
-    y: number;
-};
-
-// Main function to update links' intermediate nodes
 function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = undefined, removeColinear: boolean = true): JsonData {
 
-    json = updateChildLinksSourcePosition(json);
+    // json = updateChildLinksSourcePosition(json);
 
     if (!json.links) {return json;}
 
     for (let link of json.links) {
-        // Build the full list of points: source, ...intermediate, target
-        let points: Point[] = [
-            { x: link.sourceX, y: link.sourceY },
-            ...(structuredClone(link.intermediateNodes) || []),
-            { x: link.targetX, y: link.targetY }
-        ];
+        let segments: IntermediateSegment[] = link.intermediateSegments;
 
-        console.log(`Link ${link.id} points before dog leg: ${JSON.stringify(points)}`);
+        console.log(`Link ${link.id} segments before dog leg: ${JSON.stringify(segments)}`);
 
 
         let preferenceToMove: "A" | "B" = "A";
@@ -313,107 +177,110 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
             preferenceToMove = "B";
         }
 
-        for (let i = 0; i < points.length - 1; ++i) {
-            const a = points[i];
-            const b = points[i + 1];
-            
-            if (Math.abs(a.x - b.x) < distanceToJoin || Math.abs(a.y - b.y) < distanceToJoin) {
-                ;
+        let allAligned = false;
+
+        while (!allAligned) {
+            if (segments.length === 0) {
+                if (link.sourceX === link.targetX) {
+                    segments = [
+                        { id: getNonce(), orientation: "Vertical", xOrY: link.sourceX }
+                    ];
+                } else if (link.sourceY === link.targetY) {
+                    segments = [
+                        { id: getNonce(), orientation: "Horizontal", xOrY: link.sourceY }
+                    ];
+                } else {
+                    segments = [
+                        { id: getNonce(), orientation: "Horizontal", xOrY: link.sourceY },
+                        { id: getNonce(), orientation: "Vertical", xOrY: (link.sourceX + link.targetX)/2 },
+                        { id: getNonce(), orientation: "Horizontal", xOrY: link.targetY }
+                    ];
+                }
+                allAligned = true;
+                continue;
             } else {
-                // Generate dog leg points
-                let preA: Point | undefined = undefined;
-                if (i >= 1) {
-                    preA = points[i - 1];
-                }
-                let postB: Point | undefined = undefined;
-                if (i + 2 < points.length) {
-                    postB = points[i + 2];
+                if (segments[0].orientation === "Horizontal") {
+                    if (link.sourceY !== segments[0].xOrY) {
+                        segments.splice(0, 0, {
+                            id: getNonce(),
+                            orientation: "Vertical",
+                            xOrY: link.sourceX
+                        });
+                        continue;
+                    }
+                } else {
+                    if (link.sourceX !== segments[0].xOrY) {
+                        segments.splice(0, 0, {
+                            id: getNonce(),
+                            orientation: "Horizontal",
+                            xOrY: link.sourceY
+                        });
+                        continue;
+                    }
                 }
 
-                const dogLegs = realignPoints(
-                    preA,
-                    { id: 'id' in a ? a.id : 'Source', x: a.x, y: a.y },
-                    { id: 'id' in b ? b.id : 'Target', x: b.x, y: b.y },
-                    postB,
-                    preferenceToMove
-                );
-
-                console.log(`Dog legs: ${JSON.stringify(dogLegs)}`);
-                
-                points[i].x = dogLegs[0].x;
-                points[i].y = dogLegs[0].y;
-                points[i + 1].x = dogLegs[dogLegs.length - 1].x;
-                points[i + 1].y = dogLegs[dogLegs.length - 1].y;
-                
-                // Add nodes on dogLegs excluding the last
-                for (let j = 1; j < dogLegs.length - 1; ++j) {
-                    const point = dogLegs[j];
-                    console.log(`Node: ${JSON.stringify(point)} evaluated`);
-                    console.log(`Adding intermediate node: ${JSON.stringify(point)}`);
-                    points.splice(i + 1, 0, point);
-                    link.intermediateNodes.splice(i + 1, 0, {
-                        id: point.id,
-                        x: point.x,
-                        y: point.y
-                    });
-                    i++;
+                if (segments[segments.length - 1].orientation === "Horizontal") {
+                    if (link.targetY !== segments[segments.length - 1].xOrY) {
+                        segments.push({
+                            id: getNonce(),
+                            orientation: "Vertical",
+                            xOrY: link.targetX
+                        });
+                        continue;
+                    }
+                } else {
+                    if (link.targetX !== segments[segments.length - 1].xOrY) {
+                        segments.push({
+                            id: getNonce(),
+                            orientation: "Horizontal",
+                            xOrY: link.targetY
+                        });
+                        continue;
+                    }
                 }
             }
-        }
 
-        if (removeColinear) {
-            for (let i = 0; i < points.length-2; ++i) {
-                const a = points[i];
-                const b = points[i + 1];
-                const c = points[i + 2];
+            for (let i = 0; i < segments.length - 1; ++i) {
+                const a = segments[i];
+                const b = segments[i + 1];
 
-                const bId = (b as FullPoint).id || 'Unknown';
-                const isBBranchNode = json.links?.some(link => link.branchNodeId === bId) ?? false;
-
-                if (isBBranchNode) {
-                    console.log(`Skipping collinear check for branch node: ${bId}`);
-                    console.log(`b id: ${(b as FullPoint).id}, x: ${b.x}, y: ${b.y}`);
-                } else {
-
-                    // If three points are collinear, remove the middle one
-                    if ((Math.abs(a.x - b.x) < distanceToJoin && Math.abs(b.x - c.x) < distanceToJoin)) {
-                        console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
-                        console.log(`All master nodes are: ${json.links?.map(l => l.branchNodeId)}`);
-                        console.log(`link.intermediateNodes: ${JSON.stringify(link.intermediateNodes)}`);
-                        json = deleteIntermediateNodeFromJson(json, bId);
-                        link = json.links?.find(l => l.id === link.id) || link; // Refresh link after deletion
-                        console.log(`link.intermediateNodes after: ${JSON.stringify(link.intermediateNodes)}`);
-                        if (link.intermediateNodes.length < points.length - 2) {
-                            points.splice(i + 1, 1);
-                            points[i + 1].x = a.x;
-                            i--; // Adjust index after removal
+                if (a.orientation === b.orientation) {
+                    if (a.orientation === "Horizontal") {
+                        if (a.xOrY === b.xOrY) {
+                            segments.splice(i, 1);
+                            continue;
+                        } else {
+                            let { prevX, nextX } = findPrevNextX(segments, i, link);
+                            segments.splice(i + 1, 0, {
+                                id: getNonce(),
+                                orientation: "Vertical",
+                                xOrY: (prevX + nextX)/2
+                            });
+                            continue;
                         }
-                    } else if ((Math.abs(a.y - b.y) < distanceToJoin && Math.abs(b.y - c.y) < distanceToJoin)) {
-                        console.log(`Removing collinear intermediate node: ${JSON.stringify(b)}, between ${JSON.stringify(a)} and ${JSON.stringify(c)}`);
-                        console.log(`All master nodes are: ${json.links?.map(l => l.branchNodeId)}`);
-                        console.log(`link.intermediateNodes: ${JSON.stringify(link.intermediateNodes)}`);
-                        json = deleteIntermediateNodeFromJson(json, bId);
-                        link = json.links?.find(l => l.id === link.id) || link; // Refresh link after deletion
-                        console.log(`link.intermediateNodes after: ${JSON.stringify(link.intermediateNodes)}`);
-                        if (link.intermediateNodes.length < points.length - 2) {
-                            points.splice(i + 1, 1);
-                            points[i + 1].y = a.y;
-                            i--; // Adjust index after removal
+                    } else {
+                        if (a.xOrY === b.xOrY) {
+                            segments.splice(i, 1);
+                            continue;
+                        } else {
+                            let { prevY, nextY } = findPrevNextY(segments, i, link);
+                            segments.splice(i + 1, 0, {
+                                id: getNonce(),
+                                orientation: "Horizontal",
+                                xOrY: (prevY + nextY)/2
+                            });
+                            continue;
                         }
                     }
                 }
             }
+            allAligned = true;
         }
+
         
-
-        // Remove last point and convert to FullPoint
-        points.pop();
-        points.shift();
-        let pointsFull = points as FullPoint[];
-
-        console.log(`Link ${link.id} intermediate nodes before: ${JSON.stringify(link.intermediateNodes)}`);
-        console.log(`Link ${link.id} intermediate nodes after: ${JSON.stringify(pointsFull)}`);
-        link.intermediateNodes = structuredClone(pointsFull);
+        console.log(`Link ${link.id} intermediate segments before: ${JSON.stringify(link.intermediateSegments)}`);
+        console.log(`Link ${link.id} intermediate segments after: ${JSON.stringify(segments)}`);
+        link.intermediateSegments = structuredClone(segments);
     }
     return json;
 }

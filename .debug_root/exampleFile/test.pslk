@@ -1,6 +1,106 @@
 {
-  "version": 8,
-  "blocks": [],
+  "version": 30,
+  "blocks": [
+    {
+      "id": "D6AnsLIHZlULkFoKOJsJPzw12skx1esJ",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 669.7777777777778,
+      "y": 127.53645833333329,
+      "rotation": 0,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "NKOggPF46pbBNcw0kqY1TLofw8wWbdDW",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 990.5714285714287,
+      "y": 228.63169642857144,
+      "rotation": 0,
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            1
+          ]
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "circle",
+        "icon": "",
+        "text": "Adder",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 2,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "9mz0x0HBhZvwSBPMVNIl47rMZkQzX19s",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 581.031746031746,
+      "y": 299.80629960317464,
+      "rotation": 0,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
+      }
+    }
+  ],
   "links": [],
   "simulation_configuration": "",
   "initialization_python_script_path": "",

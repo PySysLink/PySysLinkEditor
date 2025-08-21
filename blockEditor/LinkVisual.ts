@@ -401,8 +401,8 @@ export class LinkSegment extends Selectable implements Movable {
     }
 
     moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
-        let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
+        // let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
+        // let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
         
         // if (!isSourceLinkSelected) {
         //     this.sourceLinkNode.moveClockwiseAround(centerX, centerY, communicationManager, selectables);
@@ -413,8 +413,8 @@ export class LinkSegment extends Selectable implements Movable {
     }
 
     moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
-        let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
+        // let isSourceLinkSelected = selectables.some(selectable => selectable.getId() === this.sourceLinkNode.getId() && selectable.isSelected());
+        // let isTargetLinkSelected = selectables.some(selectable => selectable.getId() === this.targetLinkNode.getId() && selectable.isSelected());
         
         // if (!isSourceLinkSelected) {
         //     this.sourceLinkNode.moveCounterClockwiseAround(centerX, centerY, communicationManager, selectables);
@@ -436,8 +436,8 @@ export class LinkSegment extends Selectable implements Movable {
 export class LinkVisual {
     sourceNode: SourceNode;
     targetNode: TargetNode;
-    intermediateNodes: LinkNode[] = [];
-    segments: LinkSegment[] = [];
+    intermediateSegments: LinkSegment[] = [];
+    nodes: LinkNode[] = [];
     id: string;
 
     private onDelete: (link: LinkVisual) => void;
@@ -451,79 +451,39 @@ export class LinkVisual {
 
         this.sourceNode = new SourceNode(this.id, (communicationManager: CommunicationManager) => this.delete(communicationManager));
         this.targetNode = new TargetNode(this.id, (communicationManager: CommunicationManager) => this.delete(communicationManager));
-        this.intermediateNodes = linkData.intermediateNodes.map(nodeData => new LinkNode(this.id, nodeData.id, (communicationManager: CommunicationManager) => this.delete(communicationManager)));
+        this.intermediateSegments = linkData.intermediateSegments.map(segmentData => new LinkSegment(segmentData.id, () => this.onDelete(this), communicationManager));
         this.onDelete = onDelete;
+    }
+
+
+    public updateIntermediateNodes(communicationManager: CommunicationManager): void {
+        let newNodes: LinkNode[] = [];
+
+        for (let i = 0; i < this.intermediateSegments.length - 1; i++) {
+            const segment = this.intermediateSegments[i];
+            const nextSegment = this.intermediateSegments[i + 1];
+            const nodeId = "Node" + segment.id + nextSegment.id;
+            let existingNode = this.nodes.find(node => node.id === nodeId);
+            
+            if (!existingNode) {
+                existingNode = new LinkNode(this.id, nodeId, (cm: CommunicationManager) => this.delete(cm));
+                newNodes.push(existingNode);
+            } else {
+                newNodes.push(existingNode);
+            }
+
+            existingNode.updateFromJson(communicationManager.getLocalJson()!, communicationManager);
+
+            if (segment.isSelected() && nextSegment.isSelected()) {
+                existingNode.select();
+            }
+        }
     }
     
 
-    public updateSegments(communicationManager: CommunicationManager) {
-        let newSegments: LinkSegment[] = [];
-        if (this.intermediateNodes.length === 0) {
-            let existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.sourceNode && segment.targetLinkNode === this.targetNode);
-            if (existingSegment) {
-                newSegments = [existingSegment];
-            } else {
-                newSegments = [new LinkSegment(this.sourceNode, this.targetNode, () => this.onDelete(this), communicationManager)];
-            }
-        } else {
-            let existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.sourceNode && segment.targetLinkNode === this.intermediateNodes[0]);
-            if (existingSegment) {
-                newSegments = [existingSegment];
-            } else {
-                newSegments = [new LinkSegment(this.sourceNode, this.intermediateNodes[0], () => this.onDelete(this), communicationManager)];
-            }
-            for (let i: number = 0; i < this.intermediateNodes.length - 1; i++) {
-                existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.intermediateNodes[i] && segment.targetLinkNode === this.intermediateNodes[i + 1]);
-                if (existingSegment) {
-                    newSegments.push(existingSegment);
-                } else {
-                    newSegments.push(new LinkSegment(this.intermediateNodes[i], this.intermediateNodes[i + 1], () => this.onDelete(this), communicationManager));
-                }
-            }
-            existingSegment = this.segments.find(segment => segment.sourceLinkNode === this.intermediateNodes[this.intermediateNodes.length - 1] && segment.targetLinkNode === this.targetNode);
-            if (existingSegment) {
-                newSegments.push(existingSegment);
-            } else {
-                newSegments.push(new LinkSegment(this.intermediateNodes[this.intermediateNodes.length - 1], this.targetNode, () => this.onDelete(this), communicationManager));
-            }
-        }
-        this.segments.forEach(segment => {
-            if (segment.isSelected()) {
-                if (segment.sourceLinkNode instanceof SourceNode) {
-                    if (segment.targetLinkNode instanceof TargetNode) {
-                        newSegments.forEach(newSegment => {
-                            if (!(newSegment.sourceLinkNode instanceof SourceNode) && !(newSegment.targetLinkNode instanceof TargetNode)) {
-                                newSegment.select();
-                            }
-                        });
-                    } else {
-                        newSegments.forEach(newSegment => {
-                            if (newSegment.targetLinkNode.getId() === segment.targetLinkNode.getId()) {
-                                newSegment.select();
-                            }
-                        });
-                    }
-                }
-                else if (segment.targetLinkNode instanceof TargetNode) {
-                    newSegments.forEach(newSegment => {
-                        if (newSegment.sourceLinkNode.getId() === segment.sourceLinkNode.getId()) {
-                            newSegment.select();
-                        }
-                    });
-                }
-                newSegments.forEach(newSegment => {
-                    if (newSegment.getId() === segment.getId()) {
-                        newSegment.select();
-                    }
-                });
-            }
-        });
-        this.segments = newSegments;
-    }
-
     public addToSvg(svg: SVGSVGElement, communicationManager: CommunicationManager): void {
-        this.updateSegments(communicationManager);
-        this.segments.forEach(segment => {
+        this.updateIntermediateNodes(communicationManager);
+        this.intermediateSegments.forEach(segment => {
             if (segment.segmentElement) {
                 svg.appendChild(segment.segmentElement);
             }
@@ -533,7 +493,7 @@ export class LinkVisual {
             }
         });
 
-        this.intermediateNodes.forEach(node => {
+        this.nodes.forEach(node => {
             if (node.nodeElement) {
                 svg.appendChild(node.nodeElement);
             }
@@ -556,7 +516,7 @@ export class LinkVisual {
 
         try {
             // Remove segments
-            this.segments.forEach(segment => {
+            this.intermediateSegments.forEach(segment => {
                 if (segment.segmentElement && svg.contains(segment.segmentElement)) {
                     svg.removeChild(segment.segmentElement);
                 } else {
@@ -565,7 +525,7 @@ export class LinkVisual {
             });
 
             // Remove intermediate nodes
-            this.intermediateNodes.forEach(node => {
+            this.nodes.forEach(node => {
                 if (node.nodeElement && svg.contains(node.nodeElement)) {
                     svg.removeChild(node.nodeElement);
                 } else {
@@ -594,77 +554,39 @@ export class LinkVisual {
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         this.sourceNode.updateFromJson(json, communicationManager);
         this.targetNode.updateFromJson(json, communicationManager);
-        
-        // If no intermediate nodes actually present, and both source and target selected, do not allow new creations
-        if (this.intermediateNodes.length === 0 && this.sourceNode.isSelected() && this.targetNode.isSelected()) {
-            this.updateSegments(communicationManager);
-            this.segments.forEach(segment => segment.updateFromJson(json, communicationManager));
-            return;
-        }
 
-        // Sync intermediateNodes with json
-        const jsonNodes = json.links?.find(link => link.id === this.id)?.intermediateNodes ?? [];
-        const newNodes: LinkNode[] = [];
+        const jsonSegments = json.links?.find(link => link.id === this.id)?.intermediateSegments ?? [];
+        const newSegments: LinkSegment[] = [];
 
-        let previousExistingNode: SourceNode | LinkNode = this.sourceNode;
-        for (let i = 0; i < jsonNodes.length; i++) {
-            const jsonNode = jsonNodes[i];
-            
-            // Try to find an existing node with the same id
-            let existingNode = this.intermediateNodes.find(node => node.id === jsonNode.id);
-            if (!existingNode) {
-                existingNode = new LinkNode(this.id, jsonNode.id, (cm: CommunicationManager) => this.delete(cm));
-
-                // previousExistingNodeIndexInCurrent will be -1 when previousExistingNode is SourceNode, which is nice for the application
-                const previousExistingNodeIndexInCurrent = this.intermediateNodes.findIndex(intermediateNode => intermediateNode.id === previousExistingNode.id);
-                
-
-                // Check if both adjacent nodes are selected
-                let nextExistingNode: LinkNode | TargetNode | undefined = undefined;
-
-                if (previousExistingNodeIndexInCurrent === this.intermediateNodes.length - 1) {
-                    nextExistingNode = this.targetNode;
-                } else {
-                    nextExistingNode = this.intermediateNodes[previousExistingNodeIndexInCurrent + 1];
-                }
-
-                if (previousExistingNode && nextExistingNode && previousExistingNode.isSelected() && nextExistingNode.isSelected()) {
-                    // Both adjacent nodes are selected, select also new node
-                    existingNode.select();
-                }
-                // Create new node if not found
-            } else {previousExistingNode = existingNode;}
-            newNodes.push(existingNode);
-            existingNode.updateFromJson(json, communicationManager);
-        }
-
-        // Remove SVG elements for nodes that are no longer present
-        const removedNodes = this.intermediateNodes.filter(node => !newNodes.includes(node));
-        removedNodes.forEach(node => {
-            if (node.nodeElement && node.nodeElement.parentNode) {
-                node.nodeElement.parentNode.removeChild(node.nodeElement);
+        for (let i = 0; i < jsonSegments.length; i++) {
+            const jsonSegment = jsonSegments[i];
+            let existingSegment = this.intermediateSegments.find(segment => segment.id === jsonSegment.id);
+            if (!existingSegment) {
+                existingSegment = new LinkSegment(jsonSegment.id, () => this.delete(communicationManager), communicationManager);
             }
-        });
+            newSegments.push(existingSegment);
+            existingSegment.updateFromJson(json, communicationManager);
+        }
 
-        this.intermediateNodes = newNodes;
+        this.intermediateSegments = newSegments;
 
         // Update segments after nodes are synced
-        this.updateSegments(communicationManager);
-        this.segments.forEach(segment => segment.updateFromJson(json, communicationManager));
+        this.updateIntermediateNodes(communicationManager);
+        this.nodes.forEach(node => node.updateFromJson(json, communicationManager));
     }
 
 
     public select() {
-        this.segments.forEach(segment => segment.select());
-        this.intermediateNodes.forEach(node => node.select());
+        this.intermediateSegments.forEach(segment => segment.select());
+        this.nodes.forEach(node => node.select());
         this.sourceNode.select();
         this.targetNode.select();
 
     }
 
     public unselect(): void {
-        this.segments.forEach(segment => segment.unselect());
-        this.intermediateNodes.forEach(node => node.unselect());
+        this.intermediateSegments.forEach(segment => segment.unselect());
+        this.nodes.forEach(node => node.unselect());
         this.sourceNode.unselect();
         this.targetNode.unselect();
     }

@@ -41,7 +41,7 @@ export class LinkInteractionManager {
         const result: LinkSegment[] = [];
 
         this.links.forEach(link => {
-            link.segments.forEach(segment => {
+            link.intermediateSegments.forEach(segment => {
                 if (!seenIds.has(segment.getId())) {
                     seenIds.add(segment.getId());
                     result.push(segment);
@@ -60,7 +60,7 @@ export class LinkInteractionManager {
         const result: LinkNode[] = [];
 
         this.links.forEach(link => {
-            link.intermediateNodes.forEach(node => {
+            link.nodes.forEach(node => {
                 if (!seenIds.has(node.getId())) {
                     seenIds.add(node.getId());
                     result.push(node);
@@ -188,6 +188,7 @@ export class LinkInteractionManager {
             }
         });
 
+        this.links.forEach(link => link.removeFromSvg(this.linksSvg));
         this.links.forEach(link => link.updateFromJson(json, this.communicationManager));
         this.links.forEach(link => link.addToSvg(this.linksSvg, this.communicationManager));
 
@@ -202,7 +203,7 @@ export class LinkInteractionManager {
     public getSelectedLinkSegments(): LinkSegment[] {
         var result: LinkSegment[] = [];
         this.links.forEach(link => {
-            link.segments.forEach(segment => {
+            link.intermediateSegments.forEach(segment => {
                 if (segment.isSelected()) {
                     result.push(segment);
                 }
@@ -214,7 +215,7 @@ export class LinkInteractionManager {
     public getSelectedLinkNodes(): LinkNode[] {
         var result: LinkNode[] = [];
         this.links.forEach(link => {
-            link.intermediateNodes.forEach(node => {
+            link.nodes.forEach(node => {
                 if (node.isSelected()) {
                     result.push(node);
                 }
@@ -229,11 +230,20 @@ export class LinkInteractionManager {
     public getSelectedLinks(): LinkVisual[] {
         var result: LinkVisual[] = [];
         this.links.forEach(link => {
-            for (let segment of link.segments) {
+            for (let segment of link.intermediateSegments) {
                 if (segment.isSelected()) {
                     result.push(link);
                     break;
                 }
+            }
+            for (let node of link.nodes) {
+                if (node.isSelected()) {
+                    result.push(link);
+                    break;
+                }
+            }
+            if (link.sourceNode.isSelected() || link.targetNode.isSelected()) {
+                result.push(link);
             }
         });
         return result;
@@ -335,10 +345,10 @@ export class LinkInteractionManager {
 
     public updateLinkAndNodeClickCallback(): void {
         this.links.forEach(linkVisual => {
-            linkVisual.segments.forEach(segment => {
+            linkVisual.intermediateSegments.forEach(segment => {
                 segment.addOnMouseDownListener("link_interaction_manager", this.onMouseDownInSegment);
             });
-            linkVisual.intermediateNodes.forEach(node => {
+            linkVisual.nodes.forEach(node => {
                 node.addOnMouseDownListener("link_interaction_manager", this.onMouseDownInNode);
             });
         });
