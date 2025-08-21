@@ -453,7 +453,7 @@ function isWithinDistance(
     return Math.sqrt(dx * dx + dy * dy) <= maxDistance;
 }
 
-export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, selectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
+export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
     let finalX = x;
     let finalY = y;
     let finalId = "undefined";
@@ -504,7 +504,7 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
     };
     return updatedJson;
 }
-export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: number, selectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
+export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
     let finalX = x;
     let finalY = y;
     let finalId = "undefined";
@@ -546,9 +546,9 @@ export function getNeighboringSegmentsToNode(json: JsonData, nodeId: IdType): {b
 
     json.links?.forEach(link => {
         link.intermediateSegments.forEach(segment => {
-            if (segment.id.startsWith(nodeId)) {
+            if (nodeId.startsWith(segment.id)) {
                 after = segment;
-            } else if (segment.id.endsWith(nodeId)) {
+            } else if (nodeId.endsWith(segment.id)) {
                 before = segment;
             }
         });
@@ -588,6 +588,24 @@ export function getLimitsOfSegment(json: JsonData, segmentId: IdType): {before: 
             };
         }
     }
+    if (link.intermediateSegments[link.intermediateSegments.length - 1].id === segmentId) {
+        let currentSegment = link.intermediateSegments[link.intermediateSegments.length - 1];
+
+        if (currentSegment.orientation === "Horizontal") {
+            lastPoint = { x: lastPoint.x, y: currentSegment.xOrY };
+        } else {
+            lastPoint = { x: currentSegment.xOrY, y: lastPoint.y };
+        }
+
+        return {
+            before: lastPoint,
+            after: { 
+                x: link.targetX, 
+                y: link.targetY
+            }
+        };
+    }
+    return undefined; // Segment not found
 }
 
 export function updateSegmentsOnLink(json: JsonData, linkId: IdType, segments: IntermediateSegment[]): JsonData {

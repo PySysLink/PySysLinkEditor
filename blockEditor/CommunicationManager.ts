@@ -2,7 +2,7 @@ import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, 
 import { BlockData, IdType, IntermediateSegment, JsonData, LinkData, Rotation } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
-import { moveLinkSegment, updateLinksAfterBatchMove } from "../shared/LInkOrganization";
+import { moveLinkNode, moveLinkSegment, updateLinksAfterBatchMove } from "../shared/LInkOrganization";
 
 
 export class CommunicationManager {
@@ -446,19 +446,19 @@ export class CommunicationManager {
     };
 
 
-    public moveSourceNode = (linkId: IdType, x: number, y: number, selectableIds: IdType[]) => {
+    public moveSourceNode = (linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveSourceNode(json, linkId, x, y, selectableIds);
+            let newJson = moveSourceNode(json, linkId, x, y, selectedSelectableIds);
             this.print(`Move source node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
     };
 
-    public moveTargetNode = (linkId: IdType, x: number, y: number, selectableIds: IdType[]) => {
+    public moveTargetNode = (linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveTargetNode(json, linkId, x, y, selectableIds);
+            let newJson = moveTargetNode(json, linkId, x, y, selectedSelectableIds);
             this.print(`Move target node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
@@ -514,13 +514,27 @@ export class CommunicationManager {
     public moveLinkSegment(segmentId: IdType,
         targetPositionX: number,
         targetPositionY: number,
-        selectableIds: IdType[]
+        selectedSelectableIds: IdType[]
     ) {
         
         let json = this.getLocalJson();
         if (json) {
             this.print(`Move link segment ${segmentId} at position (${targetPositionX}, ${targetPositionY})`);
-            let newJson = moveLinkSegment(json, segmentId, targetPositionX, targetPositionY, selectableIds);
+            let newJson = moveLinkSegment(json, segmentId, targetPositionX, targetPositionY, selectedSelectableIds);
+            this.setLocalJson(newJson, true);
+        }
+    }
+
+    public moveLinkNode(
+        nodeId: IdType,
+        targetPositionX: number,
+        targetPositionY: number,
+        selectedSelectableIds: IdType[]
+    ) {
+        let json = this.getLocalJson();
+        if (json) {
+            this.print(`Move link node ${nodeId} at position (${targetPositionX}, ${targetPositionY})`);
+            let newJson = moveLinkNode(json, nodeId, targetPositionX, targetPositionY, selectedSelectableIds);
             this.setLocalJson(newJson, true);
         }
     }

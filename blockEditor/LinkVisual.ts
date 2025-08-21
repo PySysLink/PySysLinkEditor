@@ -70,12 +70,8 @@ export class LinkNode extends Selectable implements Movable {
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
-        let beforeAndAfterSegments = communicationManager.getNeighboringSegmentsToNode(this.id);
-        if (beforeAndAfterSegments) {
-            const selectableIds: IdType[] = selectables.map(selectable => selectable.getId());
-            communicationManager.moveLinkSegment(beforeAndAfterSegments.after.id, x, y, selectableIds);
-            communicationManager.moveLinkSegment(beforeAndAfterSegments.before.id, x, y, selectableIds);
-        }
+        const selectedSelectableIds: IdType[] = selectables.filter(selectable => selectable.isSelected()).map(selectable => selectable.getId());
+        communicationManager.moveLinkNode(this.id, x, y, selectedSelectableIds);
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -119,7 +115,7 @@ export class LinkNode extends Selectable implements Movable {
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         const beforeAndAfterSegments = communicationManager.getNeighboringSegmentsToNode(this.id, json);
-
+        console.log(`Updating node ${this.id} from JSON, before and after segments: ${JSON.stringify(beforeAndAfterSegments)}`);
         if (beforeAndAfterSegments) {
             if (beforeAndAfterSegments.before.orientation === "Horizontal" 
                 && beforeAndAfterSegments.after.orientation === "Vertical") {
@@ -181,8 +177,8 @@ export class SourceNode extends LinkNode implements Movable {
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Source node with id: ${this.getId()} moving to ${x}, ${y}`);
 
-        const selectableIds: IdType[] = selectables.map(selectable => selectable.getId());
-        communicationManager.moveSourceNode(this.linkId, x, y, selectableIds);
+        const selectedSelectableIds: IdType[] = selectables.filter(selectable => selectable.isSelected()).map(selectable => selectable.getId());
+        communicationManager.moveSourceNode(this.linkId, x, y, selectedSelectableIds);
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -210,7 +206,7 @@ export class SourceNode extends LinkNode implements Movable {
         ;
     }
 }
-export class TargetNode extends LinkNode {
+export class TargetNode extends LinkNode implements Movable {
 
 
     private setArrowDirection(direction: string): void {
@@ -308,8 +304,8 @@ export class TargetNode extends LinkNode {
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Target node with id: ${this.getId()} moving to ${x}, ${y}`);
         
-        const selectableIds: IdType[] = selectables.map(selectable => selectable.getId());
-        communicationManager.moveTargetNode(this.linkId, x, y, selectableIds);
+        const selectedSelectableIds: IdType[] = selectables.filter(selectable => selectable.isSelected()).map(selectable => selectable.getId());
+        communicationManager.moveTargetNode(this.linkId, x, y, selectedSelectableIds);
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -387,8 +383,8 @@ export class LinkSegment extends Selectable implements Movable {
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Segment with id: ${this.getId()} moving to ${x}, ${y}`);
         
-        const selectableIds: IdType[] = selectables.map(selectable => selectable.getId());
-        communicationManager.moveLinkSegment(this.id, x, y, selectableIds);
+        const selectedSelectableIds: IdType[] = selectables.filter(selectable => selectable.isSelected()).map(selectable => selectable.getId());
+        communicationManager.moveLinkSegment(this.id, x, y, selectedSelectableIds);
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -462,7 +458,7 @@ export class LinkVisual {
         for (let i = 0; i < this.intermediateSegments.length - 1; i++) {
             const segment = this.intermediateSegments[i];
             const nextSegment = this.intermediateSegments[i + 1];
-            const nodeId = "Node" + segment.id + nextSegment.id;
+            const nodeId = segment.id + nextSegment.id;
             let existingNode = this.nodes.find(node => node.id === nodeId);
             
             if (!existingNode) {
@@ -478,6 +474,8 @@ export class LinkVisual {
                 existingNode.select();
             }
         }
+
+        this.nodes = newNodes;
     }
     
 
@@ -492,6 +490,8 @@ export class LinkVisual {
                 throw RangeError("Segment element should not be null");
             }
         });
+
+        console.log(`Adding ${this.nodes.length} nodes to SVG for link ${this.id}`);
 
         this.nodes.forEach(node => {
             if (node.nodeElement) {

@@ -1,5 +1,5 @@
 import { link } from "fs";
-import { getPortPosition, updateLinkInJson, updateSegmentsOnLink } from "./JsonManager";
+import { getNeighboringSegmentsToNode, getPortPosition, updateLinkInJson, updateSegmentsOnLink } from "./JsonManager";
 import { IdType, IntermediateSegment, JsonData, LinkData } from "./JsonTypes";
 import { getNonce } from "./util";
 
@@ -37,12 +37,31 @@ export function updateLinksAfterBatchMove(json: JsonData): JsonData {
 }
 
 
+export function moveLinkNode(
+    json: JsonData,
+    nodeId: IdType,
+    targetPositionX: number,
+    targetPositionY: number,
+    selectedSelectableIds: IdType[]
+): JsonData {
+    let beforeAndAfterSegments = getNeighboringSegmentsToNode(json, nodeId);
+    if (beforeAndAfterSegments) {
+        if (selectedSelectableIds.indexOf(beforeAndAfterSegments.after.id) === -1) {
+            json = moveLinkSegment(json, beforeAndAfterSegments.after.id, targetPositionX, targetPositionY, selectedSelectableIds);
+        }
+        if (selectedSelectableIds.indexOf(beforeAndAfterSegments.before.id) === -1) {
+            json = moveLinkSegment(json, beforeAndAfterSegments.before.id, targetPositionX, targetPositionY, selectedSelectableIds);
+        }
+    }
+    return json;
+}
+
 export function moveLinkSegment(
     json: JsonData,
     segmentId: IdType,
     targetPositionX: number,
     targetPositionY: number,
-    selectableIds: IdType[]
+    selectedSelectableIds: IdType[]
 ): JsonData {
     let segments: IntermediateSegment[] = json.links?.find(link => link.intermediateSegments.map(segment => segment.id).indexOf(segmentId) > -1)?.intermediateSegments ?? [];
     const linkId: IdType = json.links?.find(link => link.intermediateSegments.map(segment => segment.id).indexOf(segmentId) > -1)?.id ?? "undefinedLink";
@@ -180,7 +199,7 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
         let allAligned = false;
 
         while (!allAligned) {
-            if (segments.length === 0) {
+            if (segments.length === 0 || segments.length === 1) {
                 if (link.sourceX === link.targetX) {
                     segments = [
                         { id: getNonce(), orientation: "Vertical", xOrY: link.sourceX }
@@ -201,40 +220,28 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
             } else {
                 if (segments[0].orientation === "Horizontal") {
                     if (link.sourceY !== segments[0].xOrY) {
-                        segments.splice(0, 0, {
-                            id: getNonce(),
-                            orientation: "Vertical",
-                            xOrY: link.sourceX
-                        });
+                        console.log(`Link ${link.id} sourceY ${link.sourceY} does not match first segment Y ${segments[0].xOrY}`);
+                        segments[0].xOrY = link.sourceY;
                         continue;
                     }
                 } else {
                     if (link.sourceX !== segments[0].xOrY) {
-                        segments.splice(0, 0, {
-                            id: getNonce(),
-                            orientation: "Horizontal",
-                            xOrY: link.sourceY
-                        });
+                        console.log(`Link ${link.id} sourceX ${link.sourceX} does not match first segment X ${segments[0].xOrY}`);
+                        segments[0].xOrY = link.sourceX;
                         continue;
                     }
                 }
 
                 if (segments[segments.length - 1].orientation === "Horizontal") {
                     if (link.targetY !== segments[segments.length - 1].xOrY) {
-                        segments.push({
-                            id: getNonce(),
-                            orientation: "Vertical",
-                            xOrY: link.targetX
-                        });
+                        console.log(`Link ${link.id} targetY ${link.targetY} does not match last segment Y ${segments[segments.length - 1].xOrY}`);
+                        segments[segments.length - 1].xOrY = link.targetY;
                         continue;
                     }
                 } else {
                     if (link.targetX !== segments[segments.length - 1].xOrY) {
-                        segments.push({
-                            id: getNonce(),
-                            orientation: "Horizontal",
-                            xOrY: link.targetY
-                        });
+                        console.log(`Link ${link.id} targetX ${link.targetX} does not match last segment X ${segments[segments.length - 1].xOrY}`);
+                        segments[segments.length - 1].xOrY = link.targetX;
                         continue;
                     }
                 }
@@ -245,6 +252,7 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
                 const b = segments[i + 1];
 
                 if (a.orientation === b.orientation) {
+                    console.log(`Link ${link.id} segments ${i} and ${i + 1} have the same orientation: ${a.orientation}`);
                     if (a.orientation === "Horizontal") {
                         if (a.xOrY === b.xOrY) {
                             segments.splice(i, 1);
