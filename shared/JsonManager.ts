@@ -248,6 +248,52 @@ export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation,
     return updatedJson;
 }
 
+export function rotateLinkSegmentClockwise(json: JsonData, segmentId: IdType, centerX: number, centerY: number, updateLinks: boolean = true): JsonData {
+    let updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            if (link.intermediateSegments) {
+                const segmentIndex = link.intermediateSegments.findIndex(segment => segment.id === segmentId);
+                if (segmentIndex !== -1) {
+                    const segment = link.intermediateSegments[segmentIndex];
+                    const newSegment: IntermediateSegment = {
+                        ...segment,
+                        orientation: segment.orientation === "Horizontal" ? "Vertical" : "Horizontal",
+                        xOrY: segment.orientation === "Horizontal" ? (segment.xOrY - centerY) + centerX : (centerX - segment.xOrY) + centerY 
+                    };
+                    link.intermediateSegments[segmentIndex] = newSegment;
+                }
+            }
+            return link;
+        })
+    };
+    
+    return updatedJson;
+}
+
+export function rotateLinkSegmentCounterClockwise(json: JsonData, segmentId: IdType, centerX: number, centerY: number, updateLinks: boolean = true): JsonData {
+    let updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            if (link.intermediateSegments) {
+                const segmentIndex = link.intermediateSegments.findIndex(segment => segment.id === segmentId);
+                if (segmentIndex !== -1) {
+                    const segment = link.intermediateSegments[segmentIndex];
+                    const newSegment: IntermediateSegment = {
+                        ...segment,
+                        orientation: segment.orientation === "Horizontal" ? "Vertical" : "Horizontal",
+                        xOrY: segment.orientation === "Horizontal" ? (segment.xOrY - centerY) - centerX : (segment.xOrY - centerX) + centerY 
+                    };
+                    link.intermediateSegments[segmentIndex] = newSegment;
+                }
+            }
+            return link;
+        })
+    };
+    
+    return updatedJson;
+}
+
 export function attachLinkToPort(json: JsonData, linkId: IdType, blockId: IdType, portType: "input" | "output", portIndex: number): JsonData {
     let link = json.links?.find(l => l.id === linkId);
     if (link) {

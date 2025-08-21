@@ -360,8 +360,8 @@ export class SelectableManager {
                     const position = selectable.getPosition(this.communicationManager);
                     const element = selectable.getElement();
                     if (position) {
-                        centerPosition.x += position.x + (element instanceof HTMLElement ? element.offsetWidth / 2 : 0);
-                        centerPosition.y += position.y + (element instanceof HTMLElement ? element.offsetHeight / 2 : 0);
+                        centerPosition.x += position.x; // + (element instanceof HTMLElement ? element.offsetWidth / 2 : 0);
+                        centerPosition.y += position.y; // + (element instanceof HTMLElement ? element.offsetHeight / 2 : 0);
                         count++;
                     }
                 }

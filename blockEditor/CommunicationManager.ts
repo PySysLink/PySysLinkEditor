@@ -1,4 +1,4 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, getNeighboringSegmentsToNode, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, rotateBlock, updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
+import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, getNeighboringSegmentsToNode, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, rotateBlock, rotateLinkSegmentClockwise, rotateLinkSegmentCounterClockwise, updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
 import { BlockData, IdType, IntermediateSegment, JsonData, LinkData, Rotation } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
@@ -432,6 +432,24 @@ export class CommunicationManager {
         if (json) {
             let newJson = rotateBlock(json, blockId, rotation, !this.freezedLinkUpdates);
             this.print(`Rotate block: ${blockId} to rotation ${rotation}`);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public rotateLinkSegmentClockwise = (segmentId: IdType, centerX: number, centerY: number) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = rotateLinkSegmentClockwise(json, segmentId, centerX, centerY, !this.freezedLinkUpdates);
+            this.print(`Rotate link segment: ${segmentId} clockwise around (${centerX}, ${centerY})`);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public rotateLinkSegmentCounterClockwise = (segmentId: IdType, centerX: number, centerY: number) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = rotateLinkSegmentCounterClockwise(json, segmentId, centerX, centerY, !this.freezedLinkUpdates);
+            this.print(`Rotate link segment: ${segmentId} counter-clockwise around (${centerX}, ${centerY})`);
             this.setLocalJson(newJson, true);
         }
     };
