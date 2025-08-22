@@ -259,7 +259,7 @@ export function rotateLinkSegmentClockwise(json: JsonData, segmentId: IdType, ce
                     const newSegment: IntermediateSegment = {
                         ...segment,
                         orientation: segment.orientation === "Horizontal" ? "Vertical" : "Horizontal",
-                        xOrY: segment.orientation === "Horizontal" ? (segment.xOrY - centerY) + centerX : (centerX - segment.xOrY) + centerY 
+                        xOrY: segment.orientation === "Horizontal" ? (centerY - segment.xOrY) + centerX : (segment.xOrY - centerX) + centerY 
                     };
                     link.intermediateSegments[segmentIndex] = newSegment;
                 }

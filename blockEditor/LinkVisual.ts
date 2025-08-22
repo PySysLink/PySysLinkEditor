@@ -68,6 +68,10 @@ export class LinkNode extends Selectable implements Movable {
         return undefined;
     }
 
+    getPositionForRotation(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
+        return this.getPosition(communicationManager);
+    }
+
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
         const selectedSelectableIds: IdType[] = selectables.filter(selectable => selectable.isSelected()).map(selectable => selectable.getId());
@@ -177,7 +181,18 @@ export class SourceNode extends LinkNode implements Movable {
     }
 
     moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        ;
+        let centralPosition = this.getPosition(communicationManager);
+        if (centralPosition) {
+            const deltaX = centerX - centralPosition.x;
+            const deltaY = centerY - centralPosition.y;
+
+            let targetPosition = {
+                x: centerX + deltaY,
+                y: centerY - deltaX
+            };
+
+            this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
+        }
     }
 
     moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -304,7 +319,18 @@ export class TargetNode extends LinkNode implements Movable {
     }
 
     moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        ;
+        let centralPosition = this.getPosition(communicationManager);
+        if (centralPosition) {
+            const deltaX = centerX - centralPosition.x;
+            const deltaY = centerY - centralPosition.y;
+
+            let targetPosition = {
+                x: centerX + deltaY,
+                y: centerY - deltaX
+            };
+
+            this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
+        }
     }
 
     moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -388,6 +414,10 @@ export class LinkSegment extends Selectable implements Movable {
             return { x: (limits.before.x + limits.after.x) / 2, y: (limits.before.y + limits.after.y) / 2 };
         }
         return undefined;
+    }
+
+    getPositionForRotation(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
+        return this.getPosition(communicationManager);
     }
 
     public selectCondition(): "Intersect" | "FullyWithing" {

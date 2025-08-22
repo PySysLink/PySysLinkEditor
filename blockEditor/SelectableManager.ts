@@ -357,11 +357,10 @@ export class SelectableManager {
 
             selectedSelectables.forEach(selectable => {
                 if (isMovable(selectable)) {
-                    const position = selectable.getPosition(this.communicationManager);
-                    const element = selectable.getElement();
+                    const position = selectable.getPositionForRotation(this.communicationManager);
                     if (position) {
-                        centerPosition.x += position.x; // + (element instanceof HTMLElement ? element.offsetWidth / 2 : 0);
-                        centerPosition.y += position.y; // + (element instanceof HTMLElement ? element.offsetHeight / 2 : 0);
+                        centerPosition.x += position.x; 
+                        centerPosition.y += position.y; 
                         count++;
                     }
                 }
@@ -373,6 +372,8 @@ export class SelectableManager {
             if (count > 0) {
                 centerPosition.x /= count;
                 centerPosition.y /= count;
+
+                console.log(`Center position for rotation: ${centerPosition.x}, ${centerPosition.y}`);
 
                 selectedSelectables.forEach(selectable => {
                     if (isMovable(selectable)) {
