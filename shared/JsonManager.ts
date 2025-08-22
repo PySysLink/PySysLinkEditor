@@ -1,5 +1,7 @@
+import { get } from "http";
 import { IdType, JsonData, BlockData, LinkData, Rotation, IntermediateSegment } from "./JsonTypes";
 import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
+import { getNonce } from "./util";
 
 export function MergeJsons(
     jsonBase: JsonData,
@@ -203,6 +205,24 @@ export function updateLinkInJson(json: JsonData, updatedLink: LinkData): JsonDat
     return updatedJson;
 }
 
+export function changeIdToLinkInJson(json: JsonData, oldId: IdType, newId: IdType, updateChildren: boolean = false): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(link => {
+            if (link.id === oldId) {
+                link.id = newId;
+            }
+            if (updateChildren) {
+                if (link.masterLinkId === oldId) {
+                    link.masterLinkId = newId;
+                }
+            }
+            return link;
+        })
+    };
+    return updatedJson;
+}
+
 
 export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: number, updateLinks: boolean = true): JsonData {
     let updatedJson: JsonData = {
@@ -402,36 +422,156 @@ export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
     return updatedJson;
 }
 
-// export function updateChildLinksSourcePosition(json: JsonData): JsonData {
-//     if (!json.links) {return json;}
+export function updateChildLinksSourcePosition(json: JsonData): JsonData {
+    if (!json.links) {return json;}
 
-//     json.links.forEach(link => {
-//         if (link.masterLinkId) {
-//             if (!link.branchNodeId) {
-//                 console.warn(`Link ${link.id} has masterLinkId but no branchNodeId, skipping dog leg update.`);
-//             } else {
-//                 console.warn(`Link ${link.id} has masterLinkId ${link.masterLinkId} and branchNodeId ${link.branchNodeId}, updating source position to match reference branch node.`);
-//                 const referenceLink = json.links?.find(l => l.id === link.masterLinkId);
-//                 if (!referenceLink) {
-//                     console.warn(`Master link ${link.masterLinkId} not found for link ${link.id}, skipping dog leg update.`);
-//                 } else {
-//                     const referenceBranchNode = referenceLink.intermediateNodes?.find(n => n.id === link.branchNodeId);
-//                     if (!referenceBranchNode) {
-//                         console.warn(`Branch node ${link.branchNodeId} not found in master link ${link.masterLinkId}, skipping dog leg update for link ${link.id}.`);
-//                     } else {
-//                         // Use the reference branch node position for the source node
-//                         link.sourceX = referenceBranchNode.x;
-//                         link.sourceY = referenceBranchNode.y;
-//                         console.log(`Link ${link.id} source position updated to reference branch node: (${link.sourceX}, ${link.sourceY})`);
-//                     }
-//                 }
-//             }
-//         }
-//     });
+    json.links.forEach(link => {
+        if (link.masterLinkId) {
+            console.log(`Link ${link.id} has masterLinkId ${link.masterLinkId}, updating source position to match reference branch segment.`);
+            const referenceLink = json.links?.find(l => l.id === link.masterLinkId);
+            if (!referenceLink) {
+                console.warn(`Master link ${link.masterLinkId} not found for link ${link.id}, skipping dog leg update.`);
+            } else {
+                link.sourceX = referenceLink.targetX;
+                link.sourceY = referenceLink.targetY;
+            }
+        }
+    });
 
-//     return json;
-// }
+    return json;
+}
 
+export function createNewChildLinkFromNode(json: JsonData, previousSegmentId: IdType, nextSegmentId: IdType): [ JsonData, LinkData ] | undefined {
+    let masterLink = json.links?.find(link => link.intermediateSegments.some(segment => segment.id === previousSegmentId));
+    const newIdForMasterLink = getNonce();
+
+    if (masterLink) {
+        
+        const previousSegment = masterLink.intermediateSegments.find(segment => segment.id === previousSegmentId);
+        const nextSegment = masterLink.intermediateSegments.find(segment => segment.id === nextSegmentId);
+
+        if (previousSegment && nextSegment) {
+            let x = previousSegment.orientation === "Horizontal" ? nextSegment.xOrY : previousSegment.xOrY;
+            let y = previousSegment.orientation === "Horizontal" ? previousSegment.xOrY : nextSegment.xOrY;
+
+            const newLink: LinkData = {
+                id: getNonce(),
+                sourceId: "undefined",
+                sourcePort: -1,
+                sourceX: x,
+                sourceY: y,
+                targetId: "undefined",
+                targetPort: -1,
+                targetX: x,
+                targetY: y,
+                intermediateSegments: [],
+                masterLinkId: newIdForMasterLink,
+            };
+            json = addLinkToJson(json, newLink);
+
+            const clickedIndex = masterLink.intermediateSegments.findIndex(segment => segment.id === nextSegmentId);
+            let preservedSegments: IntermediateSegment[] = [];
+            if (clickedIndex !== -1) {
+                preservedSegments = masterLink.intermediateSegments.slice(clickedIndex);
+            } else { 
+                console.warn(`Segment with id ${nextSegmentId} not found in master link ${masterLink.id}. Continuing for now...`);
+            }
+
+            preservedSegments = preservedSegments.map(segment => ({
+                ...segment,
+                id: getNonce()
+            }));
+
+            const splittedPartOfLink: LinkData = {
+                id: masterLink.id,
+                sourceId: "undefined",
+                sourcePort: -1,
+                sourceX: x,
+                sourceY: y,
+                targetId: masterLink.targetId,
+                targetPort: masterLink.targetPort,
+                targetX: masterLink.targetX,
+                targetY: masterLink.targetY,
+                intermediateSegments: preservedSegments,
+                masterLinkId: newIdForMasterLink,
+            };
+
+            json = moveTargetNode(json, masterLink.id, x, y, [], false);
+            json = changeIdToLinkInJson(json, masterLink.id, newIdForMasterLink, true);
+            json = addLinkToJson(json, splittedPartOfLink);
+            
+            return [json, newLink];
+        } else {
+            console.warn(`Previous or next segment not found in master link ${masterLink.id}.`);
+        }
+    } else {
+        console.warn(`Master link not found for segment ${previousSegmentId}.`);
+    }
+    return undefined;
+}
+
+export function createNewChildLinkFromSegment(json: JsonData, segmentId: IdType, clickX: number, clickY: number): [ JsonData, LinkData ] | undefined {
+    let masterLink = json.links?.find(link => link.intermediateSegments.some(segment => segment.id === segmentId));
+    const newIdForMasterLink = getNonce();
+    if (masterLink) {
+        const segment = masterLink.intermediateSegments.find(segment => segment.id === segmentId);
+        
+        if (segment) {
+            const newLink: LinkData = {
+                id: getNonce(),
+                sourceId: "undefined",
+                sourcePort: -1,
+                sourceX: clickX,
+                sourceY: clickY,
+                targetId: "undefined",
+                targetPort: -1,
+                targetX: clickX,
+                targetY: clickY,
+                intermediateSegments: [],
+                masterLinkId: newIdForMasterLink,
+            };
+            json = addLinkToJson(json, newLink);
+
+            const clickedIndex = masterLink.intermediateSegments.findIndex(segment => segment.id === segmentId);
+            let preservedSegments: IntermediateSegment[] = [];
+            if (clickedIndex !== -1) {
+                preservedSegments = masterLink.intermediateSegments.slice(clickedIndex);
+            } else { 
+                console.warn(`Segment with id ${segmentId} not found in master link ${masterLink.id}. Continuing for now...`);
+            }
+
+            preservedSegments = preservedSegments.map(segment => ({
+                ...segment,
+                id: getNonce()
+            }));
+
+            const splittedPartOfLink: LinkData = {
+                id: masterLink.id,
+                sourceId: "undefined",
+                sourcePort: -1,
+                sourceX: clickX,
+                sourceY: clickY,
+                targetId: masterLink.targetId,
+                targetPort: masterLink.targetPort,
+                targetX: masterLink.targetX,
+                targetY: masterLink.targetY,
+                intermediateSegments: preservedSegments,
+                masterLinkId: newIdForMasterLink,
+            };
+
+            json = moveTargetNode(json, masterLink.id, clickX, clickY, [], false);
+            json = changeIdToLinkInJson(json, masterLink.id, newIdForMasterLink, true);
+            json = addLinkToJson(json, splittedPartOfLink);
+
+            return [json, newLink];
+        } else {
+            console.warn(`Previous or next segment not found in master link ${masterLink.id}.`);
+        }
+    } else {
+        console.warn(`Master link not found for segment ${segmentId}.`);
+    }
+    return undefined;
+}
 
 export function consolidateLinkNodes(json: JsonData, removeColinear: boolean = true): JsonData {
     json = updateLinksAfterNodesConsolidation(json, removeColinear);

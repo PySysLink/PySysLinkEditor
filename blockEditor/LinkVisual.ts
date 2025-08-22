@@ -62,7 +62,7 @@ export class LinkNode extends Selectable implements Movable {
                 return {x: beforeAndAfterSegments.before.xOrY, y: beforeAndAfterSegments.after.xOrY};
             }
             else {
-                throw RangeError(`Orientations should be opposed, they where before: ${beforeAndAfterSegments.before.orientation}, after: ${beforeAndAfterSegments.after.orientation}`)
+                throw RangeError(`Orientations should be opposed, they where before: ${beforeAndAfterSegments.before.orientation}, after: ${beforeAndAfterSegments.after.orientation}`);
             }
         }
         return undefined;
@@ -109,7 +109,7 @@ export class LinkNode extends Selectable implements Movable {
                 this.getElement().setAttribute("cx", String(beforeAndAfterSegments.before.xOrY));
                 this.getElement().setAttribute("cy", String(beforeAndAfterSegments.after.xOrY));            }
             else {
-                throw RangeError(`Orientations should be opposed, they where before: ${beforeAndAfterSegments.before.orientation}, after: ${beforeAndAfterSegments.after.orientation}`)
+                throw RangeError(`Orientations should be opposed, they where before: ${beforeAndAfterSegments.before.orientation}, after: ${beforeAndAfterSegments.after.orientation}`);
             }
         } 
     }

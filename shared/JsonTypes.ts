@@ -30,7 +30,6 @@ export interface LinkData {
     targetX: number; targetY: number;
     intermediateSegments: IntermediateSegment[];
     masterLinkId?: IdType;
-    branchNodeId?: IdType;
 }
 
 export interface JsonData {

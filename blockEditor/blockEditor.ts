@@ -60,12 +60,13 @@ const vscode = acquireVsCodeApi();
             }
 
             // Compute drop coordinates relative to the canvas
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            const canvasRect = canvas.getBoundingClientRect();
 
-            communicationManager.print(`Drop event: ${data}, x: ${x}, y: ${y}`);   
-            communicationManager.createBlockOfType(meta.library, meta.blockType, x, y);         
+            const adjustedX = (e.clientX - canvasRect.left) / getZoomLevelReal();
+            const adjustedY = (e.clientY - canvasRect.top) / getZoomLevelReal();
+
+            communicationManager.print(`Drop event: ${data}, x: ${adjustedX}, y: ${adjustedY}`);   
+            communicationManager.createBlockOfType(meta.library, meta.blockType, adjustedX, adjustedY);         
         });
     }
 
@@ -92,7 +93,8 @@ const vscode = acquireVsCodeApi();
     blockInteractionManager = new BlockInteractionManager(communicationManager);
     selectableManager = new SelectableManager(communicationManager, canvas, getZoomLevelReal);
     linkInteractionManager = new LinkInteractionManager(communicationManager, canvas, 
-            document.querySelector('.links') as SVGSVGElement, blockInteractionManager, selectableManager);
+            document.querySelector('.links') as SVGSVGElement, blockInteractionManager, selectableManager,
+            getZoomLevelReal);
     blockPalette = new BlockPalette(communicationManager);
     communicationManager.registerLibrariesChangedCallback(blockPalette.updateLibraries);
 

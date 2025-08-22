@@ -1,5 +1,5 @@
 import { link } from "fs";
-import { getNeighboringSegmentsToNode, getPortPosition, updateLinkInJson, updateSegmentsOnLink } from "./JsonManager";
+import { getNeighboringSegmentsToNode, getPortPosition, updateChildLinksSourcePosition, updateLinkInJson, updateSegmentsOnLink } from "./JsonManager";
 import { IdType, IntermediateSegment, JsonData, LinkData } from "./JsonTypes";
 import { getNonce } from "./util";
 
@@ -7,13 +7,11 @@ import { getNonce } from "./util";
 export function updateLinksAfterBlockMove(json: JsonData, blockId: IdType): JsonData {
     console.log("updateLinksAfterBlockMove called");
     return updateLinksDogLeg(json, blockId, false);
-    // return json;
 }
 
 export function updateLinksAfterBlockUpdate(json: JsonData, blockId: IdType): JsonData {
     console.log("updateLinksAfterBlockUpdate called");
     return updateLinksDogLeg(json, blockId, false);
-    // return json;
 }
 
 export function updateLinksAfterMerge(json: JsonData): JsonData {
@@ -139,7 +137,7 @@ export function moveLinkSegment(
         
 
     json = updateSegmentsOnLink(json, linkId, segments);
-    // json = updateChildLinksSourcePosition(json);
+    json = updateChildLinksSourcePosition(json);
     return json;
 }
 
@@ -197,7 +195,7 @@ function findPrevNextY(
 
 function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = undefined, removeColinear: boolean = true): JsonData {
 
-    // json = updateChildLinksSourcePosition(json);
+    json = updateChildLinksSourcePosition(json);
 
     if (!json.links) {return json;}
 

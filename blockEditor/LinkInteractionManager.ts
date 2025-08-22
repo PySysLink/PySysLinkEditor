@@ -12,6 +12,8 @@ export class LinkInteractionManager {
     public links: LinkVisual[] = [];
     public linksSvg: SVGSVGElement;
     
+    private getZoomLevelReal: () => number;
+
 
     private dragStartX = 0;
     private dragStartY = 0;
@@ -26,13 +28,14 @@ export class LinkInteractionManager {
     private selectableManager: SelectableManager;
 
     constructor (communicationManager: CommunicationManager, canvas: HTMLElement, linksSvg: SVGSVGElement, blockInteractionManager: BlockInteractionManager,
-        selectableManager: SelectableManager
+        selectableManager: SelectableManager, getZoomLevelReal: () => number
     ) {
         this.communicationManager = communicationManager;
         this.selectableManager = selectableManager;
         this.canvas = canvas;
         this.linksSvg = linksSvg;
         this.blockInteractionManager = blockInteractionManager;
+        this.getZoomLevelReal = getZoomLevelReal;
         this.blockInteractionManager.registerOnMouseDownOnPortCallback(this.onMouseDownOnPort);
     }
 
@@ -136,25 +139,24 @@ export class LinkInteractionManager {
             
             e.stopPropagation();
 
-            let newLink: LinkVisual | undefined = undefined;
 
             let newLinkData = this.communicationManager.createNewLinkFromPort(block.id, portType, portIndex);
             if (newLinkData) {
                 this.communicationManager.print(`Creating new link visual due to click on port id: ${newLinkData.id}`);
-                newLink = this.createLinkVisual(newLinkData);
+                let newLink = this.createLinkVisual(newLinkData);
                 newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
                 newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-            } else { return; }
 
-            if (portType === "input") {
-                this.selectableManager.addCallbackToSelectable(newLink.sourceNode);
-                newLink.sourceNode.unselect();
-                newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
-            } else {
-                this.selectableManager.addCallbackToSelectable(newLink.targetNode);
-                newLink.targetNode.unselect();
-                newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
-            }
+                if (portType === "input") {
+                    this.selectableManager.addCallbackToSelectable(newLink.sourceNode);
+                    newLink.sourceNode.unselect();
+                    newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
+                } else {
+                    this.selectableManager.addCallbackToSelectable(newLink.targetNode);
+                    newLink.targetNode.unselect();
+                    newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                }
+            } else { return; }
         }            
     };
 
@@ -358,8 +360,26 @@ export class LinkInteractionManager {
         this.communicationManager.print(`[link log]: Segment clicked`);
         if (e.button === 0 && (e.ctrlKey || e.metaKey)) { // Left click + Ctrl or Meta
             const segment = canvasElement as LinkSegment;
-            // this.communicationManager.createNewChildLinkFromSegment(segment.sourceLinkNode.getId(), segment.targetLinkNode.getId(), e.clientX, e.clientY);
+
+            const canvasRect = this.canvas.getBoundingClientRect();
+
+            const adjustedX = (e.clientX - canvasRect.left) / this.getZoomLevelReal();
+            const adjustedY = (e.clientY - canvasRect.top) / this.getZoomLevelReal();
+
             e.stopPropagation();
+
+            let newLinkData = this.communicationManager.createNewChildLinkFromSegment(segment.getId(), adjustedX, adjustedY);
+            if (newLinkData) {
+                this.communicationManager.print(`Creating new link visual due to click on segment id: ${newLinkData.id}`);
+                let newLink = this.createLinkVisual(newLinkData);
+                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+
+                this.selectableManager.addCallbackToSelectable(newLink.targetNode);
+                newLink.targetNode.unselect();
+                newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                
+            } else { return; }
         }
     };
 
@@ -367,8 +387,23 @@ export class LinkInteractionManager {
         this.communicationManager.print(`[link log]: Node clicked`);
         if (e.button === 0 && (e.ctrlKey || e.metaKey)) { // Left click + Ctrl or Meta
             const node = canvasElement as LinkNode;
-            // this.communicationManager.createNewChildLinkFromNode(node.getId());
+            let segments = this.communicationManager.getNeighboringSegmentsToNode(node.getId());
+            if (!segments) { return; }
+
             e.stopPropagation();
+                        
+            let newLinkData = this.communicationManager.createNewChildLinkFromNode(segments?.before.id, segments?.after.id);
+            if (newLinkData) {
+                this.communicationManager.print(`Creating new link visual due to click on segment id: ${newLinkData.id}`);
+                let newLink = this.createLinkVisual(newLinkData);
+                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+
+                this.selectableManager.addCallbackToSelectable(newLink.targetNode);
+                newLink.targetNode.unselect();
+                newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                
+            } else { return; }
         }
     };
 }
