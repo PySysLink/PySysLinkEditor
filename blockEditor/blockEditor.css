@@ -306,6 +306,11 @@ body.pysyslink-light {
     fill: var(--pysyslink-link);
 }
 
+.child-link-source-node {
+  opacity: 0;
+  pointer-events: none;
+}
+
 
 .input-port,
 .output-port {

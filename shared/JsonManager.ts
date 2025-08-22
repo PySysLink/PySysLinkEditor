@@ -497,7 +497,7 @@ export function createNewChildLinkFromNode(json: JsonData, previousSegmentId: Id
             };
 
             json = moveTargetNode(json, masterLink.id, x, y, [], false);
-            json = changeIdToLinkInJson(json, masterLink.id, newIdForMasterLink, true);
+            json = changeIdToLinkInJson(json, masterLink.id, newIdForMasterLink);
             json = addLinkToJson(json, splittedPartOfLink);
             
             return [json, newLink];
@@ -560,7 +560,7 @@ export function createNewChildLinkFromSegment(json: JsonData, segmentId: IdType,
             };
 
             json = moveTargetNode(json, masterLink.id, clickX, clickY, [], false);
-            json = changeIdToLinkInJson(json, masterLink.id, newIdForMasterLink, true);
+            json = changeIdToLinkInJson(json, masterLink.id, newIdForMasterLink);
             json = addLinkToJson(json, splittedPartOfLink);
 
             return [json, newLink];

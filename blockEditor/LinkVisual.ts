@@ -153,6 +153,12 @@ export class SourceNode extends LinkNode implements Movable {
         if (linkData) {
             this.getElement().setAttribute("cx", String(linkData.sourceX));
             this.getElement().setAttribute("cy", String(linkData.sourceY));
+
+            if (linkData.masterLinkId) {
+                this.getElement().classList.add('child-link-source-node');
+            } else {
+                this.getElement().classList.remove('child-link-source-node');
+            }
         }
     }
 
@@ -230,6 +236,17 @@ export class TargetNode extends LinkNode implements Movable {
         }
     }
 
+    private setMasterLinkEnd(): void {
+        const poly = this.nodeElement as SVGPolygonElement;
+        if (!poly || poly.tagName !== 'polygon') {
+            console.warn("Not a polygon, can't set master link end style");
+            return;
+        }
+
+        // Set to a different style for master link ends, e.g., a double arrow
+        poly.setAttribute("points", "0,-6 6,0 0,6 -6,0"); // diamond shape
+    }
+
     public getId(): IdType {
         return this.linkId + "TargetNode";    
     }
@@ -252,42 +269,47 @@ export class TargetNode extends LinkNode implements Movable {
                 `translate(${String(linkData.targetX)}, ${String(linkData.targetY)})`
             );
 
-            const previousSegment: IntermediateSegment | undefined = linkData.intermediateSegments?.at(-1);
-            const antePreviousSegment: IntermediateSegment | undefined = linkData.intermediateSegments?.at(-2);
-            const targetNodePosition = {x: linkData.targetX, y: linkData.targetY};
+            const isMasterLink = json.links?.some(link => link.masterLinkId === this.linkId);
+            if (isMasterLink) {
+                this.setMasterLinkEnd();
+            } else {
+                const previousSegment: IntermediateSegment | undefined = linkData.intermediateSegments?.at(-1);
+                const antePreviousSegment: IntermediateSegment | undefined = linkData.intermediateSegments?.at(-2);
+                const targetNodePosition = {x: linkData.targetX, y: linkData.targetY};
 
-            if (!previousSegment) {
-                if (targetNodePosition.x < linkData.sourceX) {
-                    this.setArrowDirection('left');
-                } else {
-                    this.setArrowDirection('right');
-                }
-            } else if (!antePreviousSegment) {
-                if (previousSegment.orientation === "Horizontal") {
+                if (!previousSegment) {
                     if (targetNodePosition.x < linkData.sourceX) {
                         this.setArrowDirection('left');
                     } else {
                         this.setArrowDirection('right');
                     }
-                } else {
-                    if (targetNodePosition.y < linkData.sourceY) {
-                        this.setArrowDirection('up');
+                } else if (!antePreviousSegment) {
+                    if (previousSegment.orientation === "Horizontal") {
+                        if (targetNodePosition.x < linkData.sourceX) {
+                            this.setArrowDirection('left');
+                        } else {
+                            this.setArrowDirection('right');
+                        }
                     } else {
-                        this.setArrowDirection('down');
+                        if (targetNodePosition.y < linkData.sourceY) {
+                            this.setArrowDirection('up');
+                        } else {
+                            this.setArrowDirection('down');
+                        }
                     }
-                }
-            } else {
-                if (antePreviousSegment.orientation === "Vertical") {
-                    if (targetNodePosition.x < antePreviousSegment.xOrY) {
-                        this.setArrowDirection('left');
-                    } else {
-                        this.setArrowDirection('right');
-                    }
                 } else {
-                    if (targetNodePosition.y < antePreviousSegment.xOrY) {
-                        this.setArrowDirection('up');
+                    if (antePreviousSegment.orientation === "Vertical") {
+                        if (targetNodePosition.x < antePreviousSegment.xOrY) {
+                            this.setArrowDirection('left');
+                        } else {
+                            this.setArrowDirection('right');
+                        }
                     } else {
-                        this.setArrowDirection('down');
+                        if (targetNodePosition.y < antePreviousSegment.xOrY) {
+                            this.setArrowDirection('up');
+                        } else {
+                            this.setArrowDirection('down');
+                        }
                     }
                 }
             }
