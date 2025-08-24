@@ -368,13 +368,13 @@ export class LinkSegment extends Selectable implements Movable {
         return this.id;    
     }
 
-    private onDelete: () => void;
+    private onDelete: (communicationManager: CommunicationManager) => void;
 
     public getElement(): HTMLElement | SVGElement {
         return this.segmentElement;
     }
 
-    constructor (id: IdType, onDelete: () => void, communicationManager: CommunicationManager) {
+    constructor (id: IdType, onDelete: (communicationManager: CommunicationManager) => void, communicationManager: CommunicationManager) {
         super();
         this.onDelete = onDelete;
         this.id = id;
@@ -402,8 +402,8 @@ export class LinkSegment extends Selectable implements Movable {
         }
     }
 
-    public delete = (): void => {
-        this.onDelete();
+    public delete = (communicationManager: CommunicationManager): void => {
+        this.onDelete(communicationManager);
     };
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -465,7 +465,7 @@ export class LinkVisual {
 
         this.sourceNode = new SourceNode(this.id, (communicationManager: CommunicationManager) => this.delete(communicationManager));
         this.targetNode = new TargetNode(this.id, (communicationManager: CommunicationManager) => this.delete(communicationManager));
-        this.intermediateSegments = linkData.intermediateSegments.map(segmentData => new LinkSegment(segmentData.id, () => this.onDelete(this), communicationManager));
+        this.intermediateSegments = linkData.intermediateSegments.map(segmentData => new LinkSegment(segmentData.id, (cm: CommunicationManager) => this.delete(cm), communicationManager));
         this.onDelete = onDelete;
     }
 

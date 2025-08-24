@@ -166,24 +166,75 @@ export function deleteLinkFromJson(json: JsonData, linkId: IdType): JsonData {
     return json;
   }
 
-  // Find the link the user wants to delete
-  const target = json.links.find(l => l.id === linkId);
-  if (!target) {
-    return json; // nothing to delete
+  // Collect all descendant link IDs to delete (iteratively)
+  const toDelete = new Set<IdType>();
+  const queue: IdType[] = [linkId];
+
+  while (queue.length > 0) {
+    const currentId = queue.shift()!;
+    toDelete.add(currentId);
+    json.links.forEach(link => {
+      if (link.masterLinkId === currentId && !toDelete.has(link.id)) {
+        queue.push(link.id);
+      }
+    });
   }
 
-  // Determine the “master” link whose entire branch we should remove
-  // If the target is a slave, its master is target.masterLinkId
-  // Otherwise the target is itself the master
-  const masterId = target.masterLinkId ?? target.id;
-
-  // Keep only links that are neither the master nor one of its slaves
-  const filtered = json.links.filter(l =>
-    l.id !== masterId && l.masterLinkId !== masterId
-  );
-
-  return { ...json, links: filtered };
+  // Filter out the link itself and all its descendants
+  const filtered = json.links.filter(l => !toDelete.has(l.id));
+  json = { ...json, links: filtered };
+  json = tidyMasterSlaveLinks(json);
+  return json;
 }
+
+export function tidyMasterSlaveLinks(json: JsonData): JsonData {
+    if (!json.links) { return json; }
+
+    let links = [...json.links];
+    let changed = false;
+
+    for (const master of json.links) {
+        const children = json.links.filter(l => l.masterLinkId === master.id);
+        if (children.length === 1) {
+            const child = children[0];
+
+            let masterSegments = master.intermediateSegments || [];
+            let childSegments = child.intermediateSegments || [];
+
+            // Remove duplicate if orientations match
+            if (
+                masterSegments.length > 0 &&
+                childSegments.length > 0 &&
+                masterSegments[masterSegments.length - 1].orientation === childSegments[0].orientation
+            ) {
+                // Only keep master's last segment, skip child's first
+                childSegments = childSegments.slice(1);
+            }
+
+            const mergedSegments = [...masterSegments, ...childSegments];
+
+            const mergedLink: LinkData = {
+                ...child,
+                sourceId: master.sourceId,
+                sourcePort: master.sourcePort,
+                sourceX: master.sourceX,
+                sourceY: master.sourceY,
+                intermediateSegments: mergedSegments,
+                masterLinkId: undefined,
+            };
+
+            links = links.filter(l => l.id !== master.id && l.id !== child.id);
+            links.push(mergedLink);
+            changed = true;
+        }
+    }
+
+    if (changed) {
+        return { ...json, links };
+    }
+    return json;
+}
+
 
 export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData, updateLinks: boolean = true): JsonData {
     let updatedJson: JsonData = {
