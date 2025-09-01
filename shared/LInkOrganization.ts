@@ -83,7 +83,7 @@ export function moveLinkSegment(
         segments[segmentIndex].xOrY = targetPositionX;
     }
 
-    if (segmentIndex === 0) {
+    if (segmentIndex === 0 && !json.links?.find(link => link.id === linkId)?.masterLinkId) {
         const connectedBlockId = json.links?.find(link => link.id === linkId)?.sourceId ?? undefined;
         let isSourceSelected = false;
         if (connectedBlockId) {
@@ -340,19 +340,21 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
                     }
                 }
 
+                const removalThreshold = 2; // Threshold to consider segments collinear
+
                 if (segments.length > 1) {
-                    if (segments[1].orientation === "Horizontal" && segments[1].xOrY === link.sourceY) {
+                    if (segments[1].orientation === "Horizontal" && Math.abs(segments[1].xOrY - link.sourceY) < removalThreshold) {
                         segments.splice(0, 1);
-                    } else if (segments[1].orientation === "Vertical" && segments[1].xOrY === link.sourceX) {
+                    } else if (segments[1].orientation === "Vertical" && Math.abs(segments[1].xOrY - link.sourceX) < removalThreshold) {
                         segments.splice(0, 1);
                     }
                 }
 
                 if (segments.length > 1) {
                     const last = segments.length - 1;
-                    if (segments[last - 1].orientation === "Horizontal" && segments[last - 1].xOrY === link.targetY) {
+                    if (segments[last - 1].orientation === "Horizontal" && Math.abs(segments[last - 1].xOrY - link.targetY) < removalThreshold) {
                         segments.splice(last, 1);
-                    } else if (segments[last - 1].orientation === "Vertical" && segments[last - 1].xOrY === link.targetX) {
+                    } else if (segments[last - 1].orientation === "Vertical" && Math.abs(segments[last - 1].xOrY - link.targetX) < removalThreshold) {
                         segments.splice(last, 1);
                     }
                 }

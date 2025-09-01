@@ -473,8 +473,10 @@ export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
     return updatedJson;
 }
 
-export function updateChildLinksSourcePosition(json: JsonData): JsonData {
+export function updateChildLinksSourcePosition(json: JsonData, slide: boolean=false): JsonData {
     if (!json.links) {return json;}
+
+    let linksToMove: { linkId: IdType, sourceX: number, sourceY: number }[] = [];
 
     json.links.forEach(link => {
         if (link.masterLinkId) {
@@ -483,11 +485,14 @@ export function updateChildLinksSourcePosition(json: JsonData): JsonData {
             if (!referenceLink) {
                 console.warn(`Master link ${link.masterLinkId} not found for link ${link.id}, skipping dog leg update.`);
             } else {
-                link.sourceX = referenceLink.targetX;
-                link.sourceY = referenceLink.targetY;
+                linksToMove.push({ linkId: link.id, sourceX: referenceLink.targetX, sourceY: referenceLink.targetY });
             }
         }
     });
+
+    for (const item of linksToMove) {
+        json = moveSourceNode(json, item.linkId, item.sourceX, item.sourceY, [], false, slide);
+    }
 
     return json;
 }
@@ -522,7 +527,7 @@ export function removeOverlappingSegmentsBetweenMasterAndChild(json: JsonData): 
 
                 if (orientation === "Horizontal") {
                     // Both are horizontal, check for overlap in Y
-                    if (masterLast.xOrY === childFirst.xOrY) {
+                    if (Math.abs(masterLast.xOrY - childFirst.xOrY) < 2) {
                         // Get X ranges
                         const masterStartX = masterSegments.length > 1
                             ? (masterSegments[masterSegments.length - 2].orientation === "Vertical"
@@ -548,7 +553,7 @@ export function removeOverlappingSegmentsBetweenMasterAndChild(json: JsonData): 
                     }
                 } else if (orientation === "Vertical") {
                     // Both are vertical, check for overlap in X
-                    if (masterLast.xOrY === childFirst.xOrY) {
+                    if (Math.abs(masterLast.xOrY - childFirst.xOrY) < 2) {
                         const masterStartY = masterSegments.length > 1
                             ? (masterSegments[masterSegments.length - 2].orientation === "Horizontal"
                                 ? masterSegments[masterSegments.length - 2].xOrY
@@ -609,6 +614,8 @@ export function removeOverlappingSegmentsBetweenMasterAndChild(json: JsonData): 
             }
         }
     }
+
+    json = updateChildLinksSourcePosition(json, true);
 
     return json;
 }
@@ -724,8 +731,8 @@ export function removeOverlappingSegmentsBetweenChildren(json: JsonData): JsonDa
             });
 
             // Move source nodes of children to end of new link
-            json = moveSourceNode(json, action.childA.id, action.lastPoint.x, action.lastPoint.y, [], false);
-            json = moveSourceNode(json, action.childB.id, action.lastPoint.x, action.lastPoint.y, [], false);
+            json = moveSourceNode(json, action.childA.id, action.lastPoint.x, action.lastPoint.y, [], false, true);
+            json = moveSourceNode(json, action.childB.id, action.lastPoint.x, action.lastPoint.y, [], false, true);
         }
     }
 
@@ -931,7 +938,7 @@ function isWithinDistance(
     return Math.sqrt(dx * dx + dy * dy) <= maxDistance;
 }
 
-export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
+export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[], attachLinkToPort: boolean=false, slide: boolean=false): JsonData {
     let attachedBlock = json.links?.find(link => link.id === linkId)?.sourceId;
     if (attachedBlock) {
         if (selectedSelectableIds.includes(attachedBlock)) {
@@ -956,6 +963,23 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
             }
         }
     }
+
+    const initialX = json.links?.find(link => link.id === linkId)?.sourceX || 0;
+    const initialY = json.links?.find(link => link.id === linkId)?.sourceY || 0;
+
+    let newSegments = json.links?.find(link => link.id === linkId)?.intermediateSegments || [];
+
+    if (slide) {
+        const movementOrientation = Math.abs(finalX - initialX) > Math.abs(finalY - initialY) ? "Horizontal" : "Vertical";
+        const firstSegmentOfMovedLink = json.links?.find(link => link.id === linkId)?.intermediateSegments[0];
+        if (firstSegmentOfMovedLink && firstSegmentOfMovedLink.orientation !== movementOrientation) {
+            if (movementOrientation === "Horizontal") {
+                newSegments = [{ id: getNonce(), orientation: "Horizontal", xOrY: initialY }, ...newSegments];
+            } else {
+                newSegments = [{ id: getNonce(), orientation: "Vertical", xOrY: initialX }, ...newSegments];
+            }
+        }
+    }
         
     let updatedJson: JsonData = {
         ...json,
@@ -965,6 +989,7 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
                 link.sourcePort = finalPort;
                 link.sourceX = finalX;
                 link.sourceY = finalY;
+                link.intermediateSegments = newSegments;
             }
             return link;
         })
