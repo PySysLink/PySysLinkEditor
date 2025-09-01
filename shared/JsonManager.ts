@@ -495,70 +495,115 @@ export function updateChildLinksSourcePosition(json: JsonData): JsonData {
 export function removeOverlappingSegmentsBetweenMasterAndChild(json: JsonData): JsonData {
     if (!json.links) {return json;}
 
-    for (const child of json.links) {
-        if (!child.masterLinkId) {continue;}
-        const master = json.links?.find(l => l.id === child.masterLinkId);
-        if (!master) {continue;}
+    for (let master of json.links) {
+        const children = json.links?.filter(l => l.masterLinkId === master.id);
+        if (!children) {continue;}
 
-        const masterSegments = master.intermediateSegments || [];
-        const childSegments = child.intermediateSegments || [];
+        const startingMasterTarget = { x: master.targetX, y: master.targetY };
 
-        if (
-            masterSegments.length > 0 &&
-            childSegments.length > 0 &&
-            masterSegments[masterSegments.length - 1].orientation === childSegments[0].orientation
-        ) {
-            const orientation = masterSegments[masterSegments.length - 1].orientation;
-            const masterLast = masterSegments[masterSegments.length - 1];
-            const childFirst = childSegments[0];
+        for (const child of children) {
+            if (!child.masterLinkId) {continue;}
+            const master = json.links?.find(l => l.id === child.masterLinkId);
+            if (!master) {continue;}
 
-            if (orientation === "Horizontal") {
-                // Both are horizontal, check for overlap in Y
-                if (masterLast.xOrY === childFirst.xOrY) {
-                    // Get X ranges
-                    const masterStartX = masterSegments.length > 1
-                        ? (masterSegments[masterSegments.length - 2].orientation === "Vertical"
-                            ? masterSegments[masterSegments.length - 2].xOrY
-                            : master.sourceX)
-                        : master.sourceX;
-                    const masterEndX = master.targetX;
-                    const childStartX = masterEndX;
-                    const childEndX = childSegments.length > 1
-                        ? (childSegments[1].orientation === "Vertical"
-                            ? childSegments[1].xOrY
-                            : child.targetX)
-                        : child.targetX;
+            const masterSegments = master.intermediateSegments || [];
+            const childSegments = child.intermediateSegments || [];
 
-                    // Check for overlap (child goes back over master)
-                    if (
-                        (masterStartX < masterEndX && childEndX < childStartX) || // master left->right, child right->left
-                        (masterStartX > masterEndX && childEndX > childStartX)    // master right->left, child left->right
-                    ) {
-                        // Move master's targetX to childEndX (end of overlap)
-                        json = moveTargetNode(json, master.id, childEndX, master.targetY, [], false);
+            let newMasterTarget = { x: master.targetX, y: master.targetY };
+
+            if (
+                masterSegments.length > 0 &&
+                childSegments.length > 0 &&
+                masterSegments[masterSegments.length - 1].orientation === childSegments[0].orientation
+            ) {
+                const orientation = masterSegments[masterSegments.length - 1].orientation;
+                const masterLast = masterSegments[masterSegments.length - 1];
+                const childFirst = childSegments[0];
+
+                if (orientation === "Horizontal") {
+                    // Both are horizontal, check for overlap in Y
+                    if (masterLast.xOrY === childFirst.xOrY) {
+                        // Get X ranges
+                        const masterStartX = masterSegments.length > 1
+                            ? (masterSegments[masterSegments.length - 2].orientation === "Vertical"
+                                ? masterSegments[masterSegments.length - 2].xOrY
+                                : master.sourceX)
+                            : master.sourceX;
+                        const masterEndX = master.targetX;
+                        const childStartX = masterEndX;
+                        const childEndX = childSegments.length > 1
+                            ? (childSegments[1].orientation === "Vertical"
+                                ? childSegments[1].xOrY
+                                : child.targetX)
+                            : child.targetX;
+
+                        // Check for overlap (child goes back over master)
+                        if (
+                            (masterStartX < masterEndX && childEndX < childStartX) || // master left->right, child right->left
+                            (masterStartX > masterEndX && childEndX > childStartX)    // master right->left, child left->right
+                        ) {
+                            // Move master's targetX to childEndX (end of overlap)
+                            newMasterTarget = { x: childEndX, y: master.targetY };
+                        }
+                    }
+                } else if (orientation === "Vertical") {
+                    // Both are vertical, check for overlap in X
+                    if (masterLast.xOrY === childFirst.xOrY) {
+                        const masterStartY = masterSegments.length > 1
+                            ? (masterSegments[masterSegments.length - 2].orientation === "Horizontal"
+                                ? masterSegments[masterSegments.length - 2].xOrY
+                                : master.sourceY)
+                            : master.sourceY;
+                        const masterEndY = master.targetY;
+                        const childStartY = masterEndY;
+                        const childEndY = childSegments.length > 1
+                            ? (childSegments[1].orientation === "Horizontal"
+                                ? childSegments[1].xOrY
+                                : child.targetY)
+                            : child.targetY;
+
+                        if (
+                            (masterStartY < masterEndY && childEndY < childStartY) || // master up->down, child down->up
+                            (masterStartY > masterEndY && childEndY > childStartY)    // master down->up, child up->down
+                        ) {
+                            newMasterTarget = { x: master.targetX, y: childEndY };
+                        }
                     }
                 }
-            } else if (orientation === "Vertical") {
-                // Both are vertical, check for overlap in X
-                if (masterLast.xOrY === childFirst.xOrY) {
-                    const masterStartY = masterSegments.length > 1
-                        ? (masterSegments[masterSegments.length - 2].orientation === "Horizontal"
-                            ? masterSegments[masterSegments.length - 2].xOrY
-                            : master.sourceY)
-                        : master.sourceY;
-                    const masterEndY = master.targetY;
-                    const childStartY = masterEndY;
-                    const childEndY = childSegments.length > 1
-                        ? (childSegments[1].orientation === "Horizontal"
-                            ? childSegments[1].xOrY
-                            : child.targetY)
-                        : child.targetY;
+            }
+            if (newMasterTarget.x !== master.targetX || newMasterTarget.y !== master.targetY) {
+                if (master.targetX === startingMasterTarget.x && master.targetY === startingMasterTarget.y) {
+                    json = moveTargetNode(json, master.id, newMasterTarget.x, newMasterTarget.y, [], false);
+                } else {
+                    let previousMovementOrientation = startingMasterTarget.x !== master.targetX ? "Horizontal" : "Vertical";
+                    let previousMovementSign = previousMovementOrientation === "Horizontal" ? 
+                                                Math.sign(master.targetX - startingMasterTarget.x) 
+                                                : Math.sign(master.targetY - startingMasterTarget.y);
 
-                    if (
-                        (masterStartY < masterEndY && childEndY < childStartY) || // master up->down, child down->up
-                        (masterStartY > masterEndY && childEndY > childStartY)    // master down->up, child up->down
-                    ) {
-                        json = moveTargetNode(json, master.id, master.targetX, childEndY, [], false);
+                    let currentMovementOrientation = startingMasterTarget.x !== newMasterTarget.x ? "Horizontal" : "Vertical";
+                    let currentMovementSign = currentMovementOrientation === "Horizontal" ? 
+                                                Math.sign(newMasterTarget.x - startingMasterTarget.x) 
+                                                : Math.sign(newMasterTarget.y - startingMasterTarget.y);
+                    
+                    if (previousMovementOrientation !== currentMovementOrientation) {
+                        console.warn(`Trying to move master on two different orientations at once, skipping for now...`);
+                    } else if (previousMovementSign !== currentMovementSign) {
+                        console.log(`Trying to move master back over itself, to previous knee`);
+                        if (master.intermediateSegments[master.intermediateSegments.length - 1].orientation === "Horizontal") {
+                            let y = master.targetY;
+                            let x = master.intermediateSegments.length > 1 ? 
+                                        master.intermediateSegments[master.intermediateSegments.length - 2].xOrY 
+                                        : master.sourceX;
+                            json = moveTargetNode(json, master.id, x, y, [], false);
+                        } else {
+                            let x = master.targetX;
+                            let y = master.intermediateSegments.length > 1 ? 
+                                        master.intermediateSegments[master.intermediateSegments.length - 2].xOrY 
+                                        : master.sourceY;
+                            json = moveTargetNode(json, master.id, x, y, [], false);
+                        }
+                    } else {
+                        json = moveTargetNode(json, master.id, newMasterTarget.x, newMasterTarget.y, [], false);
                     }
                 }
             }

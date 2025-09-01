@@ -339,6 +339,23 @@ function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = un
                         continue;
                     }
                 }
+
+                if (segments.length > 1) {
+                    if (segments[1].orientation === "Horizontal" && segments[1].xOrY === link.sourceY) {
+                        segments.splice(0, 1);
+                    } else if (segments[1].orientation === "Vertical" && segments[1].xOrY === link.sourceX) {
+                        segments.splice(0, 1);
+                    }
+                }
+
+                if (segments.length > 1) {
+                    const last = segments.length - 1;
+                    if (segments[last - 1].orientation === "Horizontal" && segments[last - 1].xOrY === link.targetY) {
+                        segments.splice(last, 1);
+                    } else if (segments[last - 1].orientation === "Vertical" && segments[last - 1].xOrY === link.targetX) {
+                        segments.splice(last, 1);
+                    }
+                }
             }
 
             allAligned = true;
