@@ -492,6 +492,202 @@ export function updateChildLinksSourcePosition(json: JsonData): JsonData {
     return json;
 }
 
+export function removeOverlappingSegmentsBetweenMasterAndChild(json: JsonData): JsonData {
+    if (!json.links) {return json;}
+
+    for (const child of json.links) {
+        if (!child.masterLinkId) {continue;}
+        const master = json.links?.find(l => l.id === child.masterLinkId);
+        if (!master) {continue;}
+
+        const masterSegments = master.intermediateSegments || [];
+        const childSegments = child.intermediateSegments || [];
+
+        if (
+            masterSegments.length > 0 &&
+            childSegments.length > 0 &&
+            masterSegments[masterSegments.length - 1].orientation === childSegments[0].orientation
+        ) {
+            const orientation = masterSegments[masterSegments.length - 1].orientation;
+            const masterLast = masterSegments[masterSegments.length - 1];
+            const childFirst = childSegments[0];
+
+            if (orientation === "Horizontal") {
+                // Both are horizontal, check for overlap in Y
+                if (masterLast.xOrY === childFirst.xOrY) {
+                    // Get X ranges
+                    const masterStartX = masterSegments.length > 1
+                        ? (masterSegments[masterSegments.length - 2].orientation === "Vertical"
+                            ? masterSegments[masterSegments.length - 2].xOrY
+                            : master.sourceX)
+                        : master.sourceX;
+                    const masterEndX = master.targetX;
+                    const childStartX = masterEndX;
+                    const childEndX = childSegments.length > 1
+                        ? (childSegments[1].orientation === "Vertical"
+                            ? childSegments[1].xOrY
+                            : child.targetX)
+                        : child.targetX;
+
+                    // Check for overlap (child goes back over master)
+                    if (
+                        (masterStartX < masterEndX && childEndX < childStartX) || // master left->right, child right->left
+                        (masterStartX > masterEndX && childEndX > childStartX)    // master right->left, child left->right
+                    ) {
+                        // Move master's targetX to childEndX (end of overlap)
+                        json = moveTargetNode(json, master.id, childEndX, master.targetY, [], false);
+                    }
+                }
+            } else if (orientation === "Vertical") {
+                // Both are vertical, check for overlap in X
+                if (masterLast.xOrY === childFirst.xOrY) {
+                    const masterStartY = masterSegments.length > 1
+                        ? (masterSegments[masterSegments.length - 2].orientation === "Horizontal"
+                            ? masterSegments[masterSegments.length - 2].xOrY
+                            : master.sourceY)
+                        : master.sourceY;
+                    const masterEndY = master.targetY;
+                    const childStartY = masterEndY;
+                    const childEndY = childSegments.length > 1
+                        ? (childSegments[1].orientation === "Horizontal"
+                            ? childSegments[1].xOrY
+                            : child.targetY)
+                        : child.targetY;
+
+                    if (
+                        (masterStartY < masterEndY && childEndY < childStartY) || // master up->down, child down->up
+                        (masterStartY > masterEndY && childEndY > childStartY)    // master down->up, child up->down
+                    ) {
+                        json = moveTargetNode(json, master.id, master.targetX, childEndY, [], false);
+                    }
+                }
+            }
+        }
+    }
+
+    return json;
+}
+
+export function removeOverlappingSegmentsBetweenChildren(json: JsonData): JsonData {
+    if (!json.links) {return json;}
+
+    function doesChildrenOverlap(childA: LinkData, childB: LinkData): { overlap: boolean, lastPoint: {x: number, y: number} } {
+        const falseReturn = { overlap: false, lastPoint: {x: -1, y: -1}};
+        if (!childA.intermediateSegments?.length || !childB.intermediateSegments?.length) {return falseReturn;}
+
+        const segA = childA.intermediateSegments[0];
+        const segB = childB.intermediateSegments[0];
+
+        if (segA.orientation === segB.orientation) {
+            console.log(`They can overlap, both are ${segA.orientation}, their positions are ${segA.xOrY} and ${segB.xOrY}`);
+        }
+        // Must be same orientation and same xOrY (colinear)
+        if (segA.orientation !== segB.orientation || segA.xOrY !== segB.xOrY) {return falseReturn;}
+
+        console.log(`Children ${childA.id} and ${childB.id} are colinear on a ${segA.orientation} segment at ${segA.xOrY}, could overlap.`);
+
+        // Both start at master's target node
+        const startA = segA.orientation === "Horizontal" ? childA.sourceX : childA.sourceY;
+        const startB = startA;
+
+        // Endpoints of the first segment
+        const endA = childA.intermediateSegments.length > 1
+                        ? childA.intermediateSegments[1].xOrY
+                        : segA.orientation === "Horizontal" ? childA.targetX : childA.targetY;
+
+        const endB = childB.intermediateSegments.length > 1
+                        ? childB.intermediateSegments[1].xOrY
+                        : segB.orientation === "Horizontal" ? childB.targetX : childB.targetY;
+
+        if (Math.abs(startA - endA) < 1 || Math.abs(startB - endB) < 1) {
+            return falseReturn; // One of the segments is too short to overlap
+        }
+        
+        if (Math.sign(endA - startA) === Math.sign(endB - startB)) {
+            let x = -1;
+            let y = -1;
+            if (endA > startA) {
+                x = segA.orientation === "Horizontal" ? Math.min(endA, endB) : childA.sourceX;
+                y = segA.orientation === "Vertical" ? Math.min(endA, endB) : childA.sourceY;
+            } else {
+                x = segA.orientation === "Horizontal" ? Math.max(endA, endB) : childA.sourceX;
+                y = segA.orientation === "Vertical" ? Math.max(endA, endB) : childA.sourceY;
+            }
+            return {overlap: true, lastPoint: {x: x, y: y}};
+        } else {return falseReturn;}
+    }
+
+    const overlapActions: {
+        masterLink: LinkData,
+        childA: LinkData,
+        childB: LinkData,
+        lastPoint: {x: number, y: number}
+    }[] = [];
+
+    for (let masterLink of json.links) {
+        const children = json.links?.filter(l => l.masterLinkId === masterLink.id);
+        if (!children || children.length < 2) {continue;}
+
+        for (let i = 0; i < children.length; i++) {
+            for (let j = 0; j < children.length; j++) {
+                if (i === j) {continue;}
+                let childA = children[i];
+                let childB = children[j];
+
+                const result = doesChildrenOverlap(childA, childB);
+                if (result.overlap) {
+                    console.log(`Children ${childA.id} and ${childB.id} of master ${masterLink.id} overlap, creating new link at (${result.lastPoint.x}, ${result.lastPoint.y})`);
+                    overlapActions.push({ masterLink, childA, childB, lastPoint: result.lastPoint });
+                }
+            }
+        }
+    }
+
+    for (const action of overlapActions) {
+        const childrenOfMaster = json.links?.filter(l => l.masterLinkId === action.masterLink.id) ?? [];
+        const isOnlyTheseTwo = (
+            childrenOfMaster.length === 2 &&
+            childrenOfMaster.some(l => l.id === action.childA.id) &&
+            childrenOfMaster.some(l => l.id === action.childB.id)
+        );
+
+        if (isOnlyTheseTwo) {
+            // Just move master's target node to lastPoint
+            json = moveTargetNode(json, action.masterLink.id, action.lastPoint.x, action.lastPoint.y, [], false);
+        } else {
+            const newLinkId = getNonce();
+            const newLink: LinkData = {
+                id: newLinkId,
+                sourceId: "undefined",
+                sourcePort: -1,
+                sourceX: action.masterLink.targetX,
+                sourceY: action.masterLink.targetY,
+                targetId: "undefined",
+                targetPort: -1,
+                targetX: action.lastPoint.x,
+                targetY: action.lastPoint.y,
+                intermediateSegments: [],
+                masterLinkId: action.masterLink.id,
+            };
+            json = addLinkToJson(json, newLink);
+
+            // Change overlapping children to be child of new link
+            json.links?.forEach(link => {
+                if (link.id === action.childA.id || link.id === action.childB.id) {
+                    link.masterLinkId = newLinkId;
+                }
+            });
+
+            // Move source nodes of children to end of new link
+            json = moveSourceNode(json, action.childA.id, action.lastPoint.x, action.lastPoint.y, [], false);
+            json = moveSourceNode(json, action.childB.id, action.lastPoint.x, action.lastPoint.y, [], false);
+        }
+    }
+
+    return json;
+}
+
+
 export function createNewChildLinkFromNode(json: JsonData, previousSegmentId: IdType, nextSegmentId: IdType): [ JsonData, LinkData ] | undefined {
     let masterLink = json.links?.find(link => link.intermediateSegments.some(segment => segment.id === previousSegmentId));
     const newIdForMasterLink = getNonce();
@@ -715,24 +911,6 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
             }
         }
     }
-
-    // const linkData = json.links?.find(link => link.id === linkId);
-    // if (!linkData) {
-    //     console.warn(`Link with id ${linkId} not found.`);
-    //     return json; // No link found, return original json
-    // } else {
-    //     if (linkData.masterLinkId !== undefined) {
-    //         if (linkData.branchNodeId !== undefined) {
-    //             const masterLink = json.links?.find(link => link.id === linkData.masterLinkId);
-    //             const branchNode = masterLink?.intermediateNodes.find(node => node.id === linkData.branchNodeId);
-    //             if (branchNode && masterLink) {
-    //                 json = setPositionForLinkNode(json, masterLink.id, branchNode.id, x, y);
-    //             } else {
-    //                 console.warn(`Branch node with id ${linkData.branchNodeId} not found in link ${linkId}.`);
-    //             }
-    //         }
-    //     }
-    // }
         
     let updatedJson: JsonData = {
         ...json,

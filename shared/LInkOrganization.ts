@@ -1,5 +1,5 @@
 import { link } from "fs";
-import { getNeighboringSegmentsToNode, getPortPosition, updateChildLinksSourcePosition, updateLinkInJson, updateSegmentsOnLink } from "./JsonManager";
+import { getNeighboringSegmentsToNode, getPortPosition, removeOverlappingSegmentsBetweenChildren, removeOverlappingSegmentsBetweenMasterAndChild, updateChildLinksSourcePosition, updateLinkInJson, updateSegmentsOnLink } from "./JsonManager";
 import { IdType, IntermediateSegment, JsonData, LinkData } from "./JsonTypes";
 import { getNonce } from "./util";
 
@@ -193,9 +193,35 @@ function findPrevNextY(
     return { prevY, nextY };
 }
 
+
+function simpleJsonHash(obj: any): string {
+    // Simple hash: not cryptographically secure, but good enough for change detection
+    let str = JSON.stringify(obj);
+    let hash = 0, i = 0, chr;
+    while (i < str.length) {
+        chr = str.charCodeAt(i++);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash.toString();
+}
+
+let lastDogLegHash: string | undefined = undefined;
+
+
 function updateLinksDogLeg(json: JsonData, movedBlockId: IdType | undefined = undefined, removeColinear: boolean = true): JsonData {
+    const currentHash = simpleJsonHash(json);
+
+    if (lastDogLegHash === currentHash) {
+        // Already processed this state, skip
+        console.log("updateLinksDogLeg: Skipping, JSON unchanged.");
+        return json;
+    }
+    lastDogLegHash = currentHash;
 
     json = updateChildLinksSourcePosition(json);
+    json = removeOverlappingSegmentsBetweenMasterAndChild(json);
+    json = removeOverlappingSegmentsBetweenChildren(json);
 
     if (!json.links) {return json;}
 
