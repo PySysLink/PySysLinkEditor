@@ -83,7 +83,11 @@ export function moveLinkSegment(
         segments[segmentIndex].xOrY = targetPositionX;
     }
 
-    if (segmentIndex === 0 && !json.links?.find(link => link.id === linkId)?.masterLinkId) {
+    let masterLinkId = json.links?.find(link => link.id === linkId)?.masterLinkId ?? undefined;
+
+    let targetSourcePosition: { x: number; y: number } | undefined = undefined;;
+
+    if (segmentIndex === 0 && !masterLinkId) {
         const connectedBlockId = json.links?.find(link => link.id === linkId)?.sourceId ?? undefined;
         let isSourceSelected = false;
         if (connectedBlockId) {
@@ -105,9 +109,28 @@ export function moveLinkSegment(
                     xOrY: targetPositionY
                 });
             }
+            segmentIndex++;
         }
-
-        segmentIndex++;
+    } else if (segmentIndex === 0 && masterLinkId) {
+        const masterLink = json.links?.find(link => link.id === masterLinkId);
+        if (masterLink && masterLink.intermediateSegments.length > 0) {
+            const masterLastSegment = masterLink.intermediateSegments[masterLink.intermediateSegments.length - 1];
+            if (masterLastSegment.orientation !== segments[0].orientation) {
+                if (segments[0].orientation === "Horizontal") {
+                    segments.splice(0, 0, {
+                        id: getNonce(),
+                        orientation: "Vertical",
+                        xOrY: masterLink.targetX
+                    });
+                } else {
+                    segments.splice(0, 0, {
+                        id: getNonce(),
+                        orientation: "Horizontal",
+                        xOrY: masterLink.targetY
+                    });
+                }
+            }
+        }
     }
 
     if (segmentIndex === segments.length - 1) {
