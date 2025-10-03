@@ -118,9 +118,11 @@ export class LinkInteractionManager {
 
         if (portType === "input") {
             this.communicationManager.getLocalJson()?.links?.forEach(link => {
-                if (link.targetId === block.id && link.targetPort === portIndex) {
-                    this.communicationManager.print(`Connected link found ${link.id}`);
-                    isLinkOnNode = true;
+                for (const segmentId in link.targetNodes) {
+                    if (link.targetNodes[segmentId].targetId === block.id && link.targetNodes[segmentId].port === portIndex) {
+                        this.communicationManager.print(`Connected link found ${link.id}`);
+                        isLinkOnNode = true;
+                    }
                 }
             });
         } else {
@@ -156,9 +158,11 @@ export class LinkInteractionManager {
                     newLink.sourceNode.unselect();
                     newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
                 } else {
-                    this.selectableManager.addCallbackToSelectable(newLink.targetNode);
-                    newLink.targetNode.unselect();
-                    newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                    newLink.targetNodes.forEach(targetNode => {
+                        this.selectableManager.addCallbackToSelectable(targetNode);
+                        targetNode.unselect();
+                        targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                    });
                 }
             } else { return; }
         }            
@@ -209,7 +213,7 @@ export class LinkInteractionManager {
     public getSelectedLinkSegments(): LinkSegment[] {
         var result: LinkSegment[] = [];
         this.links.forEach(link => {
-            link.intermediateSegments.forEach(segment => {
+            link.segments.forEach(segment => {
                 if (segment.isSelected()) {
                     result.push(segment);
                 }
@@ -221,13 +225,15 @@ export class LinkInteractionManager {
     public getSelectedLinkNodes(): LinkNode[] {
         var result: LinkNode[] = [];
         this.links.forEach(link => {
-            link.nodes.forEach(node => {
+            link.junctionNodes.forEach(node => {
                 if (node.isSelected()) {
                     result.push(node);
                 }
             });
             if (link.sourceNode.isSelected()) {result.push(link.sourceNode);}
-            if (link.targetNode.isSelected()) {result.push(link.targetNode);}
+            link.targetNodes.forEach(targetNode => {
+                if (targetNode.isSelected()) {result.push(targetNode);}
+            });
         });
         return result;
     }
@@ -236,19 +242,19 @@ export class LinkInteractionManager {
     public getSelectedLinks(): LinkVisual[] {
         var result: LinkVisual[] = [];
         this.links.forEach(link => {
-            for (let segment of link.intermediateSegments) {
+            for (let segment of link.segments) {
                 if (segment.isSelected()) {
                     result.push(link);
                     break;
                 }
             }
-            for (let node of link.nodes) {
+            for (let node of link.junctionNodes) {
                 if (node.isSelected()) {
                     result.push(link);
                     break;
                 }
             }
-            if (link.sourceNode.isSelected() || link.targetNode.isSelected()) {
+            if (link.sourceNode.isSelected() || link.targetNodes.some(targetNode => targetNode.isSelected())) {
                 result.push(link);
             }
         });
@@ -276,12 +282,15 @@ export class LinkInteractionManager {
                 } else { visualLink?.sourceNode.unhighlight(); }
             }
 
-            const port2 = this.detectPort(link.targetX, link.targetY);
-            if (port2) {
-                visualLink?.sourceNode.unhighlight();
-                if (port2.portType === "input") {
-                    this.communicationManager.attachLinkToPort(link.id, port2.blockId, port2.portType, port2.portIndex);
-                } else { visualLink?.sourceNode.unhighlight(); }
+            for (const segmentId in link.targetNodes) {
+                let targetInfo = link.targetNodes[segmentId];
+                const portI = this.detectPort(targetInfo.x, targetInfo.y);
+                if (portI) {
+                    visualLink?.sourceNode.unhighlight();
+                    if (portI.portType === "input") {
+                        this.communicationManager.attachLinkToPort(link.id, portI.blockId, portI.portType, portI.portIndex);
+                    } else { visualLink?.sourceNode.unhighlight(); }
+                }
             }
         });
     };
@@ -296,24 +305,27 @@ export class LinkInteractionManager {
                     if (link.sourceId === "undefined") {
                         visualLink?.sourceNode.highlight();
                     } else {
-                        visualLink?.targetNode.unhighlight();
+                        visualLink?.sourceNode.unhighlight();
                     }
                 } else { visualLink?.sourceNode.unhighlight(); }
             } else {
                 visualLink?.sourceNode.unhighlight();
             }
 
-            const port2 = this.detectPort(link.targetX, link.targetY);
-            if (port2) {
-                if (port2.portType === "input") {
-                    if (link.targetId === "undefined") {
-                        visualLink?.targetNode.highlight();
-                    } else {
-                        visualLink?.targetNode.unhighlight();
+            for (const segmentId in link.targetNodes) {
+                const targetInfo = link.targetNodes[segmentId];
+                const portI = this.detectPort(targetInfo.x, targetInfo.y);
+                if (portI) {
+                    if (portI.portType === "input") {
+                        if (targetInfo.targetId === "undefined") {
+                            visualLink?.targetNodes.find(targetNode => targetNode.id === segmentId)?.highlight();
+                        }
+                    } else { 
+                            visualLink?.targetNodes.find(targetNode => targetNode.id === segmentId)?.unhighlight();
                     }
-                } else { visualLink?.targetNode.unhighlight(); }
-            } else {
-                visualLink?.targetNode.unhighlight();
+                } else {
+                    visualLink?.targetNodes.find(targetNode => targetNode.id === segmentId)?.unhighlight();
+                }
             }
             
         });
@@ -351,10 +363,10 @@ export class LinkInteractionManager {
 
     public updateLinkAndNodeClickCallback(): void {
         this.links.forEach(linkVisual => {
-            linkVisual.intermediateSegments.forEach(segment => {
+            linkVisual.segments.forEach(segment => {
                 segment.addOnMouseDownListener("link_interaction_manager", this.onMouseDownInSegment);
             });
-            linkVisual.nodes.forEach(node => {
+            linkVisual.junctionNodes.forEach(node => {
                 node.addOnMouseDownListener("link_interaction_manager", this.onMouseDownInNode);
             });
         });
@@ -377,11 +389,13 @@ export class LinkInteractionManager {
                 this.communicationManager.print(`Creating new link visual due to click on segment id: ${newLinkData.id}`);
                 let newLink = this.createLinkVisual(newLinkData);
                 newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+                newLink.targetNodes.forEach(targetNode => targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager)));
 
-                this.selectableManager.addCallbackToSelectable(newLink.targetNode);
-                newLink.targetNode.unselect();
-                newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                newLink.targetNodes.forEach(targetNode => {
+                    this.selectableManager.addCallbackToSelectable(targetNode);
+                    targetNode.unselect();
+                    targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                });
                 
             } else { return; }
         }
@@ -401,12 +415,14 @@ export class LinkInteractionManager {
                 this.communicationManager.print(`Creating new link visual due to click on segment id: ${newLinkData.id}`);
                 let newLink = this.createLinkVisual(newLinkData);
                 newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+                newLink.targetNodes.forEach(targetNode => targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager)));
 
-                this.selectableManager.addCallbackToSelectable(newLink.targetNode);
-                newLink.targetNode.unselect();
-                newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
-                
+                newLink.targetNodes.forEach(targetNode => {
+                    this.selectableManager.addCallbackToSelectable(targetNode);
+                    targetNode.unselect();
+                    targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                });
+  
             } else { return; }
         }
     };
