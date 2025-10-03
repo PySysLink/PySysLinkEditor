@@ -3,6 +3,7 @@ import { BlockData, IdType, IntermediateSegment, JsonData, LinkData, Rotation } 
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
 import { moveLinkNode, moveLinkSegment, updateLinksAfterBatchMove } from "../shared/LInkOrganization";
+import { SegmentNode } from "../shared/Link";
 
 
 export class CommunicationManager {
@@ -482,5 +483,13 @@ export class CommunicationManager {
             let newJson = updateLinksAfterBatchMove(json);
             this.setLocalJson(newJson, true);
         }
+    }
+
+    findParentSegmentNode(linkId: string, id: any): SegmentNode | undefined {
+        throw new Error('Method not implemented.');
+    }
+    
+    findSegmentNodeById(linkId: string, id: string): SegmentNode | undefined {
+        throw new Error('Method not implemented.');
     }
 }

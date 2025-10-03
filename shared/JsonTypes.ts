@@ -1,3 +1,4 @@
+import { LinkJson } from "./Link";
 
 export type IdType = string;
 
@@ -20,25 +21,13 @@ export interface IntermediateSegment {
     id: IdType, orientation: Orientation; xOrY: number
 }
 
-export interface LinkData {
-    id: IdType;
-    sourceId: IdType;
-    sourcePort: number;
-    targetId: IdType;
-    targetPort: number;
-    sourceX: number; sourceY: number;
-    targetX: number; targetY: number;
-    intermediateSegments: IntermediateSegment[];
-    masterLinkId?: IdType;
-}
-
 export interface JsonData {
     version: number;
     simulation_configuration: string;
     initialization_python_script_path: string;
     toolkit_configuration_path: string;
     blocks: BlockData[] | undefined;
-    links: LinkData[] | undefined;
+    links: LinkJson[] | undefined;
 }
 
 export type BlockShape = "square" | "triangle" | "circle";

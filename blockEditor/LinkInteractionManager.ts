@@ -1,9 +1,11 @@
 import { link } from 'fs';
 import { BlockInteractionManager } from './BlockInteractionManager';
-import { LinkVisual, LinkNode, LinkSegment, SourceNode, TargetNode } from './LinkVisual';
+import { LinkVisual } from './LinkVisual';
+import { LinkNode, LinkSegment, SourceNode, TargetNode } from './LinkHelpers';
 import { BlockVisual } from './BlockVisual';
 import { getNonce } from './util';
-import { IdType, JsonData, LinkData } from '../shared/JsonTypes'; 
+import { IdType, JsonData } from '../shared/JsonTypes'; 
+import { LinkJson, Link } from '../shared/Link';
 import { CommunicationManager } from './CommunicationManager';
 import { SelectableManager } from './SelectableManager';
 import { CanvasElement } from './CanvasElement';
@@ -44,7 +46,7 @@ export class LinkInteractionManager {
         const result: LinkSegment[] = [];
 
         this.links.forEach(link => {
-            link.intermediateSegments.forEach(segment => {
+            link.segments.forEach(segment => {
                 if (!seenIds.has(segment.getId())) {
                     seenIds.add(segment.getId());
                     result.push(segment);
@@ -63,7 +65,7 @@ export class LinkInteractionManager {
         const result: LinkNode[] = [];
 
         this.links.forEach(link => {
-            link.nodes.forEach(node => {
+            link.junctionNodes.forEach(node => {
                 if (!seenIds.has(node.getId())) {
                     seenIds.add(node.getId());
                     result.push(node);
@@ -80,25 +82,27 @@ export class LinkInteractionManager {
             else {
                 this.communicationManager.print(`Duplicate source node found: ${link.sourceNode.getId()}`);
             }
-            if (!seenIds.has(link.targetNode.getId())) {
-                seenIds.add(link.targetNode.getId());
-                result.push(link.targetNode);
-            }
-            else {
-                this.communicationManager.print(`Duplicate target node found: ${link.targetNode.getId()}`);
-            }
+            link.targetNodes.forEach(targetNode => {
+                if (!seenIds.has(targetNode.getId())) {
+                    seenIds.add(targetNode.getId());
+                    result.push(targetNode);
+                }
+                else {
+                    this.communicationManager.print(`Duplicate target node found: ${targetNode.getId()}`);
+                }
+            });
         });
         return result;
     }
 
-    public createLinkVisual(linkData: LinkData): LinkVisual {
+    public createLinkVisual(linkData: LinkJson): LinkVisual {
         this.communicationManager.print(`Creating link visual for link: ${linkData.id}`);
         if (this.links.find(link => link.id === linkData.id)) {
             this.communicationManager.print(`Link visual with id ${linkData.id} already exists, skipping creation.`);
             return this.links.find(link => link.id === linkData.id)!;
         }
         let newLink = new LinkVisual(
-            linkData,
+            new Link(linkData),
             this.deleteLink,
             this.communicationManager
         );
@@ -145,7 +149,7 @@ export class LinkInteractionManager {
                 this.communicationManager.print(`Creating new link visual due to click on port id: ${newLinkData.id}`);
                 let newLink = this.createLinkVisual(newLinkData);
                 newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
+                newLink.targetNodes.forEach(targetNode => targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager)));
 
                 if (portType === "input") {
                     this.selectableManager.addCallbackToSelectable(newLink.sourceNode);
