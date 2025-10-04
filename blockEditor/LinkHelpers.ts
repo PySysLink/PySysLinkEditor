@@ -9,6 +9,8 @@ import { link } from 'fs';
 
 export class LinkNode extends Selectable implements Movable {
     id: string;
+    getNeighboringSegmentsToNode: (nodeId: IdType) => { before: LinkSegment; after: LinkSegment; } | undefined;
+
     protected linkId: IdType;
     public getLinkId(): IdType {
         return this.linkId;    
@@ -26,10 +28,13 @@ export class LinkNode extends Selectable implements Movable {
         return this.nodeElement;
     }
 
-    constructor (linkId: IdType, id: string, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
+    constructor (linkId: IdType, id: string, 
+                getNeighboringSegmentsToNode: (nodeId: IdType) => { before: LinkSegment; after: LinkSegment; } | undefined,
+                onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
         super();
         this.linkId = linkId;
         this.id = id;
+        this.getNeighboringSegmentsToNode = getNeighboringSegmentsToNode;
         if (onDelete) {
             this.onDeleteCallbacks.push(onDelete);
         }
@@ -51,7 +56,7 @@ export class LinkNode extends Selectable implements Movable {
     }
     
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
-        let beforeAndAfterSegments = communicationManager.getNeighboringSegmentsToNode(this.id);
+        let beforeAndAfterSegments = this.getNeighboringSegmentsToNode(this.id);
         if (beforeAndAfterSegments) {
             if (beforeAndAfterSegments.before.orientation === "Horizontal" 
                 && beforeAndAfterSegments.after.orientation === "Vertical") {
@@ -96,7 +101,7 @@ export class LinkNode extends Selectable implements Movable {
     }
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
-        const beforeAndAfterSegments = communicationManager.getNeighboringSegmentsToNode(this.id, json);
+        const beforeAndAfterSegments = this.getNeighboringSegmentsToNode(this.id);
         console.log(`Updating node ${this.id} from JSON, before and after segments: ${JSON.stringify(beforeAndAfterSegments)}`);
         if (beforeAndAfterSegments) {
             if (beforeAndAfterSegments.before.orientation === "Horizontal" 
@@ -142,8 +147,10 @@ export class SourceNode extends LinkNode implements Movable {
     public getId(): IdType {
         return this.linkId + "SourceNode";    
     }
-    constructor(linkId: IdType, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
-        super(linkId, getNonce(), onDelete);
+    constructor(linkId: IdType, 
+        getNeighboringSegmentsToNode: (nodeId: IdType) => { before: LinkSegment; after: LinkSegment; } | undefined,
+        onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
+        super(linkId, getNonce(), getNeighboringSegmentsToNode, onDelete);
         this.nodeElement.classList.add('source-node');
     }
 
@@ -201,7 +208,7 @@ export class SourceNode extends LinkNode implements Movable {
 }
 
 export class TargetNode extends LinkNode implements Movable {
-
+    segmentId: IdType;
     private setArrowDirection(direction: string): void {
         const poly = this.nodeElement as SVGPolygonElement;
         if (!poly || poly.tagName !== 'polygon') {
@@ -233,8 +240,11 @@ export class TargetNode extends LinkNode implements Movable {
     public getId(): IdType {
         return this.linkId + "TargetNode";    
     }
-    constructor(linkId: IdType, onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
-        super(linkId, getNonce(), onDelete);
+    constructor(linkId: IdType, segmentId: IdType, 
+        getNeighboringSegmentsToNode: (nodeId: IdType) => { before: LinkSegment; after: LinkSegment; } | undefined,
+        onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
+        super(linkId, getNonce(), getNeighboringSegmentsToNode, onDelete);
+        this.segmentId = segmentId;
         this.nodeElement.classList.add('target-node');
     }
 
@@ -335,6 +345,10 @@ export class TargetNode extends LinkNode implements Movable {
 
 export class LinkSegment extends Selectable implements Movable {
     id: IdType;
+    orientation: "Horizontal" | "Vertical";
+    xOrY: number;
+    linkId: IdType;
+
     segmentElement: SVGPolylineElement;
     public getId(): IdType {
         return this.id;    
@@ -346,10 +360,16 @@ export class LinkSegment extends Selectable implements Movable {
         return this.segmentElement;
     }
 
-    constructor (id: IdType, onDelete: (communicationManager: CommunicationManager) => void, communicationManager: CommunicationManager) {
+    constructor (id: IdType, orientation: "Horizontal" | "Vertical",
+                xOrY: number,
+                linkId: IdType,
+                onDelete: (communicationManager: CommunicationManager) => void, communicationManager: CommunicationManager) {
         super();
         this.onDelete = onDelete;
         this.id = id;
+        this.orientation = orientation;
+        this.xOrY = xOrY;
+        this.linkId = linkId;
         
         this.segmentElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
         this.segmentElement.classList.add('link-line');
@@ -367,6 +387,13 @@ export class LinkSegment extends Selectable implements Movable {
     }
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
+
+        const segmentNode = communicationManager.findSegmentNodeById(this.linkId, this.id);
+        if (!segmentNode) {return;}
+
+        this.orientation = segmentNode.orientation;
+        this.xOrY = segmentNode.xOrY;
+
         const segmentLimits = communicationManager.getLimitsOfSegment(this.id);
         
         if (segmentLimits) {

@@ -2,7 +2,7 @@ import { get } from "http";
 import { IdType, JsonData, BlockData, Rotation, IntermediateSegment } from "./JsonTypes";
 // import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
 import { getNonce } from "./util";
-import { LinkJson, SegmentNode, TargetNodeInfo } from "./Link";
+import { Link, LinkJson, SegmentNode, TargetNodeInfo } from "./Link";
 
 export function MergeJsons(
     jsonBase: JsonData,
@@ -232,25 +232,38 @@ export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation,
 }
 
 
-// export function attachLinkToPort(json: JsonData, linkId: IdType, blockId: IdType, portType: "input" | "output", portIndex: number): JsonData {
-//     let link = json.links?.find(l => l.id === linkId);
-//     if (link) {
-//         if (portType === "input") {
-//             link.targetId = blockId;
-//             link.targetPort = portIndex;
-//             link.targetX = getPortPosition(json, blockId, portType, portIndex)?.x || 0;
-//             link.targetY = getPortPosition(json, blockId, portType, portIndex)?.y || 0;
-//         } else {
-//             link.sourceId = blockId;
-//             link.sourcePort = portIndex;
-//             link.sourceX = getPortPosition(json, blockId, portType, portIndex)?.x || 0;
-//             link.sourceY = getPortPosition(json, blockId, portType, portIndex)?.y || 0;
-//         }
-//         let newJson = updateLinkInJson(json, link);
-//         return newJson;
-//     }
-//     return json;
-// }
+export function attachLinkToPort(json: JsonData, linkId: IdType, segmentId: IdType, blockId: IdType, portType: "input" | "output", portIndex: number): JsonData {
+    let link = json.links?.find(l => l.id === linkId);
+    if (link) {
+        if (portType === "input") {
+            link.targetNodes[segmentId].targetId = blockId;
+            link.targetNodes[segmentId].port = portIndex;
+            link.targetNodes[segmentId].x = getPortPosition(json, blockId, portType, portIndex)?.x || 0;
+            link.targetNodes[segmentId].y = getPortPosition(json, blockId, portType, portIndex)?.y || 0;
+        } else {
+            link.sourceId = blockId;
+            link.sourcePort = portIndex;
+            link.sourceX = getPortPosition(json, blockId, portType, portIndex)?.x || 0;
+            link.sourceY = getPortPosition(json, blockId, portType, portIndex)?.y || 0;
+        }
+        let newJson = updateLinkInJson(json, link);
+        return newJson;
+    }
+    return json;
+}
+
+export function createNewChildLinkFromNode(json: JsonData, linkId: IdType, previousSegmentId: IdType, nextSegmentId: IdType): [JsonData, IdType | undefined] {
+    let linkJson = json.links?.find(l => l.id === linkId);
+    if (linkJson) {
+        let link = new Link(linkJson);
+        let segmentNode = link.createNewChildLinkFromNode(previousSegmentId, nextSegmentId);
+        if (!segmentNode) {return [json, undefined];}
+        linkJson = link.toJson();
+        let newJson = updateLinkInJson(json, linkJson);
+        return [newJson, segmentNode.id];
+    }
+    return [json, undefined];
+}
 
 export function getPortPosition(
     json: JsonData,

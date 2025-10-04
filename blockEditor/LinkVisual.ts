@@ -18,7 +18,7 @@ export class LinkVisual {
         communicationManager: CommunicationManager
     ) {
         this.id = link.id;
-        this.sourceNode = new SourceNode(this.id, () => this.delete(communicationManager));
+        this.sourceNode = new SourceNode(this.id, this.getNeighboringSegmentsToNode, () => this.delete(communicationManager));
         this.targetNodes = [];
         this.onDelete = onDelete;
 
@@ -28,20 +28,21 @@ export class LinkVisual {
     private buildSegmentsFromTree(segmentNode: SegmentNode, communicationManager: CommunicationManager, parent?: SegmentNode) {
         if (parent) {
             // create a segment between parent and this node
-            const seg = new LinkSegment(segmentNode.id, () => this.delete(communicationManager), communicationManager);
+            const seg = new LinkSegment(segmentNode.id, segmentNode.orientation, segmentNode.xOrY, this.id, 
+                                    () => this.delete(communicationManager), communicationManager);
             this.segments.push(seg);
 
             // if parent has >1 child, create a junction node
             if (parent.children.length > 1) {
                 const nodeId = `${parent.id}-${segmentNode.id}`;
-                const node = new LinkNode(this.id, nodeId, cm => this.delete(cm));
+                const node = new LinkNode(this.id, nodeId, this.getNeighboringSegmentsToNode, cm => this.delete(cm));
                 this.junctionNodes.push(node);
             }
         }
 
         if (segmentNode.children.length === 0) {
             // leaf node, create target node
-            const targetNode = new TargetNode(segmentNode.id, () => this.delete(communicationManager));
+            const targetNode = new TargetNode(this.id, segmentNode.id, this.getNeighboringSegmentsToNode, () => this.delete(communicationManager));
             this.targetNodes.push(targetNode);
         } else {
             // recurse for children
@@ -50,6 +51,16 @@ export class LinkVisual {
             });
         }
     }
+
+    public getNeighboringSegmentsToNode = (nodeId: IdType) : { before: LinkSegment; after: LinkSegment; } | undefined => {
+        const [prevId, nextId] = nodeId.split("-");
+        const before = this.segments.find(s => s.id === prevId);
+        const after = this.segments.find(s => s.id === nextId);
+        if (before && after) {
+            return { before, after };
+        }
+        return undefined;
+    };
 
     public addToSvg(svg: SVGSVGElement, communicationManager: CommunicationManager): void {
         this.segments.forEach(seg => svg.appendChild(seg.getElement()));

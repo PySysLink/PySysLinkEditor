@@ -1,4 +1,6 @@
+import { getuid } from 'process';
 import { IdType, Orientation } from './JsonTypes';
+import { getNonce } from './util';
 
 export interface SegmentNode {
     id: IdType;
@@ -98,6 +100,30 @@ export class Link {
             return undefined;
         }
         return dfs(this.segmentNode);
+    }
+
+    createNewChildLinkFromNode(previousSegmentId: string, nextSegmentId: string): SegmentNode | undefined {
+        const previous = this.findSegmentNodeById(previousSegmentId);
+        if (!previous) {return undefined;}
+
+        // find the target child inside previous.children
+        const childIndex = previous.children.findIndex(c => c.id === nextSegmentId);
+        if (childIndex === -1) {return undefined;}
+
+        const next = previous.children[childIndex];
+
+        // create a new intermediate segment
+        const newSegment: SegmentNode = {
+            id: getNonce(), 
+            orientation: next.orientation,               
+            xOrY: next.xOrY,                              
+            children: []
+        };
+
+        // insert new segment between them
+        previous.children.push(newSegment);
+
+        return newSegment;
     }
 
 }

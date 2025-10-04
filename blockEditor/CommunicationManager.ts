@@ -1,8 +1,7 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, createNewChildLinkFromNode, createNewChildLinkFromSegment, deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, getNeighboringSegmentsToNode, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, rotateBlock, rotateLinkSegmentClockwise, rotateLinkSegmentCounterClockwise, updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
+import { addBlockToJson, addLinkToJson, attachLinkToPort, createNewChildLinkFromNode, createNewChildLinkFromSegment, deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, rotateBlock, rotateLinkSegmentClockwise, rotateLinkSegmentCounterClockwise, updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
 import { BlockData, IdType, IntermediateSegment, JsonData, LinkData, Rotation } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
-import { moveLinkNode, moveLinkSegment, updateLinksAfterBatchMove } from "../shared/LInkOrganization";
 import { SegmentNode } from "../shared/Link";
 
 
@@ -100,11 +99,6 @@ export class CommunicationManager {
         this.print("Unfreeze link updates called");
         if (this.freezedLinkUpdates) {
             this.freezedLinkUpdates = false;
-            if (removeColinear) {
-                this.consolidateLinks();
-            } else {
-                this.consolidateLinks(false);
-            }
         }
     }
 
@@ -137,7 +131,6 @@ export class CommunicationManager {
         
         this.vscode.setState({ text: JSON.stringify(this.localJson) });
         if (!this.freezed && sendToServer) {
-            this.localJson = consolidateLinkNodes(this.localJson);
             this.sendJsonToServer(this.localJson);
         } 
         if (!this.freezedLocalJsonCallback) {
@@ -243,15 +236,6 @@ export class CommunicationManager {
         }
     };
 
-    public consolidateLinks = (removeColinear: boolean = true) => {
-        let json = this.getLocalJson();
-        if (json) {
-            let newJson = consolidateLinkNodes(json, removeColinear);
-            this.print(`Consolidate links`);
-            this.setLocalJson(newJson, true);
-        }
-    };
-
     public createNewLinkFromPort = (blockId: IdType, portType: "input" | "output", portIndex: number) : LinkData | undefined => {
         let json = this.getLocalJson();
         if (json) {
@@ -275,18 +259,6 @@ export class CommunicationManager {
         return undefined;
     };
 
-    public getNeighboringSegmentsToNode = (nodeId: IdType, jsonToSearch: JsonData | undefined = undefined) : { before: IntermediateSegment, after: IntermediateSegment } | undefined => {
-        if (jsonToSearch) {
-            return getNeighboringSegmentsToNode(jsonToSearch, nodeId);
-        } else {
-            let json = this.getLocalJson();
-            if (json) {
-                return getNeighboringSegmentsToNode(json, nodeId);
-            }
-            return undefined;
-        }
-    };
-
     public getLimitsOfSegment = (segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined => {
         let json = this.getLocalJson();
         if (json) {
@@ -294,18 +266,16 @@ export class CommunicationManager {
         }
     };
 
-    public createNewChildLinkFromNode(previousSegmentId: IdType, nextSegmentId: IdType): LinkData | undefined {
+    public createNewChildLinkFromNode(linkId: IdType, previousSegmentId: IdType, nextSegmentId: IdType): IdType | undefined {
         const json = this.getLocalJson();
         if (json) {
-            const result = createNewChildLinkFromNode(json, previousSegmentId, nextSegmentId);
+            const result = createNewChildLinkFromNode(json, linkId, previousSegmentId, nextSegmentId);
             if (!result) {
                 return undefined;
             }
-            const [ newJson, newLink ] = result;
+            const [newJson, newSegmentId ] = result;
             this.setLocalJson(newJson, true);
-            return newLink;
         }
-        return undefined;
     }
 
     public createNewChildLinkFromSegment(segmentId: IdType, clickX: number, clickY: number): LinkData | undefined {
@@ -330,10 +300,10 @@ export class CommunicationManager {
         return undefined;
     };
 
-    public attachLinkToPort = (linkId: IdType, blockId: IdType, portType: "input" | "output", portIndex: number) => {
+    public attachLinkToPort = (linkId: IdType, segmentId: IdType, blockId: IdType, portType: "input" | "output", portIndex: number) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = attachLinkToPort(json, linkId, blockId, portType, portIndex);
+            let newJson = attachLinkToPort(json, linkId, segmentId, blockId, portType, portIndex);
             this.setLocalJson(newJson, true);
         }
     };
