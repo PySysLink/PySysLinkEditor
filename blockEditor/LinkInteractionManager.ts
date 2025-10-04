@@ -383,19 +383,18 @@ export class LinkInteractionManager {
             const adjustedY = (e.clientY - canvasRect.top) / this.getZoomLevelReal();
 
             e.stopPropagation();
+            let link = this.links.find(l => l.id === segment.linkId);
 
-            let newLinkData = this.communicationManager.createNewChildLinkFromSegment(segment.getId(), adjustedX, adjustedY);
-            if (newLinkData) {
-                this.communicationManager.print(`Creating new link visual due to click on segment id: ${newLinkData.id}`);
-                let newLink = this.createLinkVisual(newLinkData);
-                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-                newLink.targetNodes.forEach(targetNode => targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager)));
+            let newSegmentId = this.communicationManager.createNewChildLinkFromSegment(segment.linkId, segment.getId(), adjustedX, adjustedY);
+            if (newSegmentId) {
+                this.communicationManager.print(`Creating new link visual due to click on segment id: ${newSegmentId}`);
+                let newJson = this.communicationManager.getLocalJson();
+                if (!newJson || !link) { return; }
 
-                newLink.targetNodes.forEach(targetNode => {
-                    this.selectableManager.addCallbackToSelectable(targetNode);
-                    targetNode.unselect();
-                    targetNode.triggerOnMouseDown(e.clientX, e.clientY);
-                });
+                link.updateFromJson(newJson, this.communicationManager);
+
+                link.targetNodes.find(tn => tn.segmentId === newSegmentId)?.triggerOnMouseDown(e.clientX, e.clientY);
+  
                 
             } else { return; }
         }

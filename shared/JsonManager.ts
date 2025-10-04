@@ -265,6 +265,19 @@ export function createNewChildLinkFromNode(json: JsonData, linkId: IdType, previ
     return [json, undefined];
 }
 
+export function createNewChildLinkFromSegment(json: JsonData, linkId: IdType, segmentId: IdType, clickX: number, clickY: number): [JsonData, IdType | undefined] {
+    let linkJson = json.links?.find(l => l.id === linkId);
+    if (linkJson) {
+        let link = new Link(linkJson);
+        let segmentNode = link.createNewChildLinkFromSegment(linkId, segmentId, clickX, clickY);
+        if (!segmentNode) {return [json, undefined];}
+        linkJson = link.toJson();
+        let newJson = updateLinkInJson(json, linkJson);
+        return [newJson, segmentNode.id];
+    }
+    return [json, undefined];
+}
+
 export function getPortPosition(
     json: JsonData,
     blockId: IdType,

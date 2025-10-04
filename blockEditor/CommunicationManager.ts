@@ -1,8 +1,13 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, createNewChildLinkFromNode, createNewChildLinkFromSegment, deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, rotateBlock, rotateLinkSegmentClockwise, rotateLinkSegmentCounterClockwise, updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
-import { BlockData, IdType, IntermediateSegment, JsonData, LinkData, Rotation } from "../shared/JsonTypes";
+import { addBlockToJson, addLinkToJson, attachLinkToPort, 
+    createNewChildLinkFromNode, createNewChildLinkFromSegment, 
+    deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, 
+    getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, 
+    moveTargetNode, rotateBlock, rotateLinkSegmentClockwise, rotateLinkSegmentCounterClockwise, 
+    updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
+import { BlockData, IdType, IntermediateSegment, JsonData, Rotation } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
-import { SegmentNode } from "../shared/Link";
+import { SegmentNode, LinkJson, TargetNodeInfo } from "../shared/Link";
 
 
 export class CommunicationManager {
@@ -202,7 +207,7 @@ export class CommunicationManager {
         }
     };
 
-    public addLink = (link: LinkData) => {
+    public addLink = (link: LinkJson) => {
         let json = this.getLocalJson();
         if (json) {
             let newJson = addLinkToJson(json, link);
@@ -227,7 +232,7 @@ export class CommunicationManager {
         }
     };
 
-    public updateLink = (link: LinkData): void => {
+    public updateLink = (link: LinkJson): void => {
         let json = this.getLocalJson();
         if (json) {
             let newJson = updateLinkInJson(json, link);
@@ -236,21 +241,54 @@ export class CommunicationManager {
         }
     };
 
-    public createNewLinkFromPort = (blockId: IdType, portType: "input" | "output", portIndex: number) : LinkData | undefined => {
+    public createNewLinkFromPort = (blockId: IdType, portType: "input" | "output", portIndex: number) : LinkJson | undefined => {
         let json = this.getLocalJson();
         if (json) {
-            let newLink: LinkData = {
+            const pos = this.getPortPosition(blockId, portType, portIndex) ?? { x: 0, y: 0 };
+
+            const rootSegment: SegmentNode = {
                 id: getNonce(),
-                sourceId: portType === "output" ? blockId : "undefined",
-                targetId: portType === "input" ? blockId : "undefined",
-                sourcePort: portType === "output" ? portIndex : -1,
-                targetPort: portType === "input" ? portIndex : -1,
-                sourceX: this.getPortPosition(blockId, portType, portIndex)?.x || 0,
-                sourceY: this.getPortPosition(blockId, portType, portIndex)?.y || 0,
-                targetX: this.getPortPosition(blockId, portType, portIndex)?.x || 0,
-                targetY: this.getPortPosition(blockId, portType, portIndex)?.y || 0,
-                intermediateSegments: []
+                orientation: "Horizontal", // default orientation
+                xOrY: pos.y,
+                children: []
             };
+
+            let sourceId: IdType = "undefined";
+            let sourcePort = -1;
+            let targetNodes: { [segmentId: IdType]: TargetNodeInfo } = {};
+
+            if (portType === "output") {
+                // Define source side
+                sourceId = blockId;
+                sourcePort = portIndex;
+
+                // Create a placeholder target node linked to the root segment
+                targetNodes[rootSegment.id] = {
+                    targetId: "undefined",
+                    port: -1,
+                    x: pos.x,
+                    y: pos.y
+                };
+            } else {
+                // If input: keep source undefined, but target is defined
+                targetNodes[rootSegment.id] = {
+                    targetId: blockId,
+                    port: portIndex,
+                    x: pos.x,
+                    y: pos.y
+                };
+            }
+
+            const newLink: LinkJson = {
+                id: getNonce(),
+                sourceId,
+                sourcePort,
+                sourceX: pos.x,
+                sourceY: pos.y,
+                targetNodes,
+                segmentNode: rootSegment
+            };
+
             let newJson = addLinkToJson(json, newLink);
             this.print(`Create new link from port: ${JSON.stringify(newLink)}`);
             this.setLocalJson(newJson, true);
@@ -278,16 +316,16 @@ export class CommunicationManager {
         }
     }
 
-    public createNewChildLinkFromSegment(segmentId: IdType, clickX: number, clickY: number): LinkData | undefined {
+    public createNewChildLinkFromSegment(linkId: IdType, segmentId: IdType, clickX: number, clickY: number): IdType | undefined {
         const json = this.getLocalJson();
         if (json) {
-            const result = createNewChildLinkFromSegment(json, segmentId, clickX, clickY);
+            const result = createNewChildLinkFromSegment(json, linkId, segmentId, clickX, clickY);
             if (!result) {
                 return undefined;
             }
-            const [ newJson, newLink ] = result;
+            const [ newJson, newSegmentId ] = result;
             this.setLocalJson(newJson, true);
-            return newLink;
+            return newSegmentId;
         }
         return undefined;
     }

@@ -126,4 +126,22 @@ export class Link {
         return newSegment;
     }
 
+    createNewChildLinkFromSegment(linkId: string, segmentId: string, clickX: number, clickY: number): SegmentNode | undefined {
+        const previous = this.findSegmentNodeById(segmentId);
+        if (!previous) {return undefined;}
+
+        // create a new intermediate segment
+        const newSegment: SegmentNode = {
+            id: getNonce(), 
+            orientation: previous.orientation === 'Horizontal' ? 'Vertical' : 'Horizontal',              
+            xOrY: previous.orientation === 'Horizontal' ? clickX : clickY,                              
+            children: []
+        };
+
+        // insert new segment between them
+        previous.children.push(newSegment);
+
+        return newSegment;
+    }
+
 }
