@@ -278,6 +278,16 @@ export function createNewChildLinkFromSegment(json: JsonData, linkId: IdType, se
     return [json, undefined];
 }
 
+export function getLimitsOfSegment(json: JsonData, linkId: IdType, segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined {
+    let linkJson = json.links?.find(l => l.id === linkId);
+    if (linkJson) {
+        let link = new Link(linkJson);
+
+    }
+    return undefined;
+
+}
+
 export function getPortPosition(
     json: JsonData,
     blockId: IdType,

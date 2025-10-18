@@ -297,10 +297,10 @@ export class CommunicationManager {
         return undefined;
     };
 
-    public getLimitsOfSegment = (segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined => {
+    public getLimitsOfSegment = (linkId: IdType, segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined => {
         let json = this.getLocalJson();
         if (json) {
-            return getLimitsOfSegment(json, segmentId);
+            return getLimitsOfSegment(json, linkId, segmentId);
         }
     };
 

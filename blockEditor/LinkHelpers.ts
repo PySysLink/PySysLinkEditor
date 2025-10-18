@@ -379,7 +379,7 @@ export class LinkSegment extends Selectable implements Movable {
             this.segmentElement.classList.add('selected');
         }
 
-        const segmentLimits = communicationManager.getLimitsOfSegment(this.id);
+        const segmentLimits = communicationManager.getLimitsOfSegment(this.linkId, this.id);
         
         if (segmentLimits) {
             this.getElement().setAttribute("points", `${segmentLimits.before.x},${segmentLimits.before.y} ${segmentLimits.after.x},${segmentLimits.after.y}`);
@@ -394,7 +394,7 @@ export class LinkSegment extends Selectable implements Movable {
         this.orientation = segmentNode.orientation;
         this.xOrY = segmentNode.xOrY;
 
-        const segmentLimits = communicationManager.getLimitsOfSegment(this.id);
+        const segmentLimits = communicationManager.getLimitsOfSegment(this.linkId, this.id);
         
         if (segmentLimits) {
             this.getElement().setAttribute("points", `${segmentLimits.before.x},${segmentLimits.before.y} ${segmentLimits.after.x},${segmentLimits.after.y}`);
@@ -430,7 +430,7 @@ export class LinkSegment extends Selectable implements Movable {
     }
 
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
-        let limits = communicationManager.getLimitsOfSegment(this.id);
+        let limits = communicationManager.getLimitsOfSegment(this.linkId, this.id);
         if (limits) {
             return { x: (limits.before.x + limits.after.x) / 2, y: (limits.before.y + limits.after.y) / 2 };
         }

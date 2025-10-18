@@ -1,6 +1,7 @@
 import { getuid } from 'process';
 import { IdType, Orientation } from './JsonTypes';
 import { getNonce } from './util';
+import { TargetNode } from '../blockEditor/LinkHelpers';
 
 export interface SegmentNode {
     id: IdType;
@@ -123,6 +124,14 @@ export class Link {
         // insert new segment between them
         previous.children.push(newSegment);
 
+        const targetNode: TargetNodeInfo = {
+            targetId: "undefined",
+            port: -1,
+            x: previous.orientation === 'Horizontal' ? previous.xOrY : next.xOrY,
+            y: previous.orientation === 'Horizontal' ? next.xOrY : previous.xOrY,
+        };
+        this.targetNodes[newSegment.id] = targetNode;
+
         return newSegment;
     }
 
@@ -142,6 +151,75 @@ export class Link {
         previous.children.push(newSegment);
 
         return newSegment;
+    }
+
+    getLimitsOfSegment(segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined {
+        const segment = this.findSegmentNodeById(segmentId);
+        if (!segment) {return undefined;}
+
+        const parent = this.findParentSegmentNode(segmentId);
+
+        let beforeX: number;
+        let beforeY: number;
+        if (!parent) {
+            // Root segment — before point is link source
+            beforeX = this.sourceX;
+            beforeY = this.sourceY;
+        } else {
+            if (parent.orientation === "Horizontal") {
+                beforeY = parent.xOrY;
+                if (segment.orientation === "Vertical") {
+                    beforeX = segment.xOrY;
+                } else {
+                    let beforeXorUndefined = this.getLimitsOfSegment(parent.id)?.after.x;
+                    if (beforeXorUndefined === undefined) {return undefined;}
+                    beforeX = beforeXorUndefined;
+                }
+            } else {
+                beforeX = parent.xOrY;
+                if (segment.orientation === "Horizontal") {
+                    beforeY = segment.xOrY;
+                } else {
+                    let beforeYorUndefined = this.getLimitsOfSegment(parent.id)?.after.y;
+                    if (beforeYorUndefined === undefined) {return undefined;}
+                    beforeY = beforeYorUndefined;
+                }
+            }
+        }
+
+        let afterX: number | undefined = undefined;
+        let afterY: number | undefined = undefined;
+
+        if (segment.children.length > 0) {
+            // Any child with not equal orientation should share the same xOrY
+            for (const child of segment.children) {
+                if (segment.orientation !== child.orientation) {
+                    if (segment.orientation === "Horizontal") {
+                        afterY = segment.xOrY;
+                        afterX = child.xOrY;
+                    } else {
+                        afterX = segment.xOrY;
+                        afterY = child.xOrY;
+                    }
+                }
+            }
+            
+        } else {
+            // Leaf segment has a target node
+            const targetInfo = this.targetNodes[segment.id];
+            if (!targetInfo) {return undefined;}
+            afterX = targetInfo.x;
+            afterY = targetInfo.y;
+        }
+
+        if (afterX === undefined || afterY === undefined) {
+            return undefined;
+        }
+
+        return {
+            before: { x: beforeX, y: beforeY },
+            after: { x: afterX, y: afterY }
+        };
     }
 
 }
