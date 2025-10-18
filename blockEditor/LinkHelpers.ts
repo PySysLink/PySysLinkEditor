@@ -58,17 +58,7 @@ export class LinkNode extends Selectable implements Movable {
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
         let beforeAndAfterSegments = this.getNeighboringSegmentsToNode(this.id);
         if (beforeAndAfterSegments) {
-            if (beforeAndAfterSegments.before.orientation === "Horizontal" 
-                && beforeAndAfterSegments.after.orientation === "Vertical") {
-                return {x: beforeAndAfterSegments.after.xOrY, y: beforeAndAfterSegments.before.xOrY};
-            }
-            else if (beforeAndAfterSegments.before.orientation === "Vertical" 
-                && beforeAndAfterSegments.after.orientation === "Horizontal") {
-                return {x: beforeAndAfterSegments.before.xOrY, y: beforeAndAfterSegments.after.xOrY};
-            }
-            else {
-                throw RangeError(`Orientations should be opposed, they where before: ${beforeAndAfterSegments.before.orientation}, after: ${beforeAndAfterSegments.after.orientation}`);
-            }
+            return communicationManager.getLimitsOfSegment(this.linkId, beforeAndAfterSegments?.before.id)?.after;
         }
         return undefined;
     }
@@ -80,7 +70,12 @@ export class LinkNode extends Selectable implements Movable {
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
         const selectedSelectableIds: IdType[] = selectables.filter(selectable => selectable.isSelected()).map(selectable => selectable.getId());
-        communicationManager.moveLinkNode(this.id, x, y, selectedSelectableIds);
+        const neighboringSegments = this.getNeighboringSegmentsToNode(this.id);
+        if (neighboringSegments === undefined) {
+            console.error(`Cannot move link node ${this.id} because neighboring segments are undefined.`);
+            return;
+        }
+        communicationManager.moveLinkNode(this.linkId, neighboringSegments.before.id, neighboringSegments.after.id, x, y, selectedSelectableIds);
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -302,7 +297,7 @@ export class TargetNode extends LinkNode implements Movable {
         communicationManager.print(`Target node with id: ${this.getId()} moving to ${x}, ${y}`);
         
         const selectedSelectableIds: IdType[] = selectables.filter(selectable => selectable.isSelected()).map(selectable => selectable.getId());
-        communicationManager.moveTargetNode(this.linkId, x, y, selectedSelectableIds);
+        communicationManager.moveTargetNode(this.linkId, this.segmentId, x, y, selectedSelectableIds);
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -409,7 +404,7 @@ export class LinkSegment extends Selectable implements Movable {
         communicationManager.print(`Segment with id: ${this.getId()} moving to ${x}, ${y}`);
         
         const selectedSelectableIds: IdType[] = selectables.filter(selectable => selectable.isSelected()).map(selectable => selectable.getId());
-        communicationManager.moveLinkSegment(this.id, x, y, selectedSelectableIds);
+        communicationManager.moveLinkSegment(this.linkId, this.id, x, y, selectedSelectableIds);
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -422,11 +417,11 @@ export class LinkSegment extends Selectable implements Movable {
     }
 
     moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        communicationManager.rotateLinkSegmentClockwise(this.id, centerX, centerY);
+        communicationManager.rotateLinkSegmentClockwise(this.linkId, this.id, centerX, centerY);
     }
 
     moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        communicationManager.rotateLinkSegmentCounterClockwise(this.id, centerX, centerY);
+        communicationManager.rotateLinkSegmentCounterClockwise(this.linkId, this.id, centerX, centerY);
     }
 
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {

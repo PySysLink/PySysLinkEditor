@@ -1,7 +1,7 @@
 import { addBlockToJson, addLinkToJson, attachLinkToPort, 
     createNewChildLinkFromNode, createNewChildLinkFromSegment, 
     deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, 
-    getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, 
+    getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveLinkSegment, moveSourceNode, 
     moveTargetNode, rotateBlock, rotateLinkSegmentClockwise, rotateLinkSegmentCounterClockwise, 
     updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
 import { BlockData, IdType, IntermediateSegment, JsonData, Rotation } from "../shared/JsonTypes";
@@ -364,19 +364,19 @@ export class CommunicationManager {
         }
     };
 
-    public rotateLinkSegmentClockwise = (segmentId: IdType, centerX: number, centerY: number) => {
+    public rotateLinkSegmentClockwise = (linkId: IdType, segmentId: IdType, centerX: number, centerY: number) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = rotateLinkSegmentClockwise(json, segmentId, centerX, centerY, !this.freezedLinkUpdates);
+            let newJson = rotateLinkSegmentClockwise(json, linkId, segmentId, centerX, centerY, !this.freezedLinkUpdates);
             this.print(`Rotate link segment: ${segmentId} clockwise around (${centerX}, ${centerY})`);
             this.setLocalJson(newJson, true);
         }
     };
 
-    public rotateLinkSegmentCounterClockwise = (segmentId: IdType, centerX: number, centerY: number) => {
+    public rotateLinkSegmentCounterClockwise = (linkId: IdType, segmentId: IdType, centerX: number, centerY: number) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = rotateLinkSegmentCounterClockwise(json, segmentId, centerX, centerY, !this.freezedLinkUpdates);
+            let newJson = rotateLinkSegmentCounterClockwise(json, linkId, segmentId, centerX, centerY, !this.freezedLinkUpdates);
             this.print(`Rotate link segment: ${segmentId} counter-clockwise around (${centerX}, ${centerY})`);
             this.setLocalJson(newJson, true);
         }
@@ -401,10 +401,10 @@ export class CommunicationManager {
         }
     };
 
-    public moveTargetNode = (linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
+    public moveTargetNode = (linkId: IdType, segmentIdOfNode: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveTargetNode(json, linkId, x, y, selectedSelectableIds);
+            let newJson = moveTargetNode(json, linkId, segmentIdOfNode, x, y, selectedSelectableIds);
             this.print(`Move target node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
@@ -457,7 +457,7 @@ export class CommunicationManager {
         this.addBlock(newBlock);
     }
 
-    public moveLinkSegment(segmentId: IdType,
+    public moveLinkSegment(linkId: IdType, segmentId: IdType,
         targetPositionX: number,
         targetPositionY: number,
         selectedSelectableIds: IdType[]
@@ -466,32 +466,33 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             this.print(`Move link segment ${segmentId} at position (${targetPositionX}, ${targetPositionY})`);
-            let newJson = moveLinkSegment(json, segmentId, targetPositionX, targetPositionY, selectedSelectableIds);
+            let newJson = moveLinkSegment(json, linkId, segmentId, targetPositionX, targetPositionY, selectedSelectableIds);
             this.setLocalJson(newJson, true);
         }
     }
 
-    public moveLinkNode(
-        nodeId: IdType,
+    public moveLinkNode(linkId: IdType,
+        beforeId: IdType,
+        afterId: IdType,
         targetPositionX: number,
         targetPositionY: number,
         selectedSelectableIds: IdType[]
     ) {
         let json = this.getLocalJson();
         if (json) {
-            this.print(`Move link node ${nodeId} at position (${targetPositionX}, ${targetPositionY})`);
-            let newJson = moveLinkNode(json, nodeId, targetPositionX, targetPositionY, selectedSelectableIds);
+            this.print(`Move link node ${beforeId}-${afterId} at position (${targetPositionX}, ${targetPositionY})`);
+            let newJson = moveLinkNode(json, linkId, beforeId, afterId, targetPositionX, targetPositionY, selectedSelectableIds);
             this.setLocalJson(newJson, true);
         }
     }
 
-    public updateLinksAfterBatchMove() {
-        let json = this.getLocalJson();
-        if (json) {
-            let newJson = updateLinksAfterBatchMove(json);
-            this.setLocalJson(newJson, true);
-        }
-    }
+    // public updateLinksAfterBatchMove() {
+    //     let json = this.getLocalJson();
+    //     if (json) {
+    //         let newJson = updateLinksAfterBatchMove(json);
+    //         this.setLocalJson(newJson, true);
+    //     }
+    // }
 
     findParentSegmentNode(linkId: string, id: any): SegmentNode | undefined {
         throw new Error('Method not implemented.');

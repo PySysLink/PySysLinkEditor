@@ -1,7 +1,6 @@
 import { getuid } from 'process';
 import { IdType, Orientation } from './JsonTypes';
 import { getNonce } from './util';
-import { TargetNode } from '../blockEditor/LinkHelpers';
 
 export interface SegmentNode {
     id: IdType;
@@ -136,21 +135,54 @@ export class Link {
     }
 
     createNewChildLinkFromSegment(linkId: string, segmentId: string, clickX: number, clickY: number): SegmentNode | undefined {
-        const previous = this.findSegmentNodeById(segmentId);
-        if (!previous) {return undefined;}
+        const segment = this.findSegmentNodeById(segmentId);
+        if (!segment) {return undefined;}
 
-        // create a new intermediate segment
-        const newSegment: SegmentNode = {
-            id: getNonce(), 
-            orientation: previous.orientation === 'Horizontal' ? 'Vertical' : 'Horizontal',              
-            xOrY: previous.orientation === 'Horizontal' ? clickX : clickY,                              
+        const parent = this.findParentSegmentNode(segmentId);
+
+        const splitNode: SegmentNode = {
+            id: getNonce(),
+            orientation: segment.orientation,
+            xOrY: segment.xOrY,
             children: []
         };
 
-        // insert new segment between them
-        previous.children.push(newSegment);
+        splitNode.children.push(segment);
 
-        return newSegment;
+        const branchOrientation: Orientation = splitNode.orientation === "Horizontal" ? "Vertical" : "Horizontal";
+        const branchNode: SegmentNode = {
+            id: getNonce(),
+            orientation: branchOrientation,
+            xOrY: branchOrientation === "Horizontal" ? clickY : clickX,
+            children: []
+        };
+
+        splitNode.children.push(branchNode);
+
+        if (parent) {
+            // replace `segment` in parent's children with `splitNode`
+            const idx = parent.children.findIndex(c => c.id === segmentId);
+            if (idx === -1) {
+                // unexpected; fallback: append
+                parent.children.push(splitNode);
+            } else {
+                parent.children.splice(idx, 1, splitNode);
+            }
+        } else {
+            // segment was the root: make splitNode the new root
+            // (splitNode.children already contains the old root segment)
+            this.segmentNode = splitNode;
+        }
+
+        const targetNode: TargetNodeInfo = {
+            targetId: "undefined",
+            port: -1,
+            x: clickX,
+            y: clickY,
+        };
+        this.targetNodes[branchNode.id] = targetNode;
+
+        return branchNode;
     }
 
     getLimitsOfSegment(segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined {
@@ -220,6 +252,34 @@ export class Link {
             before: { x: beforeX, y: beforeY },
             after: { x: afterX, y: afterY }
         };
+    }
+
+    moveLinkSegment(segmentId: string, targetPositionX: number, targetPositionY: number, selectedSelectableIds: string[]) {
+        let segment = this.findSegmentNodeById(segmentId);
+        if (!segment) {return;}
+        if (segment.orientation === "Horizontal") {
+            segment.xOrY = targetPositionY;
+        } else {
+            segment.xOrY = targetPositionX;
+        }
+
+        // If the segment is a leaf, update the target node position
+        if (segment.children.length === 0) {
+            const targetInfo = this.targetNodes[segment.id];
+            if (targetInfo) {
+                targetInfo.x = targetPositionX;
+                targetInfo.y = targetPositionY;
+            }
+        }
+    }
+
+    moveLinkNode(beforeId: string, afterId: string, targetPositionX: number, targetPositionY: number, selectedSelectableIds: string[]) {
+        if (!selectedSelectableIds.includes(beforeId)) {
+            this.moveLinkSegment(beforeId, targetPositionX, targetPositionY, selectedSelectableIds);
+        }
+        if (!selectedSelectableIds.includes(afterId)) {
+            this.moveLinkSegment(afterId, targetPositionX, targetPositionY, selectedSelectableIds);
+        }
     }
 
 }

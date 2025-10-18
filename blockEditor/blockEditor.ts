@@ -1,4 +1,4 @@
-import { LinkVisual, SourceNode, TargetNode } from './LinkVisual';
+import { LinkVisual } from './LinkVisual';
 import { BlockVisual } from './BlockVisual';
 import { BlockInteractionManager } from './BlockInteractionManager';
 import { LinkInteractionManager } from './LinkInteractionManager';

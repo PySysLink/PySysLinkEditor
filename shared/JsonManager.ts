@@ -3,6 +3,7 @@ import { IdType, JsonData, BlockData, Rotation, IntermediateSegment } from "./Js
 // import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
 import { getNonce } from "./util";
 import { Link, LinkJson, SegmentNode, TargetNodeInfo } from "./Link";
+import { link } from "fs";
 
 export function MergeJsons(
     jsonBase: JsonData,
@@ -282,10 +283,9 @@ export function getLimitsOfSegment(json: JsonData, linkId: IdType, segmentId: Id
     let linkJson = json.links?.find(l => l.id === linkId);
     if (linkJson) {
         let link = new Link(linkJson);
-
+        return link.getLimitsOfSegment(segmentId);
     }
     return undefined;
-
 }
 
 export function getPortPosition(
@@ -380,13 +380,43 @@ export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
 }
 
 
-function moveSegmentNode(node: SegmentNode, deltaX: number, deltaY: number): SegmentNode {
+export function moveLinkSegment(json: JsonData, linkId: IdType, segmentId: IdType,
+                                targetPositionX: number,
+                                targetPositionY: number,
+                                selectedSelectableIds: IdType[]): JsonData {
+    let linkJson = json.links?.find(l => l.id === linkId);
+    if (linkJson) {
+        let link = new Link(linkJson);      
+        link.moveLinkSegment(segmentId, targetPositionX, targetPositionY, selectedSelectableIds); 
+        linkJson = link.toJson();
+        let newJson = updateLinkInJson(json, linkJson);
+        return newJson;
+    }                  
+    return json;
+}
+
+export function moveLinkNode(json: JsonData, linkId: IdType, beforeId: IdType, afterId: IdType,
+                             targetPositionX: number,
+                             targetPositionY: number,
+                             selectedSelectableIds: IdType[]): JsonData {
+    let linkJson = json.links?.find(l => l.id === linkId);
+    if (linkJson) {
+        let link = new Link(linkJson);      
+        link.moveLinkNode(beforeId, afterId, targetPositionX, targetPositionY, selectedSelectableIds); 
+        linkJson = link.toJson();
+        let newJson = updateLinkInJson(json, linkJson);
+        return newJson;
+    }                  
+    return json;
+}
+
+function moveFullSegmentNode(node: SegmentNode, deltaX: number, deltaY: number): SegmentNode {
     return {
         ...node,
         xOrY: node.orientation === "Horizontal"
             ? node.xOrY + deltaY
             : node.xOrY + deltaX,
-        children: node.children.map(child => moveSegmentNode(child, deltaX, deltaY))
+        children: node.children.map(child => moveFullSegmentNode(child, deltaX, deltaY))
     };
 }
 
@@ -417,7 +447,7 @@ export function moveLinkDelta(
                 sourceX: link.sourceX + deltaX,
                 sourceY: link.sourceY + deltaY,
                 targetNodes: updatedTargetNodes,
-                segmentNode: moveSegmentNode(link.segmentNode, deltaX, deltaY)
+                segmentNode: moveFullSegmentNode(link.segmentNode, deltaX, deltaY)
             };
         })
     };
@@ -485,10 +515,6 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
             }
         }
     }
-
-    const initialX = json.links?.find(link => link.id === linkId)?.sourceX || 0;
-    const initialY = json.links?.find(link => link.id === linkId)?.sourceY || 0;
-
         
     let updatedJson: JsonData = {
         ...json,
@@ -502,50 +528,80 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
             return link;
         })
     };
+
+    const sourceSegmentId = updatedJson.links?.find(link => link.id === linkId)?.segmentNode.id;
+    if (sourceSegmentId === undefined) {
+        return updatedJson;
+    }
+
+    updatedJson = moveLinkSegment(updatedJson, linkId, sourceSegmentId, finalX, finalY, selectedSelectableIds);
+
     return updatedJson;
 }
 
-// export function moveTargetNode(json: JsonData, linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
-//     let attachedBlock = json.links?.find(link => link.id === linkId)?.targetId;
-//     if (attachedBlock) {
-//         if (selectedSelectableIds.includes(attachedBlock)) {
-//             return json; // Do not move if the source node is selected
-//         }
-//     }
+export function moveTargetNode(
+    json: JsonData,
+    linkId: IdType,
+    segmentIdOfNode: IdType,
+    x: number,
+    y: number,
+    selectedSelectableIds: IdType[],
+    attachLinkToPort: boolean = false
+): JsonData {
+    // --- 1. Get link and attached target block ---
+    const link = json.links?.find(link => link.id === linkId);
+    if (!link) {return json;}
 
-//     let finalX = x;
-//     let finalY = y;
-//     let finalId = "undefined";
-//     let finalPort = -1;
+    const attachedBlock = link.targetNodes?.[segmentIdOfNode]?.targetId;
+    if (attachedBlock && selectedSelectableIds.includes(attachedBlock)) {
+        return json; // Do not move if the target block is selected
+    }
 
-//     if (attachLinkToPort) {
-//         let port = checkIfPortInPosition(json, x, y, 10);
+    // --- 2. Initialize final position and port attachment info ---
+    let finalX = x;
+    let finalY = y;
+    let finalId: IdType = "undefined";
+    let finalPort = -1;
 
-//         if (port && port.portType === "input") {
-//             let portPosition = getPortPosition(json, port.blockId, port.portType, port.portIndex);
-//             if (portPosition) {
-//                 finalX = portPosition.x;
-//                 finalY = portPosition.y;
-//                 finalId = port.blockId;
-//                 finalPort = port.portIndex;
-//             }
-//         }
-//     }
-    
-//     let updatedJson: JsonData = {
-//         ...json,
-//         links: json.links?.map(link => {
-//             if (link.id === linkId) {
-//                 link.targetId = finalId;
-//                 link.targetPort = finalPort;
-//                 link.targetX = finalX;
-//                 link.targetY = finalY;
-//             }
-//             return link;
-//         })
-//     };
-//     return updatedJson;
-// }
+    if (attachLinkToPort) {
+        const port = checkIfPortInPosition(json, x, y, 10);
+        if (port && port.portType === "input") {
+            const portPosition = getPortPosition(json, port.blockId, port.portType, port.portIndex);
+            if (portPosition) {
+                finalX = portPosition.x;
+                finalY = portPosition.y;
+                finalId = port.blockId;
+                finalPort = port.portIndex;
+            }
+        }
+    }
+
+    // --- 3. Update the target node inside targetNodes ---
+    const updatedJson: JsonData = {
+        ...json,
+        links: json.links?.map(l => {
+            if (l.id === linkId) {
+                const targetNodes = { ...l.targetNodes };
+                if (targetNodes[segmentIdOfNode]) {
+                    targetNodes[segmentIdOfNode] = {
+                        ...targetNodes[segmentIdOfNode],
+                        targetId: finalId,
+                        port: finalPort,
+                        x: finalX,
+                        y: finalY
+                    };
+                }
+                return { ...l, targetNodes };
+            }
+            return l;
+        })
+    };
+
+    // --- 4. Move link segment visually (same as in moveSourceNode) ---
+    const targetSegmentId = segmentIdOfNode;
+    return moveLinkSegment(updatedJson, linkId, targetSegmentId, finalX, finalY, selectedSelectableIds);
+}
+
 
 
 export function updateBlockParameters(json: JsonData, updatedBlock: BlockData): JsonData {
@@ -562,4 +618,12 @@ export function updateBlockParameters(json: JsonData, updatedBlock: BlockData): 
 
 export function getBlockData(json: JsonData, blockId: IdType): BlockData | undefined {
     return json.blocks?.find(block => block.id === blockId);
+}
+
+export function rotateLinkSegmentClockwise(json: JsonData, linkId: IdType, segmentId: IdType, centerX: number, centerY: number, updateLinks: boolean = true): JsonData {
+    return json;
+}
+
+export function rotateLinkSegmentCounterClockwise(json: JsonData, linkId: IdType, segmentId: IdType, centerX: number, centerY: number, updateLinks: boolean = true): JsonData {
+    return json;
 }
