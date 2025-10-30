@@ -170,7 +170,6 @@ const vscode = acquireVsCodeApi();
             }
         });
 
-
         renderHTML(json);
     }
 

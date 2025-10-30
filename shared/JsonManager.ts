@@ -185,10 +185,12 @@ export function updateBlockFromJson(json: JsonData, updatedBlock: BlockData, upd
 }
 
 export function updateLinkInJson(json: JsonData, updatedLink: LinkJson): JsonData {
+    console.log(`Updating link in JSON: ${JSON.stringify(updatedLink)}`);
     const updatedJson: JsonData = {
         ...json,
         links: json.links?.map(link => (link.id === updatedLink.id ? updatedLink : link))
     };
+    console.log(`Updated JSON links: ${JSON.stringify(updatedJson.links)}`);
     return updatedJson;
 }
 
@@ -356,26 +358,21 @@ export function getPortPosition(
     };
 }
 
-export function updateLinksSourceTargetPosition(json: JsonData): JsonData {
-    let updatedJson: JsonData = {
-        ...json,
-        links: json.links?.map(link => {
-            const sourcePosition = getPortPosition(json, link.sourceId, "output", link.sourcePort);
-            if (sourcePosition) {
-                link.sourceX = sourcePosition.x;
-                link.sourceY = sourcePosition.y;
+export function updateLinksSourceTargetPosition(json: JsonData, selectedSelectableIds: IdType[] = []): JsonData {
+    let updatedJson = json;
+    for (let link of json.links || []) {
+        const sourcePosition = getPortPosition(updatedJson, link.sourceId, "output", link.sourcePort);
+        if (sourcePosition) {
+            updatedJson = moveSourceNode(updatedJson, link.id, sourcePosition.x, sourcePosition.y, selectedSelectableIds);
+        }
+        for (const segmentId in link.targetNodes) {
+            let targetInfo = link.targetNodes[segmentId];
+            const targetPosition = getPortPosition(updatedJson, targetInfo.targetId, "input", targetInfo.port);
+            if (targetPosition) {
+                updatedJson = moveTargetNode(updatedJson, link.id, segmentId, targetPosition.x, targetPosition.y, selectedSelectableIds);
             }
-            for (const segmentId in link.targetNodes) {
-                let targetInfo = link.targetNodes[segmentId];
-                const targetPosition = getPortPosition(json, targetInfo.targetId, "input", targetInfo.port);
-                if (targetPosition) {
-                    targetInfo.x = targetPosition.x;
-                    targetInfo.y = targetPosition.y;
-                }
-            }
-            return link;
-        })
-    };
+        }
+    }
     return updatedJson;
 }
 
@@ -515,27 +512,25 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
             }
         }
     }
-        
-    let updatedJson: JsonData = {
-        ...json,
-        links: json.links?.map(link => {
-            if (link.id === linkId) {
-                link.sourceId = finalId;
-                link.sourcePort = finalPort;
-                link.sourceX = finalX;
-                link.sourceY = finalY;
-            }
-            return link;
-        })
-    };
 
-    const sourceSegmentId = updatedJson.links?.find(link => link.id === linkId)?.segmentNode.id;
-    if (sourceSegmentId === undefined) {
-        return updatedJson;
+    const linkData = json.links?.find(l => l.id === linkId);
+    if (!linkData) {
+        return json;
     }
 
-    updatedJson = moveLinkSegment(updatedJson, linkId, sourceSegmentId, finalX, finalY, selectedSelectableIds);
+    console.log(`Link json before moving source node: ${JSON.stringify(linkData)}`);
 
+    let link = new Link(linkData);
+    link.moveSourceNode(finalX, finalY);
+
+    let linkJson = link.toJson();
+
+    console.log(`Resulting link json after moving source node: ${JSON.stringify(linkJson)}`);
+
+    linkJson.sourceId = finalId;
+    linkJson.sourcePort = finalPort;
+        
+    let updatedJson = updateLinkInJson(json, linkJson);
     return updatedJson;
 }
 

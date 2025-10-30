@@ -1,6 +1,7 @@
 import { getuid } from 'process';
 import { IdType, Orientation } from './JsonTypes';
 import { getNonce } from './util';
+import { link } from 'fs';
 
 export interface SegmentNode {
     id: IdType;
@@ -262,15 +263,6 @@ export class Link {
         } else {
             segment.xOrY = targetPositionX;
         }
-
-        // If the segment is a leaf, update the target node position
-        if (segment.children.length === 0) {
-            const targetInfo = this.targetNodes[segment.id];
-            if (targetInfo) {
-                targetInfo.x = targetPositionX;
-                targetInfo.y = targetPositionY;
-            }
-        }
     }
 
     moveLinkNode(beforeId: string, afterId: string, targetPositionX: number, targetPositionY: number, selectedSelectableIds: string[]) {
@@ -282,4 +274,61 @@ export class Link {
         }
     }
 
+    moveSourceNode(x: number, y: number) {
+        console.log(`Moving link source node: ${this.id} to x: ${x} y: ${y}`);
+        this.sourceX = x;
+        this.sourceY = y;
+
+        if (this.segmentNode.orientation === "Horizontal" && this.segmentNode.xOrY !== y) {
+            this.segmentNode.xOrY = y;
+        } else if (this.segmentNode.orientation === "Vertical" && this.segmentNode.xOrY !== x) {
+            this.segmentNode.xOrY = x;
+        }
+
+        if (this.segmentNode.children.length === 0) {
+            const targetNode = this.targetNodes[this.segmentNode.id];
+            if (!targetNode) {
+                console.warn("No target node found for segment node");
+                return;
+            }
+            if (this.segmentNode.orientation === "Horizontal" && this.sourceY !== this.targetNodes[this.segmentNode.id].y) {
+                console.log("Creating horizontal dog leg");
+                const newSegmentNode1: SegmentNode = {
+                    id: getNonce(),
+                    orientation: "Vertical",
+                    xOrY: (this.targetNodes[this.segmentNode.id].x + this.sourceX) / 2,
+                    children: []
+                };
+                const newSegmentNode2: SegmentNode = {
+                    id: getNonce(),
+                    orientation: "Horizontal",
+                    xOrY: this.targetNodes[this.segmentNode.id].y,
+                    children: []
+                };
+                newSegmentNode1.children.push(newSegmentNode2);
+                this.segmentNode.children.push(newSegmentNode1);
+                this.targetNodes[newSegmentNode2.id] = this.targetNodes[this.segmentNode.id];
+                delete this.targetNodes[this.segmentNode.id];
+            } 
+            else if (this.segmentNode.orientation === "Vertical" && this.sourceX !== this.targetNodes[this.segmentNode.id].x) {
+                console.log("Creating vertical dog leg");
+                const newSegmentNode1: SegmentNode = {
+                    id: getNonce(),
+                    orientation: "Horizontal",
+                    xOrY: (this.targetNodes[this.segmentNode.id].y + this.sourceY) / 2,
+                    children: []
+                };
+                const newSegmentNode2: SegmentNode = {
+                    id: getNonce(),
+                    orientation: "Vertical",
+                    xOrY: this.targetNodes[this.segmentNode.id].x,
+                    children: []
+                };
+                newSegmentNode1.children.push(newSegmentNode2);
+                this.segmentNode.children.push(newSegmentNode1);
+                this.targetNodes[newSegmentNode2.id] = this.targetNodes[this.segmentNode.id];
+                delete this.targetNodes[this.segmentNode.id];
+            }
+        }
+    }
 }

@@ -7,7 +7,7 @@ import { addBlockToJson, addLinkToJson, attachLinkToPort,
 import { BlockData, IdType, IntermediateSegment, JsonData, Rotation } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
-import { SegmentNode, LinkJson, TargetNodeInfo } from "../shared/Link";
+import { SegmentNode, LinkJson, TargetNodeInfo, Link } from "../shared/Link";
 
 
 export class CommunicationManager {
@@ -32,6 +32,7 @@ export class CommunicationManager {
     }
 
     print(text: string) {
+        console.log(text);
         this.vscode.postMessage({
             type: 'print',
             text: text
@@ -494,11 +495,19 @@ export class CommunicationManager {
     //     }
     // }
 
-    findParentSegmentNode(linkId: string, id: any): SegmentNode | undefined {
-        throw new Error('Method not implemented.');
+    findParentSegmentNode(linkId: string, id: string): SegmentNode | undefined {
+        const linkData = this.localJson?.links?.find(l => l.id === linkId);
+        if (!linkData) {return undefined;}
+
+        const link = new Link(linkData);
+        return link.findParentSegmentNode(id);
     }
     
     findSegmentNodeById(linkId: string, id: string): SegmentNode | undefined {
-        throw new Error('Method not implemented.');
+        const linkData = this.localJson?.links?.find(l => l.id === linkId);
+        if (!linkData) {return undefined;}
+
+        const link = new Link(linkData);
+        return link.findSegmentNodeById(id);
     }
 }

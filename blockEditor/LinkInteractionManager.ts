@@ -108,7 +108,8 @@ export class LinkInteractionManager {
         );
 
         this.links.push(newLink);
-        
+        newLink.addToSvg(this.linksSvg, this.communicationManager);
+
         return newLink;
     }
 
@@ -198,7 +199,7 @@ export class LinkInteractionManager {
             }
         });
 
-        this.links.forEach(link => link.removeFromSvg(this.linksSvg));
+        // this.links.forEach(link => link.removeFromSvg(this.linksSvg));
         this.links.forEach(link => link.updateFromJson(json, this.communicationManager));
         this.links.forEach(link => link.addToSvg(this.linksSvg, this.communicationManager));
 
