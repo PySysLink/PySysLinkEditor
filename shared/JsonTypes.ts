@@ -17,10 +17,6 @@ export interface BlockData {
     blockRenderInformation?: BlockRenderInformation;
 }
 
-export interface IntermediateSegment {
-    id: IdType, orientation: Orientation; xOrY: number
-}
-
 export interface JsonData {
     version: number;
     simulation_configuration: string;

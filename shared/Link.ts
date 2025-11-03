@@ -331,4 +331,27 @@ export class Link {
             }
         }
     }
+
+    moveTargetNode(segmentId: IdType, x: number, y: number) {
+        console.log(`Moving link target node: ${this.id} segment: ${segmentId} to x: ${x} y: ${y}`);
+        const targetNode = this.targetNodes[segmentId];
+        if (!targetNode) {
+            console.warn("No target node found for segment node");
+            return;
+        }
+        targetNode.x = x;
+        targetNode.y = y;
+
+        const segment = this.findSegmentNodeById(segmentId);
+        if (!segment) {
+            console.warn("No segment node found for segment id");
+            return;
+        }
+
+        if (segment.orientation === "Horizontal" && segment.xOrY !== y) {
+            segment.xOrY = y;
+        } else if (segment.orientation === "Vertical" && segment.xOrY !== x) {
+            segment.xOrY = x;
+        }
+    }
 }

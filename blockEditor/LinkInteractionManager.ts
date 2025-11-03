@@ -16,13 +16,6 @@ export class LinkInteractionManager {
     
     private getZoomLevelReal: () => number;
 
-
-    private dragStartX = 0;
-    private dragStartY = 0;
-
-    private dragThreshold = 5; // Minimum distance to detect a drag
-    private isDragging = false;
-
     private canvas: HTMLElement;
     private communicationManager: CommunicationManager;
 
@@ -138,12 +131,6 @@ export class LinkInteractionManager {
         if (!isLinkOnNode) {
             this.communicationManager.print(`Mouse down on non connected port, creating link`);
 
-            this.dragStartX = e.clientX;
-            this.dragStartY = e.clientY;
-
-            let initialPortPositionX = 0;
-            let initialPortPositionY = 0;
-            
             e.stopPropagation();
 
 
@@ -269,31 +256,6 @@ export class LinkInteractionManager {
         if (index !== -1) {
             this.links.splice(index, 1);
         }
-    };
-
-    public connectNodesToPorts = () : void => {
-        this.communicationManager.getLocalJson()?.links?.forEach(link => {
-            const visualLink = this.links.find(l => l.id === link.id);
-
-            const port1 = this.detectPort(link.sourceX, link.sourceY);
-            if (port1) {
-                visualLink?.sourceNode.unhighlight();
-                if (port1.portType === "output") {
-                    this.communicationManager.attachLinkToPort(link.id, "source", port1.blockId, port1.portType, port1.portIndex);
-                } else { visualLink?.sourceNode.unhighlight(); }
-            }
-
-            for (const segmentId in link.targetNodes) {
-                let targetInfo = link.targetNodes[segmentId];
-                const portI = this.detectPort(targetInfo.x, targetInfo.y);
-                if (portI) {
-                    visualLink?.sourceNode.unhighlight();
-                    if (portI.portType === "input") {
-                        this.communicationManager.attachLinkToPort(link.id, segmentId, portI.blockId, portI.portType, portI.portIndex);
-                    } else { visualLink?.sourceNode.unhighlight(); }
-                }
-            }
-        });
     };
 
     public highlightNodesNearPorts = (e: MouseEvent | undefined=undefined) : void => {

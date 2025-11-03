@@ -1,7 +1,7 @@
 import { debug, timeStamp } from 'console';
 import { BlockVisual } from './BlockVisual';
 import { Selectable } from './Selectable';
-import { IdType, IntermediateSegment, JsonData } from '../shared/JsonTypes';
+import { IdType, JsonData } from '../shared/JsonTypes';
 import { getNonce } from './util';
 import { isMovable, Movable } from './Movable';
 import { CommunicationManager } from './CommunicationManager';
@@ -145,7 +145,7 @@ export class SourceNode extends LinkNode implements Movable {
     constructor(linkId: IdType, 
         getNeighboringSegmentsToNode: (nodeId: IdType) => { before: LinkSegment; after: LinkSegment; } | undefined,
         onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
-        super(linkId, getNonce(), getNeighboringSegmentsToNode, onDelete);
+        super(linkId, linkId + "SourceNode", getNeighboringSegmentsToNode, onDelete);
         this.nodeElement.classList.add('source-node');
     }
 
@@ -238,7 +238,7 @@ export class TargetNode extends LinkNode implements Movable {
     constructor(linkId: IdType, segmentId: IdType, 
         getNeighboringSegmentsToNode: (nodeId: IdType) => { before: LinkSegment; after: LinkSegment; } | undefined,
         onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
-        super(linkId, getNonce(), getNeighboringSegmentsToNode, onDelete);
+        super(linkId, segmentId, getNeighboringSegmentsToNode, onDelete);
         this.segmentId = segmentId;
         this.nodeElement.classList.add('target-node');
     }
@@ -251,7 +251,9 @@ export class TargetNode extends LinkNode implements Movable {
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         // Find the segment node that corresponds to this target
+        communicationManager.print(`Updating target node ${this.id} from JSON`);
         const segmentNode = communicationManager.findSegmentNodeById(this.linkId, this.id);
+        communicationManager.print(`Found segment node: ${JSON.stringify(segmentNode)}`);
         if (!segmentNode) {return;}
 
         const linkData = json.links?.find(link => link.id === this.linkId);
@@ -278,7 +280,7 @@ export class TargetNode extends LinkNode implements Movable {
         }
 
         // Direction is determined by parent orientation and relative position
-        if (parent.orientation === "Horizontal") {
+        if (parent.orientation === "Vertical") {
             if (targetPosition.x < parent.xOrY) {
                 this.setArrowDirection("left");
             } else {
@@ -312,7 +314,7 @@ export class TargetNode extends LinkNode implements Movable {
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
         let linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
         if (linkData) {
-            return { x: linkData.targetNodes[this.id].x, y: linkData.targetNodes[this.id].x };
+            return { x: linkData.targetNodes[this.id].x, y: linkData.targetNodes[this.id].y };
         }
         return undefined;
     }

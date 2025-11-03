@@ -1,10 +1,10 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, 
+import { addBlockToJson, addLinkToJson, attachAllLinksToPorts, attachLinkToPort, 
     createNewChildLinkFromNode, createNewChildLinkFromSegment, 
     deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, 
     getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveLinkSegment, moveSourceNode, 
     moveTargetNode, rotateBlock, rotateLinkSegmentClockwise, rotateLinkSegmentCounterClockwise, 
-    updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
-import { BlockData, IdType, IntermediateSegment, JsonData, Rotation } from "../shared/JsonTypes";
+    updateLinkInJson } from "../shared/JsonManager";
+import { BlockData, IdType, JsonData, Rotation } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
 import { SegmentNode, LinkJson, TargetNodeInfo, Link } from "../shared/Link";
@@ -16,6 +16,7 @@ export class CommunicationManager {
     freezedLocalJsonCallback: boolean = false;
     freezedLinkUpdates: boolean = false;
     disableSending: boolean = false;
+    isDragging: boolean = false;
 
     private localJson: JsonData | undefined;
     private serverJsonBeforeFreeze: JsonData | undefined;
@@ -106,6 +107,10 @@ export class CommunicationManager {
         if (this.freezedLinkUpdates) {
             this.freezedLinkUpdates = false;
         }
+    }
+
+    public setIsDragging(isDragging: boolean) {
+        this.isDragging = isDragging;
     }
 
     private printJsonDiff(obj1: any, obj2: any, path: string = ''): void {
@@ -224,15 +229,6 @@ export class CommunicationManager {
         }
     };
 
-    public updateBlock = (block: BlockData) => {
-        let json = this.getLocalJson();
-        if (json) {
-            let newJson = updateBlockFromJson(json, block, !this.freezedLinkUpdates);
-            this.print(`Update block: ${block.id}`);
-            this.setLocalJson(newJson, true);
-        }
-    };
-
     public updateLink = (link: LinkJson): void => {
         let json = this.getLocalJson();
         if (json) {
@@ -347,6 +343,14 @@ export class CommunicationManager {
         }
     };
 
+    public attachAllLinksToPorts = () => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = attachAllLinksToPorts(json);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
     public moveBlock = (blockId: IdType, x: number, y: number) => {
         let json = this.getLocalJson();
         if (json) {
@@ -396,7 +400,7 @@ export class CommunicationManager {
     public moveSourceNode = (linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveSourceNode(json, linkId, x, y, selectedSelectableIds);
+            let newJson = moveSourceNode(json, linkId, x, y, selectedSelectableIds, !this.isDragging);
             this.print(`Move source node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
@@ -405,7 +409,7 @@ export class CommunicationManager {
     public moveTargetNode = (linkId: IdType, segmentIdOfNode: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveTargetNode(json, linkId, segmentIdOfNode, x, y, selectedSelectableIds);
+            let newJson = moveTargetNode(json, linkId, segmentIdOfNode, x, y, selectedSelectableIds, !this.isDragging);
             this.print(`Move target node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }

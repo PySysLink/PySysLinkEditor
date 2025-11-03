@@ -39,9 +39,16 @@ export class LinkVisual {
                 this.junctionNodes.push(node);
             }
         }
+        else {
+            // no parent, first segment, use source node as start
+            const seg = new LinkSegment(segmentNode.id, segmentNode.orientation, segmentNode.xOrY, this.id, 
+                                    () => this.delete(communicationManager), communicationManager);
+            this.segments.push(seg);
+        }
 
         if (segmentNode.children.length === 0) {
             // leaf node, create target node
+            communicationManager.print(`Creating target node for segment node id: ${segmentNode.id}`);
             const targetNode = new TargetNode(this.id, segmentNode.id, this.getNeighboringSegmentsToNode, () => this.delete(communicationManager));
             this.targetNodes.push(targetNode);
         } else {
@@ -72,12 +79,16 @@ export class LinkVisual {
     }
 
     public removeFromSvg(svg: SVGSVGElement): void {
-        this.segments.forEach(seg => svg.removeChild(seg.getElement()));
-        this.junctionNodes.forEach(node => svg.removeChild(node.getElement()));
-        svg.removeChild(this.sourceNode.getElement());
-        this.targetNodes.forEach(tn => {
-            svg.removeChild(tn.getElement());
-        });    
+        try {
+            this.segments.forEach(seg => svg.removeChild(seg.getElement()));
+            this.junctionNodes.forEach(node => svg.removeChild(node.getElement()));
+            svg.removeChild(this.sourceNode.getElement());
+            this.targetNodes.forEach(tn => {
+                svg.removeChild(tn.getElement());
+            });    
+        } catch (e) {
+            console.warn("Tried to remove link elements from SVG, but some error happened.", e);
+        }
     }
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {

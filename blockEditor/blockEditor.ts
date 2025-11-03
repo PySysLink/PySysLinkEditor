@@ -103,7 +103,6 @@ const vscode = acquireVsCodeApi();
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkNodes());
 
     selectableManager.addOnMouseMoveListener(linkInteractionManager.highlightNodesNearPorts);
-    selectableManager.addOnMouseUpListener(linkInteractionManager.connectNodesToPorts);
     selectableManager.updateSelectables();
     linkInteractionManager.updateLinkAndNodeClickCallback();
 

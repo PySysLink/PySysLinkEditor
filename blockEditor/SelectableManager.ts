@@ -75,6 +75,7 @@ export class SelectableManager {
 
     private setDragging(value: boolean) {
         this.isDragging = value;
+        this.communicationManager.setIsDragging(value);
         if (this.isDragging) {
             this.communicationManager.freeze();
         } else {
@@ -239,6 +240,7 @@ export class SelectableManager {
         document.removeEventListener('mousemove', this.onMouseMoveDrag);
         document.removeEventListener('mouseup', this.onMouseUpDrag);
 
+        this.communicationManager.attachAllLinksToPorts();
         this.onMouseUpCallbacks.forEach(callback => callback());
         this.setDragging(false);
     };
@@ -319,20 +321,7 @@ export class SelectableManager {
         const scaledDeltaY = (e.clientY - this.dragStartY) / this.getZoomLevelReal();
         
         if (this.isDragging) {
-            let selectables = this.getSelectableList();
-            let selectedSelectables = this.getSelectedSelectables();
-            this.communicationManager.freezeLocalJsonCallback();
-            this.communicationManager.freezeLinkUpdates();
-            selectedSelectables.forEach(selectable => {
-                if (isMovable(selectable)) {
-                    this.communicationManager.print(`Move selectable: ${selectable.getId()}`);
-                    selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
-                }
-            });
-
-            this.communicationManager.unfreezeLinkUpdates(false);
-
-            this.communicationManager.unfreezeLocalJsonCallback();
+            this.moveAllSelectables(scaledDeltaX, scaledDeltaY);
 
 
             this.dragStartX = e.clientX;
@@ -343,6 +332,22 @@ export class SelectableManager {
             callback(e);
         });
     };
+
+    private moveAllSelectables(scaledDeltaX: number, scaledDeltaY: number): void {
+        let selectables = this.getSelectableList();
+        let selectedSelectables = this.getSelectedSelectables();
+        this.communicationManager.freezeLocalJsonCallback();
+        this.communicationManager.freezeLinkUpdates();
+        selectedSelectables.forEach(selectable => {
+            if (isMovable(selectable)) {
+                this.communicationManager.print(`Move selectable: ${selectable.getId()}`);
+                selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
+            }
+        });
+
+        this.communicationManager.unfreezeLinkUpdates(false);
+        this.communicationManager.unfreezeLocalJsonCallback();
+    }
 
     public rotateSelectables(): void {
         this.communicationManager.freeze();
