@@ -258,10 +258,58 @@ export class Link {
     moveLinkSegment(segmentId: string, targetPositionX: number, targetPositionY: number, selectedSelectableIds: string[]) {
         let segment = this.findSegmentNodeById(segmentId);
         if (!segment) {return;}
-        if (segment.orientation === "Horizontal") {
-            segment.xOrY = targetPositionY;
-        } else {
-            segment.xOrY = targetPositionX;
+        if (segment === this.segmentNode) {
+            if (segment.orientation === "Horizontal" && this.sourceY !== targetPositionY) {
+                segment.xOrY = targetPositionY;
+                let newSegment: SegmentNode = {
+                    id: getNonce(),
+                    orientation: "Vertical",
+                    xOrY: this.sourceX,
+                    children: [segment]
+                };
+                this.segmentNode = newSegment;
+            } else if (segment.orientation === "Vertical" && this.sourceX !== targetPositionX) {
+                segment.xOrY = targetPositionX;
+                let newSegment: SegmentNode = {
+                    id: getNonce(),
+                    orientation: "Horizontal",
+                    xOrY: this.sourceY,
+                    children: [segment]
+                };
+                this.segmentNode = newSegment;
+            }
+        } 
+        else if (this.targetNodes[segment.id]) {
+            if (segment.orientation === "Horizontal" && this.targetNodes[segment.id].y !== targetPositionY) {
+                segment.xOrY = targetPositionY;
+                let newSegment: SegmentNode = {
+                    id: getNonce(),
+                    orientation: "Vertical",
+                    xOrY: this.targetNodes[segment.id].x,
+                    children: []
+                };
+                segment.children.push(newSegment);
+                this.targetNodes[newSegment.id] = this.targetNodes[segment.id];
+                delete this.targetNodes[segment.id];
+            } else if (segment.orientation === "Vertical" && this.targetNodes[segment.id].x !== targetPositionX) {
+                segment.xOrY = targetPositionX;
+                let newSegment: SegmentNode = {
+                    id: getNonce(),
+                    orientation: "Horizontal",
+                    xOrY: this.targetNodes[segment.id].y,
+                    children: []
+                };
+                segment.children.push(newSegment);
+                this.targetNodes[newSegment.id] = this.targetNodes[segment.id];
+                delete this.targetNodes[segment.id];
+            }
+        }
+        else {
+            if (segment.orientation === "Horizontal") {
+                segment.xOrY = targetPositionY;
+            } else {
+                segment.xOrY = targetPositionX;
+            }
         }
     }
 
