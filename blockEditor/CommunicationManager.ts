@@ -1,4 +1,4 @@
-import { addBlockToJson, addLinkToJson, attachAllLinksToPorts, attachLinkToPort, 
+import { addBlockToJson, addLinkToJson, updatePortAttachment, attachLinkToPort, 
     createNewChildLinkFromNode, createNewChildLinkFromSegment, 
     deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, 
     getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveLinkSegment, moveSourceNode, 
@@ -343,10 +343,11 @@ export class CommunicationManager {
         }
     };
 
-    public attachAllLinksToPorts = () => {
+    public updatePortAttachment = () => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = attachAllLinksToPorts(json);
+            console.log(`Not updateLinksSourceTargetPosition, but updatePortAttachment`);
+            let newJson = updatePortAttachment(json);
             this.setLocalJson(newJson, true);
         }
     };

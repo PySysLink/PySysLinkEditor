@@ -203,6 +203,8 @@ export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: n
     };
 
     if (previousX && previousY && (previousX !== x || previousY !== y)) {
+        console.log(`Calling updateLinksSourceTargetPosition after moving block ${blockId}`);
+        console.log(`Previous position: (${previousX}, ${previousY}), New position: (${x}, ${y})`);
         updatedJson = updateLinksSourceTargetPosition(updatedJson);
     }
 
@@ -223,27 +225,62 @@ export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation,
         })
     };
 
+    console.log(`Calling updateLinksSourceTargetPosition after rotating block ${blockId}`);
     updatedJson = updateLinksSourceTargetPosition(updatedJson);
 
     return updatedJson;
 }
 
 
-export function attachAllLinksToPorts(json: JsonData): JsonData {
+export function updatePortAttachment(json: JsonData): JsonData {
     console.log("Attaching all links to ports...");
     let updatedJson = json;
     for (let link of json.links || []) {
         console.log(`Processing link source: ${link.id}, x: ${link.sourceX}, y: ${link.sourceY}`);
         const sourcePosition = getPortPosition(updatedJson, link.sourceId, "output", link.sourcePort);
         if (sourcePosition) {
-            updatedJson = moveSourceNode(updatedJson, link.id, sourcePosition.x, sourcePosition.y, [], true);
+            if (!isWithinDistance(sourcePosition, link.sourceX, link.sourceY, 10)) {
+                console.log(`Source position differs from link source position. Moving source node.`);
+                updatedJson = moveSourceNode(updatedJson, link.id, link.sourceX, link.sourceY, [], true);
+            }
+            else {
+                updatedJson = moveSourceNode(updatedJson, link.id, sourcePosition.x, sourcePosition.y, [], true);
+            }
+        }
+        else {
+            console.log(`No source position found for link source: ${link.id}`);
+            let port = checkIfPortInPosition(json, link.sourceX, link.sourceY, 10);
+
+            if (port && port.portType === "output") {
+                let portPosition = getPortPosition(json, port.blockId, port.portType, port.portIndex);
+                if (portPosition) {
+                    updatedJson = moveSourceNode(updatedJson, link.id, portPosition.x, portPosition.y, [], true);
+                }
+            }
         }
         for (const segmentId in link.targetNodes) {
             let targetInfo = link.targetNodes[segmentId];
             console.log(`Processing link target: ${link.id}, segmentId: ${segmentId}, x: ${targetInfo.x}, y: ${targetInfo.y}`);
             const targetPosition = getPortPosition(updatedJson, targetInfo.targetId, "input", targetInfo.port);
             if (targetPosition) {
-                updatedJson = moveTargetNode(updatedJson, link.id, segmentId, targetPosition.x, targetPosition.y, [], true);
+                if (!isWithinDistance(targetPosition, link.targetNodes[segmentId].x, link.targetNodes[segmentId].y, 10)) {
+                    console.log(`Target position differs from link target position. Moving target node.`);
+                    updatedJson = moveTargetNode(updatedJson, link.id, segmentId, link.targetNodes[segmentId].x, link.targetNodes[segmentId].y, [], true);
+                }
+                else {
+                    updatedJson = moveTargetNode(updatedJson, link.id, segmentId, targetPosition.x, targetPosition.y, [], true);
+                }
+            }
+            else {
+                console.log(`No target position found for link target: ${link.id}, segmentId: ${segmentId}`);
+                let port = checkIfPortInPosition(json, link.targetNodes[segmentId].x, link.targetNodes[segmentId].y, 10);
+
+                if (port && port.portType === "input") {
+                    let portPosition = getPortPosition(json, port.blockId, port.portType, port.portIndex);
+                    if (portPosition) {
+                        updatedJson = moveTargetNode(updatedJson, link.id, segmentId, portPosition.x, portPosition.y, [], true);
+                    }
+                }
             }
         }
     }

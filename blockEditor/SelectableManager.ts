@@ -240,7 +240,7 @@ export class SelectableManager {
         document.removeEventListener('mousemove', this.onMouseMoveDrag);
         document.removeEventListener('mouseup', this.onMouseUpDrag);
 
-        this.communicationManager.attachAllLinksToPorts();
+        this.communicationManager.updatePortAttachment();
         this.onMouseUpCallbacks.forEach(callback => callback());
         this.setDragging(false);
     };
