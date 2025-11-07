@@ -587,4 +587,40 @@ export class Link {
             segment.xOrY = x;
         }
     }
+
+    insertLinkBranch(mergedLink: Link, segmentId: string, mergeX: number, mergeY: number) {
+        const segment = this.findSegmentNodeById(segmentId);
+        if (!segment) {
+            console.warn(`Segment ${segmentId} not found in link ${this.id}`);
+            return;
+        }
+
+        const newSegmentNode: SegmentNode = {
+            id: getNonce(),
+            orientation: segment.orientation,
+            xOrY: segment.xOrY,
+            children: segment.children
+        };
+
+        segment.children = [];
+        segment.children.push(newSegmentNode);
+
+        if (segment.orientation === mergedLink.segmentNode.orientation) {
+            const branchSegmentNode: SegmentNode = {
+                id: getNonce(),
+                orientation: segment.orientation === "Horizontal" ? "Vertical" : "Horizontal",
+                xOrY: segment.orientation === "Horizontal" ? mergeX : mergeY,
+                children: []
+            };
+            segment.children.push(branchSegmentNode);
+            branchSegmentNode.children.push(mergedLink.segmentNode);
+        }
+        else {
+            segment.children.push(mergedLink.segmentNode);
+        }
+
+        for (const [segId, targetInfo] of Object.entries(mergedLink.targetNodes)) {
+            this.targetNodes[segId] = targetInfo;
+        }
+    }
 }

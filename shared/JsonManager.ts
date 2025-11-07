@@ -257,6 +257,12 @@ export function updatePortAttachment(json: JsonData): JsonData {
                     updatedJson = moveSourceNode(updatedJson, link.id, portPosition.x, portPosition.y, [], true);
                 }
             }
+
+            let linkPositionData = checkIfLinkInPosition(json, link.id, link.sourceX, link.sourceY, 10);
+            if (linkPositionData && linkPositionData.linkId !== link.id) {
+                console.log(`Link position data found for link source: ${link.id}, segmentId: ${linkPositionData.segmentId}. Moving source node to segment.`);
+                updatedJson = moveSourceNode(updatedJson, link.id, link.sourceX, link.sourceY, [], true);
+            }
         }
         for (const segmentId in link.targetNodes) {
             let targetInfo = link.targetNodes[segmentId];
@@ -529,6 +535,63 @@ export function checkIfPortInPosition(json: JsonData, x: number, y: number, maxD
     return undefined; // No port found within the specified distance
 }
 
+export function checkIfLinkInPosition(json: JsonData, excludeLinkId: IdType, x: number, y: number, maxDistance: number): { linkId: IdType, segmentId: IdType } | undefined {
+    if (!json.links) { return undefined; }
+
+    console.log(`Checking for link segments near position (${x}, ${y}) with max distance ${maxDistance}`);
+
+    function pointToSegmentDistance(px: number, py: number, ax: number, ay: number, bx: number, by: number): number {
+        const vx = bx - ax;
+        const vy = by - ay;
+        const wx = px - ax;
+        const wy = py - ay;
+        const vlen2 = vx * vx + vy * vy;
+        if (vlen2 === 0) {
+            // a and b are the same point
+            const dx = px - ax;
+            const dy = py - ay;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+        const t = Math.max(0, Math.min(1, (wx * vx + wy * vy) / vlen2));
+        const projx = ax + t * vx;
+        const projy = ay + t * vy;
+        const dx = px - projx;
+        const dy = py - projy;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    let best: { linkId: IdType, segmentId: IdType, dist: number } | undefined;
+
+    for (const link of json.links) {
+        if (link.id === excludeLinkId) { continue; }
+        if (!link.segmentNode) { continue; }
+
+        // traverse tree of segments (use the raw JSON segmentNode structure)
+        const stack: SegmentNode[] = [link.segmentNode];
+        while (stack.length > 0) {
+            const node = stack.pop()!;
+            // compute limits for this node using the existing helper
+            const limits = getLimitsOfSegment(json, link.id, node.id);
+            if (limits) {
+                const d = pointToSegmentDistance(x, y, limits.before.x, limits.before.y, limits.after.x, limits.after.y);
+                if (d <= maxDistance) {
+                    if (!best || d < best.dist) {
+                        best = { linkId: link.id, segmentId: node.id, dist: d };
+                    }
+                }
+            }
+            for (const child of node.children || []) {
+                stack.push(child);
+            }
+        }
+    }
+
+    console.log(`Best link segment found: ${best ? JSON.stringify(best) : 'none'}`);
+
+    if (!best) { return undefined; }
+    return { linkId: best.linkId, segmentId: best.segmentId };
+}
+
 function isWithinDistance(
     portPosition: { x: number, y: number },
     x: number,
@@ -552,9 +615,12 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
     let finalY = y;
     let finalId = "undefined";
     let finalPort = -1;
+    let finalLinkPositionData: { linkId: string; segmentId: string; } | undefined = undefined;
+
+    console.log (`Link position data attachLinkToPort: ${attachLinkToPort}`);
     if (attachLinkToPort) {
         let port = checkIfPortInPosition(json, x, y, 10);
-
+        console.log(`Port found when moving source node: ${JSON.stringify(port)}`);
         if (port && port.portType === "output") {
             let portPosition = getPortPosition(json, port.blockId, port.portType, port.portIndex);
             if (portPosition) {
@@ -562,6 +628,15 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
                 finalY = portPosition.y;
                 finalId = port.blockId;
                 finalPort = port.portIndex;
+            }
+        }
+
+        if (!port) {
+            console.log(`No port found when moving source node, checking for link position data...`);
+            let linkPositionData = checkIfLinkInPosition(json, linkId, x, y, 10);
+            console.log(`Link position data when moving source node: ${JSON.stringify(linkPositionData)}`);
+            if (linkPositionData && linkPositionData.linkId !== linkId) {
+                finalLinkPositionData = linkPositionData;
             }
         }
     }
@@ -583,8 +658,29 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
     console.log(`MoveSourceNode - attachLinkToPort: ${attachLinkToPort}, finalId: ${finalId}, finalPort: ${finalPort}, x: ${finalX}, y: ${finalY}`);
 
     if (attachLinkToPort) {
-        linkJson.sourceId = finalId;
-        linkJson.sourcePort = finalPort;
+        if (finalLinkPositionData) {
+            let mergedLink = new Link(linkJson);
+            let receivingLinkData = json.links?.find(l => l.id === finalLinkPositionData.linkId);
+            if (!receivingLinkData) {
+                return json;
+            }
+            let receivingLink = new Link(receivingLinkData);
+            let mergeX = receivingLink.segmentNode.orientation === "Horizontal"
+                ? x
+                : receivingLink.segmentNode.xOrY;
+            let mergeY = receivingLink.segmentNode.orientation === "Horizontal"
+                ? receivingLink.segmentNode.xOrY
+                : y;
+            receivingLink.insertLinkBranch(mergedLink, finalLinkPositionData.segmentId, mergeX, mergeY);
+
+            json = deleteLinkFromJson(json, mergedLink.id);
+
+            linkJson = receivingLink.toJson();
+        }
+        else {
+            linkJson.sourceId = finalId;
+            linkJson.sourcePort = finalPort;
+        }
     }
 
     let updatedJson = updateLinkInJson(json, linkJson);
