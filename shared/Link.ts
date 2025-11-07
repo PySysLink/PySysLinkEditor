@@ -56,10 +56,15 @@ export class Link {
         };
     }
 
-    public toJson(): LinkJson {
+    public toJson(removeColinearSegments: boolean=true): LinkJson {
+        if (removeColinearSegments) {
+            this.removeColinearSegments(3);
+        }
+
         this.alignColinearSegments();
 
         this.correctOverlappingBranches();
+
 
         return {
             id: this.id,
@@ -244,6 +249,50 @@ export class Link {
                         }
                     }
                 } 
+            }
+
+            return node;
+        };
+
+        this.segmentNode = process(this.segmentNode);
+    }
+
+    private removeColinearSegments(tolerance: number) {
+        const self = this;
+
+        const process = (node: SegmentNode): SegmentNode => {
+            // recurse first
+            for (let i = 0; i < node.children.length; i++) {
+                node.children[i] = process(node.children[i]);
+            }
+
+            // collapse patterns: parent -> single child -> single grandchild
+            // where parent and grandchild have the same orientation and the middle child is the opposite.
+            // If the parent's xOrY and grandchild's xOrY differ by <= tolerance, merge them.
+            while (
+                node.children.length === 1 &&
+                node.children[0].children &&
+                node.children[0].children.length === 1
+            ) {
+                const child = node.children[0];
+                const grand = child.children[0];
+
+                // require alternating orientations: parent === grand && child !== parent
+                if (child.orientation === node.orientation) { break; }
+                if (grand.orientation !== node.orientation) { break; }
+
+                // if the end coordinates are too far apart, don't merge
+                if (Math.abs(node.xOrY - grand.xOrY) > tolerance) { break; }
+
+                // transfer any target mapping from grand (or middle child) to parent if needed
+                if (self.targetNodes[grand.id]) {
+                    self.targetNodes[node.id] = self.targetNodes[grand.id];
+                    delete self.targetNodes[grand.id];
+                }
+
+                node.children = grand.children;
+
+                node.xOrY = grand.xOrY;
             }
 
             return node;

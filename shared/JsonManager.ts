@@ -439,12 +439,12 @@ export function updateLinksSourceTargetPosition(json: JsonData, selectedSelectab
 export function moveLinkSegment(json: JsonData, linkId: IdType, segmentId: IdType,
                                 targetPositionX: number,
                                 targetPositionY: number,
-                                selectedSelectableIds: IdType[]): JsonData {
+                                selectedSelectableIds: IdType[], removeColinear: boolean=true): JsonData {
     let linkJson = json.links?.find(l => l.id === linkId);
     if (linkJson) {
         let link = new Link(linkJson);      
         link.moveLinkSegment(segmentId, targetPositionX, targetPositionY, selectedSelectableIds); 
-        linkJson = link.toJson();
+        linkJson = link.toJson(removeColinear);
         let newJson = updateLinkInJson(json, linkJson);
         return newJson;
     }                  
@@ -454,12 +454,12 @@ export function moveLinkSegment(json: JsonData, linkId: IdType, segmentId: IdTyp
 export function moveLinkNode(json: JsonData, linkId: IdType, beforeId: IdType, afterId: IdType,
                              targetPositionX: number,
                              targetPositionY: number,
-                             selectedSelectableIds: IdType[]): JsonData {
+                             selectedSelectableIds: IdType[], removeColinear: boolean=true): JsonData {
     let linkJson = json.links?.find(l => l.id === linkId);
     if (linkJson) {
         let link = new Link(linkJson);      
         link.moveLinkNode(beforeId, afterId, targetPositionX, targetPositionY, selectedSelectableIds); 
-        linkJson = link.toJson();
+        linkJson = link.toJson(removeColinear);
         let newJson = updateLinkInJson(json, linkJson);
         return newJson;
     }                  
@@ -603,7 +603,7 @@ function isWithinDistance(
     return Math.sqrt(dx * dx + dy * dy) <= maxDistance;
 }
 
-export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[], attachLinkToPort: boolean=false): JsonData {
+export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[], attachLinkToPort: boolean=false, removeColinear:boolean=true): JsonData {
     let attachedBlock = json.links?.find(link => link.id === linkId)?.sourceId;
     if (attachedBlock) {
         if (selectedSelectableIds.includes(attachedBlock)) {
@@ -651,7 +651,7 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
     let link = new Link(linkData);
     link.moveSourceNode(finalX, finalY);
 
-    let linkJson = link.toJson();
+    let linkJson = link.toJson(removeColinear);
 
     console.log(`Resulting link json after moving source node: ${JSON.stringify(linkJson)}`);
 
@@ -675,7 +675,7 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
 
             json = deleteLinkFromJson(json, mergedLink.id);
 
-            linkJson = receivingLink.toJson();
+            linkJson = receivingLink.toJson(removeColinear);
         }
         else {
             linkJson.sourceId = finalId;
@@ -694,7 +694,8 @@ export function moveTargetNode(
     x: number,
     y: number,
     selectedSelectableIds: IdType[],
-    attachLinkToPort: boolean = false
+    attachLinkToPort: boolean = false,
+    removeColinear:boolean=true
 ): JsonData {
     // --- 1. Get link and attached target block ---
     const linkData = json.links?.find(link => link.id === linkId);
@@ -728,7 +729,7 @@ export function moveTargetNode(
     let link = new Link(linkData);
     link.moveTargetNode(segmentIdOfNode, finalX, finalY);
 
-    let linkJson = link.toJson();
+    let linkJson = link.toJson(removeColinear);
 
     console.log(`Resulting link json after moving target node: ${JSON.stringify(linkJson)}`);
 

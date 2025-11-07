@@ -1,13 +1,13 @@
 {
-  "version": 55,
+  "version": 26,
   "blocks": [
     {
       "id": "QZWYj1JjjoJS77Qhp8EaRKJJmh1UQeF9",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 292.02844214608905,
-      "y": 572.8472087552985,
+      "x": 243.15966386554604,
+      "y": 583.34494631186,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
@@ -34,20 +34,64 @@
       }
     },
     {
-      "id": "Hz1BR0BUZTxP2Dii16kUj3AeLMDu35aX",
+      "id": "wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP",
       "blockLibrary": "core_BasicBlocks",
-      "blockType": "Display",
-      "label": "Display",
-      "x": 712.6111111111111,
-      "y": 365.6666666666666,
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 515.2941176470587,
+      "y": 605.8823529411766,
+      "rotation": 0,
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "properties": {
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            -1
+          ]
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "circle",
+        "icon": "",
+        "text": "Adder",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 2,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "nC5DRGvQQUedyxTO9PfoPUOJSaGAsRIV",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Integrator",
+      "label": "Integrator",
+      "x": 769.4117647058825,
+      "y": 617.6470588235297,
       "rotation": 0,
       "inputPorts": 1,
-      "outputPorts": 0,
-      "properties": {},
+      "outputPorts": 1,
+      "properties": {
+        "InitialValue": {
+          "type": "float",
+          "value": 0
+        },
+        "ContinuousSampleTimeGroup": {
+          "type": "float",
+          "value": 1
+        }
+      },
       "blockRenderInformation": {
         "shape": "square",
         "icon": "",
-        "text": "Display",
+        "text": "Integrator",
         "show_image_and_text": false,
         "figure": null,
         "default_width": 120,
@@ -57,16 +101,16 @@
         "max_width": 360,
         "max_height": 150,
         "input_ports": 1,
-        "output_ports": 0
+        "output_ports": 1
       }
     },
     {
-      "id": "PUFUqLft64R0wBlFSjiaMixM7ij3DBA7",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Display",
-      "label": "Display",
-      "x": 802.2222222222223,
-      "y": 660.6805555555557,
+      "id": "ZAmPNOpxSoLAzhUipae0wHBAahqlS1FC",
+      "blockLibrary": "scope_library",
+      "blockType": "scope",
+      "label": "scope",
+      "x": 1085.8823529411748,
+      "y": 628.2352941176471,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 0,
@@ -74,7 +118,7 @@
       "blockRenderInformation": {
         "shape": "square",
         "icon": "",
-        "text": "Display",
+        "text": "Scope",
         "show_image_and_text": false,
         "figure": null,
         "default_width": 120,
@@ -90,112 +134,72 @@
   ],
   "links": [
     {
-      "id": "dELGyR2PSsyhfGz9YwnTbz95PC2Eqyc2",
-      "sourceId": "QZWYj1JjjoJS77Qhp8EaRKJJmh1UQeF9",
+      "id": "opKuRSP2PvwvjpoSq8bT2V38WsE3NidW",
+      "sourceId": "nC5DRGvQQUedyxTO9PfoPUOJSaGAsRIV",
       "sourcePort": 0,
-      "sourceX": 412.02844214608905,
-      "sourceY": 597.8472087552985,
+      "sourceX": 889.4117647058825,
+      "sourceY": 642.6470588235297,
       "targetNodes": {
-        "TkpYVjsvOg2a7mbHUH8xpZj6kZP8BiKT": {
-          "targetId": "undefined",
-          "port": -1,
-          "x": 712,
-          "y": 751
+        "IPV28bTx6QT4GaBe3ItAECs5XbkXF7tK": {
+          "targetId": "wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP",
+          "port": 1,
+          "x": 515.2941176470587,
+          "y": 640.8823529411766
         },
-        "yzhY9kWlb7X3p1eKc49BPBrLw3sh6Akd": {
-          "targetId": "PUFUqLft64R0wBlFSjiaMixM7ij3DBA7",
+        "1QXmWnNIAwMm8Cige6YLgRZOUo28ooqW": {
+          "targetId": "ZAmPNOpxSoLAzhUipae0wHBAahqlS1FC",
           "port": 0,
-          "x": 802.2222222222223,
-          "y": 685.6805555555557
-        },
-        "fO0h4QbI94j0IFsItWfJewOxCLmQ2QOf": {
-          "targetId": "Hz1BR0BUZTxP2Dii16kUj3AeLMDu35aX",
-          "port": 0,
-          "x": 712.6111111111111,
-          "y": 390.6666666666666
+          "x": 1085.8823529411748,
+          "y": 653.2352941176471
         }
       },
       "segmentNode": {
-        "id": "2o0oVnC0gvkEWP9ON3WROqcjqyP9AioS",
+        "id": "nsYw0AWfjsXc5S3Fyz5CXrOZZHaKSzFF",
         "orientation": "Horizontal",
-        "xOrY": 597.8472087552985,
+        "xOrY": 642.6470588235297,
         "children": [
           {
-            "id": "hlx9LkDzboRCFcXk0l4r4S36CAtqKmXI",
+            "id": "MlXQ1Yji3m54Lvx4Zxv0xKPa43krHuAm",
             "orientation": "Vertical",
-            "xOrY": 528.8617754794224,
+            "xOrY": 989.4117647058824,
             "children": [
               {
-                "id": "CtV4KHDKGc4qJjkSdmazVddkqp8Vn7KR",
-                "orientation": "Vertical",
-                "xOrY": 528.8617754794224,
-                "children": [
-                  {
-                    "id": "1d7wTsgBdRjmpeQ1tLHQGdKBWyKe22iE",
-                    "orientation": "Horizontal",
-                    "xOrY": 643.6805555555557,
-                    "children": [
-                      {
-                        "id": "4i13BPpQv7VAq1oGfBgL1zM9qbALStPA",
-                        "orientation": "Horizontal",
-                        "xOrY": 643.6805555555557,
-                        "children": [
-                          {
-                            "id": "rc0fOcLZbBexJyPXTTdojCpjDP0rG0Mx",
-                            "orientation": "Vertical",
-                            "xOrY": 752.2222222222223,
-                            "children": [
-                              {
-                                "id": "yzhY9kWlb7X3p1eKc49BPBrLw3sh6Akd",
-                                "orientation": "Horizontal",
-                                "xOrY": 685.6805555555557,
-                                "children": []
-                              }
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        "id": "QT3hMkm4SkS4zMkfhs1VsQm8aZJ71BWp",
-                        "orientation": "Vertical",
-                        "xOrY": 591,
-                        "children": [
-                          {
-                            "id": "TkpYVjsvOg2a7mbHUH8xpZj6kZP8BiKT",
-                            "orientation": "Horizontal",
-                            "xOrY": 751,
-                            "children": []
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "id": "HKLBToIwSkjvbZxJwofU6nAotNrzM3EA",
+                "id": "BP4YzQYwFBPsZPwRZbmLFefgbc8AlKd6",
                 "orientation": "Horizontal",
-                "xOrY": 597.8472087552985,
+                "xOrY": 653.2352941176471,
                 "children": [
                   {
-                    "id": "B269oC2S8QE9vG8uOgZl7G8gjFrOb4qq",
-                    "orientation": "Vertical",
-                    "xOrY": 462.2506643683116,
+                    "id": "Rddu8gBnKKRsyU2DrI00KYyOV7G9dVF5",
+                    "orientation": "Horizontal",
+                    "xOrY": 653.2352941176471,
                     "children": [
                       {
-                        "id": "k7bBGM82jNzwdwgdyZ7scMPJw6zzLF6v",
+                        "id": "1QXmWnNIAwMm8Cige6YLgRZOUo28ooqW",
+                        "orientation": "Vertical",
+                        "xOrY": 1085.8823529411748,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "id": "PRNyo25gFlXOhBuNqLPxjyXo8iwmbJuo",
+                    "orientation": "Vertical",
+                    "xOrY": 1018.8235294117637,
+                    "children": [
+                      {
+                        "id": "uKGiOzRS1Q9BTbtqAB2lEyn2w780jyC0",
                         "orientation": "Horizontal",
-                        "xOrY": 458.73609764418825,
+                        "xOrY": 724.4117647058816,
                         "children": [
                           {
-                            "id": "HNGV5WV5P7GPhX5BZrRcKgmULD4JJi32",
+                            "id": "crZJvsHA050px2bRQm48mNYRiVSWGcib",
                             "orientation": "Vertical",
-                            "xOrY": 583.6111111111111,
+                            "xOrY": 432.941176470588,
                             "children": [
                               {
-                                "id": "fO0h4QbI94j0IFsItWfJewOxCLmQ2QOf",
+                                "id": "IPV28bTx6QT4GaBe3ItAECs5XbkXF7tK",
                                 "orientation": "Horizontal",
-                                "xOrY": 390.6666666666666,
+                                "xOrY": 640.8823529411766,
                                 "children": []
                               }
                             ]
@@ -205,6 +209,76 @@
                     ]
                   }
                 ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "IYgY2acof9OuvOyj6i6VeMRKYq172Axt",
+      "sourceId": "wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP",
+      "sourcePort": 0,
+      "sourceX": 635.2941176470587,
+      "sourceY": 630.8823529411766,
+      "targetNodes": {
+        "mjMWrOGk4q1M3T7uq9wu5juJtBSUUQX8": {
+          "targetId": "nC5DRGvQQUedyxTO9PfoPUOJSaGAsRIV",
+          "port": 0,
+          "x": 769.4117647058825,
+          "y": 642.6470588235297
+        }
+      },
+      "segmentNode": {
+        "id": "KGOC2NI7EJpOoIq3VzFhJA7ImzlSk7m4",
+        "orientation": "Horizontal",
+        "xOrY": 630.8823529411766,
+        "children": [
+          {
+            "id": "0NdIYb50erBh3Ou029a2H1iBbQt6NRqg",
+            "orientation": "Vertical",
+            "xOrY": 698.8235294117649,
+            "children": [
+              {
+                "id": "mjMWrOGk4q1M3T7uq9wu5juJtBSUUQX8",
+                "orientation": "Horizontal",
+                "xOrY": 642.6470588235297,
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AhACq0i1a37swceq3sYEBtFMmFCzz4u6",
+      "sourceId": "QZWYj1JjjoJS77Qhp8EaRKJJmh1UQeF9",
+      "sourcePort": 0,
+      "sourceX": 363.159663865546,
+      "sourceY": 608.34494631186,
+      "targetNodes": {
+        "Iq7jO8J1igeTIPs2o6EUUwSL4xui2Jel": {
+          "targetId": "wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP",
+          "port": 0,
+          "x": 515.2941176470587,
+          "y": 620.8823529411766
+        }
+      },
+      "segmentNode": {
+        "id": "F5QNVORzAiHUD26dk49h3LSue7MhbhNN",
+        "orientation": "Horizontal",
+        "xOrY": 608.34494631186,
+        "children": [
+          {
+            "id": "NlkXMLZVEw75y6wq3ye2vgnyYs9DWvgw",
+            "orientation": "Vertical",
+            "xOrY": 439.22689075630234,
+            "children": [
+              {
+                "id": "Iq7jO8J1igeTIPs2o6EUUwSL4xui2Jel",
+                "orientation": "Horizontal",
+                "xOrY": 620.8823529411766,
+                "children": []
               }
             ]
           }

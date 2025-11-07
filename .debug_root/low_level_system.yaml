@@ -1,72 +1,48 @@
 Blocks:
-- Id: fJ96dGkOBB5ahg53it7jd1xD99gk4MyA
+- Id: QZWYj1JjjoJS77Qhp8EaRKJJmh1UQeF9
   Name: Constant
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Constant
-  Value: 3.0
-- Id: OR4M5NWaJiZGXSGD0pXSLzpKmLupgr5k
-  Name: Integrator
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Integrator
-  InitialValue: 0.0
-  ContinuousSampleTimeGroup: 1.0
-- Id: oj7pqdMc48wF9zZnvcUkCNSUZ73uv9V0
-  Name: Scope scope Display
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Display
-- Id: wNeFJsTeYlSjjbjAnC9N5AYEIMQypsrI
+  Value: 1.0
+- Id: wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP
   Name: Adder
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Adder
   Gains:
   - 1.0
   - -1.0
-- Id: N7TpsCka1e7xtF6YlKkU1QuThLY8Yr3N
-  Name: Constant
+- Id: nC5DRGvQQUedyxTO9PfoPUOJSaGAsRIV
+  Name: Integrator
   BlockType: BasicCpp
-  BlockClass: BasicBlocks/Constant
-  Value: 1.0
-- Id: WEHDMAjcXu7sYEPeMhuwCeYTLBOY5QxN
-  Name: Adder
+  BlockClass: BasicBlocks/Integrator
+  InitialValue: 0.0
+  ContinuousSampleTimeGroup: 1.0
+- Id: ZAmPNOpxSoLAzhUipae0wHBAahqlS1FC
+  Name: Scope scope Display
   BlockType: BasicCpp
-  BlockClass: BasicBlocks/Adder
-  Gains:
-  - 1.0
-  - 1.0
+  BlockClass: BasicBlocks/Display
 Links:
-- Id: LE8U1ZRPXLKEheOQHyDba8EZARfF8JJh
-  Name: LE8U1ZRPXLKEheOQHyDba8EZARfF8JJh
-  SourceBlockId: OR4M5NWaJiZGXSGD0pXSLzpKmLupgr5k
+- Id: opKuRSP2PvwvjpoSq8bT2V38WsE3NidW_IPV28bTx6QT4GaBe3ItAECs5XbkXF7tK
+  Name: opKuRSP2PvwvjpoSq8bT2V38WsE3NidW_IPV28bTx6QT4GaBe3ItAECs5XbkXF7tK
+  SourceBlockId: nC5DRGvQQUedyxTO9PfoPUOJSaGAsRIV
   SourcePortIdx: 0
-  DestinationBlockId: oj7pqdMc48wF9zZnvcUkCNSUZ73uv9V0
-  DestinationPortIdx: 0
-- Id: N3N9RK9y7WRkAy6Intc6RudqDdrR6RCi
-  Name: N3N9RK9y7WRkAy6Intc6RudqDdrR6RCi
-  SourceBlockId: wNeFJsTeYlSjjbjAnC9N5AYEIMQypsrI
-  SourcePortIdx: 0
-  DestinationBlockId: OR4M5NWaJiZGXSGD0pXSLzpKmLupgr5k
-  DestinationPortIdx: 0
-- Id: 83y4wZ3RYVsMgtnr6sqkoB08nslTq9kA
-  Name: 83y4wZ3RYVsMgtnr6sqkoB08nslTq9kA
-  SourceBlockId: fJ96dGkOBB5ahg53it7jd1xD99gk4MyA
-  SourcePortIdx: 0
-  DestinationBlockId: wNeFJsTeYlSjjbjAnC9N5AYEIMQypsrI
-  DestinationPortIdx: 0
-- Id: i36x7AEJEIjCCGUReDErGMpQLNH1FKYU
-  Name: i36x7AEJEIjCCGUReDErGMpQLNH1FKYU
-  SourceBlockId: N7TpsCka1e7xtF6YlKkU1QuThLY8Yr3N
-  SourcePortIdx: 0
-  DestinationBlockId: WEHDMAjcXu7sYEPeMhuwCeYTLBOY5QxN
-  DestinationPortIdx: 0
-- Id: gtayYLrMmgseBV37dw4JZ7ciya59Lca8
-  Name: gtayYLrMmgseBV37dw4JZ7ciya59Lca8
-  SourceBlockId: OR4M5NWaJiZGXSGD0pXSLzpKmLupgr5k
-  SourcePortIdx: 0
-  DestinationBlockId: WEHDMAjcXu7sYEPeMhuwCeYTLBOY5QxN
+  DestinationBlockId: wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP
   DestinationPortIdx: 1
-- Id: JiXYzc64W7wWqmXbppUnL9EcLhOvb3eH
-  Name: JiXYzc64W7wWqmXbppUnL9EcLhOvb3eH
-  SourceBlockId: WEHDMAjcXu7sYEPeMhuwCeYTLBOY5QxN
+- Id: opKuRSP2PvwvjpoSq8bT2V38WsE3NidW_1QXmWnNIAwMm8Cige6YLgRZOUo28ooqW
+  Name: opKuRSP2PvwvjpoSq8bT2V38WsE3NidW_1QXmWnNIAwMm8Cige6YLgRZOUo28ooqW
+  SourceBlockId: nC5DRGvQQUedyxTO9PfoPUOJSaGAsRIV
   SourcePortIdx: 0
-  DestinationBlockId: wNeFJsTeYlSjjbjAnC9N5AYEIMQypsrI
-  DestinationPortIdx: 1
+  DestinationBlockId: ZAmPNOpxSoLAzhUipae0wHBAahqlS1FC
+  DestinationPortIdx: 0
+- Id: IYgY2acof9OuvOyj6i6VeMRKYq172Axt_mjMWrOGk4q1M3T7uq9wu5juJtBSUUQX8
+  Name: IYgY2acof9OuvOyj6i6VeMRKYq172Axt_mjMWrOGk4q1M3T7uq9wu5juJtBSUUQX8
+  SourceBlockId: wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP
+  SourcePortIdx: 0
+  DestinationBlockId: nC5DRGvQQUedyxTO9PfoPUOJSaGAsRIV
+  DestinationPortIdx: 0
+- Id: AhACq0i1a37swceq3sYEBtFMmFCzz4u6_Iq7jO8J1igeTIPs2o6EUUwSL4xui2Jel
+  Name: AhACq0i1a37swceq3sYEBtFMmFCzz4u6_Iq7jO8J1igeTIPs2o6EUUwSL4xui2Jel
+  SourceBlockId: QZWYj1JjjoJS77Qhp8EaRKJJmh1UQeF9
+  SourcePortIdx: 0
+  DestinationBlockId: wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP
+  DestinationPortIdx: 0

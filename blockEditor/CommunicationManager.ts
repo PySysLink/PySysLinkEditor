@@ -401,7 +401,7 @@ export class CommunicationManager {
     public moveSourceNode = (linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveSourceNode(json, linkId, x, y, selectedSelectableIds, !this.isDragging);
+            let newJson = moveSourceNode(json, linkId, x, y, selectedSelectableIds, !this.isDragging, !this.isDragging);
             this.print(`Move source node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
@@ -410,7 +410,7 @@ export class CommunicationManager {
     public moveTargetNode = (linkId: IdType, segmentIdOfNode: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveTargetNode(json, linkId, segmentIdOfNode, x, y, selectedSelectableIds, !this.isDragging);
+            let newJson = moveTargetNode(json, linkId, segmentIdOfNode, x, y, selectedSelectableIds, !this.isDragging, !this.isDragging);
             this.print(`Move target node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
@@ -472,7 +472,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             this.print(`Move link segment ${segmentId} at position (${targetPositionX}, ${targetPositionY})`);
-            let newJson = moveLinkSegment(json, linkId, segmentId, targetPositionX, targetPositionY, selectedSelectableIds);
+            let newJson = moveLinkSegment(json, linkId, segmentId, targetPositionX, targetPositionY, selectedSelectableIds, !this.isDragging);
             this.setLocalJson(newJson, true);
         }
     }
@@ -487,7 +487,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             this.print(`Move link node ${beforeId}-${afterId} at position (${targetPositionX}, ${targetPositionY})`);
-            let newJson = moveLinkNode(json, linkId, beforeId, afterId, targetPositionX, targetPositionY, selectedSelectableIds);
+            let newJson = moveLinkNode(json, linkId, beforeId, afterId, targetPositionX, targetPositionY, selectedSelectableIds, !this.isDragging);
             this.setLocalJson(newJson, true);
         }
     }
