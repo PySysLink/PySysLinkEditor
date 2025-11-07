@@ -57,6 +57,7 @@ export class Link {
     }
 
     public toJson(): LinkJson {
+
         return {
             id: this.id,
             sourceId: this.sourceId,
@@ -69,12 +70,65 @@ export class Link {
     }
 
     private serializeSegmentNode(node: SegmentNode): SegmentNode {
+        this.alignColinearSegments();
         return {
             id: node.id,
             orientation: node.orientation,
             xOrY: node.xOrY,
             children: node.children.map(child => this.serializeSegmentNode(child))
         };
+    }
+
+    private alignColinearSegments() {
+        const self = this;
+
+        const process = (node: SegmentNode): SegmentNode => {
+            // recurse children first
+            for (let i = 0; i < node.children.length; i++) {
+                node.children[i] = process(node.children[i]);
+            }
+
+            // collapse chains where node has exactly one child with same orientation
+            while (node.children.length === 1 && node.children[0].orientation === node.orientation) {
+                const sole = node.children[0];
+
+                // transfer target mapping from child to node if needed
+                if (self.targetNodes[sole.id]) {
+                    self.targetNodes[node.id] = self.targetNodes[sole.id];
+                    delete self.targetNodes[sole.id];
+                }
+
+                // adopt child's children (effectively removing the intermediate segment)
+                node.children = sole.children;
+                // continue loop in case the new single child is also colinear
+            }
+
+            // if node has multiple children, align children's coordinate when they share the same orientation
+            if (node.children.length > 1) {
+                for (const child of node.children) {
+                    if (child.orientation === node.orientation) {
+                        if (child.children.length === 0) {
+                            let newSegment: SegmentNode = {
+                                id: getNonce(),
+                                orientation: child.orientation === "Horizontal" ? "Vertical" : "Horizontal",
+                                xOrY: child.orientation === "Horizontal" ? self.targetNodes[child.id].x : self.targetNodes[child.id].y,
+                                children: []
+                            };
+                            child.children.push(newSegment);
+                            self.targetNodes[newSegment.id] = self.targetNodes[child.id];
+                            delete self.targetNodes[child.id];
+                        }
+                        else {
+                            child.xOrY = node.xOrY;
+                        }
+                    }
+                }
+            }
+
+            return node;
+        };
+
+        this.segmentNode = process(this.segmentNode);
     }
 
     public findSegmentNodeById(targetId: IdType): SegmentNode | undefined {
@@ -107,32 +161,20 @@ export class Link {
         const previous = this.findSegmentNodeById(previousSegmentId);
         if (!previous) {return undefined;}
 
+        if (previous.children.length < 2) 
+        {
+
+        }
+
         // find the target child inside previous.children
         const childIndex = previous.children.findIndex(c => c.id === nextSegmentId);
         if (childIndex === -1) {return undefined;}
 
         const next = previous.children[childIndex];
 
-        // create a new intermediate segment
-        const newSegment: SegmentNode = {
-            id: getNonce(), 
-            orientation: next.orientation,               
-            xOrY: next.xOrY,                              
-            children: []
-        };
-
-        // insert new segment between them
-        previous.children.push(newSegment);
-
-        const targetNode: TargetNodeInfo = {
-            targetId: "undefined",
-            port: -1,
-            x: previous.orientation === 'Horizontal' ? previous.xOrY : next.xOrY,
-            y: previous.orientation === 'Horizontal' ? next.xOrY : previous.xOrY,
-        };
-        this.targetNodes[newSegment.id] = targetNode;
-
-        return newSegment;
+        return this.createNewChildLinkFromSegment(this.id, previous.id, 
+                                                    previous.orientation === 'Horizontal' ? next.xOrY : previous.xOrY,
+                                                    previous.orientation === 'Horizontal' ? previous.xOrY : next.xOrY);
     }
 
     createNewChildLinkFromSegment(linkId: string, segmentId: string, clickX: number, clickY: number): SegmentNode | undefined {
@@ -160,6 +202,15 @@ export class Link {
 
         splitNode.children.push(branchNode);
 
+        const nextNode: SegmentNode = {
+            id: getNonce(),
+            orientation: splitNode.orientation,
+            xOrY: splitNode.orientation === "Horizontal" ? clickY : clickX,
+            children: []
+        };
+
+        branchNode.children.push(nextNode);
+
         if (parent) {
             // replace `segment` in parent's children with `splitNode`
             const idx = parent.children.findIndex(c => c.id === segmentId);
@@ -181,9 +232,9 @@ export class Link {
             x: clickX,
             y: clickY,
         };
-        this.targetNodes[branchNode.id] = targetNode;
+        this.targetNodes[nextNode.id] = targetNode;
 
-        return branchNode;
+        return nextNode;
     }
 
     getLimitsOfSegment(segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined {
@@ -259,6 +310,9 @@ export class Link {
         let segment = this.findSegmentNodeById(segmentId);
         if (!segment) {return;}
         if (segment === this.segmentNode) {
+            if (selectedSelectableIds.includes(this.id + "SourceNode")) {
+                return;
+            }
             if (segment.orientation === "Horizontal" && this.sourceY !== targetPositionY) {
                 segment.xOrY = targetPositionY;
                 let newSegment: SegmentNode = {
@@ -280,6 +334,9 @@ export class Link {
             }
         } 
         else if (this.targetNodes[segment.id]) {
+            if (selectedSelectableIds.includes(segment.id + "TargetNode")) {
+                return;
+            }
             if (segment.orientation === "Horizontal" && this.targetNodes[segment.id].y !== targetPositionY) {
                 segment.xOrY = targetPositionY;
                 let newSegment: SegmentNode = {
@@ -310,6 +367,13 @@ export class Link {
             } else {
                 segment.xOrY = targetPositionX;
             }
+        }
+        let parent = this.findParentSegmentNode(segmentId);
+        if (parent && parent.orientation === segment.orientation) {
+            if (selectedSelectableIds.find(selectable => selectable.includes(parent.id))) {
+                return;
+            }
+            this.moveLinkSegment(parent.id, targetPositionX, targetPositionY, selectedSelectableIds);
         }
     }
 

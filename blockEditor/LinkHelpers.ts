@@ -96,22 +96,11 @@ export class LinkNode extends Selectable implements Movable {
     }
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
-        const beforeAndAfterSegments = this.getNeighboringSegmentsToNode(this.id);
-        console.log(`Updating node ${this.id} from JSON, before and after segments: ${JSON.stringify(beforeAndAfterSegments)}`);
-        if (beforeAndAfterSegments) {
-            if (beforeAndAfterSegments.before.orientation === "Horizontal" 
-                && beforeAndAfterSegments.after.orientation === "Vertical") {
-                this.getElement().setAttribute("cx", String(beforeAndAfterSegments.after.xOrY));
-                this.getElement().setAttribute("cy", String(beforeAndAfterSegments.before.xOrY));
-            }
-            else if (beforeAndAfterSegments.before.orientation === "Vertical" 
-                && beforeAndAfterSegments.after.orientation === "Horizontal") {
-                this.getElement().setAttribute("cx", String(beforeAndAfterSegments.before.xOrY));
-                this.getElement().setAttribute("cy", String(beforeAndAfterSegments.after.xOrY));            }
-            else {
-                throw RangeError(`Orientations should be opposed, they where before: ${beforeAndAfterSegments.before.orientation}, after: ${beforeAndAfterSegments.after.orientation}`);
-            }
-        } 
+        const position = this.getPosition(communicationManager);
+        if (position) {
+            this.getElement().setAttribute("cx", String(position.x));
+            this.getElement().setAttribute("cy", String(position.y));
+        }
     }
 
     public highlight(): void {
@@ -233,12 +222,12 @@ export class TargetNode extends LinkNode implements Movable {
     }
 
     public getId(): IdType {
-        return this.linkId + "TargetNode";    
+        return this.segmentId + "TargetNode";    
     }
     constructor(linkId: IdType, segmentId: IdType, 
         getNeighboringSegmentsToNode: (nodeId: IdType) => { before: LinkSegment; after: LinkSegment; } | undefined,
         onDelete: ((communicationManager: CommunicationManager) => void) | undefined = undefined) {
-        super(linkId, segmentId, getNeighboringSegmentsToNode, onDelete);
+        super(linkId, segmentId + "TargetNode", getNeighboringSegmentsToNode, onDelete);
         this.segmentId = segmentId;
         this.nodeElement.classList.add('target-node');
     }
@@ -251,27 +240,26 @@ export class TargetNode extends LinkNode implements Movable {
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
         // Find the segment node that corresponds to this target
-        communicationManager.print(`Updating target node ${this.id} from JSON`);
-        const segmentNode = communicationManager.findSegmentNodeById(this.linkId, this.id);
+        communicationManager.print(`Updating target node ${this.getId()} from JSON`);
+        const segmentNode = communicationManager.findSegmentNodeById(this.linkId, this.segmentId);
         communicationManager.print(`Found segment node: ${JSON.stringify(segmentNode)}`);
         if (!segmentNode) {return;}
 
-        const linkData = json.links?.find(link => link.id === this.linkId);
-        if (!linkData) {return;}
-
-        const targetPosition = { x: linkData.targetNodes[this.id].x, y: linkData.targetNodes[this.id].y };
-
+        const position = this.getPosition(communicationManager);
+        if (!position) {return;}
         // Place target node at its position
         this.getElement().setAttribute(
             "transform",
-            `translate(${targetPosition.x}, ${targetPosition.y})`
+            `translate(${position.x}, ${position.y})`
         );
 
         // Find parent (the segment leading into this target)
         const parent = communicationManager.findParentSegmentNode(this.linkId, segmentNode.id);
         if (!parent) {
+            const linkData = json.links?.find(link => link.id === this.linkId);
+            if (!linkData) {return;}
             // No parent? Fallback to source position
-            if (targetPosition.x < linkData.sourceX) {
+            if (position.x < linkData.sourceX) {
                 this.setArrowDirection("left");
             } else {
                 this.setArrowDirection("right");
@@ -281,13 +269,13 @@ export class TargetNode extends LinkNode implements Movable {
 
         // Direction is determined by parent orientation and relative position
         if (parent.orientation === "Vertical") {
-            if (targetPosition.x < parent.xOrY) {
+            if (position.x < parent.xOrY) {
                 this.setArrowDirection("left");
             } else {
                 this.setArrowDirection("right");
             }
         } else { // Vertical
-            if (targetPosition.y < parent.xOrY) {
+            if (position.y < parent.xOrY) {
                 this.setArrowDirection("up");
             } else {
                 this.setArrowDirection("down");
@@ -313,8 +301,10 @@ export class TargetNode extends LinkNode implements Movable {
 
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {
         let linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
-        if (linkData) {
-            return { x: linkData.targetNodes[this.id].x, y: linkData.targetNodes[this.id].y };
+        if (linkData && linkData.targetNodes[this.segmentId]) {
+            console.log(`Getting position for target node ${this.id}: ${JSON.stringify(linkData.targetNodes[this.segmentId])}`);
+            console.log(`X: ${linkData.targetNodes[this.segmentId].x}, Y: ${linkData.targetNodes[this.segmentId].y}`);
+            return { x: linkData.targetNodes[this.segmentId].x, y: linkData.targetNodes[this.segmentId].y };
         }
         return undefined;
     }

@@ -356,8 +356,7 @@ export class LinkInteractionManager {
 
                 link.updateFromJson(newJson, this.communicationManager);
 
-                link.targetNodes.find(tn => tn.segmentId === newSegmentId)?.triggerOnMouseDown(e.clientX, e.clientY);
-  
+                link.targetNodes.find(tn => tn.segmentId === newSegmentId)?.triggerOnMouseDown(e.clientX, e.clientY);  
                 
             } else { return; }
         }

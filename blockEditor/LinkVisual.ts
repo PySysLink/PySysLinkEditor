@@ -6,7 +6,7 @@ import { SourceNode, TargetNode, LinkNode, LinkSegment } from "./LinkHelpers"; /
 export class LinkVisual {
     id: IdType;
     sourceNode: SourceNode;
-    targetNodes: TargetNode[];
+    targetNodes: TargetNode[] = [];
     segments: LinkSegment[] = [];
     junctionNodes: LinkNode[] = [];
 
@@ -19,7 +19,6 @@ export class LinkVisual {
     ) {
         this.id = link.id;
         this.sourceNode = new SourceNode(this.id, this.getNeighboringSegmentsToNode, () => this.delete(communicationManager));
-        this.targetNodes = [];
         this.onDelete = onDelete;
 
         this.buildSegmentsFromTree(link.segmentNode, communicationManager);
@@ -33,11 +32,9 @@ export class LinkVisual {
             this.segments.push(seg);
 
             // if parent has >1 child, create a junction node
-            if (parent.children.length > 1) {
-                const nodeId = `${parent.id}-${segmentNode.id}`;
-                const node = new LinkNode(this.id, nodeId, this.getNeighboringSegmentsToNode, cm => this.delete(cm));
-                this.junctionNodes.push(node);
-            }
+            const nodeId = `${parent.id}-${segmentNode.id}`;
+            const node = new LinkNode(this.id, nodeId, this.getNeighboringSegmentsToNode, cm => this.delete(cm));
+            this.junctionNodes.push(node);
         }
         else {
             // no parent, first segment, use source node as start
@@ -92,8 +89,10 @@ export class LinkVisual {
     }
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {
-        const link = json.links?.find(l => l.id === this.id);
-        if (!link) {return;}
+        const linkData = json.links?.find(l => l.id === this.id);
+        if (!linkData) {return;}
+
+        const link = new Link(linkData);
 
         // Save selected state
         const selectedSegmentIds = new Set(this.segments.filter(s => s.isSelected()).map(s => s.id));
