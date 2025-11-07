@@ -57,6 +57,9 @@ export class Link {
     }
 
     public toJson(): LinkJson {
+        this.alignColinearSegments();
+
+        this.correctOverlappingBranches();
 
         return {
             id: this.id,
@@ -70,7 +73,6 @@ export class Link {
     }
 
     private serializeSegmentNode(node: SegmentNode): SegmentNode {
-        this.alignColinearSegments();
         return {
             id: node.id,
             orientation: node.orientation,
@@ -123,6 +125,125 @@ export class Link {
                         }
                     }
                 }
+            }
+
+            return node;
+        };
+
+        this.segmentNode = process(this.segmentNode);
+    }
+
+    private correctOverlappingBranches() {
+        const self = this;
+
+        const process = (node: SegmentNode): SegmentNode => {
+            // recurse children first
+            for (let i = 0; i < node.children.length; i++) {
+                node.children[i] = process(node.children[i]);
+            }
+
+            while (node.children.length === 2) {
+                if (node.children[0].orientation === node.children[1].orientation) {
+                    console.warn(`Children of node ${node.id} have same orientation; cannot correct overlapping branches.`);
+                    break;
+                }
+
+                const colinearChild = node.children[0].orientation === node.orientation ? node.children[0] : node.children[1];
+                const nonColinearChild = node.children[0].orientation === node.orientation ? node.children[1] : node.children[0];
+
+                const limitsParent = self.getLimitsOfSegment(node.id);
+                const limitsColinearChild = self.getLimitsOfSegment(colinearChild.id);
+
+                if (limitsParent && limitsColinearChild) {
+                    if (node.orientation === "Horizontal") {
+                        // compute X ranges for parent and colinear child
+                        const pStart = Math.min(limitsParent.before.x, limitsParent.after.x);
+                        const pEnd = Math.max(limitsParent.before.x, limitsParent.after.x);
+                        const cStart = Math.min(limitsColinearChild.before.x, limitsColinearChild.after.x);
+                        const cEnd = Math.max(limitsColinearChild.before.x, limitsColinearChild.after.x);
+
+                        const overlapStart = Math.max(pStart, cStart);
+                        const overlapEnd = Math.min(pEnd, cEnd);
+
+                        if (overlapStart < overlapEnd) {
+                            if (Math.abs(nonColinearChild.xOrY - limitsParent.before.x) < Math.abs(nonColinearChild.xOrY - limitsColinearChild.after.x)) {
+                                // Closer to parent, move up on tree
+                                const parentOfNode = self.findParentSegmentNode(node.id);
+                                if (parentOfNode) {
+                                    const newSegment: SegmentNode = {
+                                        id: getNonce(),
+                                        orientation: "Horizontal",
+                                        xOrY: node.xOrY,
+                                        children: [nonColinearChild]
+                                    };
+                                    parentOfNode.children.push(newSegment);
+                                    node.children = [colinearChild];
+                                    node.orientation = "Vertical";
+                                    node.xOrY = parentOfNode.xOrY;
+                                }
+                            }
+                            else {
+                                // Closer to colinear child, move down on tree
+                                const newSegment: SegmentNode = {
+                                    id: getNonce(),
+                                    orientation: "Horizontal",
+                                    xOrY: colinearChild.xOrY,
+                                    children: [nonColinearChild]
+                                };
+                                colinearChild.children.push(newSegment);
+                                node.children = [colinearChild];
+                                colinearChild.orientation = "Vertical";
+                                colinearChild.xOrY = limitsColinearChild.after.x;
+                            }
+                        }
+                        else {
+                            break;
+                        }
+                    } else { // Vertical
+                        // compute Y ranges for parent and colinear child
+                        const pStart = Math.min(limitsParent.before.y, limitsParent.after.y);
+                        const pEnd = Math.max(limitsParent.before.y, limitsParent.after.y);
+                        const cStart = Math.min(limitsColinearChild.before.y, limitsColinearChild.after.y);
+                        const cEnd = Math.max(limitsColinearChild.before.y, limitsColinearChild.after.y);
+
+                        const overlapStart = Math.max(pStart, cStart);
+                        const overlapEnd = Math.min(pEnd, cEnd);
+
+                        if (overlapStart < overlapEnd) {
+                            if (Math.abs(nonColinearChild.xOrY - limitsParent.before.y) < Math.abs(nonColinearChild.xOrY - limitsColinearChild.after.y)) {
+                                // Closer to parent, move up on tree
+                                const parentOfNode = self.findParentSegmentNode(node.id);
+                                if (parentOfNode) {
+                                    const newSegment: SegmentNode = {
+                                        id: getNonce(),
+                                        orientation: "Vertical",
+                                        xOrY: node.xOrY,
+                                        children: [nonColinearChild]
+                                    };
+                                    parentOfNode.children.push(newSegment);
+                                    node.children = [colinearChild];
+                                    node.orientation = "Horizontal";
+                                    node.xOrY = parentOfNode.xOrY;
+                                }
+                            } else {
+                                // Closer to colinear child, move down on tree
+                                const newSegment: SegmentNode = {
+                                    id: getNonce(),
+                                    orientation: "Vertical",
+                                    xOrY: colinearChild.xOrY,
+                                    children: [nonColinearChild]
+                                };
+                                colinearChild.children.push(newSegment);
+                                node.children = [colinearChild];
+                                colinearChild.orientation = "Horizontal";
+                                colinearChild.xOrY = limitsColinearChild.after.y;
+                            }
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                } 
             }
 
             return node;
