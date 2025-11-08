@@ -63,8 +63,9 @@ export class Link {
 
         this.alignColinearSegments();
 
-        this.correctOverlappingBranches();
-
+        if (removeColinearSegments) {
+            this.correctOverlappingBranches();
+        }
 
         return {
             id: this.id,

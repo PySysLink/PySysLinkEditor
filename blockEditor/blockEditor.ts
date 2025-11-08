@@ -168,7 +168,7 @@ console.log = () => {};
     communicationManager.registerLocalJsonChangedCallback(updateWebView);
 
     let lastWebViewUpdateTime = Date.now();
-    const minUpdateInterval = 100; 
+    const minUpdateInterval = 10; 
     let timerRunning = false;
 
     function updateWebView(json: JsonData): void {
