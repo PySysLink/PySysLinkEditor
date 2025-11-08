@@ -51,7 +51,7 @@ export class LinkNode extends Selectable implements Movable {
     }
 
     protected createNodeElement(): SVGElement {
-        console.log("Creating a link node element");
+        // console.log("Creating a link node element");
         return document.createElementNS("http://www.w3.org/2000/svg", "circle");
     }
     
@@ -68,7 +68,6 @@ export class LinkNode extends Selectable implements Movable {
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        communicationManager.print(`Link node with id: ${this.getId()} moving to ${x}, ${y}`);
         const selectedSelectableIds: IdType[] = selectables.filter(selectable => selectable.isSelected()).map(selectable => selectable.getId());
         const neighboringSegments = this.getNeighboringSegmentsToNode(this.id);
         if (neighboringSegments === undefined) {
@@ -233,7 +232,7 @@ export class TargetNode extends LinkNode implements Movable {
     }
 
     protected createNodeElement(): SVGElement {
-        console.log("Creating a target node element with arrow");
+        // console.log("Creating a target node element with arrow");
         const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
         return poly;
     }
@@ -392,9 +391,7 @@ export class LinkSegment extends Selectable implements Movable {
         this.onDelete(communicationManager);
     };
 
-    moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        communicationManager.print(`Segment with id: ${this.getId()} moving to ${x}, ${y}`);
-        
+    moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {        
         const selectedSelectableIds: IdType[] = selectables.filter(selectable => selectable.isSelected()).map(selectable => selectable.getId());
         communicationManager.moveLinkSegment(this.linkId, this.id, x, y, selectedSelectableIds);
     }

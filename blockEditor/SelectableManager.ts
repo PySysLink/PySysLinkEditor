@@ -314,7 +314,7 @@ export class SelectableManager {
         });
     }
 
-    public onMouseMoveDrag = (e: MouseEvent): void => {
+    public onMouseMoveDrag = (e: MouseEvent): void => {        
         this.communicationManager.print(`Drag move`);
 
         const scaledDeltaX = (e.clientX - this.dragStartX) / this.getZoomLevelReal();
@@ -340,7 +340,6 @@ export class SelectableManager {
         this.communicationManager.freezeLinkUpdates();
         selectedSelectables.forEach(selectable => {
             if (isMovable(selectable)) {
-                this.communicationManager.print(`Move selectable: ${selectable.getId()}`);
                 selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
             }
         });

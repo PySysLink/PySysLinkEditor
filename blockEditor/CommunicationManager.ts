@@ -34,10 +34,10 @@ export class CommunicationManager {
 
     print(text: string) {
         console.log(text);
-        this.vscode.postMessage({
-            type: 'print',
-            text: text
-        });
+        // this.vscode.postMessage({
+        //     type: 'print',
+        //     text: text
+        // });
     }
 
     public registerLocalJsonChangedCallback(callback: (json: JsonData) => void) {
@@ -130,12 +130,11 @@ export class CommunicationManager {
     }
 
     public setLocalJson(json: JsonData, sendToServer: boolean = true) {
-        this.print(`Setting local JSON`);
         if (JSON.stringify(json) === JSON.stringify(this.localJson)) {
             return;
         } else {
-            this.print('JSON changed:');
-            this.printJsonDiff(this.localJson, json);
+            // this.print('JSON changed:');
+            // this.printJsonDiff(this.localJson, json);
         }
 
         this.localJson = json;
@@ -355,7 +354,7 @@ export class CommunicationManager {
     public moveBlock = (blockId: IdType, x: number, y: number) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveBlockInJson(json, blockId, x, y, !this.freezedLinkUpdates);
+            let newJson = moveBlockInJson(json, blockId, x, y, [], !this.isDragging);
             this.print(`Move block: ${blockId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
@@ -392,7 +391,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = moveLinkDelta(json, linkId, deltaX, deltaY);
-            this.print(`Move link: ${linkId} by delta (${deltaX}, ${deltaY})`);
+            // this.print(`Move link: ${linkId} by delta (${deltaX}, ${deltaY})`);
             this.setLocalJson(newJson, true);
         }
     };
@@ -402,7 +401,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = moveSourceNode(json, linkId, x, y, selectedSelectableIds, !this.isDragging, !this.isDragging);
-            this.print(`Move source node of link: ${linkId} to position (${x}, ${y})`);
+            // this.print(`Move source node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
     };
@@ -411,7 +410,7 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = moveTargetNode(json, linkId, segmentIdOfNode, x, y, selectedSelectableIds, !this.isDragging, !this.isDragging);
-            this.print(`Move target node of link: ${linkId} to position (${x}, ${y})`);
+            // this.print(`Move target node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
     };

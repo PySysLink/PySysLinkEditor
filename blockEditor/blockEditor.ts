@@ -15,6 +15,14 @@ import '@vscode-elements/elements/dist/bundled.js';
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
 
+setInterval(() => {
+    vscode.postMessage({
+            type: 'heartbeat',
+            text: `Heartbeat from webview at ${new Date().toISOString()}`
+        });
+}, 1000);
+
+console.log = () => {};
 
 (function () {
     const canvas = document.querySelector('.canvas') as HTMLElement;
@@ -159,7 +167,27 @@ const vscode = acquireVsCodeApi();
 
     communicationManager.registerLocalJsonChangedCallback(updateWebView);
 
+    let lastWebViewUpdateTime = Date.now();
+    const minUpdateInterval = 100; 
+    let timerRunning = false;
+
     function updateWebView(json: JsonData): void {
+        const currentTime = Date.now();
+        if (currentTime - lastWebViewUpdateTime < minUpdateInterval) {
+            if (!timerRunning) {
+                timerRunning = true;
+                setTimeout(() => {
+                    const lastJson = communicationManager.getLocalJson();
+                    if (lastJson) {
+                        updateWebView(lastJson);
+                    }
+                    timerRunning = false;
+                }, minUpdateInterval);
+            }
+            return; 
+        }
+
+        lastWebViewUpdateTime = currentTime;
         blockInteractionManager.updateFromJson(json);
 
         linkInteractionManager.links.forEach((link: LinkVisual) => {
@@ -241,12 +269,10 @@ const vscode = acquireVsCodeApi();
         }
     }
 
-
-    // Listen for messages from extension
     window.addEventListener('message', (e: MessageEvent) => {
-        if (e.data.type === 'update') {            
+        if (e.data.type === 'update') {
             communicationManager.newJsonFromServer(e.data.json);
-        } else if (e.data.type === 'colorThemeKindChanged') {
+        }else if (e.data.type === 'colorThemeKindChanged') {
             applyThemeClass(e.data.kind);
         } else if (e.data.type === 'setBlockLibraries') {
             communicationManager.setBlockLibraries(e.data.model as Library[]);

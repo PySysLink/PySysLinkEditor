@@ -97,6 +97,8 @@ export class Link {
 
             // collapse chains where node has exactly one child with same orientation
             while (node.children.length === 1 && node.children[0].orientation === node.orientation) {
+                console.log(`Aligning colinear segments at node ${node.id}`);
+                console.log(`Current segments: ${JSON.stringify(self.serializeSegmentNode(self.segmentNode))}`);
                 const sole = node.children[0];
 
                 // transfer target mapping from child to node if needed
@@ -115,6 +117,8 @@ export class Link {
                 for (const child of node.children) {
                     if (child.orientation === node.orientation) {
                         if (child.children.length === 0) {
+                            console.log(`Aligning leaf colinear segment at node ${node.id}`);
+                            console.log(`Current segments: ${JSON.stringify(self.serializeSegmentNode(self.segmentNode))}`);
                             let newSegment: SegmentNode = {
                                 id: getNonce(),
                                 orientation: child.orientation === "Horizontal" ? "Vertical" : "Horizontal",
@@ -284,11 +288,13 @@ export class Link {
                 // if the end coordinates are too far apart, don't merge
                 if (Math.abs(node.xOrY - grand.xOrY) > tolerance) { break; }
 
+                console.log(`Removing colinear segment at node ${child.id}`);
+                console.log(`Current segments: ${JSON.stringify(self.serializeSegmentNode(self.segmentNode))}`);
+                console.trace();
                 // transfer any target mapping from grand (or middle child) to parent if needed
-                if (self.targetNodes[grand.id]) {
-                    self.targetNodes[node.id] = self.targetNodes[grand.id];
-                    delete self.targetNodes[grand.id];
-                }
+                self.targetNodes[node.id] = self.targetNodes[grand.id];
+                delete self.targetNodes[grand.id];
+
 
                 node.children = grand.children;
 
@@ -575,6 +581,7 @@ export class Link {
             }
             if (this.segmentNode.orientation === "Horizontal" && this.sourceY !== this.targetNodes[this.segmentNode.id].y) {
                 console.log("Creating horizontal dog leg");
+                console.log(`Current segments: ${JSON.stringify(this.serializeSegmentNode(this.segmentNode))}`);
                 const newSegmentNode1: SegmentNode = {
                     id: getNonce(),
                     orientation: "Vertical",
@@ -594,6 +601,7 @@ export class Link {
             } 
             else if (this.segmentNode.orientation === "Vertical" && this.sourceX !== this.targetNodes[this.segmentNode.id].x) {
                 console.log("Creating vertical dog leg");
+                console.log(`Current segments: ${JSON.stringify(this.serializeSegmentNode(this.segmentNode))}`);
                 const newSegmentNode1: SegmentNode = {
                     id: getNonce(),
                     orientation: "Horizontal",

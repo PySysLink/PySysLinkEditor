@@ -174,17 +174,17 @@ export function deleteLinkFromJson(json: JsonData, linkId: IdType): JsonData {
 }
 
 export function updateLinkInJson(json: JsonData, updatedLink: LinkJson): JsonData {
-    console.log(`Updating link in JSON: ${JSON.stringify(updatedLink)}`);
+    // console.log(`Updating link in JSON: ${JSON.stringify(updatedLink)}`);
     const updatedJson: JsonData = {
         ...json,
         links: json.links?.map(link => (link.id === updatedLink.id ? updatedLink : link))
     };
-    console.log(`Updated JSON links: ${JSON.stringify(updatedJson.links)}`);
+    // console.log(`Updated JSON links: ${JSON.stringify(updatedJson.links)}`);
     return updatedJson;
 }
 
 
-export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: number, updateLinks: boolean = true): JsonData {
+export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: number, selectedSelectableIds: IdType[], removeColinear: boolean = true): JsonData {
     const previousX = json.blocks?.find(b => b.id === blockId)?.x;
     const previousY = json.blocks?.find(b => b.id === blockId)?.y;
 
@@ -205,7 +205,7 @@ export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: n
     if (previousX && previousY && (previousX !== x || previousY !== y)) {
         console.log(`Calling updateLinksSourceTargetPosition after moving block ${blockId}`);
         console.log(`Previous position: (${previousX}, ${previousY}), New position: (${x}, ${y})`);
-        updatedJson = updateLinksSourceTargetPosition(updatedJson);
+        updatedJson = updateLinksSourceTargetPosition(updatedJson, selectedSelectableIds, removeColinear);
     }
 
     return updatedJson;
@@ -417,18 +417,18 @@ export function getPortPosition(
     };
 }
 
-export function updateLinksSourceTargetPosition(json: JsonData, selectedSelectableIds: IdType[] = []): JsonData {
+export function updateLinksSourceTargetPosition(json: JsonData, selectedSelectableIds: IdType[] = [], removeColinear: boolean=true): JsonData {
     let updatedJson = json;
     for (let link of json.links || []) {
         const sourcePosition = getPortPosition(updatedJson, link.sourceId, "output", link.sourcePort);
         if (sourcePosition) {
-            updatedJson = moveSourceNode(updatedJson, link.id, sourcePosition.x, sourcePosition.y, selectedSelectableIds);
+            updatedJson = moveSourceNode(updatedJson, link.id, sourcePosition.x, sourcePosition.y, selectedSelectableIds, false, removeColinear);
         }
         for (const segmentId in link.targetNodes) {
             let targetInfo = link.targetNodes[segmentId];
             const targetPosition = getPortPosition(updatedJson, targetInfo.targetId, "input", targetInfo.port);
             if (targetPosition) {
-                updatedJson = moveTargetNode(updatedJson, link.id, segmentId, targetPosition.x, targetPosition.y, selectedSelectableIds);
+                updatedJson = moveTargetNode(updatedJson, link.id, segmentId, targetPosition.x, targetPosition.y, selectedSelectableIds, false, removeColinear);
             }
         }
     }
@@ -646,16 +646,16 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
         return json;
     }
 
-    console.log(`Link json before moving source node: ${JSON.stringify(linkData)}`);
+    // console.log(`Link json before moving source node: ${JSON.stringify(linkData)}`);
 
     let link = new Link(linkData);
     link.moveSourceNode(finalX, finalY);
 
     let linkJson = link.toJson(removeColinear);
 
-    console.log(`Resulting link json after moving source node: ${JSON.stringify(linkJson)}`);
+    // console.log(`Resulting link json after moving source node: ${JSON.stringify(linkJson)}`);
 
-    console.log(`MoveSourceNode - attachLinkToPort: ${attachLinkToPort}, finalId: ${finalId}, finalPort: ${finalPort}, x: ${finalX}, y: ${finalY}`);
+    // console.log(`MoveSourceNode - attachLinkToPort: ${attachLinkToPort}, finalId: ${finalId}, finalPort: ${finalPort}, x: ${finalX}, y: ${finalY}`);
 
     if (attachLinkToPort) {
         if (finalLinkPositionData) {
@@ -724,16 +724,16 @@ export function moveTargetNode(
         }
     }
 
-    console.log(`Link json before moving target node: ${JSON.stringify(linkData)}`);
+    // console.log(`Link json before moving target node: ${JSON.stringify(linkData)}`);
 
     let link = new Link(linkData);
     link.moveTargetNode(segmentIdOfNode, finalX, finalY);
 
     let linkJson = link.toJson(removeColinear);
 
-    console.log(`Resulting link json after moving target node: ${JSON.stringify(linkJson)}`);
+    // console.log(`Resulting link json after moving target node: ${JSON.stringify(linkJson)}`);
 
-    console.log(`MoveTargetNode - attachLinkToPort: ${attachLinkToPort}, finalId: ${finalId}, finalPort: ${finalPort}, x: ${finalX}, y: ${finalY}`);
+    // console.log(`MoveTargetNode - attachLinkToPort: ${attachLinkToPort}, finalId: ${finalId}, finalPort: ${finalPort}, x: ${finalX}, y: ${finalY}`);
     if (attachLinkToPort) {
         linkJson.targetNodes[segmentIdOfNode].targetId = finalId;
         linkJson.targetNodes[segmentIdOfNode].port = finalPort;

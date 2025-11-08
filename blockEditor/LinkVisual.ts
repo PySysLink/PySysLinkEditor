@@ -45,7 +45,6 @@ export class LinkVisual {
 
         if (segmentNode.children.length === 0) {
             // leaf node, create target node
-            communicationManager.print(`Creating target node for segment node id: ${segmentNode.id}`);
             const targetNode = new TargetNode(this.id, segmentNode.id, this.getNeighboringSegmentsToNode, () => this.delete(communicationManager));
             this.targetNodes.push(targetNode);
         } else {
