@@ -357,7 +357,17 @@ export class LinkInteractionManager {
 
                 link.updateFromJson(newJson, this.communicationManager);
 
-                link.targetNodes.find(tn => tn.segmentId === newSegmentId)?.triggerOnMouseDown(e.clientX, e.clientY);  
+                console.log(`Trying to trigger mouse down on segment id: ${newSegmentId}`);
+                let targetNode = link.targetNodes.find(tn => tn.segmentId === newSegmentId);
+                if (!targetNode) {
+                    this.communicationManager.print(`Target node for new segment id ${newSegmentId} not found.`);
+                    return;
+                }
+                console.log(`Found target node: ${targetNode}`);
+                
+                this.selectableManager.addCallbackToSelectable(targetNode);
+                targetNode.unselect();
+                targetNode.triggerOnMouseDown(e.clientX, e.clientY);  
                 
             } else { return; }
         }
@@ -382,7 +392,17 @@ export class LinkInteractionManager {
 
                 link.updateFromJson(newJson, this.communicationManager);
 
-                link.targetNodes.find(tn => tn.segmentId === newSegmentId)?.triggerOnMouseDown(e.clientX, e.clientY);
+                console.log(`Trying to trigger mouse down on segment id: ${newSegmentId}`);
+                let targetNode = link.targetNodes.find(tn => tn.segmentId === newSegmentId);
+                if (!targetNode) {
+                    this.communicationManager.print(`Target node for new segment id ${newSegmentId} not found.`);
+                    return;
+                }
+                console.log(`Found target node: ${targetNode}`);
+                
+                this.selectableManager.addCallbackToSelectable(targetNode);
+                targetNode.unselect();
+                targetNode.triggerOnMouseDown(e.clientX, e.clientY);  
   
             } else { return; }
         }

@@ -309,7 +309,9 @@ export class CommunicationManager {
             }
             const [newJson, newSegmentId ] = result;
             this.setLocalJson(newJson, true);
+            return newSegmentId;
         }
+        return undefined;
     }
 
     public createNewChildLinkFromSegment(linkId: IdType, segmentId: IdType, clickX: number, clickY: number): IdType | undefined {

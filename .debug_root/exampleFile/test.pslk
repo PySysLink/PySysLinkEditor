@@ -1,5 +1,5 @@
 {
-  "version": 64,
+  "version": 35,
   "blocks": [
     {
       "id": "QZWYj1JjjoJS77Qhp8EaRKJJmh1UQeF9",
@@ -130,157 +130,63 @@
         "input_ports": 1,
         "output_ports": 0
       }
+    },
+    {
+      "id": "Nl6B0TPvrqtm5WusnUORQDzraT1GSFsq",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 1116.923076923079,
+      "y": 209.23076923076923,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Display",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
+    },
+    {
+      "id": "cHq8U08837Xud7cHjQfqxzi4gwnu9XqD",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 1158.4615384615402,
+      "y": 340.00000000000006,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Display",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
     }
   ],
   "links": [
-    {
-      "id": "opKuRSP2PvwvjpoSq8bT2V38WsE3NidW",
-      "sourceId": "nC5DRGvQQUedyxTO9PfoPUOJSaGAsRIV",
-      "sourcePort": 0,
-      "sourceX": 835.711428005546,
-      "sourceY": 420.6941968706677,
-      "targetNodes": {
-        "IPV28bTx6QT4GaBe3ItAECs5XbkXF7tK": {
-          "targetId": "wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP",
-          "port": 1,
-          "x": 401.44563279857476,
-          "y": 423.67023172905573
-        },
-        "88VnLVx6JryhFZsX6ZrIBTsedVrd2R5M": {
-          "targetId": "ZAmPNOpxSoLAzhUipae0wHBAahqlS1FC",
-          "port": 0,
-          "x": 1169.4581105169345,
-          "y": 570.7201426024951
-        },
-        "cebpg45G849lN5gZc9QlHBNkEiY8t9UA": {
-          "targetId": "undefined",
-          "port": -1,
-          "x": 484.5833333333337,
-          "y": 660.7500000000003
-        },
-        "FNIJrnGIf2Oi2BynDhi4rEYX6y6ekyA9": {
-          "targetId": "undefined",
-          "port": -1,
-          "x": 612.2368421052629,
-          "y": 751.6806220095688
-        }
-      },
-      "segmentNode": {
-        "id": "9vNuNtyPFXgg6AvHGz4OJSDiNuELuDxe",
-        "orientation": "Vertical",
-        "xOrY": 835.711428005546,
-        "children": [
-          {
-            "id": "iSCEepmc3Wnap6ukmwC2hxciLOmFUz2s",
-            "orientation": "Horizontal",
-            "xOrY": 402.360863537334,
-            "children": [
-              {
-                "id": "Rddu8gBnKKRsyU2DrI00KYyOV7G9dVF5",
-                "orientation": "Horizontal",
-                "xOrY": 402.360863537334,
-                "children": [
-                  {
-                    "id": "70NXyO6ZxnQgTTJ478aMKr3ZBCh8xFFQ",
-                    "orientation": "Vertical",
-                    "xOrY": 1079.4581105169352,
-                    "children": [
-                      {
-                        "id": "88VnLVx6JryhFZsX6ZrIBTsedVrd2R5M",
-                        "orientation": "Horizontal",
-                        "xOrY": 570.7201426024951,
-                        "children": []
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "id": "xQcxLUkujsG56y5kovDQdIdxCUkwGccJ",
-                "orientation": "Vertical",
-                "xOrY": 948.3824519706852,
-                "children": [
-                  {
-                    "id": "gHO6yr7DtTbKFWbxqfgchXaQ9JAxJqMY",
-                    "orientation": "Horizontal",
-                    "xOrY": 549.0582293523476,
-                    "children": [
-                      {
-                        "id": "HH0qsRz0OzSgqTartzDPrUTO9lBj1Fpf",
-                        "orientation": "Vertical",
-                        "xOrY": 345.34269162210364,
-                        "children": [
-                          {
-                            "id": "uKGiOzRS1Q9BTbtqAB2lEyn2w780jyC0",
-                            "orientation": "Vertical",
-                            "xOrY": 345.34269162210364,
-                            "children": [
-                              {
-                                "id": "crZJvsHA050px2bRQm48mNYRiVSWGcib",
-                                "orientation": "Vertical",
-                                "xOrY": 345.34269162210364,
-                                "children": [
-                                  {
-                                    "id": "IPV28bTx6QT4GaBe3ItAECs5XbkXF7tK",
-                                    "orientation": "Horizontal",
-                                    "xOrY": 423.67023172905573,
-                                    "children": []
-                                  }
-                                ]
-                              },
-                              {
-                                "id": "8i3yP6DTryGq0GlxDPEuXQv1BPfoPIJO",
-                                "orientation": "Horizontal",
-                                "xOrY": 497.62965792377577,
-                                "children": [
-                                  {
-                                    "id": "0IrjGwduDjHDOXSpqhGIMKCFNppANswT",
-                                    "orientation": "Vertical",
-                                    "xOrY": 283.1296992481198,
-                                    "children": [
-                                      {
-                                        "id": "FNIJrnGIf2Oi2BynDhi4rEYX6y6ekyA9",
-                                        "orientation": "Horizontal",
-                                        "xOrY": 751.6806220095688,
-                                        "children": []
-                                      }
-                                    ]
-                                  }
-                                ]
-                              }
-                            ]
-                          },
-                          {
-                            "id": "HWtqNuK7HdoMjsY51hadD1ViSMsR6gCd",
-                            "orientation": "Horizontal",
-                            "xOrY": 549.0582293523476,
-                            "children": [
-                              {
-                                "id": "ICxFomeiokrAkIlni5YpOq9TXLdawYGr",
-                                "orientation": "Vertical",
-                                "xOrY": 462.21428571428635,
-                                "children": [
-                                  {
-                                    "id": "cebpg45G849lN5gZc9QlHBNkEiY8t9UA",
-                                    "orientation": "Horizontal",
-                                    "xOrY": 660.7500000000003,
-                                    "children": []
-                                  }
-                                ]
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
     {
       "id": "IYgY2acof9OuvOyj6i6VeMRKYq172Axt",
       "sourceId": "wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP",
@@ -345,6 +251,133 @@
                 "orientation": "Horizontal",
                 "xOrY": 403.67023172905573,
                 "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "PEc0ppJtBieNWAqWVr3iLMMw2631tDzX",
+      "sourceId": "nC5DRGvQQUedyxTO9PfoPUOJSaGAsRIV",
+      "sourcePort": 0,
+      "sourceX": 835.711428005546,
+      "sourceY": 420.6941968706677,
+      "targetNodes": {
+        "A19KkOicZxKYcoaiZTTIwDmHNMca1GCM": {
+          "targetId": "ZAmPNOpxSoLAzhUipae0wHBAahqlS1FC",
+          "port": 0,
+          "x": 1169.4581105169345,
+          "y": 570.7201426024951
+        },
+        "fPUwnUEy44dtO10nWufqD8Uxoj1K1iZw": {
+          "targetId": "wwEnyzjglyaVpVKdvSMXOjarPQnf7bkP",
+          "port": 1,
+          "x": 401.44563279857476,
+          "y": 423.67023172905573
+        },
+        "6QcKCTCmSMw3GvFTKeaCgZzLEnmQ0flc": {
+          "targetId": "cHq8U08837Xud7cHjQfqxzi4gwnu9XqD",
+          "port": 0,
+          "x": 1158.4615384615402,
+          "y": 365.00000000000006
+        },
+        "uIR5NpTYRgtNqlhYhZ5iKzXBbCfEAppt": {
+          "targetId": "Nl6B0TPvrqtm5WusnUORQDzraT1GSFsq",
+          "port": 0,
+          "x": 1116.923076923079,
+          "y": 234.23076923076923
+        }
+      },
+      "segmentNode": {
+        "id": "yyHasLKKbH5i48ZD17j3qjv1U120Znpf",
+        "orientation": "Horizontal",
+        "xOrY": 420.6941968706677,
+        "children": [
+          {
+            "id": "oX54f5cophzZeKg5V6VuCePddVq8xXw6",
+            "orientation": "Horizontal",
+            "xOrY": 420.6941968706677,
+            "children": [
+              {
+                "id": "s6SzZCUPAFFU78B1iYDH4f86XDqm2qxj",
+                "orientation": "Horizontal",
+                "xOrY": 420.6941968706677,
+                "children": [
+                  {
+                    "id": "tc6stU5divaGjupYOfgh8uWlMlzaRiyf",
+                    "orientation": "Vertical",
+                    "xOrY": 1004.1324806371249,
+                    "children": [
+                      {
+                        "id": "XJnCSgX2rrGSHm9uygLBEDVGp8pnMw6V",
+                        "orientation": "Vertical",
+                        "xOrY": 1004.1324806371249,
+                        "children": [
+                          {
+                            "id": "A19KkOicZxKYcoaiZTTIwDmHNMca1GCM",
+                            "orientation": "Horizontal",
+                            "xOrY": 570.7201426024951,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "id": "kYbyi56EdxyBvluUMFgYewTUkSAHW4jZ",
+                        "orientation": "Horizontal",
+                        "xOrY": 494.28571428571445,
+                        "children": [
+                          {
+                            "id": "6QcKCTCmSMw3GvFTKeaCgZzLEnmQ0flc",
+                            "orientation": "Vertical",
+                            "xOrY": 1158.4615384615402,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "Svbkmrah2HcbdnAni2EiDriGpb32xpQo",
+                "orientation": "Vertical",
+                "xOrY": 1004.1324806371249,
+                "children": [
+                  {
+                    "id": "uIR5NpTYRgtNqlhYhZ5iKzXBbCfEAppt",
+                    "orientation": "Horizontal",
+                    "xOrY": 234.23076923076923,
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "PXoJ8NbYNJnenXNUmsKcXtacx85zdRVW",
+            "orientation": "Vertical",
+            "xOrY": 912.8571428571432,
+            "children": [
+              {
+                "id": "JS1DAwbtaYLgshEUdSdnxKO9SWSuWWLR",
+                "orientation": "Horizontal",
+                "xOrY": 549.3845174433416,
+                "children": [
+                  {
+                    "id": "0eTRNTY9cp3K6rgqnxXgpOyZQwOlfUlf",
+                    "orientation": "Vertical",
+                    "xOrY": 278.58848994143165,
+                    "children": [
+                      {
+                        "id": "fPUwnUEy44dtO10nWufqD8Uxoj1K1iZw",
+                        "orientation": "Horizontal",
+                        "xOrY": 423.67023172905573,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
