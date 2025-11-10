@@ -58,8 +58,6 @@ export class Link {
 
     public toJson(removeColinearSegments: boolean=true): LinkJson {
         if (removeColinearSegments) {
-            console.log(`Removing colinear segments for link ${this.id}`);
-            console.trace();
             this.removeColinearSegments(3);
         }
 
@@ -182,6 +180,9 @@ export class Link {
                                 // Closer to parent, move up on tree
                                 const parentOfNode = self.findParentSegmentNode(node.id);
                                 if (parentOfNode) {
+                                    if (parentOfNode.children.length > 1) {
+                                        break;
+                                    }
                                     const newSegment: SegmentNode = {
                                         id: getNonce(),
                                         orientation: "Horizontal",
@@ -195,7 +196,25 @@ export class Link {
                                 }
                             }
                             else {
-                                // Closer to colinear child, move down on tree
+                                // Closer to colinear child, move down on tree, only if child has a single child
+                                if (colinearChild.children.length > 1) {
+                                    if (colinearChild.children.length === 2) {
+                                        let nonColinearChildOfChild: SegmentNode | null = null;
+                                        for (const grandChild of colinearChild.children) {
+                                            if (grandChild.orientation !== colinearChild.orientation) {
+                                                nonColinearChildOfChild = grandChild;
+                                                break;
+                                            }
+                                        }
+                                        if (nonColinearChildOfChild) {
+                                            // Swap non colinear child with nonColinearChildOfChild
+                                            colinearChild.children = colinearChild.children.filter(c => c.id !== nonColinearChildOfChild!.id);
+                                            colinearChild.children.push(nonColinearChild);
+                                            node.children = [colinearChild, nonColinearChildOfChild];
+                                        }
+                                    }
+                                    break;
+                                }
                                 const newSegment: SegmentNode = {
                                     id: getNonce(),
                                     orientation: "Horizontal",
@@ -226,6 +245,9 @@ export class Link {
                                 // Closer to parent, move up on tree
                                 const parentOfNode = self.findParentSegmentNode(node.id);
                                 if (parentOfNode) {
+                                    if (parentOfNode.children.length > 1) {
+                                        break;
+                                    }
                                     const newSegment: SegmentNode = {
                                         id: getNonce(),
                                         orientation: "Vertical",
@@ -238,7 +260,25 @@ export class Link {
                                     node.xOrY = parentOfNode.xOrY;
                                 }
                             } else {
-                                // Closer to colinear child, move down on tree
+                                // Closer to colinear child, move down on tree, only if child has a single child
+                                if (colinearChild.children.length > 1) {
+                                    if (colinearChild.children.length === 2) {
+                                        let nonColinearChildOfChild: SegmentNode | null = null;
+                                        for (const grandChild of colinearChild.children) {
+                                            if (grandChild.orientation !== colinearChild.orientation) {
+                                                nonColinearChildOfChild = grandChild;
+                                                break;
+                                            }
+                                        }
+                                        if (nonColinearChildOfChild) {
+                                            // Swap non colinear child with nonColinearChildOfChild
+                                            colinearChild.children = colinearChild.children.filter(c => c.id !== nonColinearChildOfChild!.id);
+                                            colinearChild.children.push(nonColinearChild);
+                                            node.children = [colinearChild, nonColinearChildOfChild];
+                                        }
+                                    }
+                                    break;
+                                }
                                 const newSegment: SegmentNode = {
                                     id: getNonce(),
                                     orientation: "Vertical",
@@ -287,6 +327,8 @@ export class Link {
                 // require alternating orientations: parent === grand && child !== parent
                 if (child.orientation === node.orientation) { break; }
                 if (grand.orientation !== node.orientation) { break; }
+
+                console.log(`Distance between node ${node.id} and grandchild ${grand.id}: ${Math.abs(node.xOrY - grand.xOrY)}`);    
 
                 // if the end coordinates are too far apart, don't merge
                 if (Math.abs(node.xOrY - grand.xOrY) > tolerance) { break; }
