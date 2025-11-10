@@ -58,6 +58,8 @@ export class Link {
 
     public toJson(removeColinearSegments: boolean=true): LinkJson {
         if (removeColinearSegments) {
+            console.log(`Removing colinear segments for link ${this.id}`);
+            console.trace();
             this.removeColinearSegments(3);
         }
 

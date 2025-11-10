@@ -266,6 +266,7 @@ export function updatePortAttachment(json: JsonData): JsonData {
         }
         for (const segmentId in link.targetNodes) {
             let targetInfo = link.targetNodes[segmentId];
+            if (!targetInfo) {continue;}
             console.log(`Processing link target: ${link.id}, segmentId: ${segmentId}, x: ${targetInfo.x}, y: ${targetInfo.y}`);
             const targetPosition = getPortPosition(updatedJson, targetInfo.targetId, "input", targetInfo.port);
             if (targetPosition) {

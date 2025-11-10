@@ -277,6 +277,7 @@ export class LinkInteractionManager {
 
             for (const segmentId in link.targetNodes) {
                 const targetInfo = link.targetNodes[segmentId];
+                if (!targetInfo) {continue;}
                 const portI = this.detectPort(targetInfo.x, targetInfo.y);
                 if (portI) {
                     if (portI.portType === "input") {

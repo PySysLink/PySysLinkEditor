@@ -22,7 +22,7 @@ setInterval(() => {
         });
 }, 1000);
 
-console.log = () => {};
+// console.log = () => {};
 
 (function () {
     const canvas = document.querySelector('.canvas') as HTMLElement;
