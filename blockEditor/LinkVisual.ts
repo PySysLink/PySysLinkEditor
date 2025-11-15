@@ -10,15 +10,15 @@ export class LinkVisual {
     segments: LinkSegment[] = [];
     junctionNodes: LinkNode[] = [];
 
-    private onDelete: (link: LinkVisual) => void;
+    private onDelete: (linkId: IdType, segmentId: IdType) => void;
 
     constructor(
         link: Link,
-        onDelete: (link: LinkVisual) => void,
+        onDelete: (linkId: IdType, segmentId: IdType) => void,
         communicationManager: CommunicationManager
     ) {
         this.id = link.id;
-        this.sourceNode = new SourceNode(this.id, this.getNeighboringSegmentsToNode, () => this.delete(communicationManager));
+        this.sourceNode = new SourceNode(this.id, this.getNeighboringSegmentsToNode, () => this.delete(communicationManager, link.segmentNode.id));
         this.onDelete = onDelete;
 
         this.buildSegmentsFromTree(link.segmentNode, communicationManager);
@@ -28,24 +28,24 @@ export class LinkVisual {
         if (parent) {
             // create a segment between parent and this node
             const seg = new LinkSegment(segmentNode.id, segmentNode.orientation, segmentNode.xOrY, this.id, 
-                                    () => this.delete(communicationManager), communicationManager);
+                                    () => this.delete(communicationManager, segmentNode.id), communicationManager);
             this.segments.push(seg);
 
             // if parent has >1 child, create a junction node
             const nodeId = `${parent.id}-${segmentNode.id}`;
-            const node = new LinkNode(this.id, nodeId, this.getNeighboringSegmentsToNode, cm => this.delete(cm));
+            const node = new LinkNode(this.id, nodeId, this.getNeighboringSegmentsToNode, cm => this.delete(cm, parent.id));
             this.junctionNodes.push(node);
         }
         else {
             // no parent, first segment, use source node as start
             const seg = new LinkSegment(segmentNode.id, segmentNode.orientation, segmentNode.xOrY, this.id, 
-                                    () => this.delete(communicationManager), communicationManager);
+                                    () => this.delete(communicationManager, segmentNode.id), communicationManager);
             this.segments.push(seg);
         }
 
         if (segmentNode.children.length === 0) {
             // leaf node, create target node
-            const targetNode = new TargetNode(this.id, segmentNode.id, this.getNeighboringSegmentsToNode, () => this.delete(communicationManager));
+            const targetNode = new TargetNode(this.id, segmentNode.id, this.getNeighboringSegmentsToNode, () => this.delete(communicationManager, segmentNode.id));
             this.targetNodes.push(targetNode);
         } else {
             // recurse for children
@@ -140,8 +140,8 @@ export class LinkVisual {
         this.targetNodes.forEach(tn => tn.unselect());
     }
 
-    public delete = (communicationManager: CommunicationManager): void => {
-        communicationManager.deleteLink(this.id);
-        this.onDelete(this);
+    public delete = (communicationManager: CommunicationManager, segmentId: IdType): void => {
+        communicationManager.deleteLinkFromSegment(this.id, segmentId);
+        this.onDelete(this.id, segmentId);
     };
 }

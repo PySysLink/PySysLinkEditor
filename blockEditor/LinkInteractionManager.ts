@@ -96,7 +96,7 @@ export class LinkInteractionManager {
         }
         let newLink = new LinkVisual(
             new Link(linkData),
-            this.deleteLink,
+            this.deleteLinkFromSegment,
             this.communicationManager
         );
 
@@ -138,8 +138,8 @@ export class LinkInteractionManager {
             if (newLinkData) {
                 this.communicationManager.print(`Creating new link visual due to click on port id: ${newLinkData.id}`);
                 let newLink = this.createLinkVisual(newLinkData);
-                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-                newLink.targetNodes.forEach(targetNode => targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager)));
+                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager, newLinkData.segmentNode.id));
+                newLink.targetNodes.forEach(targetNode => targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager, newLinkData.segmentNode.id)));
 
                 if (portType === "input") {
                     this.selectableManager.addCallbackToSelectable(newLink.sourceNode);
@@ -256,6 +256,10 @@ export class LinkInteractionManager {
         if (index !== -1) {
             this.links.splice(index, 1);
         }
+    };
+
+    public deleteLinkFromSegment = (linkId: IdType, segmentId: IdType): void => {
+        this.communicationManager.deleteLinkFromSegment(linkId, segmentId);
     };
 
     public highlightNodesNearPorts = (e: MouseEvent | undefined=undefined) : void => {

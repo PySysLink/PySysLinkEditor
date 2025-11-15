@@ -725,4 +725,71 @@ export class Link {
             this.targetNodes[segId] = targetInfo;
         }
     }
+
+    deleteFromSegment(segmentId: IdType) : boolean {
+        // Check if segment exists
+        const segment = this.findSegmentNodeById(segmentId);
+        if (!segment) {
+            console.warn(`Segment ${segmentId} not found in link ${this.id}`);
+            return true;
+        }
+
+        let parent = this.findParentSegmentNode(segmentId);
+        if (!parent) {
+            // reached root (first segment) — nothing to delete as branch root
+            return false;
+        }
+
+        // climb up until we find a node that has 2 (or more) children
+        // or we reach the root
+        let current = parent;
+        while (current && current.children.length === 1) {
+            current = this.findParentSegmentNode(current.id) ?? undefined as any;
+        }
+
+        // if we climbed to root (no parent with >1 children) return false
+        if (!current) {
+            console.warn("Cannot delete branch: no parent with multiple children found.");
+            return false;
+        }
+
+        const branchRoot = current; // node that has at least 2 children
+
+        // helper: check if subtree contains the target segment id
+        const containsSegment = (node: SegmentNode, id: IdType): boolean => {
+            if (node.id === id) { return true; }
+            for (const c of node.children) {
+                if (containsSegment(c, id)) { return true; }
+            }
+            return false;
+        };
+
+        // helper: collect all segment ids from a subtree
+        const collectIds = (node: SegmentNode, acc: IdType[]) => {
+            acc.push(node.id);
+            for (const c of node.children) {
+                collectIds(c, acc);
+            }
+        };
+
+        // find which child of branchRoot contains the original segment and remove that child
+        const idx = branchRoot.children.findIndex(c => containsSegment(c, segmentId));
+        if (idx === -1) {
+            // should not happen, but be safe
+            return true;
+        }
+
+        const removed = branchRoot.children.splice(idx, 1)[0];
+
+        // remove any targetNodes entries that belonged to the removed subtree
+        const idsToRemove: IdType[] = [];
+        collectIds(removed, idsToRemove);
+        for (const id of idsToRemove) {
+            if (this.targetNodes[id]) {
+                delete this.targetNodes[id];
+            }
+        }
+
+        return true;
+    }
 }

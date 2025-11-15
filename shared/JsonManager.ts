@@ -173,6 +173,24 @@ export function deleteLinkFromJson(json: JsonData, linkId: IdType): JsonData {
   };
 }
 
+export function deleteLinkFromSegmentFromJson(json: JsonData, linkId: IdType, segmentId: IdType): JsonData {
+    const linkJson = json.links?.find(l => l.id === linkId);
+    if (!linkJson) {
+        return json;
+    }
+    const link = new Link(linkJson);
+    const possibleToDelete = link.deleteFromSegment(segmentId);
+    console.log(`Possible to delete segment ${segmentId} from link ${linkId}: ${possibleToDelete}`);
+    if (possibleToDelete === false) {
+        console.log(`Cannot delete link segment ${segmentId} from link ${linkId}: no parent with multiple children found.`);
+        return deleteLinkFromJson(json, linkId);
+    }
+
+    const updatedLinkJson = link.toJson();
+    const updatedJson = updateLinkInJson(json, updatedLinkJson);
+    return updatedJson;
+}
+
 export function updateLinkInJson(json: JsonData, updatedLink: LinkJson): JsonData {
     // console.log(`Updating link in JSON: ${JSON.stringify(updatedLink)}`);
     const updatedJson: JsonData = {

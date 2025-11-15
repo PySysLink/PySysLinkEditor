@@ -3,7 +3,8 @@ import { addBlockToJson, addLinkToJson, updatePortAttachment, attachLinkToPort,
     deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, 
     getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveLinkSegment, moveSourceNode, 
     moveTargetNode, rotateBlock, rotateLinkSegmentClockwise, rotateLinkSegmentCounterClockwise, 
-    updateLinkInJson } from "../shared/JsonManager";
+    updateLinkInJson, 
+    deleteLinkFromSegmentFromJson} from "../shared/JsonManager";
 import { BlockData, IdType, JsonData, Rotation } from "../shared/JsonTypes";
 import { getNonce } from "./util";
 import { Library } from "../shared/BlockPalette";
@@ -224,6 +225,13 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = deleteLinkFromJson(json, linkId);
+            this.setLocalJson(newJson, true);
+        }
+    };
+    public deleteLinkFromSegment = (linkId: IdType, segmentId: IdType) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = deleteLinkFromSegmentFromJson(json, linkId, segmentId);
             this.setLocalJson(newJson, true);
         }
     };
