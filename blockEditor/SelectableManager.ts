@@ -6,7 +6,13 @@ import { IdType } from "../shared/JsonTypes";
 import { isRotatable } from "./Rotatable";
 
 export class SelectableManager {
-    private snappingToGrid = false;
+    private snappingToGrid = true;
+
+    private snapAppliedTotalX: number = 0;
+    private snapAppliedTotalY: number = 0;
+    private readonly GRID_SIZE = 10;
+
+    private initialPositionOfEachMovable: Map<IdType, { x: number; y: number }> = new Map();
 
     private dragStartX = 0;
     private dragStartY = 0;
@@ -78,6 +84,20 @@ export class SelectableManager {
     private setDragging(value: boolean) {
         this.isDragging = value;
         this.communicationManager.setIsDragging(value);
+
+        this.snapAppliedTotalX = 0;
+        this.snapAppliedTotalY = 0;
+
+        this.initialPositionOfEachMovable.clear();
+        this.getSelectableList().forEach(selectable => {
+            if (isMovable(selectable)) {
+                const position = selectable.getPosition(this.communicationManager);
+                if (position) {
+                    this.initialPositionOfEachMovable.set(selectable.getId(), { x: position.x, y: position.y });
+                }
+            }
+        });
+        
         if (this.isDragging) {
             this.communicationManager.freeze();
         } else {
@@ -242,7 +262,7 @@ export class SelectableManager {
         document.removeEventListener('mousemove', this.onMouseMoveDrag);
         document.removeEventListener('mouseup', this.onMouseUpDrag);
 
-        this.communicationManager.updatePortAttachment();
+        this.communicationManager.updatePortAttachment(this.getSelectedSelectables().map(s => s.getId()));
         this.onMouseUpCallbacks.forEach(callback => callback());
         this.setDragging(false);
     };
@@ -336,15 +356,41 @@ export class SelectableManager {
     };
 
     private moveAllSelectables(scaledDeltaX: number, scaledDeltaY: number): void {
-        let selectables = this.getSelectableList();
         let selectedSelectables = this.getSelectedSelectables();
         this.communicationManager.freezeLocalJsonCallback();
         this.communicationManager.freezeLinkUpdates();
-        selectedSelectables.forEach(selectable => {
-            if (isMovable(selectable)) {
-                selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
-            }
-        });
+
+        if (!this.snappingToGrid) {
+            selectedSelectables.forEach(selectable => {
+                if (isMovable(selectable)) {
+                    selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectedSelectables);
+                }
+            });
+        } else {
+            this.snapAppliedTotalX += scaledDeltaX;
+            this.snapAppliedTotalY += scaledDeltaY;
+
+            selectedSelectables.forEach(selectable => {
+                if (isMovable(selectable)) {
+                    const currentPosition = selectable.getPosition(this.communicationManager);
+                    const initialPosition = this.initialPositionOfEachMovable.get(selectable.getId());
+                    let expectedPosition : {x: number, y: number} | undefined = undefined;
+                    if (currentPosition && initialPosition) {
+                        expectedPosition = {
+                            x: initialPosition.x + this.snapAppliedTotalX,
+                            y: initialPosition.y + this.snapAppliedTotalY
+                        };
+                    }
+                    if (expectedPosition) {
+                        const expectedPositionRoundedX = Math.round(expectedPosition.x / this.GRID_SIZE) * this.GRID_SIZE;
+                        const expectedPositionRoundedY = Math.round(expectedPosition.y / this.GRID_SIZE) * this.GRID_SIZE;
+
+                        selectable.moveTo(expectedPositionRoundedX, expectedPositionRoundedY, this.communicationManager, selectedSelectables);
+                        this.communicationManager.print(`Expected position during snap move: ${expectedPosition.x}, ${expectedPosition.y}`);
+                    }
+                }
+            });
+        }
 
         this.communicationManager.unfreezeLinkUpdates(false);
         this.communicationManager.unfreezeLocalJsonCallback();
@@ -406,6 +452,10 @@ export class SelectableManager {
     public toggleGridSnapping(checked: boolean): void {
         this.snappingToGrid = checked;
         console.log(`Grid snapping set to: ${this.snappingToGrid}`);
+    }
+
+    public isGridSnappingActive(): boolean {
+        return this.snappingToGrid;
     }
 
 }

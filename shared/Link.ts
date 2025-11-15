@@ -64,6 +64,8 @@ export class Link {
         this.alignColinearSegments();
 
         if (removeColinearSegments) {
+            this.removeLastColinearSegments(3);
+
             this.correctOverlappingBranches();
         }
 
@@ -116,7 +118,7 @@ export class Link {
             // if node has multiple children, align children's coordinate when they share the same orientation
             if (node.children.length > 1) {
                 for (const child of node.children) {
-                    if (child.orientation === node.orientation) {
+                    if (child.orientation === node.orientation && child.xOrY !== node.xOrY) {
                         if (child.children.length === 0) {
                             console.log(`Aligning leaf colinear segment at node ${node.id}`);
                             console.log(`Current segments: ${JSON.stringify(self.serializeSegmentNode(self.segmentNode))}`);
@@ -296,6 +298,40 @@ export class Link {
                         }
                     }
                 } 
+            }
+
+            return node;
+        };
+
+        this.segmentNode = process(this.segmentNode);
+    }
+
+    private removeLastColinearSegments(tolerance: number) {
+        const self = this;
+
+        const process = (node: SegmentNode): SegmentNode => {
+            // recurse first
+            for (let i = 0; i < node.children.length; i++) {
+                node.children[i] = process(node.children[i]);
+            }
+
+            // handle parent -> single child (leaf with target) where orientations alternate
+            // and the target lies aligned with the parent so the middle segment is removable.
+            if (node.children.length === 1 &&
+                this.targetNodes[node.children[0].id] &&
+                node.orientation !== node.children[0].orientation
+            ) {
+                const targetInfo = this.targetNodes[node.children[0].id];
+                if ((node.orientation === "Horizontal" && Math.abs(node.xOrY - targetInfo.y) <= tolerance) ||
+                    (node.orientation === "Vertical" && Math.abs(node.xOrY - targetInfo.x) <= tolerance)) {
+                    console.log(`Removing colinear leaf segment at node ${node.children[0].id}`);
+                    console.log(`Current segments: ${JSON.stringify(self.serializeSegmentNode(self.segmentNode))}`);
+                    // transfer target mapping to parent
+                    self.targetNodes[node.id] = targetInfo;
+                    delete self.targetNodes[node.children[0].id];
+                    node.children = [];
+                }
+
             }
 
             return node;
@@ -607,7 +643,7 @@ export class Link {
         }
     }
 
-    moveSourceNode(x: number, y: number) {
+    moveSourceNode(x: number, y: number, selectedSelectableIds: string[]) {
         console.log(`Moving link source node: ${this.id} to x: ${x} y: ${y}`);
         this.sourceX = x;
         this.sourceY = y;
@@ -619,11 +655,16 @@ export class Link {
         }
 
         if (this.segmentNode.children.length === 0) {
+            if (selectedSelectableIds.includes(this.segmentNode.id)) {
+                return;
+            }
             const targetNode = this.targetNodes[this.segmentNode.id];
             if (!targetNode) {
                 console.warn("No target node found for segment node");
                 return;
             }
+            console.log(`Selected selectable ids: ${JSON.stringify(selectedSelectableIds)}`);
+            console.log(`Processing segment node: ${this.segmentNode.id}`);
             if (this.segmentNode.orientation === "Horizontal" && this.sourceY !== this.targetNodes[this.segmentNode.id].y) {
                 console.log("Creating horizontal dog leg");
                 console.log(`Current segments: ${JSON.stringify(this.serializeSegmentNode(this.segmentNode))}`);

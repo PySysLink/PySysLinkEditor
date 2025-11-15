@@ -6,7 +6,7 @@ export function getNonce() {
 	}
 
 	console.log(`Generated nonce: ${text}`);
-	// console.trace();
+	console.trace();
 	return text;
 }
 

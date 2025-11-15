@@ -352,19 +352,19 @@ export class CommunicationManager {
         }
     };
 
-    public updatePortAttachment = () => {
+    public updatePortAttachment = (selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
             console.log(`Not updateLinksSourceTargetPosition, but updatePortAttachment`);
-            let newJson = updatePortAttachment(json);
+            let newJson = updatePortAttachment(json, selectedSelectableIds);
             this.setLocalJson(newJson, true);
         }
     };
 
-    public moveBlock = (blockId: IdType, x: number, y: number) => {
+    public moveBlock = (blockId: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveBlockInJson(json, blockId, x, y, [], !this.isDragging);
+            let newJson = moveBlockInJson(json, blockId, x, y, selectedSelectableIds, !this.isDragging);
             this.print(`Move block: ${blockId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }

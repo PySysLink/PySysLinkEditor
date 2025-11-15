@@ -244,13 +244,13 @@ export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation,
     };
 
     console.log(`Calling updateLinksSourceTargetPosition after rotating block ${blockId}`);
-    updatedJson = updateLinksSourceTargetPosition(updatedJson);
+    updatedJson = updateLinksSourceTargetPosition(updatedJson, []);
 
     return updatedJson;
 }
 
 
-export function updatePortAttachment(json: JsonData): JsonData {
+export function updatePortAttachment(json: JsonData, selectedSelectableIds: IdType[]): JsonData {
     console.log("Attaching all links to ports...");
     let updatedJson = json;
     for (let link of json.links || []) {
@@ -259,10 +259,10 @@ export function updatePortAttachment(json: JsonData): JsonData {
         if (sourcePosition) {
             if (!isWithinDistance(sourcePosition, link.sourceX, link.sourceY, 10)) {
                 console.log(`Source position differs from link source position. Moving source node.`);
-                updatedJson = moveSourceNode(updatedJson, link.id, link.sourceX, link.sourceY, [], true);
+                updatedJson = moveSourceNode(updatedJson, link.id, link.sourceX, link.sourceY, selectedSelectableIds, true);
             }
             else {
-                updatedJson = moveSourceNode(updatedJson, link.id, sourcePosition.x, sourcePosition.y, [], true);
+                updatedJson = moveSourceNode(updatedJson, link.id, sourcePosition.x, sourcePosition.y, selectedSelectableIds, true);
             }
         }
         else {
@@ -272,14 +272,14 @@ export function updatePortAttachment(json: JsonData): JsonData {
             if (port && port.portType === "output") {
                 let portPosition = getPortPosition(json, port.blockId, port.portType, port.portIndex);
                 if (portPosition) {
-                    updatedJson = moveSourceNode(updatedJson, link.id, portPosition.x, portPosition.y, [], true);
+                    updatedJson = moveSourceNode(updatedJson, link.id, portPosition.x, portPosition.y, selectedSelectableIds, true);
                 }
             }
 
             let linkPositionData = checkIfLinkInPosition(json, link.id, link.sourceX, link.sourceY, 10);
             if (linkPositionData && linkPositionData.linkId !== link.id) {
                 console.log(`Link position data found for link source: ${link.id}, segmentId: ${linkPositionData.segmentId}. Moving source node to segment.`);
-                updatedJson = moveSourceNode(updatedJson, link.id, link.sourceX, link.sourceY, [], true);
+                updatedJson = moveSourceNode(updatedJson, link.id, link.sourceX, link.sourceY, selectedSelectableIds, true);
             }
         }
         for (const segmentId in link.targetNodes) {
@@ -293,7 +293,7 @@ export function updatePortAttachment(json: JsonData): JsonData {
                     updatedJson = moveTargetNode(updatedJson, link.id, segmentId, link.targetNodes[segmentId].x, link.targetNodes[segmentId].y, [], true);
                 }
                 else {
-                    updatedJson = moveTargetNode(updatedJson, link.id, segmentId, targetPosition.x, targetPosition.y, [], true);
+                    updatedJson = moveTargetNode(updatedJson, link.id, segmentId, targetPosition.x, targetPosition.y, selectedSelectableIds, true);
                 }
             }
             else {
@@ -303,7 +303,7 @@ export function updatePortAttachment(json: JsonData): JsonData {
                 if (port && port.portType === "input") {
                     let portPosition = getPortPosition(json, port.blockId, port.portType, port.portIndex);
                     if (portPosition) {
-                        updatedJson = moveTargetNode(updatedJson, link.id, segmentId, portPosition.x, portPosition.y, [], true);
+                        updatedJson = moveTargetNode(updatedJson, link.id, segmentId, portPosition.x, portPosition.y, selectedSelectableIds, true);
                     }
                 }
             }
@@ -377,7 +377,7 @@ export function getPortPosition(
 ): { x: number; y: number } | undefined {
     const portSpacing = 20;  // vertical spacing between ports
     const blockWidth = 120;
-    const blockHeight = 50;
+    const blockHeight = 60;
 
     if (!json) {return undefined;}
 
@@ -436,18 +436,18 @@ export function getPortPosition(
     };
 }
 
-export function updateLinksSourceTargetPosition(json: JsonData, selectedSelectableIds: IdType[] = [], removeColinear: boolean=true): JsonData {
+export function updateLinksSourceTargetPosition(json: JsonData, selectedSelectableIds: IdType[], removeColinear: boolean=true): JsonData {
     let updatedJson = json;
     for (let link of json.links || []) {
         const sourcePosition = getPortPosition(updatedJson, link.sourceId, "output", link.sourcePort);
         if (sourcePosition) {
-            updatedJson = moveSourceNode(updatedJson, link.id, sourcePosition.x, sourcePosition.y, selectedSelectableIds, false, removeColinear);
+            updatedJson = moveSourceNode(updatedJson, link.id, sourcePosition.x, sourcePosition.y, selectedSelectableIds, false, removeColinear, true);
         }
         for (const segmentId in link.targetNodes) {
             let targetInfo = link.targetNodes[segmentId];
             const targetPosition = getPortPosition(updatedJson, targetInfo.targetId, "input", targetInfo.port);
             if (targetPosition) {
-                updatedJson = moveTargetNode(updatedJson, link.id, segmentId, targetPosition.x, targetPosition.y, selectedSelectableIds, false, removeColinear);
+                updatedJson = moveTargetNode(updatedJson, link.id, segmentId, targetPosition.x, targetPosition.y, selectedSelectableIds, false, removeColinear, true);
             }
         }
     }
@@ -622,10 +622,12 @@ function isWithinDistance(
     return Math.sqrt(dx * dx + dy * dy) <= maxDistance;
 }
 
-export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[], attachLinkToPort: boolean=false, removeColinear:boolean=true): JsonData {
+export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: number, 
+    selectedSelectableIds: IdType[], attachLinkToPort: boolean=false, 
+    removeColinear:boolean=true, skipBlockCheck: boolean=false): JsonData {
     let attachedBlock = json.links?.find(link => link.id === linkId)?.sourceId;
     if (attachedBlock) {
-        if (selectedSelectableIds.includes(attachedBlock)) {
+        if (selectedSelectableIds.includes(attachedBlock) && !skipBlockCheck) {
             return json; // Do not move if the source node is selected
         }
     }
@@ -668,7 +670,7 @@ export function moveSourceNode(json: JsonData, linkId: IdType, x: number, y: num
     // console.log(`Link json before moving source node: ${JSON.stringify(linkData)}`);
 
     let link = new Link(linkData);
-    link.moveSourceNode(finalX, finalY);
+    link.moveSourceNode(finalX, finalY, selectedSelectableIds);
 
     let linkJson = link.toJson(removeColinear);
 
@@ -714,14 +716,15 @@ export function moveTargetNode(
     y: number,
     selectedSelectableIds: IdType[],
     attachLinkToPort: boolean = false,
-    removeColinear:boolean=true
+    removeColinear:boolean=true,
+    skipBlockCheck: boolean = false
 ): JsonData {
     // --- 1. Get link and attached target block ---
     const linkData = json.links?.find(link => link.id === linkId);
     if (!linkData) {return json;}
 
     const attachedBlock = linkData.targetNodes?.[segmentIdOfNode]?.targetId;
-    if (attachedBlock && selectedSelectableIds.includes(attachedBlock)) {
+    if (attachedBlock && selectedSelectableIds.includes(attachedBlock) && !skipBlockCheck) {
         return json; // Do not move if the target block is selected
     }
 
@@ -729,6 +732,17 @@ export function moveTargetNode(
     let finalY = y;
     let finalId: IdType = "undefined";
     let finalPort = -1;
+
+    // console.log(`Link json before moving target node: ${JSON.stringify(linkData)}`);
+
+    let link = new Link(linkData);
+    link.moveTargetNode(segmentIdOfNode, finalX, finalY);
+
+    let linkJson = link.toJson(removeColinear);
+
+    // console.log(`Resulting link json after moving target node: ${JSON.stringify(linkJson)}`);
+
+    // console.log(`MoveTargetNode - attachLinkToPort: ${attachLinkToPort}, finalId: ${finalId}, finalPort: ${finalPort}, x: ${finalX}, y: ${finalY}`);
 
     if (attachLinkToPort) {
         const port = checkIfPortInPosition(json, x, y, 10);
@@ -743,17 +757,7 @@ export function moveTargetNode(
         }
     }
 
-    // console.log(`Link json before moving target node: ${JSON.stringify(linkData)}`);
-
-    let link = new Link(linkData);
-    link.moveTargetNode(segmentIdOfNode, finalX, finalY);
-
-    let linkJson = link.toJson(removeColinear);
-
-    // console.log(`Resulting link json after moving target node: ${JSON.stringify(linkJson)}`);
-
-    // console.log(`MoveTargetNode - attachLinkToPort: ${attachLinkToPort}, finalId: ${finalId}, finalPort: ${finalPort}, x: ${finalX}, y: ${finalY}`);
-    if (attachLinkToPort) {
+    if (attachLinkToPort && linkJson.targetNodes[segmentIdOfNode]) {
         linkJson.targetNodes[segmentIdOfNode].targetId = finalId;
         linkJson.targetNodes[segmentIdOfNode].port = finalPort;
     }

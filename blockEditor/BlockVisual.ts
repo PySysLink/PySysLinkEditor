@@ -249,7 +249,7 @@ export class BlockVisual extends Selectable implements Movable, Rotatable {
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        communicationManager.moveBlock(this.id, x, y);
+        communicationManager.moveBlock(this.id, x, y, selectables.map(s => s.getId()));
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {

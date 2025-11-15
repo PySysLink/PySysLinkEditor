@@ -138,6 +138,7 @@ setInterval(() => {
         const btnActivateGridSnapping: any = document.createElement('vscode-checkbox');
         btnActivateGridSnapping.toggle = true;
         btnActivateGridSnapping.textContent = 'Grid Snapping';
+        btnActivateGridSnapping.checked = selectableManager.isGridSnappingActive();
 
 
         btnZoomIn.addEventListener('click', () => setZoom(zoomLevel + zoomStep));

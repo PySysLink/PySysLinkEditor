@@ -151,9 +151,15 @@ export class PySysLinkBlockEditorSession {
 	}
 
 	private handlePythonMessage(msg: any) {
-		if (!this.webviewPanel?.webview) {
-		return;
+		try {
+        	if (!this.webviewPanel?.webview) {return;}
+		} catch (err: any) {
+			if (String(err).includes("Webview is disposed")) {
+				return;
+			}
+			console.error("Unexpected error in Python listener:", err);
 		}
+
 
 		switch (msg.type) {
 			case 'print':
