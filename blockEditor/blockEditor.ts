@@ -127,14 +127,18 @@ setInterval(() => {
         topControls.innerHTML = '';
         // Add button
 
-        const btnZoomIn = document.createElement('button');
+        const btnZoomIn = document.createElement('vscode-button');
         btnZoomIn.textContent = 'Zoom In';
-        const btnZoomOut = document.createElement('button');
+        const btnZoomOut = document.createElement('vscode-button');
         btnZoomOut.textContent = 'Zoom Out';
-        const btnResetZoom = document.createElement('button');
+        const btnResetZoom = document.createElement('vscode-button');
         btnResetZoom.textContent = 'Reset Zoom';
-        const btnToggleBlockPalette = document.createElement('button');
+        const btnToggleBlockPalette = document.createElement('vscode-button');
         btnToggleBlockPalette.textContent = 'Toggle block palette';
+        const btnActivateGridSnapping: any = document.createElement('vscode-checkbox');
+        btnActivateGridSnapping.toggle = true;
+        btnActivateGridSnapping.textContent = 'Grid Snapping';
+
 
         btnZoomIn.addEventListener('click', () => setZoom(zoomLevel + zoomStep));
         btnZoomOut.addEventListener('click', () => setZoom(zoomLevel - zoomStep));
@@ -142,11 +146,15 @@ setInterval(() => {
         btnToggleBlockPalette.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
         });
+        btnActivateGridSnapping.addEventListener('click', () => {
+            selectableManager.toggleGridSnapping(btnActivateGridSnapping.checked); 
+        });
 
         topControls.appendChild(btnZoomIn);
         topControls.appendChild(btnZoomOut);
         topControls.appendChild(btnResetZoom);
         topControls.appendChild(btnToggleBlockPalette);
+        topControls.appendChild(btnActivateGridSnapping);
 
         zoomContainer.addEventListener('wheel', handleMouseWheelZoom);
         canvasContainer.addEventListener('mousedown', onMouseDownForPanning);

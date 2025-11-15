@@ -6,6 +6,8 @@ import { IdType } from "../shared/JsonTypes";
 import { isRotatable } from "./Rotatable";
 
 export class SelectableManager {
+    private snappingToGrid = false;
+
     private dragStartX = 0;
     private dragStartY = 0;
 
@@ -399,6 +401,11 @@ export class SelectableManager {
     
     public addOnMouseUpListener(callback: () => void): void {
         this.onMouseUpCallbacks.push(callback);
+    }
+
+    public toggleGridSnapping(checked: boolean): void {
+        this.snappingToGrid = checked;
+        console.log(`Grid snapping set to: ${this.snappingToGrid}`);
     }
 
 }

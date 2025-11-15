@@ -127,7 +127,7 @@ input.setAttribute('value', property.value?.toString() ?? '');
             itemInput.setAttribute('style', 'margin-right:4px;');
             input.appendChild(itemInput);
 
-            const removeBtn = document.createElement('button');
+            const removeBtn = document.createElement('vscode-button');
             removeBtn.textContent = '✕';
             removeBtn.setAttribute('type', 'button');
             removeBtn.onclick = () => {
@@ -136,7 +136,7 @@ input.setAttribute('value', property.value?.toString() ?? '');
             };
             input.appendChild(removeBtn);
         });
-        const addBtn = document.createElement('button');
+        const addBtn = document.createElement('vscode-button');
         addBtn.textContent = '+';
         addBtn.setAttribute('type', 'button');
         addBtn.onclick = () => {
@@ -146,7 +146,7 @@ input.setAttribute('value', property.value?.toString() ?? '');
             itemInput.setAttribute('value', '');
             itemInput.setAttribute('style', 'margin-right:4px;');
             input.insertBefore(itemInput, addBtn);
-            const removeBtn = document.createElement('button');
+            const removeBtn = document.createElement('vscode-button');
             removeBtn.textContent = '✕';
             removeBtn.setAttribute('type', 'button');
             removeBtn.onclick = () => {
@@ -234,7 +234,7 @@ window.addEventListener('message', event => {
             // Clear current selection
             currentBlock = null;
             document.getElementById('app')!.innerHTML = '<p>No block selected</p>';
-            document.getElementById('saveBtn')!.removeEventListener('click', onSave);
+            document.getElementById('saveBtn')?.removeEventListener('click', onSave);
             break;
 		case 'setHtml':
 			// Deprecated: direct HTML replace
