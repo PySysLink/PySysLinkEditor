@@ -3,9 +3,17 @@ import { Movable, isMovable } from "./Movable";
 import { CanvasElement } from "./CanvasElement";
 import { CommunicationManager } from "./CommunicationManager";
 import { IdType } from "../shared/JsonTypes";
-import { isRotatable } from "./Rotatable";
+import { isRotatable, RotationDirection } from "./Rotatable";
 
 export class SelectableManager {
+    private snappingToGrid = true;
+
+    private snapAppliedTotalX: number = 0;
+    private snapAppliedTotalY: number = 0;
+    private readonly GRID_SIZE = 10;
+
+    private initialPositionOfEachMovable: Map<IdType, { x: number; y: number }> = new Map();
+
     private dragStartX = 0;
     private dragStartY = 0;
 
@@ -14,6 +22,9 @@ export class SelectableManager {
 
     private pendingRotations = 0;
     private rotationTimer: number | null = null;
+    private pendingRotationDirection: RotationDirection = "clockwise";
+
+    private rotationCallbacks: ((rotationDirection: RotationDirection, centralX: number, centralY: number, selectedSelectableIds: IdType[]) => void)[] = [];
 
     private selectionBox: HTMLElement | null = null;
 
@@ -59,13 +70,16 @@ export class SelectableManager {
             e.preventDefault(); // prevent browser refresh
             e.stopPropagation(); // prevent event from bubbling up
 
+            // remember direction of this keypress (Shift => counterclockwise)
+            this.pendingRotationDirection = e.shiftKey ? "counterClockwise" : "clockwise";
+
             this.pendingRotations++;
             if (this.rotationTimer !== null) {
                 clearTimeout(this.rotationTimer);
             }
 
             this.rotationTimer = window.setTimeout(() => {
-                this.rotateSelectables();
+                this.rotateSelectables(this.pendingRotationDirection);
                 this.pendingRotations = 0;
                 this.rotationTimer = null;
             }, 300); 
@@ -75,6 +89,21 @@ export class SelectableManager {
 
     private setDragging(value: boolean) {
         this.isDragging = value;
+        this.communicationManager.setIsDragging(value);
+
+        this.snapAppliedTotalX = 0;
+        this.snapAppliedTotalY = 0;
+
+        this.initialPositionOfEachMovable.clear();
+        this.getSelectableList().forEach(selectable => {
+            if (isMovable(selectable)) {
+                const position = selectable.getPosition(this.communicationManager);
+                if (position) {
+                    this.initialPositionOfEachMovable.set(selectable.getId(), { x: position.x, y: position.y });
+                }
+            }
+        });
+        
         if (this.isDragging) {
             this.communicationManager.freeze();
         } else {
@@ -116,6 +145,12 @@ export class SelectableManager {
         }
         else {
             selectable = canvasElement as Selectable;
+        }
+        
+        // Ignore Ctrl + Left Click
+        if (e.button === 0 && (e.ctrlKey || e.metaKey)) {
+            this.communicationManager.print(`[link log]: Ctrl + Left Click ignored`);
+            return;
         }
         if (e.button !== 1) {
             this.communicationManager.print(`button not 1`);
@@ -228,11 +263,12 @@ export class SelectableManager {
 
 
     public onMouseUpDrag = (): void => {
-        this.communicationManager.print(`Mouse up` );
+        console.log(`Drag ended, mouse up`);
 
         document.removeEventListener('mousemove', this.onMouseMoveDrag);
         document.removeEventListener('mouseup', this.onMouseUpDrag);
 
+        this.communicationManager.updatePortAttachment(this.getSelectedSelectables().map(s => s.getId()));
         this.onMouseUpCallbacks.forEach(callback => callback());
         this.setDragging(false);
     };
@@ -306,24 +342,14 @@ export class SelectableManager {
         });
     }
 
-    public onMouseMoveDrag = (e: MouseEvent): void => {
+    public onMouseMoveDrag = (e: MouseEvent): void => {        
         this.communicationManager.print(`Drag move`);
 
         const scaledDeltaX = (e.clientX - this.dragStartX) / this.getZoomLevelReal();
         const scaledDeltaY = (e.clientY - this.dragStartY) / this.getZoomLevelReal();
         
         if (this.isDragging) {
-            let selectables = this.getSelectableList();
-            let selectedSelectables = this.getSelectedSelectables();
-            this.communicationManager.freezeLocalJsonCallback();
-            selectedSelectables.forEach(selectable => {
-                if (isMovable(selectable)) {
-                    this.communicationManager.print(`Move selectable: ${selectable.getId()}`);
-                    selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectables);
-                }
-            });
-
-            this.communicationManager.unfreezeLocalJsonCallback();
+            this.moveAllSelectables(scaledDeltaX, scaledDeltaY);
 
 
             this.dragStartX = e.clientX;
@@ -335,7 +361,48 @@ export class SelectableManager {
         });
     };
 
-    public rotateSelectables(): void {
+    private moveAllSelectables(scaledDeltaX: number, scaledDeltaY: number): void {
+        let selectedSelectables = this.getSelectedSelectables();
+        this.communicationManager.freezeLocalJsonCallback();
+        this.communicationManager.freezeLinkUpdates();
+
+        if (!this.snappingToGrid) {
+            selectedSelectables.forEach(selectable => {
+                if (isMovable(selectable)) {
+                    selectable.moveDelta(scaledDeltaX, scaledDeltaY, this.communicationManager, selectedSelectables);
+                }
+            });
+        } else {
+            this.snapAppliedTotalX += scaledDeltaX;
+            this.snapAppliedTotalY += scaledDeltaY;
+
+            selectedSelectables.forEach(selectable => {
+                if (isMovable(selectable)) {
+                    const currentPosition = selectable.getPosition(this.communicationManager);
+                    const initialPosition = this.initialPositionOfEachMovable.get(selectable.getId());
+                    let expectedPosition : {x: number, y: number} | undefined = undefined;
+                    if (currentPosition && initialPosition) {
+                        expectedPosition = {
+                            x: initialPosition.x + this.snapAppliedTotalX,
+                            y: initialPosition.y + this.snapAppliedTotalY
+                        };
+                    }
+                    if (expectedPosition) {
+                        const expectedPositionRoundedX = Math.round(expectedPosition.x / this.GRID_SIZE) * this.GRID_SIZE;
+                        const expectedPositionRoundedY = Math.round(expectedPosition.y / this.GRID_SIZE) * this.GRID_SIZE;
+
+                        selectable.moveTo(expectedPositionRoundedX, expectedPositionRoundedY, this.communicationManager, selectedSelectables);
+                        this.communicationManager.print(`Expected position during snap move: ${expectedPosition.x}, ${expectedPosition.y}`);
+                    }
+                }
+            });
+        }
+
+        this.communicationManager.unfreezeLinkUpdates(false);
+        this.communicationManager.unfreezeLocalJsonCallback();
+    }
+
+    public rotateSelectables(rotationDirection: RotationDirection): void {
         this.communicationManager.freeze();
         while (this.pendingRotations > 0) {
             let centerPosition = { x: 0, y: 0 };
@@ -348,16 +415,19 @@ export class SelectableManager {
 
             selectedSelectables.forEach(selectable => {
                 if (isMovable(selectable)) {
-                    const position = selectable.getPosition(this.communicationManager);
-                    const element = selectable.getElement();
+                    const position = selectable.getPositionForRotation(this.communicationManager);
                     if (position) {
-                        centerPosition.x += position.x + (element instanceof HTMLElement ? element.offsetWidth / 2 : 0);
-                        centerPosition.y += position.y + (element instanceof HTMLElement ? element.offsetHeight / 2 : 0);
+                        centerPosition.x += position.x; 
+                        centerPosition.y += position.y; 
                         count++;
                     }
                 }
                 if (isRotatable(selectable)) {
-                    selectable.rotateClockwise(this.communicationManager, selectedSelectables);
+                    if (rotationDirection === "counterClockwise") {
+                        selectable.rotateCounterClockwise(this.communicationManager, selectedSelectables);
+                    } else {
+                        selectable.rotateClockwise(this.communicationManager, selectedSelectables);
+                    }
                 }
             });
 
@@ -365,11 +435,23 @@ export class SelectableManager {
                 centerPosition.x /= count;
                 centerPosition.y /= count;
 
+                console.log(`Center position for rotation: ${centerPosition.x}, ${centerPosition.y}`);
+
                 selectedSelectables.forEach(selectable => {
                     if (isMovable(selectable)) {
-                        selectable.moveClockwiseAround(centerPosition.x, centerPosition.y, this.communicationManager, selectedSelectables);
+                        if (rotationDirection === "counterClockwise") {
+                            selectable.moveCounterClockwiseAround(centerPosition.x, centerPosition.y, this.communicationManager, selectedSelectables);
+                        } else {
+                            selectable.moveClockwiseAround(centerPosition.x, centerPosition.y, this.communicationManager, selectedSelectables);
+                        }
                     }
                 });
+
+                this.rotationCallbacks.forEach(callback => {
+                    callback(rotationDirection, centerPosition.x, centerPosition.y, selectedSelectables.map(s => s.getId()));
+                });
+
+                this.communicationManager.updateLinksSourceTargetPosition(selectedSelectables.map(s => s.getId()), true);
             }
 
             this.communicationManager.unfreezeLinkUpdates();
@@ -385,6 +467,19 @@ export class SelectableManager {
     
     public addOnMouseUpListener(callback: () => void): void {
         this.onMouseUpCallbacks.push(callback);
+    }
+
+    public addRotationListener(callback: (rotationDirection: RotationDirection, centralX: number, centralY: number, selectedSelectableIds: IdType[]) => void): void {
+        this.rotationCallbacks.push(callback);
+    }
+
+    public toggleGridSnapping(checked: boolean): void {
+        this.snappingToGrid = checked;
+        console.log(`Grid snapping set to: ${this.snappingToGrid}`);
+    }
+
+    public isGridSnappingActive(): boolean {
+        return this.snappingToGrid;
     }
 
 }

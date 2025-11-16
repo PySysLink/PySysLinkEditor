@@ -152,6 +152,14 @@ export class BlockVisual extends Selectable implements Movable, Rotatable {
         this.applyRotation(newRotation, communicationManager, selectables);
     }
 
+    getPositionForRotation(communicationManager: CommunicationManager): { x: number, y: number } | undefined {
+        const blockData = communicationManager.getLocalJson()?.blocks?.find((block: BlockData) => block.id === this.id);
+        if (blockData) {
+            return { x: blockData.x + this.blockElement.offsetWidth / 2, y: blockData.y + this.blockElement.offsetHeight / 2 };
+        }
+        return undefined;
+    }
+
     moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         let centralPosition = this.getPosition(communicationManager);
         if (centralPosition) {
@@ -241,7 +249,7 @@ export class BlockVisual extends Selectable implements Movable, Rotatable {
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        communicationManager.moveBlock(this.id, x, y);
+        communicationManager.moveBlock(this.id, x, y, selectables.map(s => s.getId()));
     }
 
     moveDelta(deltaX: number, deltaY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {

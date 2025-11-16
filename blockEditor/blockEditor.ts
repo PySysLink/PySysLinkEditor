@@ -1,4 +1,4 @@
-import { LinkVisual, SourceNode, TargetNode } from './LinkVisual';
+import { LinkVisual } from './LinkVisual';
 import { BlockVisual } from './BlockVisual';
 import { BlockInteractionManager } from './BlockInteractionManager';
 import { LinkInteractionManager } from './LinkInteractionManager';
@@ -8,13 +8,20 @@ import { BlockPalette } from './BlockPalette';
 import { link } from 'fs';
 import { JsonData } from '../shared/JsonTypes';
 import { CommunicationManager } from './CommunicationManager';
-import { getNonce } from './util';
 import { Library } from '../shared/BlockPalette';
 import '@vscode-elements/elements/dist/bundled.js';
 
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
 
+setInterval(() => {
+    vscode.postMessage({
+            type: 'heartbeat',
+            text: `Heartbeat from webview at ${new Date().toISOString()}`
+        });
+}, 1000);
+
+// console.log = () => {};
 
 (function () {
     const canvas = document.querySelector('.canvas') as HTMLElement;
@@ -60,12 +67,13 @@ const vscode = acquireVsCodeApi();
             }
 
             // Compute drop coordinates relative to the canvas
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            const canvasRect = canvas.getBoundingClientRect();
 
-            communicationManager.print(`Drop event: ${data}, x: ${x}, y: ${y}`);   
-            communicationManager.createBlockOfType(meta.library, meta.blockType, x, y);         
+            const adjustedX = (e.clientX - canvasRect.left) / getZoomLevelReal();
+            const adjustedY = (e.clientY - canvasRect.top) / getZoomLevelReal();
+
+            communicationManager.print(`Drop event: ${data}, x: ${adjustedX}, y: ${adjustedY}`);   
+            communicationManager.createBlockOfType(meta.library, meta.blockType, adjustedX, adjustedY);         
         });
     }
 
@@ -92,17 +100,19 @@ const vscode = acquireVsCodeApi();
     blockInteractionManager = new BlockInteractionManager(communicationManager);
     selectableManager = new SelectableManager(communicationManager, canvas, getZoomLevelReal);
     linkInteractionManager = new LinkInteractionManager(communicationManager, canvas, 
-            document.querySelector('.links') as SVGSVGElement, blockInteractionManager, selectableManager);
+            document.querySelector('.links') as SVGSVGElement, blockInteractionManager, selectableManager,
+            getZoomLevelReal);
     blockPalette = new BlockPalette(communicationManager);
     communicationManager.registerLibrariesChangedCallback(blockPalette.updateLibraries);
 
     selectableManager.registerSelectableList(() => blockInteractionManager.blocks);
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkSegments());
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkNodes());
+    selectableManager.addRotationListener(linkInteractionManager.rotateSelectedLinks);
 
     selectableManager.addOnMouseMoveListener(linkInteractionManager.highlightNodesNearPorts);
-    selectableManager.addOnMouseUpListener(linkInteractionManager.connectNodesToPorts);
     selectableManager.updateSelectables();
+    linkInteractionManager.updateLinkAndNodeClickCallback();
 
 
     function getZoomLevelReal(): number {
@@ -117,14 +127,19 @@ const vscode = acquireVsCodeApi();
         topControls.innerHTML = '';
         // Add button
 
-        const btnZoomIn = document.createElement('button');
+        const btnZoomIn = document.createElement('vscode-button');
         btnZoomIn.textContent = 'Zoom In';
-        const btnZoomOut = document.createElement('button');
+        const btnZoomOut = document.createElement('vscode-button');
         btnZoomOut.textContent = 'Zoom Out';
-        const btnResetZoom = document.createElement('button');
+        const btnResetZoom = document.createElement('vscode-button');
         btnResetZoom.textContent = 'Reset Zoom';
-        const btnToggleBlockPalette = document.createElement('button');
+        const btnToggleBlockPalette = document.createElement('vscode-button');
         btnToggleBlockPalette.textContent = 'Toggle block palette';
+        const btnActivateGridSnapping: any = document.createElement('vscode-checkbox');
+        btnActivateGridSnapping.toggle = true;
+        btnActivateGridSnapping.textContent = 'Grid Snapping';
+        btnActivateGridSnapping.checked = selectableManager.isGridSnappingActive();
+
 
         btnZoomIn.addEventListener('click', () => setZoom(zoomLevel + zoomStep));
         btnZoomOut.addEventListener('click', () => setZoom(zoomLevel - zoomStep));
@@ -132,11 +147,15 @@ const vscode = acquireVsCodeApi();
         btnToggleBlockPalette.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
         });
+        btnActivateGridSnapping.addEventListener('click', () => {
+            selectableManager.toggleGridSnapping(btnActivateGridSnapping.checked); 
+        });
 
         topControls.appendChild(btnZoomIn);
         topControls.appendChild(btnZoomOut);
         topControls.appendChild(btnResetZoom);
         topControls.appendChild(btnToggleBlockPalette);
+        topControls.appendChild(btnActivateGridSnapping);
 
         zoomContainer.addEventListener('wheel', handleMouseWheelZoom);
         canvasContainer.addEventListener('mousedown', onMouseDownForPanning);
@@ -148,6 +167,7 @@ const vscode = acquireVsCodeApi();
 
         blockInteractionManager.updateFromJson(json);
         selectableManager.updateSelectables();   
+        linkInteractionManager.updateLinkAndNodeClickCallback();
         
         blockPalette.renderPalette(blockPaletteContent);
     }
@@ -156,7 +176,27 @@ const vscode = acquireVsCodeApi();
 
     communicationManager.registerLocalJsonChangedCallback(updateWebView);
 
+    let lastWebViewUpdateTime = Date.now();
+    const minUpdateInterval = 10; 
+    let timerRunning = false;
+
     function updateWebView(json: JsonData): void {
+        const currentTime = Date.now();
+        if (currentTime - lastWebViewUpdateTime < minUpdateInterval) {
+            if (!timerRunning) {
+                timerRunning = true;
+                setTimeout(() => {
+                    const lastJson = communicationManager.getLocalJson();
+                    if (lastJson) {
+                        updateWebView(lastJson);
+                    }
+                    timerRunning = false;
+                }, minUpdateInterval);
+            }
+            return; 
+        }
+
+        lastWebViewUpdateTime = currentTime;
         blockInteractionManager.updateFromJson(json);
 
         linkInteractionManager.links.forEach((link: LinkVisual) => {
@@ -165,7 +205,6 @@ const vscode = acquireVsCodeApi();
                 linkInteractionManager.deleteLink(link);
             }
         });
-
 
         renderHTML(json);
     }
@@ -239,12 +278,10 @@ const vscode = acquireVsCodeApi();
         }
     }
 
-
-    // Listen for messages from extension
     window.addEventListener('message', (e: MessageEvent) => {
-        if (e.data.type === 'update') {            
+        if (e.data.type === 'update') {
             communicationManager.newJsonFromServer(e.data.json);
-        } else if (e.data.type === 'colorThemeKindChanged') {
+        }else if (e.data.type === 'colorThemeKindChanged') {
             applyThemeClass(e.data.kind);
         } else if (e.data.type === 'setBlockLibraries') {
             communicationManager.setBlockLibraries(e.data.model as Library[]);

@@ -151,9 +151,15 @@ export class PySysLinkBlockEditorSession {
 	}
 
 	private handlePythonMessage(msg: any) {
-		if (!this.webviewPanel?.webview) {
-		return;
+		try {
+        	if (!this.webviewPanel?.webview) {return;}
+		} catch (err: any) {
+			if (String(err).includes("Webview is disposed")) {
+				return;
+			}
+			console.error("Unexpected error in Python listener:", err);
 		}
+
 
 		switch (msg.type) {
 			case 'print':
@@ -276,6 +282,9 @@ export class PySysLinkBlockEditorSession {
 		});
 
 		this.webviewPanel.onDidDispose(() => {
+			console.warn('Disposing webview panel and its subscriptions');
+			console.warn(">>> Webview DISPOSED at", new Date().toISOString());
+    		console.trace();
 			changeDocumentSubscription.dispose();
 		});
 
@@ -311,6 +320,9 @@ export class PySysLinkBlockEditorSession {
 					if (this.pythonServer.isRunning()) {
 						this.displayBlockHTML(e.blockId);
 					}
+					return;
+				case 'heartbeat':
+					console.log(`[Heartbeat] [${e.text}] [${new Date().toISOString()}]`);
 					return;
 				default:
 					console.log(`Type of message not recognized: ${e.type}`);

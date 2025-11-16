@@ -1,7 +1,9 @@
+import { LinkJson } from "./Link";
 
 export type IdType = string;
 
 export type Rotation = 0 | 90 | 180 | 270;
+export type Orientation = "Horizontal" | "Vertical";
 
 export interface BlockData {
     id: IdType;
@@ -15,24 +17,13 @@ export interface BlockData {
     blockRenderInformation?: BlockRenderInformation;
 }
 
-export interface LinkData {
-    id: IdType;
-    sourceId: IdType;
-    sourcePort: number;
-    targetId: IdType;
-    targetPort: number;
-    sourceX: number; sourceY: number;
-    targetX: number; targetY: number;
-    intermediateNodes: { id: IdType; x: number; y: number }[];
-}
-
 export interface JsonData {
     version: number;
     simulation_configuration: string;
     initialization_python_script_path: string;
     toolkit_configuration_path: string;
     blocks: BlockData[] | undefined;
-    links: LinkData[] | undefined;
+    links: LinkJson[] | undefined;
 }
 
 export type BlockShape = "square" | "triangle" | "circle";

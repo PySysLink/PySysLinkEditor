@@ -117,7 +117,7 @@ body.pysyslink-light {
 .block {
     position: absolute;
     width: 120px;
-    height: 50px;
+    height: 60px;
 
     cursor: move;
     user-select: none;
@@ -135,7 +135,7 @@ body.pysyslink-light {
 /* Shapes */
 .block--square { 
     width: 120px;
-    height: 50px;
+    height: 60px;
     background: var(--pysyslink-block-body);
     color: var(--pysyslink-block-text);
 
@@ -157,7 +157,7 @@ body.pysyslink-light {
 
 .block--circle {
   width: 120px;
-  height: 50px;
+  height: 60px;
   background: var(--pysyslink-block-body);
   color: var(--pysyslink-block-text);
   border-radius: 50%;
@@ -176,17 +176,17 @@ body.pysyslink-light {
     color: var(--pysyslink-block-text);
     width: 0;
     height: 0;
-    border-top: 25px solid transparent;
+    border-top: 30px solid transparent;
     border-left: 120px solid var(--pysyslink-block-body);
-    border-bottom: 25px solid transparent;
+    border-bottom: 30px solid transparent;
 }
 
 .block--triangle.selected {
     width: 0;
     height: 0;
-    border-top: 27px solid transparent;
+    border-top: 32px solid transparent;
     border-left: 124px solid var(--pysyslink-block-selected-border);
-    border-bottom: 27px solid transparent;
+    border-bottom: 32px solid transparent;
     transform: translateZ(0);
     -webkit-font-smoothing: subpixel-antialiased;
 }
@@ -194,11 +194,11 @@ body.pysyslink-light {
 .block--triangle.selected::before {
     content: "";
     position: absolute;
-    top: -25px;
+    top: -30px;
     left: -122px;
-    border-top: 25px solid transparent;
+    border-top: 30px solid transparent;
     border-left: 120px solid gray; /* this simulates the dashed border */
-    border-bottom: 25px solid transparent;
+    border-bottom: 30px solid transparent;
 }
 
 
@@ -262,6 +262,7 @@ body.pysyslink-light {
     stroke-width: 2; /* Line thickness */
     fill: none; /* No fill for the polyline */
     pointer-events: all; /* Allow interaction with the line */
+    cursor: pointer;
     z-index: 4;
 }
 
@@ -281,19 +282,33 @@ body.pysyslink-light {
 
 .link-node {
     r: 5; /* Radius of the circle */
-    fill: var(--pysyslink-link);
+    fill: transparent;
     pointer-events: all; /* Allow interaction with the node */
     cursor: pointer; /* Show pointer cursor on hover */
     z-index: 4;
 }
 
-.link-node.highlighted {
+.link-node:hover {
+    fill: var(--pysyslink-link);
     stroke: var(--pysyslink-link-highlight);
     stroke-width: 3px;
 }
 
 .link-node.selected {
     fill: var(--pysyslink-link-selected);
+}
+
+.target-node {
+    fill: var(--pysyslink-link);
+}
+
+.source-node {
+    fill: var(--pysyslink-link);
+}
+
+.child-link-source-node {
+  opacity: 0;
+  pointer-events: none;
 }
 
 

@@ -1,22 +1,20 @@
 import { link } from 'fs';
 import { BlockInteractionManager } from './BlockInteractionManager';
-import { LinkVisual, LinkNode, LinkSegment, SourceNode, TargetNode } from './LinkVisual';
+import { LinkVisual } from './LinkVisual';
+import { LinkNode, LinkSegment, SourceNode, TargetNode } from './LinkHelpers';
 import { BlockVisual } from './BlockVisual';
-import { getNonce } from './util';
-import { IdType, JsonData, LinkData } from '../shared/JsonTypes'; 
+import { IdType, JsonData } from '../shared/JsonTypes'; 
+import { LinkJson, Link } from '../shared/Link';
 import { CommunicationManager } from './CommunicationManager';
 import { SelectableManager } from './SelectableManager';
+import { CanvasElement } from './CanvasElement';
+import { RotationDirection } from './Rotatable';
 
 export class LinkInteractionManager {
     public links: LinkVisual[] = [];
     public linksSvg: SVGSVGElement;
     
-
-    private dragStartX = 0;
-    private dragStartY = 0;
-
-    private dragThreshold = 5; // Minimum distance to detect a drag
-    private isDragging = false;
+    private getZoomLevelReal: () => number;
 
     private canvas: HTMLElement;
     private communicationManager: CommunicationManager;
@@ -25,13 +23,14 @@ export class LinkInteractionManager {
     private selectableManager: SelectableManager;
 
     constructor (communicationManager: CommunicationManager, canvas: HTMLElement, linksSvg: SVGSVGElement, blockInteractionManager: BlockInteractionManager,
-        selectableManager: SelectableManager
+        selectableManager: SelectableManager, getZoomLevelReal: () => number
     ) {
         this.communicationManager = communicationManager;
         this.selectableManager = selectableManager;
         this.canvas = canvas;
         this.linksSvg = linksSvg;
         this.blockInteractionManager = blockInteractionManager;
+        this.getZoomLevelReal = getZoomLevelReal;
         this.blockInteractionManager.registerOnMouseDownOnPortCallback(this.onMouseDownOnPort);
     }
 
@@ -59,7 +58,7 @@ export class LinkInteractionManager {
         const result: LinkNode[] = [];
 
         this.links.forEach(link => {
-            link.intermediateNodes.forEach(node => {
+            link.junctionNodes.forEach(node => {
                 if (!seenIds.has(node.getId())) {
                     seenIds.add(node.getId());
                     result.push(node);
@@ -76,30 +75,34 @@ export class LinkInteractionManager {
             else {
                 this.communicationManager.print(`Duplicate source node found: ${link.sourceNode.getId()}`);
             }
-            if (!seenIds.has(link.targetNode.getId())) {
-                seenIds.add(link.targetNode.getId());
-                result.push(link.targetNode);
-            }
-            else {
-                this.communicationManager.print(`Duplicate target node found: ${link.targetNode.getId()}`);
-            }
+            link.targetNodes.forEach(targetNode => {
+                if (!seenIds.has(targetNode.getId())) {
+                    seenIds.add(targetNode.getId());
+                    result.push(targetNode);
+                }
+                else {
+                    this.communicationManager.print(`Duplicate target node found: ${targetNode.getId()}`);
+                }
+            });
         });
         return result;
     }
 
-    public createLinkVisual(linkData: LinkData): LinkVisual {
+    public createLinkVisual(linkData: LinkJson): LinkVisual {
         this.communicationManager.print(`Creating link visual for link: ${linkData.id}`);
         if (this.links.find(link => link.id === linkData.id)) {
             this.communicationManager.print(`Link visual with id ${linkData.id} already exists, skipping creation.`);
             return this.links.find(link => link.id === linkData.id)!;
         }
         let newLink = new LinkVisual(
-            linkData,
-            this.deleteLink
+            new Link(linkData),
+            this.deleteLinkFromSegment,
+            this.communicationManager
         );
 
         this.links.push(newLink);
-        
+        newLink.addToSvg(this.linksSvg, this.communicationManager);
+
         return newLink;
     }
 
@@ -109,9 +112,11 @@ export class LinkInteractionManager {
 
         if (portType === "input") {
             this.communicationManager.getLocalJson()?.links?.forEach(link => {
-                if (link.targetId === block.id && link.targetPort === portIndex) {
-                    this.communicationManager.print(`Connected link found ${link.id}`);
-                    isLinkOnNode = true;
+                for (const segmentId in link.targetNodes) {
+                    if (link.targetNodes[segmentId].targetId === block.id && link.targetNodes[segmentId].port === portIndex) {
+                        this.communicationManager.print(`Connected link found ${link.id}`);
+                        isLinkOnNode = true;
+                    }
                 }
             });
         } else {
@@ -126,33 +131,28 @@ export class LinkInteractionManager {
         if (!isLinkOnNode) {
             this.communicationManager.print(`Mouse down on non connected port, creating link`);
 
-            this.dragStartX = e.clientX;
-            this.dragStartY = e.clientY;
-
-            let initialPortPositionX = 0;
-            let initialPortPositionY = 0;
-            
             e.stopPropagation();
 
-            let newLink: LinkVisual | undefined = undefined;
 
             let newLinkData = this.communicationManager.createNewLinkFromPort(block.id, portType, portIndex);
             if (newLinkData) {
                 this.communicationManager.print(`Creating new link visual due to click on port id: ${newLinkData.id}`);
-                newLink = this.createLinkVisual(newLinkData);
-                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-                newLink.targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager));
-            } else { return; }
+                let newLink = this.createLinkVisual(newLinkData);
+                newLink.sourceNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager, newLinkData.segmentNode.id));
+                newLink.targetNodes.forEach(targetNode => targetNode.addOnDeleteCallback(() => newLink?.delete(this.communicationManager, newLinkData.segmentNode.id)));
 
-            if (portType === "input") {
-                this.selectableManager.addCallbackToSelectable(newLink.sourceNode);
-                newLink.sourceNode.unselect();
-                newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
-            } else {
-                this.selectableManager.addCallbackToSelectable(newLink.targetNode);
-                newLink.targetNode.unselect();
-                newLink.targetNode.triggerOnMouseDown(e.clientX, e.clientY);
-            }
+                if (portType === "input") {
+                    this.selectableManager.addCallbackToSelectable(newLink.sourceNode);
+                    newLink.sourceNode.unselect();
+                    newLink.sourceNode.triggerOnMouseDown(e.clientX, e.clientY);
+                } else {
+                    newLink.targetNodes.forEach(targetNode => {
+                        this.selectableManager.addCallbackToSelectable(targetNode);
+                        targetNode.unselect();
+                        targetNode.triggerOnMouseDown(e.clientX, e.clientY);
+                    });
+                }
+            } else { return; }
         }            
     };
 
@@ -186,6 +186,7 @@ export class LinkInteractionManager {
             }
         });
 
+        // this.links.forEach(link => link.removeFromSvg(this.linksSvg));
         this.links.forEach(link => link.updateFromJson(json, this.communicationManager));
         this.links.forEach(link => link.addToSvg(this.linksSvg, this.communicationManager));
 
@@ -212,13 +213,15 @@ export class LinkInteractionManager {
     public getSelectedLinkNodes(): LinkNode[] {
         var result: LinkNode[] = [];
         this.links.forEach(link => {
-            link.intermediateNodes.forEach(node => {
+            link.junctionNodes.forEach(node => {
                 if (node.isSelected()) {
                     result.push(node);
                 }
             });
             if (link.sourceNode.isSelected()) {result.push(link.sourceNode);}
-            if (link.targetNode.isSelected()) {result.push(link.targetNode);}
+            link.targetNodes.forEach(targetNode => {
+                if (targetNode.isSelected()) {result.push(targetNode);}
+            });
         });
         return result;
     }
@@ -233,6 +236,15 @@ export class LinkInteractionManager {
                     break;
                 }
             }
+            for (let node of link.junctionNodes) {
+                if (node.isSelected()) {
+                    result.push(link);
+                    break;
+                }
+            }
+            if (link.sourceNode.isSelected() || link.targetNodes.some(targetNode => targetNode.isSelected())) {
+                result.push(link);
+            }
         });
         return result;
     }
@@ -246,26 +258,8 @@ export class LinkInteractionManager {
         }
     };
 
-    public connectNodesToPorts = () : void => {
-        this.communicationManager.getLocalJson()?.links?.forEach(link => {
-            const visualLink = this.links.find(l => l.id === link.id);
-
-            const port1 = this.detectPort(link.sourceX, link.sourceY);
-            if (port1) {
-                visualLink?.sourceNode.unhighlight();
-                if (port1.portType === "output") {
-                    this.communicationManager.attachLinkToPort(link.id, port1.blockId, port1.portType, port1.portIndex);
-                } else { visualLink?.sourceNode.unhighlight(); }
-            }
-
-            const port2 = this.detectPort(link.targetX, link.targetY);
-            if (port2) {
-                visualLink?.sourceNode.unhighlight();
-                if (port2.portType === "input") {
-                    this.communicationManager.attachLinkToPort(link.id, port2.blockId, port2.portType, port2.portIndex);
-                } else { visualLink?.sourceNode.unhighlight(); }
-            }
-        });
+    public deleteLinkFromSegment = (linkId: IdType, segmentId: IdType): void => {
+        this.communicationManager.deleteLinkFromSegment(linkId, segmentId);
     };
 
     public highlightNodesNearPorts = (e: MouseEvent | undefined=undefined) : void => {
@@ -278,24 +272,28 @@ export class LinkInteractionManager {
                     if (link.sourceId === "undefined") {
                         visualLink?.sourceNode.highlight();
                     } else {
-                        visualLink?.targetNode.unhighlight();
+                        visualLink?.sourceNode.unhighlight();
                     }
                 } else { visualLink?.sourceNode.unhighlight(); }
             } else {
                 visualLink?.sourceNode.unhighlight();
             }
 
-            const port2 = this.detectPort(link.targetX, link.targetY);
-            if (port2) {
-                if (port2.portType === "input") {
-                    if (link.targetId === "undefined") {
-                        visualLink?.targetNode.highlight();
-                    } else {
-                        visualLink?.targetNode.unhighlight();
+            for (const segmentId in link.targetNodes) {
+                const targetInfo = link.targetNodes[segmentId];
+                if (!targetInfo) {continue;}
+                const portI = this.detectPort(targetInfo.x, targetInfo.y);
+                if (portI) {
+                    if (portI.portType === "input") {
+                        if (targetInfo.targetId === "undefined") {
+                            visualLink?.targetNodes.find(targetNode => targetNode.id === segmentId)?.highlight();
+                        }
+                    } else { 
+                            visualLink?.targetNodes.find(targetNode => targetNode.id === segmentId)?.unhighlight();
                     }
-                } else { visualLink?.targetNode.unhighlight(); }
-            } else {
-                visualLink?.targetNode.unhighlight();
+                } else {
+                    visualLink?.targetNodes.find(targetNode => targetNode.id === segmentId)?.unhighlight();
+                }
             }
             
         });
@@ -330,4 +328,102 @@ export class LinkInteractionManager {
         }
         return undefined;
     }
+
+    public updateLinkAndNodeClickCallback(): void {
+        this.links.forEach(linkVisual => {
+            linkVisual.segments.forEach(segment => {
+                segment.addOnMouseDownListener("link_interaction_manager", this.onMouseDownInSegment);
+            });
+            linkVisual.junctionNodes.forEach(node => {
+                node.addOnMouseDownListener("link_interaction_manager", this.onMouseDownInNode);
+            });
+        });
+    }
+
+    private onMouseDownInSegment = (canvasElement: CanvasElement, e: MouseEvent): void => {
+        this.communicationManager.print(`[link log]: Segment clicked`);
+        if (e.button === 0 && (e.ctrlKey || e.metaKey)) { // Left click + Ctrl or Meta
+            const segment = canvasElement as LinkSegment;
+
+            const canvasRect = this.canvas.getBoundingClientRect();
+
+            const adjustedX = (e.clientX - canvasRect.left) / this.getZoomLevelReal();
+            const adjustedY = (e.clientY - canvasRect.top) / this.getZoomLevelReal();
+
+            e.stopPropagation();
+            let link = this.links.find(l => l.id === segment.linkId);
+
+            let newSegmentIds = this.communicationManager.createNewChildLinkFromSegment(segment.linkId, segment.getId(), adjustedX, adjustedY);
+            if (newSegmentIds) {
+                this.communicationManager.print(`Creating new link visual due to click on segment id: ${newSegmentIds}`);
+                let newJson = this.communicationManager.getLocalJson();
+                if (!newJson || !link) { return; }
+
+                link.updateFromJson(newJson, this.communicationManager);
+
+                console.log(`Trying to trigger mouse down on segment id: ${newSegmentIds}`);
+                let targetNode: TargetNode | undefined = undefined;
+                for (const newSegmentId of newSegmentIds) {
+                    targetNode = link.targetNodes.find(tn => tn.segmentId === newSegmentId);
+                    if (targetNode) { break; }
+                }
+                if (!targetNode) {
+                    this.communicationManager.print(`Target node for new segment id ${newSegmentIds} not found.`);
+                    return;
+                }
+                console.log(`Found target node: ${targetNode}`);
+                
+                this.selectableManager.addCallbackToSelectable(targetNode);
+                targetNode.unselect();
+                targetNode.triggerOnMouseDown(e.clientX, e.clientY);  
+                
+            } else { return; }
+        }
+    };
+
+    private onMouseDownInNode = (canvasElement: CanvasElement, e: MouseEvent): void => {
+        this.communicationManager.print(`[link log]: Node clicked`);
+        if (e.button === 0 && (e.ctrlKey || e.metaKey)) { // Left click + Ctrl or Meta
+            const node = canvasElement as LinkNode;
+            let link = this.links.find(l => l.id === node.getLinkId());
+            let segments = node.getNeighboringSegmentsToNode(node.getId());
+            if (!segments) { return; }
+
+            e.stopPropagation();
+                        
+            let newSegmentIds = this.communicationManager.createNewChildLinkFromNode(node.getLinkId(), segments?.before.id, segments?.after.id);
+            if (newSegmentIds) {
+                this.communicationManager.print(`Creating new link visual due to click on segment id: ${newSegmentIds}`);
+
+                let newJson = this.communicationManager.getLocalJson();
+                if (!newJson || !link) { return; }
+
+                link.updateFromJson(newJson, this.communicationManager);
+
+                console.log(`Trying to trigger mouse down on segment id: ${newSegmentIds}`);
+                let targetNode: TargetNode | undefined = undefined;
+                for (const newSegmentId of newSegmentIds) {
+                    targetNode = link.targetNodes.find(tn => tn.segmentId === newSegmentId);
+                    if (targetNode) { break; }
+                }
+                if (!targetNode) {
+                    this.communicationManager.print(`Target node for new segment id ${newSegmentIds} not found.`);
+                    return;
+                }
+                console.log(`Found target node: ${targetNode}`);
+                
+                this.selectableManager.addCallbackToSelectable(targetNode);
+                targetNode.unselect();
+                targetNode.triggerOnMouseDown(e.clientX, e.clientY);  
+  
+            } else { return; }
+        }
+    };
+
+    public rotateSelectedLinks = (rotationDirection: RotationDirection, centralX: number, centralY: number, selectedSelectableIds: IdType[]): void => {
+        const selectedLinks = this.getSelectedLinks();
+        selectedLinks.forEach(link => {
+            this.communicationManager.rotateLink(link.id, rotationDirection, centralX, centralY, selectedSelectableIds);
+        });
+    };
 }

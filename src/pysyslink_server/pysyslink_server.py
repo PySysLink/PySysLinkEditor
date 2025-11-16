@@ -59,9 +59,9 @@ def get_toolkit_config_path(pslkPath: str) -> str | None:
         
     toolkit_config_path = system_json.get("toolkit_configuration_path", None)
 
-    if toolkit_config_path is None:
+    if toolkit_config_path is None or toolkit_config_path == "":
         print("No toolkit configuration path specified in the PSLK file.")
-        return toolkit_config_path
+        return None
 
     # Resolve to absolute path if not already absolute
     if not os.path.isabs(toolkit_config_path):

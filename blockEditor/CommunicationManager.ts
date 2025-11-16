@@ -1,8 +1,16 @@
-import { addBlockToJson, addLinkToJson, attachLinkToPort, consolidateLinkNodes, deleteBlockFromJson, deleteIntermediateNodeFromJson, deleteLinkFromJson, getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveSourceNode, moveTargetNode, rotateBlock, setPositionForLinkNode, updateBlockFromJson, updateLinkInJson } from "../shared/JsonManager";
-import { BlockData, IdType, JsonData, LinkData, Rotation } from "../shared/JsonTypes";
-import { getNonce } from "./util";
+import { addBlockToJson, addLinkToJson, updatePortAttachment, attachLinkToPort, 
+    createNewChildLinkFromNode, createNewChildLinkFromSegment, 
+    deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, 
+    getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveLinkSegment, moveSourceNode, 
+    moveTargetNode, rotateBlock,  
+    updateLinkInJson, 
+    deleteLinkFromSegmentFromJson,
+    rotateLink,
+    updateLinksSourceTargetPosition} from "../shared/JsonManager";
+import { BlockData, IdType, JsonData, Rotation } from "../shared/JsonTypes";
+import { getNonce } from "../shared/util";
 import { Library } from "../shared/BlockPalette";
-import { moveLinkSegment, updateLinksAfterBatchMove } from "../shared/LInkOrganization";
+import { SegmentNode, LinkJson, TargetNodeInfo, Link } from "../shared/Link";
 
 
 export class CommunicationManager {
@@ -11,6 +19,7 @@ export class CommunicationManager {
     freezedLocalJsonCallback: boolean = false;
     freezedLinkUpdates: boolean = false;
     disableSending: boolean = false;
+    isDragging: boolean = false;
 
     private localJson: JsonData | undefined;
     private serverJsonBeforeFreeze: JsonData | undefined;
@@ -27,10 +36,11 @@ export class CommunicationManager {
     }
 
     print(text: string) {
-        this.vscode.postMessage({
-            type: 'print',
-            text: text
-        });
+        console.log(text);
+        // this.vscode.postMessage({
+        //     type: 'print',
+        //     text: text
+        // });
     }
 
     public registerLocalJsonChangedCallback(callback: (json: JsonData) => void) {
@@ -95,12 +105,15 @@ export class CommunicationManager {
         }
     }
 
-    public unfreezeLinkUpdates() {
+    public unfreezeLinkUpdates(removeColinear: boolean = true) {
         this.print("Unfreeze link updates called");
         if (this.freezedLinkUpdates) {
             this.freezedLinkUpdates = false;
-            this.consolidateLinks();
         }
+    }
+
+    public setIsDragging(isDragging: boolean) {
+        this.isDragging = isDragging;
     }
 
     private printJsonDiff(obj1: any, obj2: any, path: string = ''): void {
@@ -120,19 +133,17 @@ export class CommunicationManager {
     }
 
     public setLocalJson(json: JsonData, sendToServer: boolean = true) {
-        this.print(`Setting local JSON`);
         if (JSON.stringify(json) === JSON.stringify(this.localJson)) {
             return;
         } else {
-            this.print('JSON changed:');
-            this.printJsonDiff(this.localJson, json);
+            // this.print('JSON changed:');
+            // this.printJsonDiff(this.localJson, json);
         }
 
         this.localJson = json;
         
         this.vscode.setState({ text: JSON.stringify(this.localJson) });
         if (!this.freezed && sendToServer) {
-            this.localJson = consolidateLinkNodes(this.localJson);
             this.sendJsonToServer(this.localJson);
         } 
         if (!this.freezedLocalJsonCallback) {
@@ -204,7 +215,7 @@ export class CommunicationManager {
         }
     };
 
-    public addLink = (link: LinkData) => {
+    public addLink = (link: LinkJson) => {
         let json = this.getLocalJson();
         if (json) {
             let newJson = addLinkToJson(json, link);
@@ -219,35 +230,15 @@ export class CommunicationManager {
             this.setLocalJson(newJson, true);
         }
     };
-
-    public deleteIntermediateNode = (nodeId: IdType) => {
+    public deleteLinkFromSegment = (linkId: IdType, segmentId: IdType) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = deleteIntermediateNodeFromJson(json, nodeId);
-            this.print(`Delete intermediate node: ${nodeId}`);
+            let newJson = deleteLinkFromSegmentFromJson(json, linkId, segmentId);
             this.setLocalJson(newJson, true);
         }
     };
 
-    public setPositionForLinkNode = (linkId: IdType, nodeId: IdType, x: number, y: number) => {
-        let json = this.getLocalJson();
-        if (json) {
-            let newJson = setPositionForLinkNode(json, linkId, nodeId, x, y);
-            this.print(`Set position for link node: ${nodeId} of link: ${linkId} to (${x}, ${y})`);
-            this.setLocalJson(newJson, true);
-        }
-    };
-
-    public updateBlock = (block: BlockData) => {
-        let json = this.getLocalJson();
-        if (json) {
-            let newJson = updateBlockFromJson(json, block, !this.freezedLinkUpdates);
-            this.print(`Update block: ${block.id}`);
-            this.setLocalJson(newJson, true);
-        }
-    };
-
-    public updateLink = (link: LinkData): void => {
+    public updateLink = (link: LinkJson): void => {
         let json = this.getLocalJson();
         if (json) {
             let newJson = updateLinkInJson(json, link);
@@ -256,30 +247,54 @@ export class CommunicationManager {
         }
     };
 
-    public consolidateLinks = () => {
+    public createNewLinkFromPort = (blockId: IdType, portType: "input" | "output", portIndex: number) : LinkJson | undefined => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = consolidateLinkNodes(json);
-            this.print(`Consolidate links`);
-            this.setLocalJson(newJson, true);
-        }
-    };
+            const pos = this.getPortPosition(blockId, portType, portIndex) ?? { x: 0, y: 0 };
 
-    public createNewLinkFromPort = (blockId: IdType, portType: "input" | "output", portIndex: number) : LinkData | undefined => {
-        let json = this.getLocalJson();
-        if (json) {
-            let newLink: LinkData = {
+            const rootSegment: SegmentNode = {
                 id: getNonce(),
-                sourceId: portType === "output" ? blockId : "undefined",
-                targetId: portType === "input" ? blockId : "undefined",
-                sourcePort: portType === "output" ? portIndex : -1,
-                targetPort: portType === "input" ? portIndex : -1,
-                sourceX: this.getPortPosition(blockId, portType, portIndex)?.x || 0,
-                sourceY: this.getPortPosition(blockId, portType, portIndex)?.y || 0,
-                targetX: this.getPortPosition(blockId, portType, portIndex)?.x || 0,
-                targetY: this.getPortPosition(blockId, portType, portIndex)?.y || 0,
-                intermediateNodes: []
+                orientation: "Horizontal", // default orientation
+                xOrY: pos.y,
+                children: []
             };
+
+            let sourceId: IdType = "undefined";
+            let sourcePort = -1;
+            let targetNodes: { [segmentId: IdType]: TargetNodeInfo } = {};
+
+            if (portType === "output") {
+                // Define source side
+                sourceId = blockId;
+                sourcePort = portIndex;
+
+                // Create a placeholder target node linked to the root segment
+                targetNodes[rootSegment.id] = {
+                    targetId: "undefined",
+                    port: -1,
+                    x: pos.x,
+                    y: pos.y
+                };
+            } else {
+                // If input: keep source undefined, but target is defined
+                targetNodes[rootSegment.id] = {
+                    targetId: blockId,
+                    port: portIndex,
+                    x: pos.x,
+                    y: pos.y
+                };
+            }
+
+            const newLink: LinkJson = {
+                id: getNonce(),
+                sourceId,
+                sourcePort,
+                sourceX: pos.x,
+                sourceY: pos.y,
+                targetNodes,
+                segmentNode: rootSegment
+            };
+
             let newJson = addLinkToJson(json, newLink);
             this.print(`Create new link from port: ${JSON.stringify(newLink)}`);
             this.setLocalJson(newJson, true);
@@ -287,6 +302,41 @@ export class CommunicationManager {
         }
         return undefined;
     };
+
+    public getLimitsOfSegment = (linkId: IdType, segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined => {
+        let json = this.getLocalJson();
+        if (json) {
+            return getLimitsOfSegment(json, linkId, segmentId);
+        }
+    };
+
+    public createNewChildLinkFromNode(linkId: IdType, previousSegmentId: IdType, nextSegmentId: IdType): IdType[] | undefined {
+        const json = this.getLocalJson();
+        if (json) {
+            const result = createNewChildLinkFromNode(json, linkId, previousSegmentId, nextSegmentId);
+            if (!result) {
+                return undefined;
+            }
+            const [newJson, newSegmentIds ] = result;
+            this.setLocalJson(newJson, true);
+            return newSegmentIds;
+        }
+        return undefined;
+    }
+
+    public createNewChildLinkFromSegment(linkId: IdType, segmentId: IdType, clickX: number, clickY: number): IdType[] | undefined {
+        const json = this.getLocalJson();
+        if (json) {
+            const result = createNewChildLinkFromSegment(json, linkId, segmentId, clickX, clickY);
+            if (!result) {
+                return undefined;
+            }
+            const [ newJson, newSegmentIds ] = result;
+            this.setLocalJson(newJson, true);
+            return newSegmentIds;
+        }
+        return undefined;
+    }
 
     public getPortPosition = (blockId: IdType, portType: "input" | "output", portIndex: number, ignoreRotation: boolean = false): { x: number, y: number } | undefined => {
         let json = this.getLocalJson();
@@ -296,18 +346,34 @@ export class CommunicationManager {
         return undefined;
     };
 
-    public attachLinkToPort = (linkId: IdType, blockId: IdType, portType: "input" | "output", portIndex: number) => {
+    public attachLinkToPort = (linkId: IdType, segmentId: IdType, blockId: IdType, portType: "input" | "output", portIndex: number) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = attachLinkToPort(json, linkId, blockId, portType, portIndex);
+            let newJson = attachLinkToPort(json, linkId, segmentId, blockId, portType, portIndex);
             this.setLocalJson(newJson, true);
         }
     };
 
-    public moveBlock = (blockId: IdType, x: number, y: number) => {
+    public updatePortAttachment = (selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveBlockInJson(json, blockId, x, y, !this.freezedLinkUpdates);
+            let newJson = updatePortAttachment(json, selectedSelectableIds);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public updateLinksSourceTargetPosition = (selectedSelectableIds: IdType[], removeColinear: boolean=false) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = updateLinksSourceTargetPosition(json, selectedSelectableIds, removeColinear);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public moveBlock = (blockId: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = moveBlockInJson(json, blockId, x, y, selectedSelectableIds, !this.isDragging);
             this.print(`Move block: ${blockId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
@@ -322,30 +388,39 @@ export class CommunicationManager {
         }
     };
 
+    public rotateLink(linkId: string, rotationDirection: string, centralX: number, centralY: number, selectedSelectableIds: string[]) {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = rotateLink(json, linkId, rotationDirection, centralX, centralY, selectedSelectableIds);
+            this.setLocalJson(newJson, true);
+        }
+    }
+
+
     public moveLinkDelta = (linkId: IdType, deltaX: number, deltaY: number) => {
         let json = this.getLocalJson();
         if (json) {
             let newJson = moveLinkDelta(json, linkId, deltaX, deltaY);
-            this.print(`Move link: ${linkId} by delta (${deltaX}, ${deltaY})`);
+            // this.print(`Move link: ${linkId} by delta (${deltaX}, ${deltaY})`);
             this.setLocalJson(newJson, true);
         }
     };
 
 
-    public moveSourceNode = (linkId: IdType, x: number, y: number) => {
+    public moveSourceNode = (linkId: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveSourceNode(json, linkId, x, y);
-            this.print(`Move source node of link: ${linkId} to position (${x}, ${y})`);
+            let newJson = moveSourceNode(json, linkId, x, y, selectedSelectableIds, !this.isDragging, !this.isDragging);
+            // this.print(`Move source node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
     };
 
-    public moveTargetNode = (linkId: IdType, x: number, y: number) => {
+    public moveTargetNode = (linkId: IdType, segmentIdOfNode: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = moveTargetNode(json, linkId, x, y);
-            this.print(`Move target node of link: ${linkId} to position (${x}, ${y})`);
+            let newJson = moveTargetNode(json, linkId, segmentIdOfNode, x, y, selectedSelectableIds, !this.isDragging, !this.isDragging);
+            // this.print(`Move target node of link: ${linkId} to position (${x}, ${y})`);
             this.setLocalJson(newJson, true);
         }
     };
@@ -397,25 +472,56 @@ export class CommunicationManager {
         this.addBlock(newBlock);
     }
 
-    public moveLinkSegment(link: LinkData,
-        sourceIntermediateNodeId: IdType,
-        targetIntermediateNodeId: IdType,
+    public moveLinkSegment(linkId: IdType, segmentId: IdType,
         targetPositionX: number,
-        targetPositionY: number) {
+        targetPositionY: number,
+        selectedSelectableIds: IdType[]
+    ) {
         
         let json = this.getLocalJson();
         if (json) {
-            this.print(`Move link segment from ${sourceIntermediateNodeId} to ${targetIntermediateNodeId} at position (${targetPositionX}, ${targetPositionY})`);
-            let newJson = moveLinkSegment(json, link, sourceIntermediateNodeId, targetIntermediateNodeId, targetPositionX, targetPositionY);
+            this.print(`Move link segment ${segmentId} at position (${targetPositionX}, ${targetPositionY})`);
+            let newJson = moveLinkSegment(json, linkId, segmentId, targetPositionX, targetPositionY, selectedSelectableIds, !this.isDragging);
             this.setLocalJson(newJson, true);
         }
     }
 
-    public updateLinksAfterBatchMove() {
+    public moveLinkNode(linkId: IdType,
+        beforeId: IdType,
+        afterId: IdType,
+        targetPositionX: number,
+        targetPositionY: number,
+        selectedSelectableIds: IdType[]
+    ) {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = updateLinksAfterBatchMove(json);
+            this.print(`Move link node ${beforeId}-${afterId} at position (${targetPositionX}, ${targetPositionY})`);
+            let newJson = moveLinkNode(json, linkId, beforeId, afterId, targetPositionX, targetPositionY, selectedSelectableIds, !this.isDragging);
             this.setLocalJson(newJson, true);
         }
+    }
+
+    // public updateLinksAfterBatchMove() {
+    //     let json = this.getLocalJson();
+    //     if (json) {
+    //         let newJson = updateLinksAfterBatchMove(json);
+    //         this.setLocalJson(newJson, true);
+    //     }
+    // }
+
+    findParentSegmentNode(linkId: string, id: string): SegmentNode | undefined {
+        const linkData = this.localJson?.links?.find(l => l.id === linkId);
+        if (!linkData) {return undefined;}
+
+        const link = new Link(linkData);
+        return link.findParentSegmentNode(id);
+    }
+    
+    findSegmentNodeById(linkId: string, id: string): SegmentNode | undefined {
+        const linkData = this.localJson?.links?.find(l => l.id === linkId);
+        if (!linkData) {return undefined;}
+
+        const link = new Link(linkData);
+        return link.findSegmentNodeById(id);
     }
 }
