@@ -353,18 +353,22 @@ export class LinkInteractionManager {
             e.stopPropagation();
             let link = this.links.find(l => l.id === segment.linkId);
 
-            let newSegmentId = this.communicationManager.createNewChildLinkFromSegment(segment.linkId, segment.getId(), adjustedX, adjustedY);
-            if (newSegmentId) {
-                this.communicationManager.print(`Creating new link visual due to click on segment id: ${newSegmentId}`);
+            let newSegmentIds = this.communicationManager.createNewChildLinkFromSegment(segment.linkId, segment.getId(), adjustedX, adjustedY);
+            if (newSegmentIds) {
+                this.communicationManager.print(`Creating new link visual due to click on segment id: ${newSegmentIds}`);
                 let newJson = this.communicationManager.getLocalJson();
                 if (!newJson || !link) { return; }
 
                 link.updateFromJson(newJson, this.communicationManager);
 
-                console.log(`Trying to trigger mouse down on segment id: ${newSegmentId}`);
-                let targetNode = link.targetNodes.find(tn => tn.segmentId === newSegmentId);
+                console.log(`Trying to trigger mouse down on segment id: ${newSegmentIds}`);
+                let targetNode: TargetNode | undefined = undefined;
+                for (const newSegmentId of newSegmentIds) {
+                    targetNode = link.targetNodes.find(tn => tn.segmentId === newSegmentId);
+                    if (targetNode) { break; }
+                }
                 if (!targetNode) {
-                    this.communicationManager.print(`Target node for new segment id ${newSegmentId} not found.`);
+                    this.communicationManager.print(`Target node for new segment id ${newSegmentIds} not found.`);
                     return;
                 }
                 console.log(`Found target node: ${targetNode}`);
@@ -387,19 +391,23 @@ export class LinkInteractionManager {
 
             e.stopPropagation();
                         
-            let newSegmentId = this.communicationManager.createNewChildLinkFromNode(node.getLinkId(), segments?.before.id, segments?.after.id);
-            if (newSegmentId) {
-                this.communicationManager.print(`Creating new link visual due to click on segment id: ${newSegmentId}`);
+            let newSegmentIds = this.communicationManager.createNewChildLinkFromNode(node.getLinkId(), segments?.before.id, segments?.after.id);
+            if (newSegmentIds) {
+                this.communicationManager.print(`Creating new link visual due to click on segment id: ${newSegmentIds}`);
 
                 let newJson = this.communicationManager.getLocalJson();
                 if (!newJson || !link) { return; }
 
                 link.updateFromJson(newJson, this.communicationManager);
 
-                console.log(`Trying to trigger mouse down on segment id: ${newSegmentId}`);
-                let targetNode = link.targetNodes.find(tn => tn.segmentId === newSegmentId);
+                console.log(`Trying to trigger mouse down on segment id: ${newSegmentIds}`);
+                let targetNode: TargetNode | undefined = undefined;
+                for (const newSegmentId of newSegmentIds) {
+                    targetNode = link.targetNodes.find(tn => tn.segmentId === newSegmentId);
+                    if (targetNode) { break; }
+                }
                 if (!targetNode) {
-                    this.communicationManager.print(`Target node for new segment id ${newSegmentId} not found.`);
+                    this.communicationManager.print(`Target node for new segment id ${newSegmentIds} not found.`);
                     return;
                 }
                 console.log(`Found target node: ${targetNode}`);

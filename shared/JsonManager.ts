@@ -333,28 +333,28 @@ export function attachLinkToPort(json: JsonData, linkId: IdType, segmentId: IdTy
     return json;
 }
 
-export function createNewChildLinkFromNode(json: JsonData, linkId: IdType, previousSegmentId: IdType, nextSegmentId: IdType): [JsonData, IdType | undefined] {
+export function createNewChildLinkFromNode(json: JsonData, linkId: IdType, previousSegmentId: IdType, nextSegmentId: IdType): [JsonData, IdType[] | undefined] {
     let linkJson = json.links?.find(l => l.id === linkId);
     if (linkJson) {
         let link = new Link(linkJson);
-        let segmentNode = link.createNewChildLinkFromNode(previousSegmentId, nextSegmentId);
-        if (!segmentNode) {return [json, undefined];}
+        let segmentNodes = link.createNewChildLinkFromNode(previousSegmentId, nextSegmentId);
+        if (!segmentNodes) {return [json, undefined];}
         linkJson = link.toJson();
         let newJson = updateLinkInJson(json, linkJson);
-        return [newJson, segmentNode.id];
+        return [newJson, segmentNodes.map(sn => sn.id)];
     }
     return [json, undefined];
 }
 
-export function createNewChildLinkFromSegment(json: JsonData, linkId: IdType, segmentId: IdType, clickX: number, clickY: number): [JsonData, IdType | undefined] {
+export function createNewChildLinkFromSegment(json: JsonData, linkId: IdType, segmentId: IdType, clickX: number, clickY: number): [JsonData, IdType[] | undefined] {
     let linkJson = json.links?.find(l => l.id === linkId);
     if (linkJson) {
         let link = new Link(linkJson);
-        let segmentNode = link.createNewChildLinkFromSegment(linkId, segmentId, clickX, clickY);
-        if (!segmentNode) {return [json, undefined];}
+        let segmentNodes = link.createNewChildLinkFromSegment(linkId, segmentId, clickX, clickY);
+        if (!segmentNodes) {return [json, undefined];}
         linkJson = link.toJson();
         let newJson = updateLinkInJson(json, linkJson);
-        return [newJson, segmentNode.id];
+        return [newJson, segmentNodes.map(sn => sn.id)];
     }
     return [json, undefined];
 }

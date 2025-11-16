@@ -414,7 +414,7 @@ export class Link {
         return dfs(this.segmentNode);
     }
 
-    createNewChildLinkFromNode(previousSegmentId: string, nextSegmentId: string): SegmentNode | undefined {
+    createNewChildLinkFromNode(previousSegmentId: string, nextSegmentId: string): SegmentNode[] | undefined {
         const previous = this.findSegmentNodeById(previousSegmentId);
         if (!previous) {return undefined;}
 
@@ -434,7 +434,7 @@ export class Link {
                                                     previous.orientation === 'Horizontal' ? previous.xOrY : next.xOrY);
     }
 
-    createNewChildLinkFromSegment(linkId: string, segmentId: string, clickX: number, clickY: number): SegmentNode | undefined {
+    createNewChildLinkFromSegment(linkId: string, segmentId: string, clickX: number, clickY: number): SegmentNode[] | undefined {
         const segment = this.findSegmentNodeById(segmentId);
         if (!segment) {return undefined;}
 
@@ -462,7 +462,7 @@ export class Link {
         const nextNode: SegmentNode = {
             id: getNonce(),
             orientation: splitNode.orientation,
-            xOrY: splitNode.orientation === "Horizontal" ? clickY : clickX,
+            xOrY: splitNode.orientation === "Horizontal" ? clickY + 10 : clickX + 10,
             children: []
         };
 
@@ -486,12 +486,12 @@ export class Link {
         const targetNode: TargetNodeInfo = {
             targetId: "undefined",
             port: -1,
-            x: clickX,
-            y: clickY,
+            x: clickX + 10,
+            y: clickY + 10,
         };
         this.targetNodes[nextNode.id] = targetNode;
 
-        return nextNode;
+        return [branchNode, nextNode];
     }
 
     getLimitsOfSegment(segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined {

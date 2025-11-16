@@ -308,30 +308,30 @@ export class CommunicationManager {
         }
     };
 
-    public createNewChildLinkFromNode(linkId: IdType, previousSegmentId: IdType, nextSegmentId: IdType): IdType | undefined {
+    public createNewChildLinkFromNode(linkId: IdType, previousSegmentId: IdType, nextSegmentId: IdType): IdType[] | undefined {
         const json = this.getLocalJson();
         if (json) {
             const result = createNewChildLinkFromNode(json, linkId, previousSegmentId, nextSegmentId);
             if (!result) {
                 return undefined;
             }
-            const [newJson, newSegmentId ] = result;
+            const [newJson, newSegmentIds ] = result;
             this.setLocalJson(newJson, true);
-            return newSegmentId;
+            return newSegmentIds;
         }
         return undefined;
     }
 
-    public createNewChildLinkFromSegment(linkId: IdType, segmentId: IdType, clickX: number, clickY: number): IdType | undefined {
+    public createNewChildLinkFromSegment(linkId: IdType, segmentId: IdType, clickX: number, clickY: number): IdType[] | undefined {
         const json = this.getLocalJson();
         if (json) {
             const result = createNewChildLinkFromSegment(json, linkId, segmentId, clickX, clickY);
             if (!result) {
                 return undefined;
             }
-            const [ newJson, newSegmentId ] = result;
+            const [ newJson, newSegmentIds ] = result;
             this.setLocalJson(newJson, true);
-            return newSegmentId;
+            return newSegmentIds;
         }
         return undefined;
     }
