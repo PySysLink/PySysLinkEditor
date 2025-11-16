@@ -1,5 +1,5 @@
 {
-  "version": 189,
+  "version": 16,
   "blocks": [
     {
       "id": "6FtIN65dhiUM76uTv8bjpFRDk6WI6Psx",
@@ -38,8 +38,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 1260,
-      "y": 410,
+      "x": 1290,
+      "y": 380,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 0,
@@ -65,7 +65,7 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 810,
+      "x": 750,
       "y": 490,
       "rotation": 0,
       "inputPorts": 2,
@@ -100,7 +100,7 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1030,
+      "x": 980,
       "y": 490,
       "rotation": 0,
       "inputPorts": 1,
@@ -136,7 +136,7 @@
       "blockLibrary": "scope_library",
       "blockType": "scope",
       "label": "scope",
-      "x": 1330,
+      "x": 1310,
       "y": 490,
       "rotation": 0,
       "inputPorts": 1,
@@ -170,7 +170,7 @@
         "ecwgjgCHEnDtQWqYOMjarAjLoVadwdM9": {
           "targetId": "qNEKGiicprDHz4SIlhZfSPrcUlmVLgz6",
           "port": 0,
-          "x": 810,
+          "x": 750,
           "y": 510
         }
       },
@@ -185,13 +185,13 @@
       "id": "JKUcvctpgkozTevjJvDDQ5S480PKsSZI",
       "sourceId": "qNEKGiicprDHz4SIlhZfSPrcUlmVLgz6",
       "sourcePort": 0,
-      "sourceX": 930,
+      "sourceX": 870,
       "sourceY": 520,
       "targetNodes": {
         "N3YY46tyK4aVcfufABD8R7tt6Qog6FP4": {
           "targetId": "np6jQvTXcnCQupk4aEYG6AqC01xeynm2",
           "port": 0,
-          "x": 1030,
+          "x": 980,
           "y": 520
         }
       },
@@ -206,25 +206,25 @@
       "id": "nAtznBgx53Oc2FoTyNvpUJcvr2vJXmgd",
       "sourceId": "np6jQvTXcnCQupk4aEYG6AqC01xeynm2",
       "sourcePort": 0,
-      "sourceX": 1150,
+      "sourceX": 1100,
       "sourceY": 520,
       "targetNodes": {
         "pmFClVR5fAUg7XJRQ27deiFFUaQ86q5b": {
           "targetId": "qNEKGiicprDHz4SIlhZfSPrcUlmVLgz6",
           "port": 1,
-          "x": 810,
+          "x": 750,
           "y": 530
         },
         "rKpEQqHw8QhXdnu5Z3gskhJFtLA8Djgs": {
           "targetId": "Kiz9mYJcbtl0EToJSeIZ5ziSTEBuikER",
           "port": 0,
-          "x": 1260,
-          "y": 440
+          "x": 1290,
+          "y": 410
         },
         "vEYtkfy0ibbvp9xTSPkJF5pDebPHCR2F": {
           "targetId": "nN7PbwVpcyVeHKycP7xPQeRYoLsh8K08",
           "port": 0,
-          "x": 1330,
+          "x": 1310,
           "y": 520
         }
       },
@@ -246,7 +246,7 @@
                   {
                     "id": "fYcfPdGV67lRk86AlxtacTd2LSveJemz",
                     "orientation": "Horizontal",
-                    "xOrY": 670,
+                    "xOrY": 640,
                     "children": [
                       {
                         "id": "IXKECDGJ0Mym9c8frkT100zpIukGunug",
@@ -284,7 +284,7 @@
                       {
                         "id": "rKpEQqHw8QhXdnu5Z3gskhJFtLA8Djgs",
                         "orientation": "Horizontal",
-                        "xOrY": 440,
+                        "xOrY": 410,
                         "children": []
                       }
                     ]

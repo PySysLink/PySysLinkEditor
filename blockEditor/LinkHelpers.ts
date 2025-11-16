@@ -253,7 +253,12 @@ export class TargetNode extends LinkNode implements Movable {
         );
 
         // Find parent (the segment leading into this target)
-        const parent = communicationManager.findParentSegmentNode(this.linkId, segmentNode.id);
+        let parent = communicationManager.findParentSegmentNode(this.linkId, segmentNode.id);
+
+        while (parent && parent.orientation === segmentNode.orientation) {
+            parent = communicationManager.findParentSegmentNode(this.linkId, parent.id);
+        }
+        
         if (!parent) {
             const linkData = json.links?.find(link => link.id === this.linkId);
             if (!linkData) {return;}
