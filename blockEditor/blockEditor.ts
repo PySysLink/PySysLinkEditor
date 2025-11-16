@@ -8,7 +8,6 @@ import { BlockPalette } from './BlockPalette';
 import { link } from 'fs';
 import { JsonData } from '../shared/JsonTypes';
 import { CommunicationManager } from './CommunicationManager';
-import { getNonce } from './util';
 import { Library } from '../shared/BlockPalette';
 import '@vscode-elements/elements/dist/bundled.js';
 
@@ -109,6 +108,7 @@ setInterval(() => {
     selectableManager.registerSelectableList(() => blockInteractionManager.blocks);
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkSegments());
     selectableManager.registerSelectableList(() => linkInteractionManager.getAllLinkNodes());
+    selectableManager.addRotationListener(linkInteractionManager.rotateSelectedLinks);
 
     selectableManager.addOnMouseMoveListener(linkInteractionManager.highlightNodesNearPorts);
     selectableManager.updateSelectables();

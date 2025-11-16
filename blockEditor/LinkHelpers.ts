@@ -2,7 +2,6 @@ import { debug, timeStamp } from 'console';
 import { BlockVisual } from './BlockVisual';
 import { Selectable } from './Selectable';
 import { IdType, JsonData } from '../shared/JsonTypes';
-import { getNonce } from './util';
 import { isMovable, Movable } from './Movable';
 import { CommunicationManager } from './CommunicationManager';
 import { link } from 'fs';
@@ -171,22 +170,33 @@ export class SourceNode extends LinkNode implements Movable {
     }
 
     moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        let centralPosition = this.getPosition(communicationManager);
-        if (centralPosition) {
-            const deltaX = centerX - centralPosition.x;
-            const deltaY = centerY - centralPosition.y;
+        // let centralPosition = this.getPosition(communicationManager);
+        // if (centralPosition) {
+        //     const deltaX = centerX - centralPosition.x;
+        //     const deltaY = centerY - centralPosition.y;
 
-            let targetPosition = {
-                x: centerX + deltaY,
-                y: centerY - deltaX
-            };
+        //     let targetPosition = {
+        //         x: centerX + deltaY,
+        //         y: centerY - deltaX
+        //     };
 
-            this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
-        }
+        //     this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
+        // }
     }
 
     moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        ;
+        // let centralPosition = this.getPosition(communicationManager);
+        // if (centralPosition) {
+        //     const deltaX = centerX - centralPosition.x;
+        //     const deltaY = centerY - centralPosition.y;
+
+        //     let targetPosition = {
+        //         x: centerX - deltaY,
+        //         y: centerY + deltaX
+        //     };
+
+        //     this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
+        // }
     }
 }
 
@@ -258,7 +268,7 @@ export class TargetNode extends LinkNode implements Movable {
         while (parent && parent.orientation === segmentNode.orientation) {
             parent = communicationManager.findParentSegmentNode(this.linkId, parent.id);
         }
-        
+
         if (!parent) {
             const linkData = json.links?.find(link => link.id === this.linkId);
             if (!linkData) {return;}
@@ -314,22 +324,33 @@ export class TargetNode extends LinkNode implements Movable {
     }
 
     moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        let centralPosition = this.getPosition(communicationManager);
-        if (centralPosition) {
-            const deltaX = centerX - centralPosition.x;
-            const deltaY = centerY - centralPosition.y;
+        // let centralPosition = this.getPosition(communicationManager);
+        // if (centralPosition) {
+        //     const deltaX = centerX - centralPosition.x;
+        //     const deltaY = centerY - centralPosition.y;
 
-            let targetPosition = {
-                x: centerX + deltaY,
-                y: centerY - deltaX
-            };
+        //     let targetPosition = {
+        //         x: centerX + deltaY,
+        //         y: centerY - deltaX
+        //     };
 
-            this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
-        }
+        //     this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
+        // }
     }
 
     moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        ;
+        // let centralPosition = this.getPosition(communicationManager);
+        // if (centralPosition) {
+        //     const deltaX = centerX - centralPosition.x;
+        //     const deltaY = centerY - centralPosition.y;
+
+        //     let targetPosition = {
+        //         x: centerX - deltaY,
+        //         y: centerY + deltaX
+        //     };
+
+        //     this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
+        // }
     }
 }
 
@@ -411,11 +432,11 @@ export class LinkSegment extends Selectable implements Movable {
     }
 
     moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        communicationManager.rotateLinkSegmentClockwise(this.linkId, this.id, centerX, centerY);
+        ;
     }
 
     moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        communicationManager.rotateLinkSegmentCounterClockwise(this.linkId, this.id, centerX, centerY);
+        ;
     }
 
     getPosition(communicationManager: CommunicationManager): { x: number; y: number; } | undefined {

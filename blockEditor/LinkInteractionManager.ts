@@ -3,12 +3,12 @@ import { BlockInteractionManager } from './BlockInteractionManager';
 import { LinkVisual } from './LinkVisual';
 import { LinkNode, LinkSegment, SourceNode, TargetNode } from './LinkHelpers';
 import { BlockVisual } from './BlockVisual';
-import { getNonce } from './util';
 import { IdType, JsonData } from '../shared/JsonTypes'; 
 import { LinkJson, Link } from '../shared/Link';
 import { CommunicationManager } from './CommunicationManager';
 import { SelectableManager } from './SelectableManager';
 import { CanvasElement } from './CanvasElement';
+import { RotationDirection } from './Rotatable';
 
 export class LinkInteractionManager {
     public links: LinkVisual[] = [];
@@ -418,5 +418,12 @@ export class LinkInteractionManager {
   
             } else { return; }
         }
+    };
+
+    public rotateSelectedLinks = (rotationDirection: RotationDirection, centralX: number, centralY: number, selectedSelectableIds: IdType[]): void => {
+        const selectedLinks = this.getSelectedLinks();
+        selectedLinks.forEach(link => {
+            this.communicationManager.rotateLink(link.id, rotationDirection, centralX, centralY, selectedSelectableIds);
+        });
     };
 }

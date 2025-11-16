@@ -2,6 +2,8 @@ import { CommunicationManager } from "./CommunicationManager";
 import { Selectable } from "./Selectable";
 import { Rotation } from "../shared/JsonTypes";
 
+export type RotationDirection = 'clockwise' | 'counterClockwise';
+
 export interface Rotatable {
     getRotation(communicationManager: CommunicationManager): Rotation;
     applyRotation(rotation: Rotation, communicationManager: CommunicationManager, selectables: Selectable[]): void;

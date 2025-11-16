@@ -2,11 +2,13 @@ import { addBlockToJson, addLinkToJson, updatePortAttachment, attachLinkToPort,
     createNewChildLinkFromNode, createNewChildLinkFromSegment, 
     deleteBlockFromJson, deleteLinkFromJson, getLimitsOfSegment, 
     getPortPosition, MergeJsons, moveBlockInJson, moveLinkDelta, moveLinkNode, moveLinkSegment, moveSourceNode, 
-    moveTargetNode, rotateBlock, rotateLinkSegmentClockwise, rotateLinkSegmentCounterClockwise, 
+    moveTargetNode, rotateBlock,  
     updateLinkInJson, 
-    deleteLinkFromSegmentFromJson} from "../shared/JsonManager";
+    deleteLinkFromSegmentFromJson,
+    rotateLink,
+    updateLinksSourceTargetPosition} from "../shared/JsonManager";
 import { BlockData, IdType, JsonData, Rotation } from "../shared/JsonTypes";
-import { getNonce } from "./util";
+import { getNonce } from "../shared/util";
 import { Library } from "../shared/BlockPalette";
 import { SegmentNode, LinkJson, TargetNodeInfo, Link } from "../shared/Link";
 
@@ -355,8 +357,15 @@ export class CommunicationManager {
     public updatePortAttachment = (selectedSelectableIds: IdType[]) => {
         let json = this.getLocalJson();
         if (json) {
-            console.log(`Not updateLinksSourceTargetPosition, but updatePortAttachment`);
             let newJson = updatePortAttachment(json, selectedSelectableIds);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public updateLinksSourceTargetPosition = (selectedSelectableIds: IdType[], removeColinear: boolean=false) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = updateLinksSourceTargetPosition(json, selectedSelectableIds, removeColinear);
             this.setLocalJson(newJson, true);
         }
     };
@@ -379,23 +388,14 @@ export class CommunicationManager {
         }
     };
 
-    public rotateLinkSegmentClockwise = (linkId: IdType, segmentId: IdType, centerX: number, centerY: number) => {
+    public rotateLink(linkId: string, rotationDirection: string, centralX: number, centralY: number, selectedSelectableIds: string[]) {
         let json = this.getLocalJson();
         if (json) {
-            let newJson = rotateLinkSegmentClockwise(json, linkId, segmentId, centerX, centerY, !this.freezedLinkUpdates);
-            this.print(`Rotate link segment: ${segmentId} clockwise around (${centerX}, ${centerY})`);
+            let newJson = rotateLink(json, linkId, rotationDirection, centralX, centralY, selectedSelectableIds);
             this.setLocalJson(newJson, true);
         }
-    };
+    }
 
-    public rotateLinkSegmentCounterClockwise = (linkId: IdType, segmentId: IdType, centerX: number, centerY: number) => {
-        let json = this.getLocalJson();
-        if (json) {
-            let newJson = rotateLinkSegmentCounterClockwise(json, linkId, segmentId, centerX, centerY, !this.freezedLinkUpdates);
-            this.print(`Rotate link segment: ${segmentId} counter-clockwise around (${centerX}, ${centerY})`);
-            this.setLocalJson(newJson, true);
-        }
-    };
 
     public moveLinkDelta = (linkId: IdType, deltaX: number, deltaY: number) => {
         let json = this.getLocalJson();

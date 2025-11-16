@@ -3,7 +3,7 @@ import { Movable, isMovable } from "./Movable";
 import { CanvasElement } from "./CanvasElement";
 import { CommunicationManager } from "./CommunicationManager";
 import { IdType } from "../shared/JsonTypes";
-import { isRotatable } from "./Rotatable";
+import { isRotatable, RotationDirection } from "./Rotatable";
 
 export class SelectableManager {
     private snappingToGrid = true;
@@ -22,6 +22,8 @@ export class SelectableManager {
 
     private pendingRotations = 0;
     private rotationTimer: number | null = null;
+
+    private rotationCallbacks: ((rotationDirection: RotationDirection, centralX: number, centralY: number, selectedSelectableIds: IdType[]) => void)[] = [];
 
     private selectionBox: HTMLElement | null = null;
 
@@ -257,7 +259,7 @@ export class SelectableManager {
 
 
     public onMouseUpDrag = (): void => {
-        this.communicationManager.print(`Mouse up` );
+        console.log(`Drag ended, mouse up`);
 
         document.removeEventListener('mousemove', this.onMouseMoveDrag);
         document.removeEventListener('mouseup', this.onMouseUpDrag);
@@ -432,6 +434,12 @@ export class SelectableManager {
                         selectable.moveClockwiseAround(centerPosition.x, centerPosition.y, this.communicationManager, selectedSelectables);
                     }
                 });
+
+                this.rotationCallbacks.forEach(callback => {
+                    callback("clockwise", centerPosition.x, centerPosition.y, selectedSelectables.map(s => s.getId()));
+                });
+
+                this.communicationManager.updateLinksSourceTargetPosition(selectedSelectables.map(s => s.getId()), true);
             }
 
             this.communicationManager.unfreezeLinkUpdates();
@@ -447,6 +455,10 @@ export class SelectableManager {
     
     public addOnMouseUpListener(callback: () => void): void {
         this.onMouseUpCallbacks.push(callback);
+    }
+
+    public addRotationListener(callback: (rotationDirection: RotationDirection, centralX: number, centralY: number, selectedSelectableIds: IdType[]) => void): void {
+        this.rotationCallbacks.push(callback);
     }
 
     public toggleGridSnapping(checked: boolean): void {

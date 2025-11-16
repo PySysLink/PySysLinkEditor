@@ -62,12 +62,15 @@ export class Link {
         }
 
         this.alignColinearSegments();
+        console.log(`Colinear segments aligned.`);
 
         if (removeColinearSegments) {
             this.removeLastColinearSegments(3);
 
             this.correctOverlappingBranches();
         }
+
+        console.log(`All alignment done with removeColinear: ${removeColinearSegments}.`);
 
         return {
             id: this.id,
@@ -93,6 +96,7 @@ export class Link {
         const self = this;
 
         const process = (node: SegmentNode): SegmentNode => {
+            console.log(`Processing alignment at node ${node.id}`);
             // recurse children first
             for (let i = 0; i < node.children.length; i++) {
                 node.children[i] = process(node.children[i]);
@@ -149,12 +153,16 @@ export class Link {
         const self = this;
 
         const process = (node: SegmentNode): SegmentNode => {
+            console.log(`Processing overlapping branch correction at node ${node.id}`);
             // recurse children first
             for (let i = 0; i < node.children.length; i++) {
                 node.children[i] = process(node.children[i]);
             }
 
-            while (node.children.length === 2) {
+            let count = 0;
+            while (node.children.length === 2 && count < 100) {
+                count++;
+                console.log(`Checking overlapping branches at node ${node.id}`);
                 if (node.children[0].orientation === node.children[1].orientation) {
                     console.warn(`Children of node ${node.id} have same orientation; cannot correct overlapping branches.`);
                     break;
@@ -167,6 +175,7 @@ export class Link {
                 const limitsColinearChild = self.getLimitsOfSegment(colinearChild.id);
 
                 if (limitsParent && limitsColinearChild) {
+                    console.log(`Limits parent: ${JSON.stringify(limitsParent)}, colinear child: ${JSON.stringify(limitsColinearChild)}`);
                     if (node.orientation === "Horizontal") {
                         // compute X ranges for parent and colinear child
                         const pStart = Math.min(limitsParent.before.x, limitsParent.after.x);
@@ -304,12 +313,15 @@ export class Link {
         };
 
         this.segmentNode = process(this.segmentNode);
+
+        console.log(`Overlapping branches corrected. Current segments: ${JSON.stringify(self.serializeSegmentNode(self.segmentNode))}`);
     }
 
     private removeLastColinearSegments(tolerance: number) {
         const self = this;
 
         const process = (node: SegmentNode): SegmentNode => {
+            console.log(`Processing last colinear removal at node ${node.id}`);
             // recurse first
             for (let i = 0; i < node.children.length; i++) {
                 node.children[i] = process(node.children[i]);
@@ -386,6 +398,9 @@ export class Link {
         };
 
         this.segmentNode = process(this.segmentNode);
+
+        console.log(`Colinear segments removed. Current segments: ${JSON.stringify(self.serializeSegmentNode(self.segmentNode))}`);
+        console.trace();
     }
 
     public findSegmentNodeById(targetId: IdType): SegmentNode | undefined {
@@ -724,7 +739,32 @@ export class Link {
             return;
         }
 
-        if (segment.orientation === "Horizontal" && segment.xOrY !== y) {
+        const parentSegment = this.findParentSegmentNode(segmentId);
+        if (parentSegment && parentSegment.orientation === segment.orientation) {
+            if (segment.orientation === "Horizontal" && parentSegment.xOrY !== y) {
+                const newSegment: SegmentNode = {
+                    id: getNonce(),
+                    orientation: "Horizontal",
+                    xOrY: parentSegment.xOrY,
+                    children: [segment]
+                };
+                parentSegment.children.push(newSegment);
+                parentSegment.children = parentSegment.children.filter(c => c.id !== segment.id);
+                segment.orientation = "Vertical";
+                segment.xOrY = x;
+            } else if (segment.orientation === "Vertical" && parentSegment.xOrY !== x) {
+                const newSegment: SegmentNode = {
+                    id: getNonce(),
+                    orientation: "Vertical",
+                    xOrY: parentSegment.xOrY,
+                    children: [segment]
+                };
+                parentSegment.children.push(newSegment);
+                parentSegment.children = parentSegment.children.filter(c => c.id !== segment.id);
+                segment.orientation = "Horizontal";
+                segment.xOrY = y;
+            }
+        } else if (segment.orientation === "Horizontal" && segment.xOrY !== y) {
             segment.xOrY = y;
         } else if (segment.orientation === "Vertical" && segment.xOrY !== x) {
             segment.xOrY = x;
@@ -832,5 +872,47 @@ export class Link {
         }
 
         return true;
+    }
+
+    rotateLink(rotationDirection: string, centralX: number, centralY: number, selectedSelectableIds: string[]) {
+        const isSourceSelected = selectedSelectableIds.includes(this.id + "SourceNode");
+        const areAllTargetsSelected = Object.keys(this.targetNodes).every(segmentId => selectedSelectableIds.includes(segmentId + "TargetNode"));
+
+        function rotateSegmentNode(node: SegmentNode, centralX: number, centralY: number): SegmentNode {
+            if (node.orientation === "Horizontal") {
+                // Horizontal -> Vertical
+                const distance = node.xOrY - centralY;
+                const newXOrY = centralX + distance;
+                node.orientation = "Vertical";
+                node.xOrY = newXOrY;
+            } else {
+                // Vertical -> Horizontal
+                const distance = node.xOrY - centralX;
+                const newXOrY = centralY - distance;
+                node.orientation = "Horizontal";
+                node.xOrY = newXOrY;
+            }
+            node.children = node.children.map(child => rotateSegmentNode(child, centralX, centralY));
+            return node;
+        }
+
+        if (isSourceSelected && areAllTargetsSelected) {
+            // Rotate entire link 
+            this.segmentNode = rotateSegmentNode(this.segmentNode, centralX, centralY);
+            
+            const deltaX = this.sourceX - centralX;
+            const deltaY = this.sourceY - centralY;
+
+            this.sourceX = centralX + deltaY;
+            this.sourceY = centralY - deltaX;
+
+            for (const targetInfo of Object.values(this.targetNodes)) {
+                const tDeltaX = targetInfo.x - centralX;
+                const tDeltaY = targetInfo.y - centralY;
+
+                targetInfo.x = centralX + tDeltaY;
+                targetInfo.y = centralY - tDeltaX;  
+            }
+        }
     }
 }

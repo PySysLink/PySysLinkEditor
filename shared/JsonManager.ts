@@ -249,6 +249,18 @@ export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation,
     return updatedJson;
 }
 
+export function rotateLink(json: JsonData, linkId: string, rotationDirection: string, centralX: number, centralY: number, selectedSelectableIds: string[]): JsonData {
+    let linkJson = json.links?.find(l => l.id === linkId);
+    if (linkJson) {
+        let link = new Link(linkJson);
+        link.rotateLink(rotationDirection, centralX, centralY, selectedSelectableIds);
+        linkJson = link.toJson();
+        let newJson = updateLinkInJson(json, linkJson);
+        return newJson;
+    }
+    return json;
+}
+
 
 export function updatePortAttachment(json: JsonData, selectedSelectableIds: IdType[]): JsonData {
     console.log("Attaching all links to ports...");
@@ -262,16 +274,17 @@ export function updatePortAttachment(json: JsonData, selectedSelectableIds: IdTy
                 updatedJson = moveSourceNode(updatedJson, link.id, link.sourceX, link.sourceY, selectedSelectableIds, true);
             }
             else {
+                console.log(`Source position matches link source position. Moving source node to port position.`);
                 updatedJson = moveSourceNode(updatedJson, link.id, sourcePosition.x, sourcePosition.y, selectedSelectableIds, true);
             }
-        }
-        else {
+        } else {
             console.log(`No source position found for link source: ${link.id}`);
             let port = checkIfPortInPosition(json, link.sourceX, link.sourceY, 10);
 
             if (port && port.portType === "output") {
                 let portPosition = getPortPosition(json, port.blockId, port.portType, port.portIndex);
                 if (portPosition) {
+                    console.log(`Found port at position for link source: ${link.id}, moving source node to port.`);
                     updatedJson = moveSourceNode(updatedJson, link.id, portPosition.x, portPosition.y, selectedSelectableIds, true);
                 }
             }
@@ -282,6 +295,7 @@ export function updatePortAttachment(json: JsonData, selectedSelectableIds: IdTy
                 updatedJson = moveSourceNode(updatedJson, link.id, link.sourceX, link.sourceY, selectedSelectableIds, true);
             }
         }
+        console.log(`Processing link targets for link: ${link.id}`);
         for (const segmentId in link.targetNodes) {
             let targetInfo = link.targetNodes[segmentId];
             if (!targetInfo) {continue;}
@@ -782,12 +796,4 @@ export function updateBlockParameters(json: JsonData, updatedBlock: BlockData): 
 
 export function getBlockData(json: JsonData, blockId: IdType): BlockData | undefined {
     return json.blocks?.find(block => block.id === blockId);
-}
-
-export function rotateLinkSegmentClockwise(json: JsonData, linkId: IdType, segmentId: IdType, centerX: number, centerY: number, updateLinks: boolean = true): JsonData {
-    return json;
-}
-
-export function rotateLinkSegmentCounterClockwise(json: JsonData, linkId: IdType, segmentId: IdType, centerX: number, centerY: number, updateLinks: boolean = true): JsonData {
-    return json;
 }
