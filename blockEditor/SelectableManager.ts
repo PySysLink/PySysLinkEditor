@@ -22,6 +22,7 @@ export class SelectableManager {
 
     private pendingRotations = 0;
     private rotationTimer: number | null = null;
+    private pendingRotationDirection: RotationDirection = "clockwise";
 
     private rotationCallbacks: ((rotationDirection: RotationDirection, centralX: number, centralY: number, selectedSelectableIds: IdType[]) => void)[] = [];
 
@@ -69,13 +70,16 @@ export class SelectableManager {
             e.preventDefault(); // prevent browser refresh
             e.stopPropagation(); // prevent event from bubbling up
 
+            // remember direction of this keypress (Shift => counterclockwise)
+            this.pendingRotationDirection = e.shiftKey ? "counterClockwise" : "clockwise";
+
             this.pendingRotations++;
             if (this.rotationTimer !== null) {
                 clearTimeout(this.rotationTimer);
             }
 
             this.rotationTimer = window.setTimeout(() => {
-                this.rotateSelectables();
+                this.rotateSelectables(this.pendingRotationDirection);
                 this.pendingRotations = 0;
                 this.rotationTimer = null;
             }, 300); 
@@ -398,7 +402,7 @@ export class SelectableManager {
         this.communicationManager.unfreezeLocalJsonCallback();
     }
 
-    public rotateSelectables(): void {
+    public rotateSelectables(rotationDirection: RotationDirection): void {
         this.communicationManager.freeze();
         while (this.pendingRotations > 0) {
             let centerPosition = { x: 0, y: 0 };
@@ -419,7 +423,11 @@ export class SelectableManager {
                     }
                 }
                 if (isRotatable(selectable)) {
-                    selectable.rotateClockwise(this.communicationManager, selectedSelectables);
+                    if (rotationDirection === "counterClockwise") {
+                        selectable.rotateCounterClockwise(this.communicationManager, selectedSelectables);
+                    } else {
+                        selectable.rotateClockwise(this.communicationManager, selectedSelectables);
+                    }
                 }
             });
 
@@ -431,12 +439,16 @@ export class SelectableManager {
 
                 selectedSelectables.forEach(selectable => {
                     if (isMovable(selectable)) {
-                        selectable.moveClockwiseAround(centerPosition.x, centerPosition.y, this.communicationManager, selectedSelectables);
+                        if (rotationDirection === "counterClockwise") {
+                            selectable.moveCounterClockwiseAround(centerPosition.x, centerPosition.y, this.communicationManager, selectedSelectables);
+                        } else {
+                            selectable.moveClockwiseAround(centerPosition.x, centerPosition.y, this.communicationManager, selectedSelectables);
+                        }
                     }
                 });
 
                 this.rotationCallbacks.forEach(callback => {
-                    callback("clockwise", centerPosition.x, centerPosition.y, selectedSelectables.map(s => s.getId()));
+                    callback(rotationDirection, centerPosition.x, centerPosition.y, selectedSelectables.map(s => s.getId()));
                 });
 
                 this.communicationManager.updateLinksSourceTargetPosition(selectedSelectables.map(s => s.getId()), true);

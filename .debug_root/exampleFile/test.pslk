@@ -1,5 +1,5 @@
 {
-  "version": 290,
+  "version": 360,
   "blocks": [
     {
       "id": "NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf",
@@ -146,6 +146,92 @@
         "shape": "square",
         "icon": "",
         "text": "Scope",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
+    },
+    {
+      "id": "nhytzxvBYOqpen6c5OidihzLOHwX0dFz",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 430,
+      "y": 780,
+      "rotation": 0,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "Value": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "0nPVlLJvHazChxbV4z6YMtI2MsmKlQ3M",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 890,
+      "y": 1010,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Display",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
+    },
+    {
+      "id": "oRgcJAZ776N0wfKLZqbolwrOlA4BtxCl",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 760,
+      "y": 900,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Display",
         "show_image_and_text": false,
         "figure": null,
         "default_width": 120,
@@ -337,6 +423,67 @@
                         ]
                       }
                     ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "PwPmic1kbhjPUOEkfPbVI14HZVkFuE6h",
+      "sourceId": "nhytzxvBYOqpen6c5OidihzLOHwX0dFz",
+      "sourcePort": 0,
+      "sourceX": 550,
+      "sourceY": 810,
+      "targetNodes": {
+        "5fhcxYysbzl1CCvypQ2o5ED1xkh67D0Y": {
+          "targetId": "0nPVlLJvHazChxbV4z6YMtI2MsmKlQ3M",
+          "port": 0,
+          "x": 890,
+          "y": 1040
+        },
+        "d4V4SmGNN9vR4OUkzse2Tp4ziyxmbcDG": {
+          "targetId": "oRgcJAZ776N0wfKLZqbolwrOlA4BtxCl",
+          "port": 0,
+          "x": 760,
+          "y": 930
+        }
+      },
+      "segmentNode": {
+        "id": "sZqEZQAXHM1wggVKxQztlHaduPRTbcMz",
+        "orientation": "Horizontal",
+        "xOrY": 810,
+        "children": [
+          {
+            "id": "gXr0CHfCc8UbFkoKHQ0QfSxq6QmTI6Qn",
+            "orientation": "Vertical",
+            "xOrY": 640,
+            "children": [
+              {
+                "id": "ACzBUweA5tgb1EuT49RWmWVGA6ukGRna",
+                "orientation": "Horizontal",
+                "xOrY": 1040,
+                "children": [
+                  {
+                    "id": "yv2I67V6UgG81VupsmQ0KZNKGfksmWA1",
+                    "orientation": "Vertical",
+                    "xOrY": 640,
+                    "children": [
+                      {
+                        "id": "d4V4SmGNN9vR4OUkzse2Tp4ziyxmbcDG",
+                        "orientation": "Horizontal",
+                        "xOrY": 930,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "id": "5fhcxYysbzl1CCvypQ2o5ED1xkh67D0Y",
+                    "orientation": "Horizontal",
+                    "xOrY": 1040,
+                    "children": []
                   }
                 ]
               }

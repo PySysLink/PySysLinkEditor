@@ -170,33 +170,11 @@ export class SourceNode extends LinkNode implements Movable {
     }
 
     moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        // let centralPosition = this.getPosition(communicationManager);
-        // if (centralPosition) {
-        //     const deltaX = centerX - centralPosition.x;
-        //     const deltaY = centerY - centralPosition.y;
-
-        //     let targetPosition = {
-        //         x: centerX + deltaY,
-        //         y: centerY - deltaX
-        //     };
-
-        //     this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
-        // }
+        ;
     }
 
     moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        // let centralPosition = this.getPosition(communicationManager);
-        // if (centralPosition) {
-        //     const deltaX = centerX - centralPosition.x;
-        //     const deltaY = centerY - centralPosition.y;
-
-        //     let targetPosition = {
-        //         x: centerX - deltaY,
-        //         y: centerY + deltaX
-        //     };
-
-        //     this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
-        // }
+        ;
     }
 }
 
@@ -324,33 +302,11 @@ export class TargetNode extends LinkNode implements Movable {
     }
 
     moveClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        // let centralPosition = this.getPosition(communicationManager);
-        // if (centralPosition) {
-        //     const deltaX = centerX - centralPosition.x;
-        //     const deltaY = centerY - centralPosition.y;
-
-        //     let targetPosition = {
-        //         x: centerX + deltaY,
-        //         y: centerY - deltaX
-        //     };
-
-        //     this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
-        // }
+        ;
     }
 
     moveCounterClockwiseAround(centerX: number, centerY: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
-        // let centralPosition = this.getPosition(communicationManager);
-        // if (centralPosition) {
-        //     const deltaX = centerX - centralPosition.x;
-        //     const deltaY = centerY - centralPosition.y;
-
-        //     let targetPosition = {
-        //         x: centerX - deltaY,
-        //         y: centerY + deltaX
-        //     };
-
-        //     this.moveTo(targetPosition.x, targetPosition.y, communicationManager, selectables);
-        // }
+        ;
     }
 }
 

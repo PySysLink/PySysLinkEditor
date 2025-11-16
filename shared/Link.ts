@@ -399,8 +399,7 @@ export class Link {
 
         this.segmentNode = process(this.segmentNode);
 
-        console.log(`Colinear segments removed. Current segments: ${JSON.stringify(self.serializeSegmentNode(self.segmentNode))}`);
-        console.trace();
+        console.log(`Colinear segments removed.`);
     }
 
     public findSegmentNodeById(targetId: IdType): SegmentNode | undefined {
@@ -882,13 +881,13 @@ export class Link {
             if (node.orientation === "Horizontal") {
                 // Horizontal -> Vertical
                 const distance = node.xOrY - centralY;
-                const newXOrY = centralX + distance;
+                const newXOrY = rotationDirection === "clockwise" ? centralX + distance : centralX - distance;
                 node.orientation = "Vertical";
                 node.xOrY = newXOrY;
             } else {
                 // Vertical -> Horizontal
                 const distance = node.xOrY - centralX;
-                const newXOrY = centralY - distance;
+                const newXOrY = rotationDirection === "clockwise" ? centralY - distance : centralY + distance;
                 node.orientation = "Horizontal";
                 node.xOrY = newXOrY;
             }
@@ -903,15 +902,15 @@ export class Link {
             const deltaX = this.sourceX - centralX;
             const deltaY = this.sourceY - centralY;
 
-            this.sourceX = centralX + deltaY;
-            this.sourceY = centralY - deltaX;
+            this.sourceX = rotationDirection === "clockwise" ? centralX + deltaY : centralX - deltaY;
+            this.sourceY = rotationDirection === "clockwise" ? centralY - deltaX : centralY + deltaX;
 
             for (const targetInfo of Object.values(this.targetNodes)) {
                 const tDeltaX = targetInfo.x - centralX;
                 const tDeltaY = targetInfo.y - centralY;
 
-                targetInfo.x = centralX + tDeltaY;
-                targetInfo.y = centralY - tDeltaX;  
+                targetInfo.x = rotationDirection === "clockwise" ? centralX + tDeltaY : centralX - tDeltaY;
+                targetInfo.y = rotationDirection === "clockwise" ? centralY - tDeltaX : centralY + tDeltaX;  
             }
         }
     }
