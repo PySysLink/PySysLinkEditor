@@ -111,7 +111,12 @@ function appendPropertyField(container: HTMLElement, key: string, property: {typ
         input = document.createElement('vscode-textfield');
         input.id = key;
         input.setAttribute('type', 'text');
-input.setAttribute('value', property.value?.toString() ?? '');
+        input.setAttribute('value', property.value?.toString() ?? '');
+    } else if (property.type === 'int') {
+        input = document.createElement('vscode-textfield');
+        input.id = key;
+        input.setAttribute('type', 'number');
+        input.setAttribute('value', property.value?.toString() ?? '');
     } else if (property.type === 'string') {
         input = document.createElement('vscode-textfield');
         input.id = key;
