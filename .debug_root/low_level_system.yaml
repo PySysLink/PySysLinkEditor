@@ -25,21 +25,6 @@ Blocks:
   Name: Scope scope Display
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Display
-- Id: GQkO26tViFirQkIFCmCqSLkdcvvWueyl
-  Name: BasicPython
-  BlockType: BasicPython
-  BlockClass: BasicBlocksPython/BasicPython
-  PythonModule: MyModule
-  PythonClass: MyBlock
-  InputPortNumber: 1
-  OutputPortNumber: 1
-  Parameters:
-  - SampleParameter:1.0
-  - GainParam:3
-- Id: cxjuQ7W3aT25Bn580u6PaaKO6YM9npED
-  Name: Scope scope Display
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Display
 - Id: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
   Name: Integrator
   BlockType: BasicCpp
@@ -51,16 +36,20 @@ Blocks:
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Constant
   Value: 1.0
-- Id: saFzHV7ejWpg8fH6NAsk4nTVjitany4r
-  Name: ContinuousToDiscrete
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/ContinuousToDiscrete
-  ContinuousSampleTimeGroup: 1
-  DiscreteSampleTime: 1.0
 - Id: U9XVGH2M5YPSme3VElTWzwXHpwNRHT8a
   Name: Scope scope Display
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Display
+- Id: pZQjHHrOynb8TqARG1HiCGyCUqIpl86u
+  Name: BasicPython
+  BlockType: BasicPython
+  BlockClass: BasicBlocksPython/BasicPython
+  PythonModule: MyModule
+  PythonClass: MyBlock
+  InputPortNumber: 1
+  OutputPortNumber: 1
+  Parameters:
+  - SampleParameter:1.0
 Links:
 - Id: JKUcvctpgkozTevjJvDDQ5S480PKsSZI_QM8LscNjMJSBHUze3pqnClizHZpuiEh9
   Name: JKUcvctpgkozTevjJvDDQ5S480PKsSZI_QM8LscNjMJSBHUze3pqnClizHZpuiEh9
@@ -92,33 +81,21 @@ Links:
   SourcePortIdx: 0
   DestinationBlockId: wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff
   DestinationPortIdx: 1
-- Id: PK3K4Qev9FQYQkXn4S7S6akbmYXbvccl_PjUb1xs0QOvukGZj9lS2veCsjHOhy0hA
-  Name: PK3K4Qev9FQYQkXn4S7S6akbmYXbvccl_PjUb1xs0QOvukGZj9lS2veCsjHOhy0hA
-  SourceBlockId: GQkO26tViFirQkIFCmCqSLkdcvvWueyl
-  SourcePortIdx: 0
-  DestinationBlockId: cxjuQ7W3aT25Bn580u6PaaKO6YM9npED
-  DestinationPortIdx: 0
 - Id: 9nBvNVtoTKrH1vPQ1veeCobU6rM4KgfT_jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe
   Name: 9nBvNVtoTKrH1vPQ1veeCobU6rM4KgfT_jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe
   SourceBlockId: bobUZGT18dxetvePKVysXBBs4X1ZG53V
   SourcePortIdx: 0
   DestinationBlockId: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
   DestinationPortIdx: 0
-- Id: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_glCbArVzZlDa7dE0BrIkKBk4kDagbpVX
-  Name: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_glCbArVzZlDa7dE0BrIkKBk4kDagbpVX
-  SourceBlockId: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
-  SourcePortIdx: 0
-  DestinationBlockId: GQkO26tViFirQkIFCmCqSLkdcvvWueyl
-  DestinationPortIdx: 0
 - Id: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU
   Name: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU
   SourceBlockId: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
   SourcePortIdx: 0
-  DestinationBlockId: saFzHV7ejWpg8fH6NAsk4nTVjitany4r
+  DestinationBlockId: pZQjHHrOynb8TqARG1HiCGyCUqIpl86u
   DestinationPortIdx: 0
-- Id: 6IxJeB4F7qaTQtk5TKs8Og0WlFrgNmKu_sGVjsM63bWNbLGuyuGj6wdpfkh8scjH2
-  Name: 6IxJeB4F7qaTQtk5TKs8Og0WlFrgNmKu_sGVjsM63bWNbLGuyuGj6wdpfkh8scjH2
-  SourceBlockId: saFzHV7ejWpg8fH6NAsk4nTVjitany4r
+- Id: BF1PdDrJI14gfy75iFSbokDPK6khwMI3_0wOYsposnmO332HaG4Yh8ACIhMePbYnU
+  Name: BF1PdDrJI14gfy75iFSbokDPK6khwMI3_0wOYsposnmO332HaG4Yh8ACIhMePbYnU
+  SourceBlockId: pZQjHHrOynb8TqARG1HiCGyCUqIpl86u
   SourcePortIdx: 0
   DestinationBlockId: U9XVGH2M5YPSme3VElTWzwXHpwNRHT8a
   DestinationPortIdx: 0

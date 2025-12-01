@@ -139,7 +139,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
 
       try {
         fs.writeFileSync(filePath, yaml.dump(mergedConfig, { indent: 2 }), 'utf8');
-        vscode.window.showInformationMessage('Simulation options saved.');
+        vscode.window.showInformationMessage(`Simulation options saved. Path: ${filePath}`);
       } catch (err: any) {
         vscode.window.showErrorMessage(`Failed to save simulation options: ${err.message}`);
       }

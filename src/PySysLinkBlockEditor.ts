@@ -553,6 +553,8 @@ export class PySysLinkBlockEditorSession {
       background-color: white !important;
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
+  <script src="https://mpld3.github.io/js/mpld3.v0.5.12.js"></script>
 </head>
 <body>
   ${result.html}

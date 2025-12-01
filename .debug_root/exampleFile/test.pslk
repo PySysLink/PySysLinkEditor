@@ -1,13 +1,13 @@
 {
-  "version": 195,
+  "version": 68,
   "blocks": [
     {
       "id": "NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 991.9975845410634,
-      "y": 532.9879227053136,
+      "x": 40,
+      "y": 80,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
@@ -38,8 +38,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 1581.9975845410636,
-      "y": 492.9879227053136,
+      "x": 630,
+      "y": 40,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 0,
@@ -65,8 +65,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1521.9975845410636,
-      "y": 612.9879227053136,
+      "x": 570,
+      "y": 160,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 1,
@@ -101,8 +101,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 1281.9975845410636,
-      "y": 612.9879227053136,
+      "x": 330,
+      "y": 160,
       "rotation": 0,
       "inputPorts": 2,
       "outputPorts": 1,
@@ -136,86 +136,8 @@
       "blockLibrary": "scope_library",
       "blockType": "scope",
       "label": "scope",
-      "x": 1941.9975845410636,
-      "y": 652.9879227053136,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 0,
-      "properties": {},
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Scope",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 0
-      }
-    },
-    {
-      "id": "GQkO26tViFirQkIFCmCqSLkdcvvWueyl",
-      "blockLibrary": "core_BasicBlocksPython",
-      "blockType": "BasicPython",
-      "label": "BasicPython",
-      "x": 1750,
-      "y": 810,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {
-        "PythonModule": {
-          "type": "string",
-          "value": "MyModule"
-        },
-        "PythonClass": {
-          "type": "string",
-          "value": "MyBlock"
-        },
-        "InputPortNumber": {
-          "type": "int",
-          "value": "1"
-        },
-        "OutputPortNumber": {
-          "type": "int",
-          "value": "1"
-        },
-        "Parameters": {
-          "type": "string[]",
-          "value": [
-            "SampleParameter:1.0",
-            "GainParam:3"
-          ]
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "BasicPython",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "cxjuQ7W3aT25Bn580u6PaaKO6YM9npED",
-      "blockLibrary": "scope_library",
-      "blockType": "scope",
-      "label": "scope",
-      "x": 1980,
-      "y": 870,
+      "x": 990,
+      "y": 200,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 0,
@@ -241,8 +163,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 1500,
-      "y": 870,
+      "x": 550,
+      "y": 420,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 1,
@@ -277,8 +199,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 1270,
-      "y": 870,
+      "x": 320,
+      "y": 420,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
@@ -305,48 +227,12 @@
       }
     },
     {
-      "id": "saFzHV7ejWpg8fH6NAsk4nTVjitany4r",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "ContinuousToDiscrete",
-      "label": "ContinuousToDiscrete",
-      "x": 1770,
-      "y": 990,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {
-        "ContinuousSampleTimeGroup": {
-          "type": "int",
-          "value": 1
-        },
-        "DiscreteSampleTime": {
-          "type": "float",
-          "value": 1
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "ContinuousToDiscrete",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 1
-      }
-    },
-    {
       "id": "U9XVGH2M5YPSme3VElTWzwXHpwNRHT8a",
       "blockLibrary": "scope_library",
       "blockType": "scope",
       "label": "scope",
-      "x": 1970,
-      "y": 990,
+      "x": 1020,
+      "y": 540,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 0,
@@ -366,6 +252,56 @@
         "input_ports": 1,
         "output_ports": 0
       }
+    },
+    {
+      "id": "pZQjHHrOynb8TqARG1HiCGyCUqIpl86u",
+      "blockLibrary": "core_BasicBlocksPython",
+      "blockType": "BasicPython",
+      "label": "BasicPython",
+      "x": 850,
+      "y": 540,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "PythonModule": {
+          "type": "string",
+          "value": "MyModule"
+        },
+        "PythonClass": {
+          "type": "string",
+          "value": "MyBlock"
+        },
+        "InputPortNumber": {
+          "type": "int",
+          "value": "1"
+        },
+        "OutputPortNumber": {
+          "type": "int",
+          "value": "1"
+        },
+        "Parameters": {
+          "type": "string[]",
+          "value": [
+            "SampleParameter:1.0"
+          ]
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "BasicPython",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 1
+      }
     }
   ],
   "links": [
@@ -373,41 +309,41 @@
       "id": "JKUcvctpgkozTevjJvDDQ5S480PKsSZI",
       "sourceId": "wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff",
       "sourcePort": 0,
-      "sourceX": 1401.9975845410636,
-      "sourceY": 642.9879227053136,
+      "sourceX": 450,
+      "sourceY": 190,
       "targetNodes": {
         "QM8LscNjMJSBHUze3pqnClizHZpuiEh9": {
           "targetId": "3AhRR3JOgSZpPFtJkJN6o5stRpKR1IUj",
           "port": 0,
-          "x": 1521.9975845410636,
-          "y": 642.9879227053136
+          "x": 570,
+          "y": 190
         },
         "N3YY46tyK4aVcfufABD8R7tt6Qog6FP4": {
           "targetId": "ex3OSpQLM1TWnRUTaXtISQcQfbtYtkiD",
           "port": 0,
-          "x": 1581.9975845410636,
-          "y": 522.9879227053136
+          "x": 630,
+          "y": 70
         }
       },
       "segmentNode": {
         "id": "dlfzadG8XcfAndIss5ckYRSjCBBKuw0y",
         "orientation": "Horizontal",
-        "xOrY": 642.9879227053136,
+        "xOrY": 190,
         "children": [
           {
             "id": "lMhW6p0flxURNk2uGEyNTbEx1OyY33Zi",
             "orientation": "Horizontal",
-            "xOrY": 642.9879227053136,
+            "xOrY": 190,
             "children": [
               {
                 "id": "i1PW5TsIsPLkBQ6Cn4PIZBfk2SuGDK8H",
                 "orientation": "Vertical",
-                "xOrY": 1491.9975845410636,
+                "xOrY": 540,
                 "children": [
                   {
                     "id": "N3YY46tyK4aVcfufABD8R7tt6Qog6FP4",
                     "orientation": "Horizontal",
-                    "xOrY": 522.9879227053136,
+                    "xOrY": 70,
                     "children": []
                   }
                 ]
@@ -417,12 +353,12 @@
           {
             "id": "jbzp9MOdQeRfoSOgBqziNNeq47DnkWUx",
             "orientation": "Vertical",
-            "xOrY": 1491.9975845410636,
+            "xOrY": 540,
             "children": [
               {
                 "id": "QM8LscNjMJSBHUze3pqnClizHZpuiEh9",
                 "orientation": "Horizontal",
-                "xOrY": 642.9879227053136,
+                "xOrY": 190,
                 "children": []
               }
             ]
@@ -434,30 +370,30 @@
       "id": "jT9GSCorC11BmADJqDXO4a2EdZf4rafW",
       "sourceId": "NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf",
       "sourcePort": 0,
-      "sourceX": 1111.9975845410634,
-      "sourceY": 562.9879227053136,
+      "sourceX": 160,
+      "sourceY": 110,
       "targetNodes": {
         "AB542xI4ifTKUPGTGlmntKHSWKZhvN0X": {
           "targetId": "wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff",
           "port": 0,
-          "x": 1281.9975845410636,
-          "y": 632.9879227053136
+          "x": 330,
+          "y": 180
         }
       },
       "segmentNode": {
         "id": "j3oUjN1ysXIUTQb7Oia7ohkqWhQFFaWb",
         "orientation": "Horizontal",
-        "xOrY": 562.9879227053136,
+        "xOrY": 110,
         "children": [
           {
             "id": "PqZoFwTSseEc9YZxMtOP2wU0gAcLeB8G",
             "orientation": "Vertical",
-            "xOrY": 1161.9975845410636,
+            "xOrY": 210,
             "children": [
               {
                 "id": "AB542xI4ifTKUPGTGlmntKHSWKZhvN0X",
                 "orientation": "Horizontal",
-                "xOrY": 632.9879227053136,
+                "xOrY": 180,
                 "children": []
               }
             ]
@@ -469,56 +405,56 @@
       "id": "dYAUJdGVHwAtKpU4lG1dZDVRKDFDnleo",
       "sourceId": "3AhRR3JOgSZpPFtJkJN6o5stRpKR1IUj",
       "sourcePort": 0,
-      "sourceX": 1641.9975845410636,
-      "sourceY": 642.9879227053136,
+      "sourceX": 690,
+      "sourceY": 190,
       "targetNodes": {
         "rQIhYjyXME0dIxPSgQJvBtE9MQvPbJEj": {
           "targetId": "qbALfqgUXD26tZxOxYF7lazDbURySbkh",
           "port": 0,
-          "x": 1941.9975845410636,
-          "y": 682.9879227053136
+          "x": 990,
+          "y": 230
         },
         "XVq4XpLBshwQAUDo8qqimwd3YRyvChxi": {
           "targetId": "wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff",
           "port": 1,
-          "x": 1281.9975845410636,
-          "y": 652.9879227053136
+          "x": 330,
+          "y": 200
         }
       },
       "segmentNode": {
         "id": "o1ZS5h1f87YblidoYdTkJTWlnLPL3apD",
         "orientation": "Vertical",
-        "xOrY": 1641.9975845410636,
+        "xOrY": 690,
         "children": [
           {
             "id": "87v7zffHr0KZ2PUjFnKIWJt205Fzmzdg",
             "orientation": "Horizontal",
-            "xOrY": 642.9879227053136,
+            "xOrY": 190,
             "children": [
               {
                 "id": "hlkDRmg0mLrxTU0E90do8ZX68NszlTzD",
                 "orientation": "Vertical",
-                "xOrY": 1731.9975845410636,
+                "xOrY": 780,
                 "children": [
                   {
                     "id": "AS1LRBSYuSjnSTQcW6R5YwSgnYfD9NHZ",
                     "orientation": "Horizontal",
-                    "xOrY": 750,
+                    "xOrY": 300,
                     "children": [
                       {
                         "id": "ZFu4donoSVZfsX5alTGt4dELfaLmuFtQ",
                         "orientation": "Horizontal",
-                        "xOrY": 750,
+                        "xOrY": 300,
                         "children": [
                           {
                             "id": "zMGpDnuuUg9ggzAS2I71VC3se5Oariku",
                             "orientation": "Vertical",
-                            "xOrY": 1211.9975845410636,
+                            "xOrY": 260,
                             "children": [
                               {
                                 "id": "XVq4XpLBshwQAUDo8qqimwd3YRyvChxi",
                                 "orientation": "Horizontal",
-                                "xOrY": 652.9879227053136,
+                                "xOrY": 200,
                                 "children": []
                               }
                             ]
@@ -528,22 +464,22 @@
                       {
                         "id": "u3FSLVfOlIe4LvYWe5JXdKEUA28x8SGB",
                         "orientation": "Vertical",
-                        "xOrY": 1731.9975845410636,
+                        "xOrY": 780,
                         "children": [
                           {
                             "id": "8DkV35m3JWpagMALxPFa73s98NamIWHU",
                             "orientation": "Horizontal",
-                            "xOrY": 752.9879227053136,
+                            "xOrY": 300,
                             "children": [
                               {
                                 "id": "IYvlFTOEYUmXpqvXAXMT5QaFgN7BpvQ2",
                                 "orientation": "Vertical",
-                                "xOrY": 1841.9975845410636,
+                                "xOrY": 890,
                                 "children": [
                                   {
                                     "id": "rQIhYjyXME0dIxPSgQJvBtE9MQvPbJEj",
                                     "orientation": "Horizontal",
-                                    "xOrY": 682.9879227053136,
+                                    "xOrY": 230,
                                     "children": []
                                   }
                                 ]
@@ -562,33 +498,54 @@
       }
     },
     {
-      "id": "PK3K4Qev9FQYQkXn4S7S6akbmYXbvccl",
-      "sourceId": "GQkO26tViFirQkIFCmCqSLkdcvvWueyl",
+      "id": "9nBvNVtoTKrH1vPQ1veeCobU6rM4KgfT",
+      "sourceId": "bobUZGT18dxetvePKVysXBBs4X1ZG53V",
       "sourcePort": 0,
-      "sourceX": 1870,
-      "sourceY": 840,
+      "sourceX": 440,
+      "sourceY": 450,
       "targetNodes": {
-        "PjUb1xs0QOvukGZj9lS2veCsjHOhy0hA": {
-          "targetId": "cxjuQ7W3aT25Bn580u6PaaKO6YM9npED",
+        "jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe": {
+          "targetId": "pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx",
           "port": 0,
-          "x": 1980,
-          "y": 900
+          "x": 550,
+          "y": 450
         }
       },
       "segmentNode": {
-        "id": "F6L47cVj6HwiN3f2FWxjQwwO26s2DXgU",
+        "id": "jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe",
         "orientation": "Horizontal",
-        "xOrY": 840,
+        "xOrY": 450,
+        "children": []
+      }
+    },
+    {
+      "id": "7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ",
+      "sourceId": "pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx",
+      "sourcePort": 0,
+      "sourceX": 670,
+      "sourceY": 450,
+      "targetNodes": {
+        "WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU": {
+          "targetId": "pZQjHHrOynb8TqARG1HiCGyCUqIpl86u",
+          "port": 0,
+          "x": 850,
+          "y": 570
+        }
+      },
+      "segmentNode": {
+        "id": "jypOkke7lasLuqzUtwIMCgVFo3YEPAR2",
+        "orientation": "Horizontal",
+        "xOrY": 450,
         "children": [
           {
-            "id": "hq8uaJG97WnAwa5Sg2Azq2y42960pXcJ",
+            "id": "GREQm45A2IWSwZzLDOQN4w9UJ4MsSCEh",
             "orientation": "Vertical",
-            "xOrY": 1925,
+            "xOrY": 790,
             "children": [
               {
-                "id": "PjUb1xs0QOvukGZj9lS2veCsjHOhy0hA",
+                "id": "WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU",
                 "orientation": "Horizontal",
-                "xOrY": 900,
+                "xOrY": 570,
                 "children": []
               }
             ]
@@ -597,117 +554,28 @@
       }
     },
     {
-      "id": "9nBvNVtoTKrH1vPQ1veeCobU6rM4KgfT",
-      "sourceId": "bobUZGT18dxetvePKVysXBBs4X1ZG53V",
+      "id": "BF1PdDrJI14gfy75iFSbokDPK6khwMI3",
+      "sourceId": "pZQjHHrOynb8TqARG1HiCGyCUqIpl86u",
       "sourcePort": 0,
-      "sourceX": 1390,
-      "sourceY": 900,
+      "sourceX": 970,
+      "sourceY": 570,
       "targetNodes": {
-        "jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe": {
-          "targetId": "pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx",
-          "port": 0,
-          "x": 1500,
-          "y": 900
-        }
-      },
-      "segmentNode": {
-        "id": "jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe",
-        "orientation": "Horizontal",
-        "xOrY": 900,
-        "children": []
-      }
-    },
-    {
-      "id": "7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ",
-      "sourceId": "pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx",
-      "sourcePort": 0,
-      "sourceX": 1620,
-      "sourceY": 900,
-      "targetNodes": {
-        "glCbArVzZlDa7dE0BrIkKBk4kDagbpVX": {
-          "targetId": "GQkO26tViFirQkIFCmCqSLkdcvvWueyl",
-          "port": 0,
-          "x": 1750,
-          "y": 840
-        },
-        "WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU": {
-          "targetId": "saFzHV7ejWpg8fH6NAsk4nTVjitany4r",
-          "port": 0,
-          "x": 1770,
-          "y": 1020
-        }
-      },
-      "segmentNode": {
-        "id": "jypOkke7lasLuqzUtwIMCgVFo3YEPAR2",
-        "orientation": "Horizontal",
-        "xOrY": 900,
-        "children": [
-          {
-            "id": "nJk8ibE4nsmgntbc2u1ehSvOzYCcZ9Ue",
-            "orientation": "Vertical",
-            "xOrY": 1680,
-            "children": [
-              {
-                "id": "XvQH0gLJnK9U9WLqtTqJJMAInBL8CzbI",
-                "orientation": "Vertical",
-                "xOrY": 1680,
-                "children": [
-                  {
-                    "id": "glCbArVzZlDa7dE0BrIkKBk4kDagbpVX",
-                    "orientation": "Horizontal",
-                    "xOrY": 840,
-                    "children": []
-                  }
-                ]
-              },
-              {
-                "id": "YzxaguFWt3biSOe51e9guanEYogFNbMd",
-                "orientation": "Horizontal",
-                "xOrY": 890,
-                "children": [
-                  {
-                    "id": "GREQm45A2IWSwZzLDOQN4w9UJ4MsSCEh",
-                    "orientation": "Vertical",
-                    "xOrY": 1740,
-                    "children": [
-                      {
-                        "id": "WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU",
-                        "orientation": "Horizontal",
-                        "xOrY": 1020,
-                        "children": []
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "6IxJeB4F7qaTQtk5TKs8Og0WlFrgNmKu",
-      "sourceId": "saFzHV7ejWpg8fH6NAsk4nTVjitany4r",
-      "sourcePort": 0,
-      "sourceX": 1890,
-      "sourceY": 1020,
-      "targetNodes": {
-        "sGVjsM63bWNbLGuyuGj6wdpfkh8scjH2": {
+        "0wOYsposnmO332HaG4Yh8ACIhMePbYnU": {
           "targetId": "U9XVGH2M5YPSme3VElTWzwXHpwNRHT8a",
           "port": 0,
-          "x": 1970,
-          "y": 1020
+          "x": 1020,
+          "y": 570
         }
       },
       "segmentNode": {
-        "id": "sGVjsM63bWNbLGuyuGj6wdpfkh8scjH2",
+        "id": "0wOYsposnmO332HaG4Yh8ACIhMePbYnU",
         "orientation": "Horizontal",
-        "xOrY": 1020,
+        "xOrY": 570,
         "children": []
       }
     }
   ],
-  "simulation_configuration": "options.yaml",
+  "simulation_configuration": "options1.yaml",
   "initialization_python_script_path": "initParam.py",
   "toolkit_configuration_path": "toolkit_config.yaml"
 }

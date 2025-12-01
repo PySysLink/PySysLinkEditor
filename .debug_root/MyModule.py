@@ -6,7 +6,7 @@ class MyBlock:
         
     def initialize(self):
         
-        print(f"Initializing with config: {self.config}")
+        print(f"Initializing with config on debug_root: {self.config}")
     
     def compute(self, inputs, t):
         
