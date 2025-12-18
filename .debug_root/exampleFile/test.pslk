@@ -1,5 +1,5 @@
 {
-  "version": 68,
+  "version": 40,
   "blocks": [
     {
       "id": "NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf",
@@ -302,6 +302,33 @@
         "input_ports": 1,
         "output_ports": 1
       }
+    },
+    {
+      "id": "DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ",
+      "blockLibrary": "scope_library",
+      "blockType": "scope",
+      "label": "scope",
+      "x": 950,
+      "y": 370,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Scope",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
     }
   ],
   "links": [
@@ -530,6 +557,12 @@
           "port": 0,
           "x": 850,
           "y": 570
+        },
+        "IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu": {
+          "targetId": "DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ",
+          "port": 0,
+          "x": 950,
+          "y": 400
         }
       },
       "segmentNode": {
@@ -538,15 +571,49 @@
         "xOrY": 450,
         "children": [
           {
-            "id": "GREQm45A2IWSwZzLDOQN4w9UJ4MsSCEh",
+            "id": "B7RHhHqTeI5encim8x5qMZT3jP7QWtzg",
+            "orientation": "Horizontal",
+            "xOrY": 450,
+            "children": [
+              {
+                "id": "GREQm45A2IWSwZzLDOQN4w9UJ4MsSCEh",
+                "orientation": "Vertical",
+                "xOrY": 790,
+                "children": [
+                  {
+                    "id": "WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU",
+                    "orientation": "Horizontal",
+                    "xOrY": 570,
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "rTWvoUKKoIvpePJ3JDx5SNVSOzWU9mla",
             "orientation": "Vertical",
             "xOrY": 790,
             "children": [
               {
-                "id": "WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU",
+                "id": "Zgw75DgmMqu1sMyb2ry34yHSfZyXRDNX",
                 "orientation": "Horizontal",
-                "xOrY": 570,
-                "children": []
+                "xOrY": 450,
+                "children": [
+                  {
+                    "id": "0kM71gpa9D5l1OSiEGm9IYpxtYxwpzqo",
+                    "orientation": "Vertical",
+                    "xOrY": 925,
+                    "children": [
+                      {
+                        "id": "IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu",
+                        "orientation": "Horizontal",
+                        "xOrY": 400,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
@@ -575,7 +642,7 @@
       }
     }
   ],
-  "simulation_configuration": "options1.yaml",
+  "simulation_configuration": "options.yaml",
   "initialization_python_script_path": "initParam.py",
   "toolkit_configuration_path": "toolkit_config.yaml"
 }

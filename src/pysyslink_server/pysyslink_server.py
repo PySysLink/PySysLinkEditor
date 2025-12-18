@@ -98,8 +98,16 @@ def get_toolkit():
 async def run_simulation(pslkPath: str):
     toolkit = get_toolkit()
 
+    print("pslkPath on run_simulation: {}".format(pslkPath))
     sim_config, sim_config_path = get_simulation_configuration(pslkPath)
-    low_level_system_yaml_path = sim_config.get("low_level_system_yaml_path", "low_level_system.yaml")
+    pslk_base, pslk_ext = os.path.splitext(pslkPath)
+    if pslk_ext.lower() == ".pslk":
+        default_low_level = pslk_base + "_low_level_system.yaml"
+    else:
+        default_low_level = pslkPath + "_low_level_system.yaml"
+
+    low_level_system_yaml_path = sim_config.get("low_level_system_yaml_path", default_low_level)
+    print(f"Low-level system YAML path: {low_level_system_yaml_path}")
 
     # Compile high-level to low-level YAML
     result = toolkit.compile_system(

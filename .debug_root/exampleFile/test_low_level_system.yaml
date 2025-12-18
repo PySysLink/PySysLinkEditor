@@ -50,6 +50,10 @@ Blocks:
   OutputPortNumber: 1
   Parameters:
   - SampleParameter:1.0
+- Id: DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ
+  Name: Scope scope Display
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Display
 Links:
 - Id: JKUcvctpgkozTevjJvDDQ5S480PKsSZI_QM8LscNjMJSBHUze3pqnClizHZpuiEh9
   Name: JKUcvctpgkozTevjJvDDQ5S480PKsSZI_QM8LscNjMJSBHUze3pqnClizHZpuiEh9
@@ -92,6 +96,12 @@ Links:
   SourceBlockId: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
   SourcePortIdx: 0
   DestinationBlockId: pZQjHHrOynb8TqARG1HiCGyCUqIpl86u
+  DestinationPortIdx: 0
+- Id: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu
+  Name: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu
+  SourceBlockId: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
+  SourcePortIdx: 0
+  DestinationBlockId: DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ
   DestinationPortIdx: 0
 - Id: BF1PdDrJI14gfy75iFSbokDPK6khwMI3_0wOYsposnmO332HaG4Yh8ACIhMePbYnU
   Name: BF1PdDrJI14gfy75iFSbokDPK6khwMI3_0wOYsposnmO332HaG4Yh8ACIhMePbYnU
