@@ -9,4 +9,4 @@ solvers_configuration:
     AbsoluteTolerance: 1.e-8
     RelativeTolerance: 1.e-8
 initialization_script_file: ''
-simulation_output_filename: simulation_output.txt
+simulation_output_filename: simulation_output.json

@@ -1,13 +1,13 @@
 {
-  "version": 40,
+  "version": 10,
   "blocks": [
     {
       "id": "NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 40,
-      "y": 80,
+      "x": 60,
+      "y": 60,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
@@ -199,7 +199,7 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 320,
+      "x": 300,
       "y": 420,
       "rotation": 0,
       "inputPorts": 0,
@@ -397,8 +397,8 @@
       "id": "jT9GSCorC11BmADJqDXO4a2EdZf4rafW",
       "sourceId": "NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf",
       "sourcePort": 0,
-      "sourceX": 160,
-      "sourceY": 110,
+      "sourceX": 180,
+      "sourceY": 90,
       "targetNodes": {
         "AB542xI4ifTKUPGTGlmntKHSWKZhvN0X": {
           "targetId": "wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff",
@@ -410,7 +410,7 @@
       "segmentNode": {
         "id": "j3oUjN1ysXIUTQb7Oia7ohkqWhQFFaWb",
         "orientation": "Horizontal",
-        "xOrY": 110,
+        "xOrY": 90,
         "children": [
           {
             "id": "PqZoFwTSseEc9YZxMtOP2wU0gAcLeB8G",
@@ -528,7 +528,7 @@
       "id": "9nBvNVtoTKrH1vPQ1veeCobU6rM4KgfT",
       "sourceId": "bobUZGT18dxetvePKVysXBBs4X1ZG53V",
       "sourcePort": 0,
-      "sourceX": 440,
+      "sourceX": 420,
       "sourceY": 450,
       "targetNodes": {
         "jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe": {

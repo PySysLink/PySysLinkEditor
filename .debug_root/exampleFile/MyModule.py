@@ -1,3 +1,5 @@
+import math
+
 class MyBlock:
     
     def __init__(self, config):
@@ -10,6 +12,7 @@ class MyBlock:
     
     def compute(self, inputs, t):
         
-        output = inputs[0]**2
+        output = math.sqrt(inputs[0])
         
-        return output
+        return [output]
+    
