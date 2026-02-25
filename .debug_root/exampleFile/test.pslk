@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 35,
   "blocks": [
     {
       "id": "NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf",
@@ -227,83 +227,6 @@
       }
     },
     {
-      "id": "U9XVGH2M5YPSme3VElTWzwXHpwNRHT8a",
-      "blockLibrary": "scope_library",
-      "blockType": "scope",
-      "label": "scope",
-      "x": 1020,
-      "y": 540,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 0,
-      "properties": {},
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Scope",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 0
-      }
-    },
-    {
-      "id": "pZQjHHrOynb8TqARG1HiCGyCUqIpl86u",
-      "blockLibrary": "core_BasicBlocksPython",
-      "blockType": "BasicPython",
-      "label": "BasicPython",
-      "x": 850,
-      "y": 540,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {
-        "PythonModule": {
-          "type": "string",
-          "value": "MyModule"
-        },
-        "PythonClass": {
-          "type": "string",
-          "value": "MyBlock"
-        },
-        "InputPortNumber": {
-          "type": "int",
-          "value": "1"
-        },
-        "OutputPortNumber": {
-          "type": "int",
-          "value": "1"
-        },
-        "Parameters": {
-          "type": "string[]",
-          "value": [
-            "SampleParameter:1.0"
-          ]
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "BasicPython",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 1
-      }
-    },
-    {
       "id": "DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ",
       "blockLibrary": "scope_library",
       "blockType": "scope",
@@ -328,6 +251,50 @@
         "max_height": 150,
         "input_ports": 1,
         "output_ports": 0
+      }
+    },
+    {
+      "id": "3rZJlOfkIZJou0LuVBne4fleoNrcuIWZ",
+      "blockLibrary": "core_BasicBlocksCommunication",
+      "blockType": "OPCUAServer",
+      "label": "OPCUAServer",
+      "x": 280,
+      "y": 550,
+      "rotation": 0,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "properties": {
+        "VariableListFile": {
+          "type": "string",
+          "value": "None"
+        },
+        "OPCUAServerPort": {
+          "type": "int",
+          "value": "4840"
+        },
+        "InputPortNumber": {
+          "type": "int",
+          "value": "0"
+        },
+        "OutputPortNumber": {
+          "type": "int",
+          "value": "1"
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "OPCUAServer",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 0,
+        "output_ports": 1
       }
     }
   ],
@@ -552,12 +519,6 @@
       "sourceX": 670,
       "sourceY": 450,
       "targetNodes": {
-        "WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU": {
-          "targetId": "pZQjHHrOynb8TqARG1HiCGyCUqIpl86u",
-          "port": 0,
-          "x": 850,
-          "y": 570
-        },
         "IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu": {
           "targetId": "DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ",
           "port": 0,
@@ -571,74 +532,19 @@
         "xOrY": 450,
         "children": [
           {
-            "id": "B7RHhHqTeI5encim8x5qMZT3jP7QWtzg",
-            "orientation": "Horizontal",
-            "xOrY": 450,
-            "children": [
-              {
-                "id": "GREQm45A2IWSwZzLDOQN4w9UJ4MsSCEh",
-                "orientation": "Vertical",
-                "xOrY": 790,
-                "children": [
-                  {
-                    "id": "WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU",
-                    "orientation": "Horizontal",
-                    "xOrY": 570,
-                    "children": []
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "id": "rTWvoUKKoIvpePJ3JDx5SNVSOzWU9mla",
+            "id": "0kM71gpa9D5l1OSiEGm9IYpxtYxwpzqo",
             "orientation": "Vertical",
-            "xOrY": 790,
+            "xOrY": 925,
             "children": [
               {
-                "id": "Zgw75DgmMqu1sMyb2ry34yHSfZyXRDNX",
+                "id": "IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu",
                 "orientation": "Horizontal",
-                "xOrY": 450,
-                "children": [
-                  {
-                    "id": "0kM71gpa9D5l1OSiEGm9IYpxtYxwpzqo",
-                    "orientation": "Vertical",
-                    "xOrY": 925,
-                    "children": [
-                      {
-                        "id": "IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu",
-                        "orientation": "Horizontal",
-                        "xOrY": 400,
-                        "children": []
-                      }
-                    ]
-                  }
-                ]
+                "xOrY": 400,
+                "children": []
               }
             ]
           }
         ]
-      }
-    },
-    {
-      "id": "BF1PdDrJI14gfy75iFSbokDPK6khwMI3",
-      "sourceId": "pZQjHHrOynb8TqARG1HiCGyCUqIpl86u",
-      "sourcePort": 0,
-      "sourceX": 970,
-      "sourceY": 570,
-      "targetNodes": {
-        "0wOYsposnmO332HaG4Yh8ACIhMePbYnU": {
-          "targetId": "U9XVGH2M5YPSme3VElTWzwXHpwNRHT8a",
-          "port": 0,
-          "x": 1020,
-          "y": 570
-        }
-      },
-      "segmentNode": {
-        "id": "0wOYsposnmO332HaG4Yh8ACIhMePbYnU",
-        "orientation": "Horizontal",
-        "xOrY": 570,
-        "children": []
       }
     }
   ],

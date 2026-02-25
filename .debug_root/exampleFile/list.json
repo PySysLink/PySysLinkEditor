@@ -1,0 +1,23 @@
+{
+  "variables": [
+    {
+      "name": "Temperature",
+      "type": "double",
+      "initial": 23.5
+    },
+    {
+      "name": "Enabled",
+      "type": "bool",
+      "initial": true
+    },
+    {
+      "name": "Counter",
+      "type": "int"
+    },
+    {
+      "name": "Status",
+      "type": "string",
+      "initial": "OK"
+    }
+  ]
+}

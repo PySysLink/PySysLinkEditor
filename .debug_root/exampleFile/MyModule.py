@@ -12,7 +12,7 @@ class MyBlock:
     
     def compute(self, inputs, t):
         
-        output = math.sqrt(inputs[0])
+        output = math.sq(inputs[0])
         
         return [output]
     

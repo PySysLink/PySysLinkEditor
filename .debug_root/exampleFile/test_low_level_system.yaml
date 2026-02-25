@@ -36,24 +36,16 @@ Blocks:
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Constant
   Value: 1.0
-- Id: U9XVGH2M5YPSme3VElTWzwXHpwNRHT8a
-  Name: Scope scope Display
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Display
-- Id: pZQjHHrOynb8TqARG1HiCGyCUqIpl86u
-  Name: BasicPython
-  BlockType: BasicPython
-  BlockClass: BasicBlocksPython/BasicPython
-  PythonModule: MyModule
-  PythonClass: MyBlock
-  InputPortNumber: 1
-  OutputPortNumber: 1
-  Parameters:
-  - SampleParameter:1.0
 - Id: DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ
   Name: Scope scope Display
   BlockType: BasicCpp
   BlockClass: BasicBlocks/Display
+- Id: 5N48C3EscYXVTeqzfGNfaNL1LvCZdTA5
+  Name: OPCUAServer
+  BlockType: BasicCommunication
+  BlockClass: BasicBlocksCommunication/OPCUAServer
+  VariableListFile: list.json
+  OPCUAServerPort: 4840
 Links:
 - Id: JKUcvctpgkozTevjJvDDQ5S480PKsSZI_QM8LscNjMJSBHUze3pqnClizHZpuiEh9
   Name: JKUcvctpgkozTevjJvDDQ5S480PKsSZI_QM8LscNjMJSBHUze3pqnClizHZpuiEh9
@@ -91,21 +83,9 @@ Links:
   SourcePortIdx: 0
   DestinationBlockId: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
   DestinationPortIdx: 0
-- Id: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU
-  Name: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_WnuyQfWkyEAyBDiyoQteay1VZEfVnQkU
-  SourceBlockId: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
-  SourcePortIdx: 0
-  DestinationBlockId: pZQjHHrOynb8TqARG1HiCGyCUqIpl86u
-  DestinationPortIdx: 0
 - Id: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu
   Name: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu
   SourceBlockId: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
   SourcePortIdx: 0
   DestinationBlockId: DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ
-  DestinationPortIdx: 0
-- Id: BF1PdDrJI14gfy75iFSbokDPK6khwMI3_0wOYsposnmO332HaG4Yh8ACIhMePbYnU
-  Name: BF1PdDrJI14gfy75iFSbokDPK6khwMI3_0wOYsposnmO332HaG4Yh8ACIhMePbYnU
-  SourceBlockId: pZQjHHrOynb8TqARG1HiCGyCUqIpl86u
-  SourcePortIdx: 0
-  DestinationBlockId: U9XVGH2M5YPSme3VElTWzwXHpwNRHT8a
   DestinationPortIdx: 0
