@@ -1,91 +1,72 @@
 Blocks:
-- Id: NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf
-  Name: Constant
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Constant
-  Value: 1.0
-- Id: ex3OSpQLM1TWnRUTaXtISQcQfbtYtkiD
-  Name: Display
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Display
-- Id: 3AhRR3JOgSZpPFtJkJN6o5stRpKR1IUj
-  Name: Integrator
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Integrator
-  InitialValue: 0.0
-  ContinuousSampleTimeGroup: 1
-- Id: wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff
-  Name: Adder
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Adder
-  Gains:
-  - 1.0
-  - -1.0
-- Id: qbALfqgUXD26tZxOxYF7lazDbURySbkh
-  Name: Scope scope Display
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Display
-- Id: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
-  Name: Integrator
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Integrator
-  InitialValue: 0.0
-  ContinuousSampleTimeGroup: 1
-- Id: bobUZGT18dxetvePKVysXBBs4X1ZG53V
-  Name: Constant
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Constant
-  Value: 1.0
-- Id: DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ
-  Name: Scope scope Display
-  BlockType: BasicCpp
-  BlockClass: BasicBlocks/Display
-- Id: 5N48C3EscYXVTeqzfGNfaNL1LvCZdTA5
+- Id: 3rZJlOfkIZJou0LuVBne4fleoNrcuIWZ
   Name: OPCUAServer
   BlockType: BasicCommunication
   BlockClass: BasicBlocksCommunication/OPCUAServer
   VariableListFile: list.json
   OPCUAServerPort: 4840
+  InputPortNumber: 0
+  OutputPortNumber: 1
+- Id: vi81Qn30Glt4wkXdN4azypHdyY8s7ATV
+  Name: ReadValue
+  BlockType: BasicCommunication
+  BlockClass: BasicBlocksCommunication/ReadValue
+  VariableName: Temperature
+  VariableType: Double
+- Id: Yun71SahNBHSEwPtNFwAbGpJ2h6vV8od
+  Name: Scope scope Display
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Display
+- Id: 23OjIti4ygy8Oeoagd1AXNKMOzTRPHnG
+  Name: Accumulator
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Accumulator
+  InitialValue: 0.0
+  SampleTime: 1.0
+- Id: L9kYc0qRaesrMoQ5QASPdu7Pg2ysQGqi
+  Name: Scope scope Display
+  BlockType: BasicCpp
+  BlockClass: BasicBlocks/Display
+- Id: M5HXa6hOZdH4cmHm1yudc7Y162paddNe
+  Name: WriteValue
+  BlockType: BasicCommunication
+  BlockClass: BasicBlocksCommunication/WriteValue
+  VariableName: TemperatureIntegral
+  VariableType: Double
 Links:
-- Id: JKUcvctpgkozTevjJvDDQ5S480PKsSZI_QM8LscNjMJSBHUze3pqnClizHZpuiEh9
-  Name: JKUcvctpgkozTevjJvDDQ5S480PKsSZI_QM8LscNjMJSBHUze3pqnClizHZpuiEh9
-  SourceBlockId: wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff
+- Id: Lg2qWn4blzoGXhVcysF7VsKBntN87kBO_VDTFI4NvpVLLlPhKypgMMYpNLGn9AePZ
+  Name: Lg2qWn4blzoGXhVcysF7VsKBntN87kBO_VDTFI4NvpVLLlPhKypgMMYpNLGn9AePZ
+  SourceBlockId: 3rZJlOfkIZJou0LuVBne4fleoNrcuIWZ
   SourcePortIdx: 0
-  DestinationBlockId: 3AhRR3JOgSZpPFtJkJN6o5stRpKR1IUj
+  DestinationBlockId: vi81Qn30Glt4wkXdN4azypHdyY8s7ATV
   DestinationPortIdx: 0
-- Id: JKUcvctpgkozTevjJvDDQ5S480PKsSZI_N3YY46tyK4aVcfufABD8R7tt6Qog6FP4
-  Name: JKUcvctpgkozTevjJvDDQ5S480PKsSZI_N3YY46tyK4aVcfufABD8R7tt6Qog6FP4
-  SourceBlockId: wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff
+- Id: Lg2qWn4blzoGXhVcysF7VsKBntN87kBO_TSpgYmNCxBMBRHTLkN7BcJU0iHXBw7Cl
+  Name: Lg2qWn4blzoGXhVcysF7VsKBntN87kBO_TSpgYmNCxBMBRHTLkN7BcJU0iHXBw7Cl
+  SourceBlockId: 3rZJlOfkIZJou0LuVBne4fleoNrcuIWZ
   SourcePortIdx: 0
-  DestinationBlockId: ex3OSpQLM1TWnRUTaXtISQcQfbtYtkiD
+  DestinationBlockId: M5HXa6hOZdH4cmHm1yudc7Y162paddNe
   DestinationPortIdx: 0
-- Id: jT9GSCorC11BmADJqDXO4a2EdZf4rafW_AB542xI4ifTKUPGTGlmntKHSWKZhvN0X
-  Name: jT9GSCorC11BmADJqDXO4a2EdZf4rafW_AB542xI4ifTKUPGTGlmntKHSWKZhvN0X
-  SourceBlockId: NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf
+- Id: LUklVBxcPDb4BCbjXLvn1qsRuxPbjF4D_6RDwEj8gZWCq1dVXE9YdWmNTZ6DVSZHO
+  Name: LUklVBxcPDb4BCbjXLvn1qsRuxPbjF4D_6RDwEj8gZWCq1dVXE9YdWmNTZ6DVSZHO
+  SourceBlockId: vi81Qn30Glt4wkXdN4azypHdyY8s7ATV
   SourcePortIdx: 0
-  DestinationBlockId: wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff
+  DestinationBlockId: 23OjIti4ygy8Oeoagd1AXNKMOzTRPHnG
   DestinationPortIdx: 0
-- Id: dYAUJdGVHwAtKpU4lG1dZDVRKDFDnleo_rQIhYjyXME0dIxPSgQJvBtE9MQvPbJEj
-  Name: dYAUJdGVHwAtKpU4lG1dZDVRKDFDnleo_rQIhYjyXME0dIxPSgQJvBtE9MQvPbJEj
-  SourceBlockId: 3AhRR3JOgSZpPFtJkJN6o5stRpKR1IUj
+- Id: LUklVBxcPDb4BCbjXLvn1qsRuxPbjF4D_9vmvBGU3d3c1ZrsgsADmO025q0l1d5tB
+  Name: LUklVBxcPDb4BCbjXLvn1qsRuxPbjF4D_9vmvBGU3d3c1ZrsgsADmO025q0l1d5tB
+  SourceBlockId: vi81Qn30Glt4wkXdN4azypHdyY8s7ATV
   SourcePortIdx: 0
-  DestinationBlockId: qbALfqgUXD26tZxOxYF7lazDbURySbkh
+  DestinationBlockId: L9kYc0qRaesrMoQ5QASPdu7Pg2ysQGqi
   DestinationPortIdx: 0
-- Id: dYAUJdGVHwAtKpU4lG1dZDVRKDFDnleo_XVq4XpLBshwQAUDo8qqimwd3YRyvChxi
-  Name: dYAUJdGVHwAtKpU4lG1dZDVRKDFDnleo_XVq4XpLBshwQAUDo8qqimwd3YRyvChxi
-  SourceBlockId: 3AhRR3JOgSZpPFtJkJN6o5stRpKR1IUj
+- Id: OaaZD8d5E90mOZwNSBEHiFeYAIuVJVSE_7ENPsw6IQfiL4eCb4vZ5nBnQugcWBOcv
+  Name: OaaZD8d5E90mOZwNSBEHiFeYAIuVJVSE_7ENPsw6IQfiL4eCb4vZ5nBnQugcWBOcv
+  SourceBlockId: 23OjIti4ygy8Oeoagd1AXNKMOzTRPHnG
   SourcePortIdx: 0
-  DestinationBlockId: wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff
+  DestinationBlockId: Yun71SahNBHSEwPtNFwAbGpJ2h6vV8od
+  DestinationPortIdx: 0
+- Id: OaaZD8d5E90mOZwNSBEHiFeYAIuVJVSE_kDqpTtlvvI1EdmrUbtZq4UNtPdQ472vv
+  Name: OaaZD8d5E90mOZwNSBEHiFeYAIuVJVSE_kDqpTtlvvI1EdmrUbtZq4UNtPdQ472vv
+  SourceBlockId: 23OjIti4ygy8Oeoagd1AXNKMOzTRPHnG
+  SourcePortIdx: 0
+  DestinationBlockId: M5HXa6hOZdH4cmHm1yudc7Y162paddNe
   DestinationPortIdx: 1
-- Id: 9nBvNVtoTKrH1vPQ1veeCobU6rM4KgfT_jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe
-  Name: 9nBvNVtoTKrH1vPQ1veeCobU6rM4KgfT_jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe
-  SourceBlockId: bobUZGT18dxetvePKVysXBBs4X1ZG53V
-  SourcePortIdx: 0
-  DestinationBlockId: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
-  DestinationPortIdx: 0
-- Id: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu
-  Name: 7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ_IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu
-  SourceBlockId: pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx
-  SourcePortIdx: 0
-  DestinationBlockId: DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ
-  DestinationPortIdx: 0

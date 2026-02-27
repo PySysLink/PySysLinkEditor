@@ -1,6 +1,6 @@
 StartTime: 0
-StopTime: 18
-RunInNaturalTime: false
+StopTime: 100
+RunInNaturalTime: true
 NaturalTimeSpeedMultiplier: 1
 SolversConfiguration:
   default:

@@ -1,272 +1,20 @@
 {
-  "version": 35,
+  "version": 59,
   "blocks": [
-    {
-      "id": "NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Constant",
-      "label": "Constant",
-      "x": 60,
-      "y": 60,
-      "rotation": 0,
-      "inputPorts": 0,
-      "outputPorts": 1,
-      "properties": {
-        "Value": {
-          "type": "float",
-          "value": 1
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Constant",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 0,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "ex3OSpQLM1TWnRUTaXtISQcQfbtYtkiD",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Display",
-      "label": "Display",
-      "x": 630,
-      "y": 40,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 0,
-      "properties": {},
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Display",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 0
-      }
-    },
-    {
-      "id": "3AhRR3JOgSZpPFtJkJN6o5stRpKR1IUj",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Integrator",
-      "label": "Integrator",
-      "x": 570,
-      "y": 160,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {
-        "InitialValue": {
-          "type": "float",
-          "value": 0
-        },
-        "ContinuousSampleTimeGroup": {
-          "type": "float",
-          "value": 1
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Integrator",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Adder",
-      "label": "Adder",
-      "x": 330,
-      "y": 160,
-      "rotation": 0,
-      "inputPorts": 2,
-      "outputPorts": 1,
-      "properties": {
-        "Gains": {
-          "type": "float[]",
-          "value": [
-            1,
-            -1
-          ]
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "circle",
-        "icon": "",
-        "text": "Adder",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 2,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "qbALfqgUXD26tZxOxYF7lazDbURySbkh",
-      "blockLibrary": "scope_library",
-      "blockType": "scope",
-      "label": "scope",
-      "x": 990,
-      "y": 200,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 0,
-      "properties": {},
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Scope",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 0
-      }
-    },
-    {
-      "id": "pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Integrator",
-      "label": "Integrator",
-      "x": 550,
-      "y": 420,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {
-        "InitialValue": {
-          "type": "float",
-          "value": 0
-        },
-        "ContinuousSampleTimeGroup": {
-          "type": "int",
-          "value": 1
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Integrator",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "bobUZGT18dxetvePKVysXBBs4X1ZG53V",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Constant",
-      "label": "Constant",
-      "x": 300,
-      "y": 420,
-      "rotation": 0,
-      "inputPorts": 0,
-      "outputPorts": 1,
-      "properties": {
-        "Value": {
-          "type": "float",
-          "value": 1
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Constant",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 0,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ",
-      "blockLibrary": "scope_library",
-      "blockType": "scope",
-      "label": "scope",
-      "x": 950,
-      "y": 370,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 0,
-      "properties": {},
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Scope",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 0
-      }
-    },
     {
       "id": "3rZJlOfkIZJou0LuVBne4fleoNrcuIWZ",
       "blockLibrary": "core_BasicBlocksCommunication",
       "blockType": "OPCUAServer",
       "label": "OPCUAServer",
-      "x": 280,
-      "y": 550,
+      "x": 240,
+      "y": 240,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
       "properties": {
         "VariableListFile": {
           "type": "string",
-          "value": "None"
+          "value": "list.json"
         },
         "OPCUAServerPort": {
           "type": "int",
@@ -296,63 +44,211 @@
         "input_ports": 0,
         "output_ports": 1
       }
+    },
+    {
+      "id": "vi81Qn30Glt4wkXdN4azypHdyY8s7ATV",
+      "blockLibrary": "core_BasicBlocksCommunication",
+      "blockType": "ReadValue",
+      "label": "ReadValue",
+      "x": 520,
+      "y": 240,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "VariableName": {
+          "type": "string",
+          "value": "Temperature"
+        },
+        "VariableType": {
+          "type": "string",
+          "value": "Double"
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "ReadValue",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "Yun71SahNBHSEwPtNFwAbGpJ2h6vV8od",
+      "blockLibrary": "scope_library",
+      "blockType": "scope",
+      "label": "scope",
+      "x": 1070,
+      "y": 240,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Scope",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
+    },
+    {
+      "id": "23OjIti4ygy8Oeoagd1AXNKMOzTRPHnG",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Accumulator",
+      "label": "Accumulator",
+      "x": 800,
+      "y": 240,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "properties": {
+        "InitialValue": {
+          "type": "float",
+          "value": "0"
+        },
+        "SampleTime": {
+          "type": "float",
+          "value": "1"
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Accumulator",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 1
+      }
+    },
+    {
+      "id": "L9kYc0qRaesrMoQ5QASPdu7Pg2ysQGqi",
+      "blockLibrary": "scope_library",
+      "blockType": "scope",
+      "label": "scope",
+      "x": 780,
+      "y": 100,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "properties": {},
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Scope",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 0
+      }
+    },
+    {
+      "id": "M5HXa6hOZdH4cmHm1yudc7Y162paddNe",
+      "blockLibrary": "core_BasicBlocksCommunication",
+      "blockType": "WriteValue",
+      "label": "WriteValue",
+      "x": 1040,
+      "y": 50,
+      "rotation": 0,
+      "inputPorts": 2,
+      "outputPorts": 0,
+      "properties": {
+        "VariableName": {
+          "type": "string",
+          "value": "TemperatureIntegral"
+        },
+        "VariableType": {
+          "type": "string",
+          "value": "Double"
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "WriteValue",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 2,
+        "output_ports": 0
+      }
     }
   ],
   "links": [
     {
-      "id": "JKUcvctpgkozTevjJvDDQ5S480PKsSZI",
-      "sourceId": "wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff",
+      "id": "Lg2qWn4blzoGXhVcysF7VsKBntN87kBO",
+      "sourceId": "3rZJlOfkIZJou0LuVBne4fleoNrcuIWZ",
       "sourcePort": 0,
-      "sourceX": 450,
-      "sourceY": 190,
+      "sourceX": 360,
+      "sourceY": 270,
       "targetNodes": {
-        "QM8LscNjMJSBHUze3pqnClizHZpuiEh9": {
-          "targetId": "3AhRR3JOgSZpPFtJkJN6o5stRpKR1IUj",
+        "VDTFI4NvpVLLlPhKypgMMYpNLGn9AePZ": {
+          "targetId": "vi81Qn30Glt4wkXdN4azypHdyY8s7ATV",
           "port": 0,
-          "x": 570,
-          "y": 190
+          "x": 520,
+          "y": 270
         },
-        "N3YY46tyK4aVcfufABD8R7tt6Qog6FP4": {
-          "targetId": "ex3OSpQLM1TWnRUTaXtISQcQfbtYtkiD",
+        "TSpgYmNCxBMBRHTLkN7BcJU0iHXBw7Cl": {
+          "targetId": "M5HXa6hOZdH4cmHm1yudc7Y162paddNe",
           "port": 0,
-          "x": 630,
+          "x": 1040,
           "y": 70
         }
       },
       "segmentNode": {
-        "id": "dlfzadG8XcfAndIss5ckYRSjCBBKuw0y",
+        "id": "5X9RKIdjfVtmlXeBz3s864g30IhpO5Ga",
         "orientation": "Horizontal",
-        "xOrY": 190,
+        "xOrY": 270,
         "children": [
           {
-            "id": "lMhW6p0flxURNk2uGEyNTbEx1OyY33Zi",
+            "id": "VDTFI4NvpVLLlPhKypgMMYpNLGn9AePZ",
             "orientation": "Horizontal",
-            "xOrY": 190,
-            "children": [
-              {
-                "id": "i1PW5TsIsPLkBQ6Cn4PIZBfk2SuGDK8H",
-                "orientation": "Vertical",
-                "xOrY": 540,
-                "children": [
-                  {
-                    "id": "N3YY46tyK4aVcfufABD8R7tt6Qog6FP4",
-                    "orientation": "Horizontal",
-                    "xOrY": 70,
-                    "children": []
-                  }
-                ]
-              }
-            ]
+            "xOrY": 270,
+            "children": []
           },
           {
-            "id": "jbzp9MOdQeRfoSOgBqziNNeq47DnkWUx",
+            "id": "elvqKgQDgIbQxIgQyrHf0JuyGzczFKEk",
             "orientation": "Vertical",
-            "xOrY": 540,
+            "xOrY": 430,
             "children": [
               {
-                "id": "QM8LscNjMJSBHUze3pqnClizHZpuiEh9",
+                "id": "TSpgYmNCxBMBRHTLkN7BcJU0iHXBw7Cl",
                 "orientation": "Horizontal",
-                "xOrY": 190,
+                "xOrY": 70,
                 "children": []
               }
             ]
@@ -361,130 +257,46 @@
       }
     },
     {
-      "id": "jT9GSCorC11BmADJqDXO4a2EdZf4rafW",
-      "sourceId": "NA6DI85gaq1GIEij0mE1EKOqKdE6IIyf",
+      "id": "LUklVBxcPDb4BCbjXLvn1qsRuxPbjF4D",
+      "sourceId": "vi81Qn30Glt4wkXdN4azypHdyY8s7ATV",
       "sourcePort": 0,
-      "sourceX": 180,
-      "sourceY": 90,
+      "sourceX": 640,
+      "sourceY": 270,
       "targetNodes": {
-        "AB542xI4ifTKUPGTGlmntKHSWKZhvN0X": {
-          "targetId": "wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff",
+        "6RDwEj8gZWCq1dVXE9YdWmNTZ6DVSZHO": {
+          "targetId": "23OjIti4ygy8Oeoagd1AXNKMOzTRPHnG",
           "port": 0,
-          "x": 330,
-          "y": 180
-        }
-      },
-      "segmentNode": {
-        "id": "j3oUjN1ysXIUTQb7Oia7ohkqWhQFFaWb",
-        "orientation": "Horizontal",
-        "xOrY": 90,
-        "children": [
-          {
-            "id": "PqZoFwTSseEc9YZxMtOP2wU0gAcLeB8G",
-            "orientation": "Vertical",
-            "xOrY": 210,
-            "children": [
-              {
-                "id": "AB542xI4ifTKUPGTGlmntKHSWKZhvN0X",
-                "orientation": "Horizontal",
-                "xOrY": 180,
-                "children": []
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "dYAUJdGVHwAtKpU4lG1dZDVRKDFDnleo",
-      "sourceId": "3AhRR3JOgSZpPFtJkJN6o5stRpKR1IUj",
-      "sourcePort": 0,
-      "sourceX": 690,
-      "sourceY": 190,
-      "targetNodes": {
-        "rQIhYjyXME0dIxPSgQJvBtE9MQvPbJEj": {
-          "targetId": "qbALfqgUXD26tZxOxYF7lazDbURySbkh",
-          "port": 0,
-          "x": 990,
-          "y": 230
+          "x": 800,
+          "y": 270
         },
-        "XVq4XpLBshwQAUDo8qqimwd3YRyvChxi": {
-          "targetId": "wRRc0wUqMFwNrCtABfKxgD4QvDNzQ8ff",
-          "port": 1,
-          "x": 330,
-          "y": 200
+        "9vmvBGU3d3c1ZrsgsADmO025q0l1d5tB": {
+          "targetId": "L9kYc0qRaesrMoQ5QASPdu7Pg2ysQGqi",
+          "port": 0,
+          "x": 780,
+          "y": 130
         }
       },
       "segmentNode": {
-        "id": "o1ZS5h1f87YblidoYdTkJTWlnLPL3apD",
-        "orientation": "Vertical",
-        "xOrY": 690,
+        "id": "BM5HIQsmFreUKOmbGmNQQDpTUIEz2nrH",
+        "orientation": "Horizontal",
+        "xOrY": 270,
         "children": [
           {
-            "id": "87v7zffHr0KZ2PUjFnKIWJt205Fzmzdg",
+            "id": "6RDwEj8gZWCq1dVXE9YdWmNTZ6DVSZHO",
             "orientation": "Horizontal",
-            "xOrY": 190,
+            "xOrY": 270,
+            "children": []
+          },
+          {
+            "id": "pM7Cehi8B2ThaW7hBmq7Xgrca7fFNSpU",
+            "orientation": "Vertical",
+            "xOrY": 700.952380952381,
             "children": [
               {
-                "id": "hlkDRmg0mLrxTU0E90do8ZX68NszlTzD",
-                "orientation": "Vertical",
-                "xOrY": 780,
-                "children": [
-                  {
-                    "id": "AS1LRBSYuSjnSTQcW6R5YwSgnYfD9NHZ",
-                    "orientation": "Horizontal",
-                    "xOrY": 300,
-                    "children": [
-                      {
-                        "id": "ZFu4donoSVZfsX5alTGt4dELfaLmuFtQ",
-                        "orientation": "Horizontal",
-                        "xOrY": 300,
-                        "children": [
-                          {
-                            "id": "zMGpDnuuUg9ggzAS2I71VC3se5Oariku",
-                            "orientation": "Vertical",
-                            "xOrY": 260,
-                            "children": [
-                              {
-                                "id": "XVq4XpLBshwQAUDo8qqimwd3YRyvChxi",
-                                "orientation": "Horizontal",
-                                "xOrY": 200,
-                                "children": []
-                              }
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        "id": "u3FSLVfOlIe4LvYWe5JXdKEUA28x8SGB",
-                        "orientation": "Vertical",
-                        "xOrY": 780,
-                        "children": [
-                          {
-                            "id": "8DkV35m3JWpagMALxPFa73s98NamIWHU",
-                            "orientation": "Horizontal",
-                            "xOrY": 300,
-                            "children": [
-                              {
-                                "id": "IYvlFTOEYUmXpqvXAXMT5QaFgN7BpvQ2",
-                                "orientation": "Vertical",
-                                "xOrY": 890,
-                                "children": [
-                                  {
-                                    "id": "rQIhYjyXME0dIxPSgQJvBtE9MQvPbJEj",
-                                    "orientation": "Horizontal",
-                                    "xOrY": 230,
-                                    "children": []
-                                  }
-                                ]
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
+                "id": "9vmvBGU3d3c1ZrsgsADmO025q0l1d5tB",
+                "orientation": "Horizontal",
+                "xOrY": 130,
+                "children": []
               }
             ]
           }
@@ -492,54 +304,45 @@
       }
     },
     {
-      "id": "9nBvNVtoTKrH1vPQ1veeCobU6rM4KgfT",
-      "sourceId": "bobUZGT18dxetvePKVysXBBs4X1ZG53V",
+      "id": "OaaZD8d5E90mOZwNSBEHiFeYAIuVJVSE",
+      "sourceId": "23OjIti4ygy8Oeoagd1AXNKMOzTRPHnG",
       "sourcePort": 0,
-      "sourceX": 420,
-      "sourceY": 450,
+      "sourceX": 920,
+      "sourceY": 270,
       "targetNodes": {
-        "jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe": {
-          "targetId": "pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx",
+        "7ENPsw6IQfiL4eCb4vZ5nBnQugcWBOcv": {
+          "targetId": "Yun71SahNBHSEwPtNFwAbGpJ2h6vV8od",
           "port": 0,
-          "x": 550,
-          "y": 450
+          "x": 1070,
+          "y": 270
+        },
+        "kDqpTtlvvI1EdmrUbtZq4UNtPdQ472vv": {
+          "targetId": "M5HXa6hOZdH4cmHm1yudc7Y162paddNe",
+          "port": 1,
+          "x": 1040,
+          "y": 90
         }
       },
       "segmentNode": {
-        "id": "jBMs5ACg1Crwy8DsCZvVwlXKa4qWXTSe",
+        "id": "rZZunZJzbvwQZsC88Mgq7ta7F0idoO9a",
         "orientation": "Horizontal",
-        "xOrY": 450,
-        "children": []
-      }
-    },
-    {
-      "id": "7FHO1b0h4DcxmJyjlNEknMdNw0MntTRZ",
-      "sourceId": "pvx4e56yLDOysi8T4pGalazJmCzpJ0Yx",
-      "sourcePort": 0,
-      "sourceX": 670,
-      "sourceY": 450,
-      "targetNodes": {
-        "IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu": {
-          "targetId": "DPra2jBaxvBllVpyTFkHBrYI8NMKLczQ",
-          "port": 0,
-          "x": 950,
-          "y": 400
-        }
-      },
-      "segmentNode": {
-        "id": "jypOkke7lasLuqzUtwIMCgVFo3YEPAR2",
-        "orientation": "Horizontal",
-        "xOrY": 450,
+        "xOrY": 270,
         "children": [
           {
-            "id": "0kM71gpa9D5l1OSiEGm9IYpxtYxwpzqo",
+            "id": "7ENPsw6IQfiL4eCb4vZ5nBnQugcWBOcv",
+            "orientation": "Horizontal",
+            "xOrY": 270,
+            "children": []
+          },
+          {
+            "id": "KXYPZQkdzxHYejNZ5aLZ1qsjBcqcj9Dy",
             "orientation": "Vertical",
-            "xOrY": 925,
+            "xOrY": 954,
             "children": [
               {
-                "id": "IsVlyMK7XPARo1fn9yHXAKs91M8cdkOu",
+                "id": "kDqpTtlvvI1EdmrUbtZq4UNtPdQ472vv",
                 "orientation": "Horizontal",
-                "xOrY": 400,
+                "xOrY": 90,
                 "children": []
               }
             ]

@@ -1,2 +1,0 @@
-terminate called after throwing an instance of 'std::runtime_error'
-  what():  Sample time propagation failed: Unresolved sample times remain. Block: 5N48C3EscYXVTeqzfGNfaNL1LvCZdTA5

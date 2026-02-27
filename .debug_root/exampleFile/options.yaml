@@ -1,6 +1,6 @@
 start_time: 0
-stop_time: 18
-run_in_natural_time: false
+stop_time: 100
+run_in_natural_time: true
 natural_time_speed_multiplier: 1
 solvers_configuration:
   default:

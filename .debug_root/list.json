@@ -3,7 +3,12 @@
     {
       "name": "Temperature",
       "type": "double",
-      "initial": 23.5
+      "initial": 28.5
+    },
+    {
+      "name": "TemperatureIntegral",
+      "type": "double",
+      "initial": 0.0
     },
     {
       "name": "Enabled",
