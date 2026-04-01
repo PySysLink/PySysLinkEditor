@@ -1,8 +1,3 @@
 plugin_paths:
   - /home/pellousabiaga/pysyslink/toolkit/tests/plugins
-base_block_type_support_plugin_paths: 
-  - /usr/local/lib/pysyslink_plugins/block_type_supports
-base_plugin_configuration:
-  BasicCppSupport/libraryPluginPath: /usr/local/lib/pysyslink_plugins
-  BasicPythonSupport/pythonModulePaths:
-    - .
+  - /usr/local/lib/pysyslink_plugins

@@ -7,6 +7,8 @@ export interface BlockConfigurationValue {
 export interface BlockType {
   name: string;
   configurationValues?: { [name: string]: BlockConfigurationValue };
+  inputPortNumber: number;
+  outputPortNumber: number;
 }
 
 export interface Library {
