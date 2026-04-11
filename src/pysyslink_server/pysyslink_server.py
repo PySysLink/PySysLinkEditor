@@ -96,6 +96,7 @@ def get_toolkit():
 
 
 async def run_simulation(pslkPath: str):
+    print("Run simulation on pysyslink_server called")
     toolkit = get_toolkit()
 
     print("pslkPath on run_simulation: {}".format(pslkPath))
@@ -165,6 +166,7 @@ class EnumEncoder(json.JSONEncoder):
         return super().default(obj)
 
 async def get_libraries(pslkPath: str):
+    print("get_libraries on pysyslink_server called")
     libraries = get_toolkit().get_available_block_libraries(get_toolkit_config_path(pslkPath))
     # Return only essential information
     return json.dumps([dataclasses.asdict(library) for library in libraries], cls=EnumEncoder)

@@ -78,6 +78,9 @@ class RPCServer:
         except Exception as e:
             # on any other error, send an error response
             self._send({"type": "error", "id": req_id, "error": traceback.format_exc()})
+        except:
+            self.print("Exited on except")
+            self.print(traceback.format_exc())
         finally:
             self._tasks.pop(req_id, None)
 
