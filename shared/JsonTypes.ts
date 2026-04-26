@@ -23,6 +23,8 @@ export enum PortCategory {
     unknown = "Unknown"
 }
 
+export type InheritanceOptions = "FullySupportedSignalValueType.Any" | PortType; 
+
 export interface PortType {
     port_category: PortCategory;
     signal_value_type?: FullySupportedSignalValueType;
@@ -30,7 +32,8 @@ export interface PortType {
     structure_name?: string;
     pointing_object_class_name?: string;
     other_type_name?: string;
-    supported_port_types_for_inheritance?: PortType[];
+    supported_port_types_for_inheritance?: InheritanceOptions[];
+    inheritance_group: number;
 }
 
 export interface BlockData {

@@ -118,6 +118,9 @@ async def run_simulation(pslkPath: str):
     )
     print(f"Compilation result: {result}")
 
+    if result != 'success':
+        raise RuntimeError(f"Compilation failed with message: {result}")
+
     stop_time = sim_config.get("stop_time", 10)
     start_time = sim_config.get("start_time", 0)
     total_time = stop_time - start_time
