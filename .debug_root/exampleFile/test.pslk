@@ -1,190 +1,36 @@
 {
-  "version": 21,
+  "version": 35,
   "blocks": [
     {
-      "id": "3rZJlOfkIZJou0LuVBne4fleoNrcuIWZ",
-      "blockLibrary": "core_BasicBlocksCommunication",
-      "blockType": "OPCUAServer",
-      "label": "OPCUAServer",
-      "x": 240,
-      "y": 240,
-      "rotation": 0,
-      "inputPorts": 0,
-      "outputPorts": 1,
-      "properties": {
-        "VariableListFile": {
-          "type": "string",
-          "value": "list.json"
-        },
-        "OPCUAServerPort": {
-          "type": "int",
-          "value": "4840"
-        },
-        "InputPortNumber": {
-          "type": "int",
-          "value": "0"
-        },
-        "OutputPortNumber": {
-          "type": "int",
-          "value": "1"
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "OPCUAServer",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 0,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "vi81Qn30Glt4wkXdN4azypHdyY8s7ATV",
-      "blockLibrary": "core_BasicBlocksCommunication",
-      "blockType": "ReadValue",
-      "label": "ReadValue",
-      "x": 520,
-      "y": 240,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {
-        "VariableName": {
-          "type": "string",
-          "value": "Temperature"
-        },
-        "VariableType": {
-          "type": "string",
-          "value": "Double"
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "ReadValue",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "Yun71SahNBHSEwPtNFwAbGpJ2h6vV8od",
-      "blockLibrary": "scope_library",
-      "blockType": "scope",
-      "label": "scope",
-      "x": 1130,
-      "y": 240,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 0,
-      "properties": {},
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Scope",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 0
-      }
-    },
-    {
-      "id": "23OjIti4ygy8Oeoagd1AXNKMOzTRPHnG",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Accumulator",
-      "label": "Accumulator",
-      "x": 800,
-      "y": 240,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 1,
-      "properties": {
-        "InitialValue": {
-          "type": "float",
-          "value": "0"
-        },
-        "SampleTime": {
-          "type": "float",
-          "value": "1"
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Accumulator",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "L9kYc0qRaesrMoQ5QASPdu7Pg2ysQGqi",
-      "blockLibrary": "scope_library",
-      "blockType": "scope",
-      "label": "scope",
-      "x": 780,
-      "y": 100,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 0,
-      "properties": {},
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Scope",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 0
-      }
-    },
-    {
-      "id": "tD3ukraIHkMQvaYAlVZ6n3y7gxftRGcG",
+      "id": "6FIm3BuEKhlPNedw0B0TugowcylAJBx5",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 510,
-      "y": 350,
+      "x": 130,
+      "y": 120,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
+      "inputPortTypes": [],
+      "outputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "signal_value_type": "int",
+          "enumeration_name": null,
+          "structure_name": null,
+          "pointing_object_class_name": null,
+          "other_type_name": null,
+          "supported_port_types_for_inheritance": null
+        }
+      ],
       "properties": {
+        "DataType": {
+          "type": "enum(FullySupportedSignalValueType)",
+          "value": "int"
+        },
         "Value": {
           "type": "float",
-          "value": 1
+          "value": "1"
         }
       },
       "blockRenderInformation": {
@@ -200,313 +46,23 @@
         "max_width": 360,
         "max_height": 150,
         "input_ports": 0,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "3NNtM3lRCdbV8AdIcpIp9kQiCMIyowNW",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Adder",
-      "label": "Adder",
-      "x": 780,
-      "y": 340,
-      "rotation": 0,
-      "inputPorts": 3,
-      "outputPorts": 1,
-      "properties": {
-        "Gains": {
-          "type": "float[]",
-          "value": [
-            1,
-            3,
-            4
-          ]
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "circle",
-        "icon": "",
-        "text": "Adder",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 3,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "J8N9CEcr3gJs6J8oMTdh6SuLjyHArsAQ",
-      "blockLibrary": "core_BasicBlocks",
-      "blockType": "Constant",
-      "label": "Constant",
-      "x": 580,
-      "y": 450,
-      "rotation": 0,
-      "inputPorts": 0,
-      "outputPorts": 1,
-      "properties": {
-        "Value": {
-          "type": "float",
-          "value": 1
-        }
-      },
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Constant",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 0,
-        "output_ports": 1
-      }
-    },
-    {
-      "id": "UtYTY6wkh4Tzh5sHy7gSUGR7e4Jq4IDN",
-      "blockLibrary": "scope_library",
-      "blockType": "scope",
-      "label": "scope",
-      "x": 1020,
-      "y": 340,
-      "rotation": 0,
-      "inputPorts": 1,
-      "outputPorts": 0,
-      "properties": {},
-      "blockRenderInformation": {
-        "shape": "square",
-        "icon": "",
-        "text": "Scope",
-        "show_image_and_text": false,
-        "figure": null,
-        "default_width": 120,
-        "default_height": 50,
-        "min_width": 60,
-        "min_height": 25,
-        "max_width": 360,
-        "max_height": 150,
-        "input_ports": 1,
-        "output_ports": 0
+        "output_ports": 1,
+        "input_port_types": [],
+        "output_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "signal_value_type": "int",
+            "enumeration_name": null,
+            "structure_name": null,
+            "pointing_object_class_name": null,
+            "other_type_name": null,
+            "supported_port_types_for_inheritance": null
+          }
+        ]
       }
     }
   ],
-  "links": [
-    {
-      "id": "Lg2qWn4blzoGXhVcysF7VsKBntN87kBO",
-      "sourceId": "3rZJlOfkIZJou0LuVBne4fleoNrcuIWZ",
-      "sourcePort": 0,
-      "sourceX": 360,
-      "sourceY": 270,
-      "targetNodes": {
-        "5X9RKIdjfVtmlXeBz3s864g30IhpO5Ga": {
-          "targetId": "vi81Qn30Glt4wkXdN4azypHdyY8s7ATV",
-          "port": 0,
-          "x": 520,
-          "y": 270
-        }
-      },
-      "segmentNode": {
-        "id": "5X9RKIdjfVtmlXeBz3s864g30IhpO5Ga",
-        "orientation": "Horizontal",
-        "xOrY": 270,
-        "children": []
-      }
-    },
-    {
-      "id": "LUklVBxcPDb4BCbjXLvn1qsRuxPbjF4D",
-      "sourceId": "vi81Qn30Glt4wkXdN4azypHdyY8s7ATV",
-      "sourcePort": 0,
-      "sourceX": 640,
-      "sourceY": 270,
-      "targetNodes": {
-        "6RDwEj8gZWCq1dVXE9YdWmNTZ6DVSZHO": {
-          "targetId": "23OjIti4ygy8Oeoagd1AXNKMOzTRPHnG",
-          "port": 0,
-          "x": 800,
-          "y": 270
-        },
-        "9vmvBGU3d3c1ZrsgsADmO025q0l1d5tB": {
-          "targetId": "L9kYc0qRaesrMoQ5QASPdu7Pg2ysQGqi",
-          "port": 0,
-          "x": 780,
-          "y": 130
-        },
-        "l1HW9FretU1rPEwNoSjCnkBayn2CEIHk": {
-          "targetId": "3NNtM3lRCdbV8AdIcpIp9kQiCMIyowNW",
-          "port": 0,
-          "x": 780,
-          "y": 350
-        }
-      },
-      "segmentNode": {
-        "id": "19cVkuAiuCnAWwOYmwOXh1gpZc5352f2",
-        "orientation": "Horizontal",
-        "xOrY": 270,
-        "children": [
-          {
-            "id": "BM5HIQsmFreUKOmbGmNQQDpTUIEz2nrH",
-            "orientation": "Horizontal",
-            "xOrY": 270,
-            "children": [
-              {
-                "id": "6RDwEj8gZWCq1dVXE9YdWmNTZ6DVSZHO",
-                "orientation": "Horizontal",
-                "xOrY": 270,
-                "children": []
-              },
-              {
-                "id": "pM7Cehi8B2ThaW7hBmq7Xgrca7fFNSpU",
-                "orientation": "Vertical",
-                "xOrY": 700.952380952381,
-                "children": [
-                  {
-                    "id": "9vmvBGU3d3c1ZrsgsADmO025q0l1d5tB",
-                    "orientation": "Horizontal",
-                    "xOrY": 130,
-                    "children": []
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "id": "8T0hD8cJkI3sXO8wkq9R74CpR5Nfu9pu",
-            "orientation": "Vertical",
-            "xOrY": 676,
-            "children": [
-              {
-                "id": "l1HW9FretU1rPEwNoSjCnkBayn2CEIHk",
-                "orientation": "Horizontal",
-                "xOrY": 350,
-                "children": []
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "OaaZD8d5E90mOZwNSBEHiFeYAIuVJVSE",
-      "sourceId": "23OjIti4ygy8Oeoagd1AXNKMOzTRPHnG",
-      "sourcePort": 0,
-      "sourceX": 920,
-      "sourceY": 270,
-      "targetNodes": {
-        "rZZunZJzbvwQZsC88Mgq7ta7F0idoO9a": {
-          "targetId": "Yun71SahNBHSEwPtNFwAbGpJ2h6vV8od",
-          "port": 0,
-          "x": 1130,
-          "y": 270
-        }
-      },
-      "segmentNode": {
-        "id": "rZZunZJzbvwQZsC88Mgq7ta7F0idoO9a",
-        "orientation": "Horizontal",
-        "xOrY": 270,
-        "children": []
-      }
-    },
-    {
-      "id": "zowtNKgm6Q1haG7UGJmvjyvz1x19NA64",
-      "sourceId": "tD3ukraIHkMQvaYAlVZ6n3y7gxftRGcG",
-      "sourcePort": 0,
-      "sourceX": 630,
-      "sourceY": 380,
-      "targetNodes": {
-        "q4ln5wagwGaMVD4fdcdCGkpMuBvRnY0U": {
-          "targetId": "3NNtM3lRCdbV8AdIcpIp9kQiCMIyowNW",
-          "port": 1,
-          "x": 780,
-          "y": 370
-        }
-      },
-      "segmentNode": {
-        "id": "m5BJvIuCuFAa07hkYC6PcJzWLLN4ZunJ",
-        "orientation": "Horizontal",
-        "xOrY": 380,
-        "children": [
-          {
-            "id": "jJx0yVowlWq9cfNyZ7mSJty9vhpCqrH7",
-            "orientation": "Vertical",
-            "xOrY": 705,
-            "children": [
-              {
-                "id": "q4ln5wagwGaMVD4fdcdCGkpMuBvRnY0U",
-                "orientation": "Horizontal",
-                "xOrY": 370,
-                "children": []
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "s5qFTEuT90CyXV0sNpB65K0u1cjmXUXe",
-      "sourceId": "J8N9CEcr3gJs6J8oMTdh6SuLjyHArsAQ",
-      "sourcePort": 0,
-      "sourceX": 700,
-      "sourceY": 480,
-      "targetNodes": {
-        "mCiM01APoRz3DFvHE4tlx5nHgr39sHbz": {
-          "targetId": "3NNtM3lRCdbV8AdIcpIp9kQiCMIyowNW",
-          "port": 2,
-          "x": 780,
-          "y": 390
-        }
-      },
-      "segmentNode": {
-        "id": "iOAfVhR84dMhWOUjLnniaHUO2W4XY90Q",
-        "orientation": "Horizontal",
-        "xOrY": 480,
-        "children": [
-          {
-            "id": "I1gelBaApKqWSrOffazsCH1ZN2Th8o0S",
-            "orientation": "Vertical",
-            "xOrY": 740,
-            "children": [
-              {
-                "id": "mCiM01APoRz3DFvHE4tlx5nHgr39sHbz",
-                "orientation": "Horizontal",
-                "xOrY": 390,
-                "children": []
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "2bBqhz466nWhHBxIObmgf6A86GKSgldF",
-      "sourceId": "3NNtM3lRCdbV8AdIcpIp9kQiCMIyowNW",
-      "sourcePort": 0,
-      "sourceX": 900,
-      "sourceY": 370,
-      "targetNodes": {
-        "aTjV5N4NkIkERegdAQZTpg8VWrEiDcET": {
-          "targetId": "UtYTY6wkh4Tzh5sHy7gSUGR7e4Jq4IDN",
-          "port": 0,
-          "x": 1020,
-          "y": 370
-        }
-      },
-      "segmentNode": {
-        "id": "aTjV5N4NkIkERegdAQZTpg8VWrEiDcET",
-        "orientation": "Horizontal",
-        "xOrY": 370,
-        "children": []
-      }
-    }
-  ],
+  "links": [],
   "simulation_configuration": "lowLevelOptions.yaml",
   "initialization_python_script_path": "initParam.py",
   "toolkit_configuration_path": "toolkit_config.yaml"

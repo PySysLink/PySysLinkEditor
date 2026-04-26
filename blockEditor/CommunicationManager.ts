@@ -466,6 +466,8 @@ export class CommunicationManager {
             rotation: 0,
             inputPorts: blockDef.inputPortNumber,
             outputPorts: blockDef.outputPortNumber,
+            inputPortTypes: blockDef.inputPortTypes,
+            outputPortTypes: blockDef.outputPortTypes,
             properties: properties
         };
 

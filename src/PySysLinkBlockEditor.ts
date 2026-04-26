@@ -612,6 +612,8 @@ export class PySysLinkBlockEditorSession {
 						block.blockRenderInformation = renderInfo;
 						block.inputPorts = renderInfo.input_ports;
 						block.outputPorts = renderInfo.output_ports;
+						block.inputPortTypes = renderInfo.input_port_types;
+						block.outputPortTypes = renderInfo.output_port_types;
 					}
 				} catch (err) {
 					console.error(`Error getting block render information for block ${block.id}:`, err);

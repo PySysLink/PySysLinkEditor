@@ -1,3 +1,5 @@
+import { PortType } from "./JsonTypes";
+
 export interface BlockConfigurationValue {
   name: string;
   defaultValue: any;
@@ -9,6 +11,8 @@ export interface BlockType {
   configurationValues?: { [name: string]: BlockConfigurationValue };
   inputPortNumber: number;
   outputPortNumber: number;
+  inputPortTypes: PortType[];
+  outputPortTypes: PortType[];
 }
 
 export interface Library {

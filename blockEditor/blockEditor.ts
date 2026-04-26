@@ -5,7 +5,6 @@ import { LinkInteractionManager } from './LinkInteractionManager';
 import { Selectable } from './Selectable';
 import { SelectableManager } from './SelectableManager';
 import { BlockPalette } from './BlockPalette';
-import { link } from 'fs';
 import { JsonData } from '../shared/JsonTypes';
 import { CommunicationManager } from './CommunicationManager';
 import { Library } from '../shared/BlockPalette';
