@@ -1,13 +1,13 @@
 {
-  "version": 10,
+  "version": 40,
   "blocks": [
     {
       "id": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 150,
-      "y": 180,
+      "x": 10,
+      "y": 170,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
@@ -32,7 +32,7 @@
         },
         "Value": {
           "type": "float",
-          "value": "1"
+          "value": "10"
         }
       },
       "blockRenderInformation": {
@@ -142,7 +142,7 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 650,
+      "x": 900,
       "y": 180,
       "rotation": 0,
       "inputPorts": 1,
@@ -188,17 +188,264 @@
         ],
         "output_port_types": []
       }
+    },
+    {
+      "id": "UTOsgbU9kXVtEXEP2smSaLuaYDTyUnPS",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Integrator",
+      "label": "Integrator",
+      "x": 600,
+      "y": 180,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 1,
+      "inputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "double"
+        }
+      ],
+      "outputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "double"
+        }
+      ],
+      "properties": {
+        "InitialValue": {
+          "type": "float",
+          "value": 0
+        },
+        "ContinuousSampleTimeGroup": {
+          "type": "int",
+          "value": 1
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Integrator",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 1,
+        "output_ports": 1,
+        "input_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "double"
+          }
+        ],
+        "output_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "double"
+          }
+        ]
+      }
+    },
+    {
+      "id": "EmPQK8h6NnivEJKXdCaQwAub7hhNvH67",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Adder",
+      "label": "Adder",
+      "x": 230,
+      "y": 180,
+      "rotation": 0,
+      "inputPorts": 2,
+      "outputPorts": 1,
+      "inputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "double"
+        },
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "double"
+        }
+      ],
+      "outputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "double"
+        }
+      ],
+      "properties": {
+        "DataTypeCategory": {
+          "type": "options(Inherited, FullySupportedSignalValue)",
+          "value": "FullySupportedSignalValue"
+        },
+        "DataType": {
+          "type": "enum(FullySupportedSignalValueType)",
+          "value": "double"
+        },
+        "Gains": {
+          "type": "float[]",
+          "value": [
+            1,
+            -1
+          ]
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "circle",
+        "icon": "",
+        "text": "Adder",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 120,
+        "default_height": 50,
+        "min_width": 60,
+        "min_height": 25,
+        "max_width": 360,
+        "max_height": 150,
+        "input_ports": 2,
+        "output_ports": 1,
+        "input_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "double"
+          },
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "double"
+          }
+        ],
+        "output_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "double"
+          }
+        ]
+      }
     }
   ],
   "links": [
     {
-      "id": "7LqtPNPpu6xLarH6MTCay46O4VpDoWLk",
-      "sourceId": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
+      "id": "nHjsrX3kY0tU7HesRrrNDr54wd6XJYf5",
+      "sourceId": "t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9",
       "sourcePort": 0,
-      "sourceX": 270,
+      "sourceX": 520,
       "sourceY": 210,
       "targetNodes": {
-        "3lmWUDFP0bxyK2aosYiL0lyY88KmH1H6": {
+        "VLHE9pBO8wM1KRC1W9f0r8alFMdp3MXK": {
+          "targetId": "UTOsgbU9kXVtEXEP2smSaLuaYDTyUnPS",
+          "port": 0,
+          "x": 600,
+          "y": 210
+        }
+      },
+      "segmentNode": {
+        "id": "VLHE9pBO8wM1KRC1W9f0r8alFMdp3MXK",
+        "orientation": "Horizontal",
+        "xOrY": 210,
+        "children": []
+      }
+    },
+    {
+      "id": "rzFbquXrQs6zfkQlKDASleYZhGaqjdj6",
+      "sourceId": "UTOsgbU9kXVtEXEP2smSaLuaYDTyUnPS",
+      "sourcePort": 0,
+      "sourceX": 720,
+      "sourceY": 210,
+      "targetNodes": {
+        "oRooewOG3xSncyXg12ne3WXDauz1xunc": {
+          "targetId": "EmPQK8h6NnivEJKXdCaQwAub7hhNvH67",
+          "port": 1,
+          "x": 230,
+          "y": 220
+        },
+        "n5LtpWFPWlyltffYmwqMtCp2kEPIJWh4": {
+          "targetId": "FV7NHflKks0wYFMs1l61P9hHFlpR0C2T",
+          "port": 0,
+          "x": 900,
+          "y": 210
+        }
+      },
+      "segmentNode": {
+        "id": "0MFXB4aBFLXOVgBhM4K3kisevv0rKIOj",
+        "orientation": "Horizontal",
+        "xOrY": 210,
+        "children": [
+          {
+            "id": "36rmdyqPTuvyY82SuV93tp2LAm43vGNZ",
+            "orientation": "Vertical",
+            "xOrY": 810,
+            "children": [
+              {
+                "id": "q85eW2dZWrnJb9p6wOahkgmsdF0uyTF6",
+                "orientation": "Vertical",
+                "xOrY": 810,
+                "children": [
+                  {
+                    "id": "tN466b32uufOhVJ48PGglpQmQkd9PBvk",
+                    "orientation": "Horizontal",
+                    "xOrY": 210,
+                    "children": []
+                  },
+                  {
+                    "id": "9FfltMzKcTaT7h88xv5rJ63XexJPb8rY",
+                    "orientation": "Vertical",
+                    "xOrY": 810,
+                    "children": [
+                      {
+                        "id": "a9wbgAOtO7upAzF8KBPKkUVT3YS61trW",
+                        "orientation": "Horizontal",
+                        "xOrY": 350,
+                        "children": [
+                          {
+                            "id": "NBF0ENWieUozYhL1EYaZN67uAC1U1B8j",
+                            "orientation": "Vertical",
+                            "xOrY": 200,
+                            "children": [
+                              {
+                                "id": "oRooewOG3xSncyXg12ne3WXDauz1xunc",
+                                "orientation": "Horizontal",
+                                "xOrY": 220,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "n5LtpWFPWlyltffYmwqMtCp2kEPIJWh4",
+                "orientation": "Horizontal",
+                "xOrY": 210,
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "MMgdR0nrjCUBJJZEa12rMLW0NqYZoqs3",
+      "sourceId": "EmPQK8h6NnivEJKXdCaQwAub7hhNvH67",
+      "sourcePort": 0,
+      "sourceX": 350,
+      "sourceY": 210,
+      "targetNodes": {
+        "sH750KumX4XqRjTA9WxYnw4zhDAcmOd7": {
           "targetId": "t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9",
           "port": 0,
           "x": 400,
@@ -206,30 +453,30 @@
         }
       },
       "segmentNode": {
-        "id": "3lmWUDFP0bxyK2aosYiL0lyY88KmH1H6",
+        "id": "sH750KumX4XqRjTA9WxYnw4zhDAcmOd7",
         "orientation": "Horizontal",
         "xOrY": 210,
         "children": []
       }
     },
     {
-      "id": "7O7nFdF88tjFAqaazCoPvtzs6u5w93jv",
-      "sourceId": "t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9",
+      "id": "AjVUtNAkrq1MCoX2UoSfxLpuqzjiPjFU",
+      "sourceId": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
       "sourcePort": 0,
-      "sourceX": 520,
-      "sourceY": 210,
+      "sourceX": 130,
+      "sourceY": 200,
       "targetNodes": {
-        "dSY3vvOReCTobajydKY6r2T4lxOuuDY6": {
-          "targetId": "FV7NHflKks0wYFMs1l61P9hHFlpR0C2T",
+        "b1txzkZl8uvlPpK4vXfF5jYpZqP7qg9I": {
+          "targetId": "EmPQK8h6NnivEJKXdCaQwAub7hhNvH67",
           "port": 0,
-          "x": 650,
-          "y": 210
+          "x": 230,
+          "y": 200
         }
       },
       "segmentNode": {
-        "id": "dSY3vvOReCTobajydKY6r2T4lxOuuDY6",
+        "id": "b1txzkZl8uvlPpK4vXfF5jYpZqP7qg9I",
         "orientation": "Horizontal",
-        "xOrY": 210,
+        "xOrY": 200,
         "children": []
       }
     }
