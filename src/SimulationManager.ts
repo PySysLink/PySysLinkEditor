@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as readline from 'readline';
-import { PythonServerManager } from './PythonServerManager';
+import { PythonServerManager } from './simulation/PythonServerManager';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 

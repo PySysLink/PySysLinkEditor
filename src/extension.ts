@@ -1,10 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { PySysLinkBlockEditorProvider } from './PySysLinkBlockEditor';
+import { PySysLinkBlockEditorProvider } from './PySysLinkBlockEditorProvider';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { SimulationManager } from './SimulationManager';
-import { PythonServerManager } from './PythonServerManager';
+import { PythonServerManager } from './simulation/PythonServerManager';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -36,6 +36,88 @@ export function activate(context: vscode.ExtensionContext) {
 			simulationManager
 		)
 	);
+
+    vscode.commands.executeCommand(
+        "setContext",
+        "pysyslink.simulationRunning",
+        false
+    );
+
+    const simulationStatus =
+        vscode.window.createStatusBarItem(
+            vscode.StatusBarAlignment.Left,
+            100
+        );
+
+    simulationStatus.show();
+
+    function updateSimulationStatus(running: boolean) {
+
+        if (running) {
+            simulationStatus.text =
+                "$(debug-stop) Simulation Running";
+
+            simulationStatus.tooltip =
+                "Click to stop simulation";
+
+            simulationStatus.command =
+                "pysyslink-editor.stopSimulation";
+        }
+        else {
+            simulationStatus.text =
+                "$(play) Simulation Stopped";
+
+            simulationStatus.tooltip =
+                "Click to run simulation";
+
+            simulationStatus.command =
+                "pysyslink-editor.runSimulation";
+        }
+    }
+
+    updateSimulationStatus(false);
+
+    context.subscriptions.push(simulationStatus);
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            "pysyslink-editor.runSimulation",
+            async () => {
+
+                // Start simulation here
+                console.log("Running simulation");
+
+                await vscode.commands.executeCommand(
+                    "setContext",
+                    "pysyslink.simulationRunning",
+                    true
+                );
+
+                updateSimulationStatus(true);
+            }
+        )
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            "pysyslink-editor.stopSimulation",
+            async () => {
+
+                // Stop simulation here
+                console.log("Stopping simulation");
+
+                await vscode.commands.executeCommand(
+                    "setContext",
+                    "pysyslink.simulationRunning",
+                    false
+                );
+
+                updateSimulationStatus(false);
+            }
+        )
+    );
+
+    
 
 	
 
