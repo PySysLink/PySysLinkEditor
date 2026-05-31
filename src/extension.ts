@@ -125,7 +125,8 @@ export function activate(context: vscode.ExtensionContext) {
 	let pySysLinkBlockEditorProvider = new PySysLinkBlockEditorProvider(
         context,
         blockPropertiesProvider,
-        simulationManager
+        simulationManager,
+        pythonServer
     );
     const disposable = vscode.window.registerCustomEditorProvider(
         'pysyslink-editor.modelBlockEditor', // viewType

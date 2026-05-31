@@ -1,43 +1,82 @@
+import * as vscode from 'vscode';
+import { DocumentManager } from '../document/DocumentManager';
+import { PythonServerManager } from '../simulation/PythonServerManager';
+import { IdType, JsonData } from '../../shared/JsonTypes';
 
+export interface WebviewMessageHandlerOptions {
+    documentManager: DocumentManager;
+    pythonServer: PythonServerManager;
+    onBlockSelected: (blockId: IdType) => void;
+    onUpdateWebview: () => void;
+    onLoadBlockLibraries: () => Promise<void> | void;
+    onRequestBlockHtml: (blockId: IdType) => Promise<void>;
+}
 
-class WebviewMessageHandler {
-    async e => {
-                switch (e.type) {
-                    case 'updateJson':
-                        console.log(`update json called`);
-                        this.documentLock = this.withDocumentLock(async () => {
-                            if (this.document) {
-                                let json = this.getDocumentAsJson(this.document);
-                                json.version = json.version + 1;
-                                json.blocks = e.json.blocks;
-                                json.links = e.json.links;
-                                json = await this.updateBlockRenderInformation(json);
-                                await this.updateTextDocument(this.document, json);
-                            }
-                        });
-                        return;
-                    case 'print':
-                        console.log(e.text);
-                        return;
-                    case 'blockSelected':
-                        console.log(`Block selected: ${e.blockId}`);
-                        this.selectedBlockId = e.blockId;
-                        this.notifySelectedBlock();
-                        return;
-                    case 'updateBlockPalette':
-                        this.loadBlockLibraries();
-                        return;
-                    case 'doubleClickOnBlock':
-                        if (this.pythonServer.isRunning()) {
-                            this.displayBlockHTML(e.blockId);
-                        }
-                        return;
-                    case 'heartbeat':
-                        console.log(`[Heartbeat] [${e.text}] [${new Date().toISOString()}]`);
-                        return;
-                    default:
-                        console.log(`Type of message not recognized: ${e.type}`);
-                        return;
+export class WebviewMessageHandler {
+    constructor(private readonly options: WebviewMessageHandlerOptions) {}
+
+    public attach(webview: vscode.Webview): void {
+        webview.onDidReceiveMessage((message) => {
+            void this.handleMessage(message);
+        });
+    }
+
+    public async handleMessage(message: any): Promise<void> {
+        if (!message || typeof message.type !== 'string') {
+            console.warn('[WebviewMessageHandler] Received invalid message', message);
+            return;
+        }
+
+        switch (message.type) {
+            case 'updateJson':
+                console.log('update json called');
+                await this.handleUpdateJson(message.json);
+                return;
+            case 'print':
+                console.log(message.text);
+                return;
+            case 'blockSelected':
+                console.log(`Block selected: ${message.blockId}`);
+                this.options.onBlockSelected(message.blockId);
+                return;
+            case 'updateBlockPalette':
+                await this.options.onLoadBlockLibraries();
+                return;
+            case 'doubleClickOnBlock':
+                if (this.options.pythonServer.isRunning()) {
+                    await this.options.onRequestBlockHtml(message.blockId);
+                } else {
+                    vscode.window.showWarningMessage('Python server is not running. Cannot display block preview.');
                 }
-            });
+                return;
+            case 'heartbeat':
+                console.log(`[Heartbeat] [${message.text}] [${new Date().toISOString()}]`);
+                return;
+            default:
+                console.log(`Type of message not recognized: ${message.type}`);
+                return;
+        }
+    }
+
+    private async handleUpdateJson(json: JsonData): Promise<void> {
+        const currentJson = this.options.documentManager.getJson();
+        currentJson.version = currentJson.version + 1;
+        currentJson.blocks = json.blocks;
+        currentJson.links = json.links;
+
+        if (json.simulation_configuration !== undefined) {
+            currentJson.simulation_configuration = json.simulation_configuration;
+        }
+
+        if (json.initialization_python_script_path !== undefined) {
+            currentJson.initialization_python_script_path = json.initialization_python_script_path;
+        }
+
+        if (json.toolkit_configuration_path !== undefined) {
+            currentJson.toolkit_configuration_path = json.toolkit_configuration_path;
+        }
+
+        await this.options.documentManager.writeJson(currentJson);
+        this.options.onUpdateWebview();
+    }
 }

@@ -1,5 +1,5 @@
 {
-  "version": 44,
+  "version": 68,
   "blocks": [
     {
       "id": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
@@ -142,7 +142,7 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 1150,
+      "x": 1030,
       "y": 170,
       "rotation": 0,
       "inputPorts": 1,
@@ -194,7 +194,7 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 480,
+      "x": 470,
       "y": 170,
       "rotation": 0,
       "inputPorts": 2,
@@ -231,7 +231,7 @@
           "type": "complex_double[]",
           "value": [
             1,
-            -1
+            1
           ]
         }
       },
@@ -338,7 +338,7 @@
         "VLHE9pBO8wM1KRC1W9f0r8alFMdp3MXK": {
           "targetId": "FV7NHflKks0wYFMs1l61P9hHFlpR0C2T",
           "port": 0,
-          "x": 1150,
+          "x": 1030,
           "y": 200
         }
       },
@@ -353,7 +353,7 @@
       "id": "MMgdR0nrjCUBJJZEa12rMLW0NqYZoqs3",
       "sourceId": "EmPQK8h6NnivEJKXdCaQwAub7hhNvH67",
       "sourcePort": 0,
-      "sourceX": 600,
+      "sourceX": 590,
       "sourceY": 200,
       "targetNodes": {
         "sH750KumX4XqRjTA9WxYnw4zhDAcmOd7": {
@@ -380,7 +380,7 @@
         "sE5D7GZedCPYxYFgGWAtmVhtCnDj8U9N": {
           "targetId": "EmPQK8h6NnivEJKXdCaQwAub7hhNvH67",
           "port": 0,
-          "x": 480,
+          "x": 470,
           "y": 190
         }
       },
@@ -415,7 +415,7 @@
         "VZyaqqUupUNGWlPTvZQ36uQ5P49HMgfr": {
           "targetId": "EmPQK8h6NnivEJKXdCaQwAub7hhNvH67",
           "port": 1,
-          "x": 480,
+          "x": 470,
           "y": 210
         }
       },
@@ -443,5 +443,5 @@
   ],
   "simulation_configuration": "lowLevelOptions.yaml",
   "initialization_python_script_path": "initParam.py",
-  "toolkit_configuration_path": "toolkit_config.yaml"
+  "toolkit_configuration_path": ""
 }

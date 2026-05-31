@@ -50,7 +50,7 @@ Blocks:
   DataType[string]: complex_double
   Gains[vector<complex_double>]:
   - !!python/complex '1.0'
-  - !!python/complex '-1.0'
+  - !!python/complex '1.0'
 - Id[string]: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
   Name[string]: Constant
   BlockType[string]: BasicCpp
@@ -64,14 +64,14 @@ Blocks:
   DataType[string]: complex_double
   Value[complex_double]: !!python/complex '5.0+3.0j'
 Links:
-- Id[string]: nHjsrX3kY0tU7HesRrrNDr54wd6XJYf5_VLHE9pBO8wM1KRC1W9f0r8alFMdp3MXK
-  Name[string]: nHjsrX3kY0tU7HesRrrNDr54wd6XJYf5_VLHE9pBO8wM1KRC1W9f0r8alFMdp3MXK
+- Id[string]: nHjsrX3kY0tU7HesRrrNDr54wd6XJYf5_vVCBXOytCl5afiSGKP7miFn0uYopvhYI
+  Name[string]: nHjsrX3kY0tU7HesRrrNDr54wd6XJYf5_vVCBXOytCl5afiSGKP7miFn0uYopvhYI
   SourceBlockId[string]: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
   SourcePortIdx[int]: 0
   DestinationBlockId[string]: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
   DestinationPortIdx[int]: 0
-- Id[string]: MMgdR0nrjCUBJJZEa12rMLW0NqYZoqs3_sH750KumX4XqRjTA9WxYnw4zhDAcmOd7
-  Name[string]: MMgdR0nrjCUBJJZEa12rMLW0NqYZoqs3_sH750KumX4XqRjTA9WxYnw4zhDAcmOd7
+- Id[string]: MMgdR0nrjCUBJJZEa12rMLW0NqYZoqs3_560Njx5UAwW2cAQvZGulYLPqEpFCP20s
+  Name[string]: MMgdR0nrjCUBJJZEa12rMLW0NqYZoqs3_560Njx5UAwW2cAQvZGulYLPqEpFCP20s
   SourceBlockId[string]: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
   SourcePortIdx[int]: 0
   DestinationBlockId[string]: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { SimulationManager } from './SimulationManager';
 import { PySysLinkBlockEditorSession } from './PySysLinkBlockEditorSession';
-
+import { PythonServerManager } from './simulation/PythonServerManager';
 
 export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProvider {
     private sessions = new Map<string, PySysLinkBlockEditorSession>();
@@ -11,7 +11,8 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
     constructor(
         private readonly context: vscode.ExtensionContext,
         private readonly blockPropertiesProvider: BlockPropertiesProvider,
-        private readonly simulationManager: SimulationManager
+        private readonly simulationManager: SimulationManager,
+        private readonly pythonServer: PythonServerManager
     ) {}
 
     public get activeSession() {
@@ -49,7 +50,8 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
             document,
             webviewPanel,
             this.blockPropertiesProvider,
-            this.simulationManager
+            this.simulationManager,
+            this.pythonServer
         );
         this.sessions.set(document.uri.toString(), session);
         this.setActiveSession(session);
