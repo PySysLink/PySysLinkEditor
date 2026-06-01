@@ -1,5 +1,5 @@
-import { BlockData, IdType, JsonData } from '../shared/JsonTypes';
-import { BlockVisual } from './BlockVisual';
+import { BlockData, IdType, JsonData } from '../../shared/JsonTypes';
+import { BlockVisual } from '../visualElements/BlockVisual';
 import { CommunicationManager } from './CommunicationManager';
 
 export class BlockInteractionManager {

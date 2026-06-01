@@ -1,14 +1,14 @@
 import { link } from 'fs';
 import { BlockInteractionManager } from './BlockInteractionManager';
-import { LinkVisual } from './LinkVisual';
-import { LinkNode, LinkSegment, SourceNode, TargetNode } from './LinkHelpers';
-import { BlockVisual } from './BlockVisual';
-import { IdType, JsonData } from '../shared/JsonTypes'; 
-import { LinkJson, Link } from '../shared/Link';
+import { LinkVisual } from '../visualElements/LinkVisual';
+import { LinkNode, LinkSegment, SourceNode, TargetNode } from '../visualElements/LinkHelpers';
+import { BlockVisual } from '../visualElements/BlockVisual';
+import { IdType, JsonData } from '../../shared/JsonTypes'; 
+import { LinkJson, Link } from '../../shared/Link';
 import { CommunicationManager } from './CommunicationManager';
 import { SelectableManager } from './SelectableManager';
-import { CanvasElement } from './CanvasElement';
-import { RotationDirection } from './Rotatable';
+import { CanvasElement } from '../interfaces/CanvasElement';
+import { RotationDirection } from '../interfaces/Rotatable';
 
 export class LinkInteractionManager {
     public links: LinkVisual[] = [];

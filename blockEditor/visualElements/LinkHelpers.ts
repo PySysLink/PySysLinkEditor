@@ -1,9 +1,8 @@
 import { debug, timeStamp } from 'console';
-import { BlockVisual } from './BlockVisual';
-import { Selectable } from './Selectable';
-import { IdType, JsonData } from '../shared/JsonTypes';
-import { isMovable, Movable } from './Movable';
-import { CommunicationManager } from './CommunicationManager';
+import { Selectable } from '../interfaces/Selectable';
+import { IdType, JsonData } from '../../shared/JsonTypes';
+import { isMovable, Movable } from '../interfaces/Movable';
+import { CommunicationManager } from '../managers/CommunicationManager';
 import { link } from 'fs';
 
 export class LinkNode extends Selectable implements Movable {

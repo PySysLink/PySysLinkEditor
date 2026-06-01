@@ -1,5 +1,5 @@
 import { CanvasElement } from "./CanvasElement";
-import { CommunicationManager } from "./CommunicationManager";
+import { CommunicationManager } from "../managers/CommunicationManager";
 
 export abstract class Selectable extends CanvasElement {
     _isSelected: boolean = false;

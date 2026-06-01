@@ -1,6 +1,6 @@
-import { CommunicationManager } from "./CommunicationManager";
+import { CommunicationManager } from "../managers/CommunicationManager";
 import { Selectable } from "./Selectable";
-import { Rotation } from "../shared/JsonTypes";
+import { Rotation } from "../../shared/JsonTypes";
 
 export type RotationDirection = 'clockwise' | 'counterClockwise';
 

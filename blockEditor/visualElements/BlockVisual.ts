@@ -1,8 +1,8 @@
-import { BlockData, BlockRenderInformation, IdType, JsonData, Rotation } from "../shared/JsonTypes";
-import { CommunicationManager } from "./CommunicationManager";
-import { Movable } from "./Movable";
-import { Rotatable } from "./Rotatable";
-import { Selectable } from "./Selectable";
+import { BlockData, BlockRenderInformation, IdType, JsonData, Rotation } from "../../shared/JsonTypes";
+import { CommunicationManager } from "../managers/CommunicationManager";
+import { Movable } from "../interfaces/Movable";
+import { Rotatable } from "../interfaces/Rotatable";
+import { Selectable } from "../interfaces/Selectable";
 
 export class BlockVisual extends Selectable implements Movable, Rotatable {
     id: string;

@@ -6,11 +6,11 @@ import { addBlockToJson, addLinkToJson, updatePortAttachment, attachLinkToPort,
     updateLinkInJson, 
     deleteLinkFromSegmentFromJson,
     rotateLink,
-    updateLinksSourceTargetPosition} from "../shared/JsonManager";
-import { BlockData, IdType, JsonData, Rotation } from "../shared/JsonTypes";
-import { getNonce } from "../shared/util";
-import { Library } from "../shared/BlockPalette";
-import { SegmentNode, LinkJson, TargetNodeInfo, Link } from "../shared/Link";
+    updateLinksSourceTargetPosition} from "../../shared/JsonManager";
+import { BlockData, IdType, JsonData, Rotation } from "../../shared/JsonTypes";
+import { getNonce } from "../../shared/util";
+import { Library } from "../../shared/BlockPalette";
+import { SegmentNode, LinkJson, TargetNodeInfo, Link } from "../../shared/Link";
 
 
 export class CommunicationManager {

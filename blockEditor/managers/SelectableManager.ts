@@ -1,9 +1,9 @@
-import { Selectable } from "./Selectable";
-import { Movable, isMovable } from "./Movable";
-import { CanvasElement } from "./CanvasElement";
+import { Selectable } from "../interfaces/Selectable";
+import { Movable, isMovable } from "../interfaces/Movable";
+import { CanvasElement } from "../interfaces/CanvasElement";
 import { CommunicationManager } from "./CommunicationManager";
-import { IdType } from "../shared/JsonTypes";
-import { isRotatable, RotationDirection } from "./Rotatable";
+import { IdType } from "../../shared/JsonTypes";
+import { isRotatable, RotationDirection } from "../interfaces/Rotatable";
 
 export class SelectableManager {
     private snappingToGrid = true;

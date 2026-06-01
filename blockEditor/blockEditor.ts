@@ -1,12 +1,12 @@
-import { LinkVisual } from './LinkVisual';
-import { BlockVisual } from './BlockVisual';
-import { BlockInteractionManager } from './BlockInteractionManager';
-import { LinkInteractionManager } from './LinkInteractionManager';
-import { Selectable } from './Selectable';
-import { SelectableManager } from './SelectableManager';
+import { LinkVisual } from './visualElements/LinkVisual';
+import { BlockVisual } from './visualElements/BlockVisual';
+import { BlockInteractionManager } from './managers/BlockInteractionManager';
+import { LinkInteractionManager } from './managers/LinkInteractionManager';
+import { Selectable } from './interfaces/Selectable';
+import { SelectableManager } from './managers/SelectableManager';
 import { BlockPalette } from './BlockPalette';
 import { JsonData } from '../shared/JsonTypes';
-import { CommunicationManager } from './CommunicationManager';
+import { CommunicationManager } from './managers/CommunicationManager';
 import { Library } from '../shared/BlockPalette';
 import '@vscode-elements/elements/dist/bundled.js';
 

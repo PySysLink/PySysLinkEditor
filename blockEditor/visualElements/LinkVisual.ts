@@ -1,6 +1,6 @@
-import { IdType, JsonData } from "../shared/JsonTypes";
-import { CommunicationManager } from "./CommunicationManager";
-import { Link, SegmentNode } from "../shared/Link";
+import { IdType, JsonData } from "../../shared/JsonTypes";
+import { CommunicationManager } from "../managers/CommunicationManager";
+import { Link, SegmentNode } from "../../shared/Link";
 import { SourceNode, TargetNode, LinkNode, LinkSegment } from "./LinkHelpers"; // reuse your existing classes, just adapt constructors
 
 export class LinkVisual {
