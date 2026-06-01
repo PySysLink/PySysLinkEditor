@@ -1,5 +1,5 @@
 {
-  "version": 68,
+  "version": 48,
   "blocks": [
     {
       "id": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
@@ -32,7 +32,7 @@
         },
         "Value": {
           "type": "complex_double",
-          "value": "10 + 5j"
+          "value": "10 + 8j"
         }
       },
       "blockRenderInformation": {
@@ -443,5 +443,5 @@
   ],
   "simulation_configuration": "lowLevelOptions.yaml",
   "initialization_python_script_path": "initParam.py",
-  "toolkit_configuration_path": ""
+  "toolkit_configuration_path": "toolkit_config.yaml"
 }

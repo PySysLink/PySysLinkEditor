@@ -1,341 +1,341 @@
-[2026-05-31 15:58:18.024] [default_pysyslink] [debug] Trying to open plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
-[2026-05-31 15:58:18.026] [default_pysyslink] [debug] registerFuncLogger opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
-[2026-05-31 15:58:18.026] [default_pysyslink] [debug] Logger from plugin BlockTypeSupportsBasicCpp!
-[2026-05-31 15:58:18.026] [default_pysyslink] [debug] registerFuncLogger called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
-[2026-05-31 15:58:18.026] [default_pysyslink] [debug] registerFuncFactory opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
+[2026-06-01 19:31:50.217] [default_pysyslink] [debug] Trying to open plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
+[2026-06-01 19:31:50.224] [default_pysyslink] [debug] registerFuncLogger opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
+[2026-06-01 19:31:50.224] [default_pysyslink] [debug] Logger from plugin BlockTypeSupportsBasicCpp!
+[2026-06-01 19:31:50.224] [default_pysyslink] [debug] registerFuncLogger called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
+[2026-06-01 19:31:50.224] [default_pysyslink] [debug] registerFuncFactory opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
 Call to RegisterBlockFactories
 Plugin to load: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
-[2026-05-31 15:58:18.026] [default_pysyslink] [debug] Trying to load plugin: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
-[2026-05-31 15:58:18.027] [default_pysyslink] [debug] Handle obtained for plugin: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
+[2026-06-01 19:31:50.225] [default_pysyslink] [debug] Trying to load plugin: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
+[2026-06-01 19:31:50.231] [default_pysyslink] [debug] Handle obtained for plugin: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
 Handle obtained for plugin: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
-[2026-05-31 15:58:18.027] [default_pysyslink] [debug] registerFunc get from plugin: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
+[2026-06-01 19:31:50.231] [default_pysyslink] [debug] registerFunc get from plugin: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
 registerFunc get from plugin: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
 Block library plugin loaded: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
-[2026-05-31 15:58:18.027] [default_pysyslink] [debug] Block library plugin loaded: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
+[2026-06-01 19:31:50.231] [default_pysyslink] [debug] Block library plugin loaded: /usr/local/lib/pysyslink_plugins/basic_blocks_basic_cpp_0_1_0/libBlockLibrariesBasicBlocksBasicCpp-0.1.0.so
 End of function
-[2026-05-31 15:58:18.027] [default_pysyslink] [debug] registerFuncFactory called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
-[2026-05-31 15:58:18.027] [default_pysyslink] [debug] Plugin loaded: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
-[2026-05-31 15:58:18.027] [default_pysyslink] [debug] Dll closed
-[2026-05-31 15:58:18.027] [default_pysyslink] [debug] Trying to open plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
-[2026-05-31 15:58:18.030] [default_pysyslink] [debug] registerFuncLogger opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
-[2026-05-31 15:58:18.030] [default_pysyslink] [debug] Logger from plugin BlockTypeSupportsBasicCommunication!
-[2026-05-31 15:58:18.030] [default_pysyslink] [debug] registerFuncLogger called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
-[2026-05-31 15:58:18.030] [default_pysyslink] [debug] registerFuncFactory opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
+[2026-06-01 19:31:50.231] [default_pysyslink] [debug] registerFuncFactory called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
+[2026-06-01 19:31:50.231] [default_pysyslink] [debug] Plugin loaded: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_cpp_support_0_1_0/libBlockTypeSupportsBasicCppSupport-0.1.0.so
+[2026-06-01 19:31:50.231] [default_pysyslink] [debug] Dll closed
+[2026-06-01 19:31:50.231] [default_pysyslink] [debug] Trying to open plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
+[2026-06-01 19:31:50.243] [default_pysyslink] [debug] registerFuncLogger opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
+[2026-06-01 19:31:50.243] [default_pysyslink] [debug] Logger from plugin BlockTypeSupportsBasicCommunication!
+[2026-06-01 19:31:50.243] [default_pysyslink] [debug] registerFuncLogger called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
+[2026-06-01 19:31:50.243] [default_pysyslink] [debug] registerFuncFactory opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
 Call to RegisterBlockFactories
 End of function
-[2026-05-31 15:58:18.030] [default_pysyslink] [debug] registerFuncFactory called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
-[2026-05-31 15:58:18.030] [default_pysyslink] [debug] Plugin loaded: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
-[2026-05-31 15:58:18.030] [default_pysyslink] [debug] Dll closed
-[2026-05-31 15:58:18.030] [default_pysyslink] [debug] Trying to open plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
-[2026-05-31 15:58:18.033] [default_pysyslink] [debug] registerFuncLogger opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
-[2026-05-31 15:58:18.033] [default_pysyslink] [debug] Logger from plugin BlockTypeSupportsBasicPython!
-[2026-05-31 15:58:18.033] [default_pysyslink] [debug] registerFuncLogger called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
-[2026-05-31 15:58:18.033] [default_pysyslink] [debug] registerFuncFactory opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
+[2026-06-01 19:31:50.244] [default_pysyslink] [debug] registerFuncFactory called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
+[2026-06-01 19:31:50.244] [default_pysyslink] [debug] Plugin loaded: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_communication_support_0_1_0/libBlockTypeSupportsBasicCommunicationSupport-0.1.0.so
+[2026-06-01 19:31:50.244] [default_pysyslink] [debug] Dll closed
+[2026-06-01 19:31:50.244] [default_pysyslink] [debug] Trying to open plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
+[2026-06-01 19:31:50.252] [default_pysyslink] [debug] registerFuncLogger opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
+[2026-06-01 19:31:50.252] [default_pysyslink] [debug] Logger from plugin BlockTypeSupportsBasicPython!
+[2026-06-01 19:31:50.252] [default_pysyslink] [debug] registerFuncLogger called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
+[2026-06-01 19:31:50.252] [default_pysyslink] [debug] registerFuncFactory opened on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
 Call to RegisterBlockFactories
-[2026-05-31 15:58:18.033] [info] Using default embedded Python environment
+[2026-06-01 19:31:50.252] [info] Using default embedded Python environment
 End of function
-[2026-05-31 15:58:18.047] [default_pysyslink] [debug] registerFuncFactory called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
-[2026-05-31 15:58:18.047] [default_pysyslink] [debug] Plugin loaded: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
-[2026-05-31 15:58:18.047] [default_pysyslink] [debug] Dll closed
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] File read: /home/pellousabiaga/pysyslink/editor/.debug_root/exampleFile/test_low_level_system.yaml
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: Id of type string
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: Name of type string
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: BlockType of type string
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: BlockClass of type string
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: InputPortNumber of type int
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: InputPortTypes of type vector<string>
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: OutputPortNumber of type int
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: OutputPortTypes of type vector<string>
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: DataTypeCategory of type string
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: DataType of type string
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: Value of type complex_double
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: Id of type string
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: Name of type string
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: BlockType of type string
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: BlockClass of type string
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: InputPortNumber of type int
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: InputPortTypes of type vector<string>
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: OutputPortNumber of type int
-[2026-05-31 15:58:18.048] [default_pysyslink] [debug] Parsing block configuration key: OutputPortTypes of type vector<string>
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: DataTypeCategory of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: DataType of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: Gain of type complex_double
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: Id of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: Name of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: BlockType of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: BlockClass of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: InputPortNumber of type int
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: InputPortTypes of type vector<string>
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: OutputPortNumber of type int
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: OutputPortTypes of type vector<string>
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: DataTypeCategory of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: DataType of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: Id of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: Name of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: BlockType of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: BlockClass of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: InputPortNumber of type int
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: InputPortTypes of type vector<string>
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: OutputPortNumber of type int
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: OutputPortTypes of type vector<string>
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: DataTypeCategory of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: DataType of type string
-[2026-05-31 15:58:18.049] [default_pysyslink] [debug] Parsing block configuration key: Gains of type vector<complex_double>
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: Id of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: Name of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: BlockType of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: BlockClass of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: InputPortNumber of type int
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: InputPortTypes of type vector<string>
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: OutputPortNumber of type int
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: OutputPortTypes of type vector<string>
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: DataTypeCategory of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: DataType of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing block configuration key: Value of type complex_double
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: Id of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: Name of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: SourceBlockId of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: SourcePortIdx of type int
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: DestinationBlockId of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: DestinationPortIdx of type int
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: Id of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: Name of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: SourceBlockId of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: SourcePortIdx of type int
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: DestinationBlockId of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: DestinationPortIdx of type int
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: Id of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: Name of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: SourceBlockId of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: SourcePortIdx of type int
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: DestinationBlockId of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: DestinationPortIdx of type int
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: Id of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: Name of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: SourceBlockId of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: SourcePortIdx of type int
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: DestinationBlockId of type string
-[2026-05-31 15:58:18.050] [default_pysyslink] [debug] Parsing link configuration key: DestinationPortIdx of type int
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] Configurations parsed
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] BasicCpp being configured...
+[2026-06-01 19:31:50.267] [default_pysyslink] [debug] registerFuncFactory called on plugin: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
+[2026-06-01 19:31:50.267] [default_pysyslink] [debug] Plugin loaded: /usr/local/lib/pysyslink_plugins/block_type_supports/basic_python_support_0_1_0/libBlockTypeSupportsBasicPythonSupport-0.1.0.so
+[2026-06-01 19:31:50.267] [default_pysyslink] [debug] Dll closed
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] File read: /home/pellousabiaga/pysyslink/editor/.debug_root/exampleFile/test_low_level_system.yaml
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: Id of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: Name of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: BlockType of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: BlockClass of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: InputPortNumber of type int
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: InputPortTypes of type vector<string>
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: OutputPortNumber of type int
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: OutputPortTypes of type vector<string>
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: DataTypeCategory of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: DataType of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: Value of type complex_double
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: Id of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: Name of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: BlockType of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: BlockClass of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: InputPortNumber of type int
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: InputPortTypes of type vector<string>
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: OutputPortNumber of type int
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: OutputPortTypes of type vector<string>
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: DataTypeCategory of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: DataType of type string
+[2026-06-01 19:31:50.268] [default_pysyslink] [debug] Parsing block configuration key: Gain of type complex_double
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: Id of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: Name of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: BlockType of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: BlockClass of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: InputPortNumber of type int
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: InputPortTypes of type vector<string>
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: OutputPortNumber of type int
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: OutputPortTypes of type vector<string>
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: DataTypeCategory of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: DataType of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: Id of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: Name of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: BlockType of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: BlockClass of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: InputPortNumber of type int
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: InputPortTypes of type vector<string>
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: OutputPortNumber of type int
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: OutputPortTypes of type vector<string>
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: DataTypeCategory of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: DataType of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: Gains of type vector<complex_double>
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: Id of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: Name of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: BlockType of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: BlockClass of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: InputPortNumber of type int
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: InputPortTypes of type vector<string>
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: OutputPortNumber of type int
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: OutputPortTypes of type vector<string>
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: DataTypeCategory of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: DataType of type string
+[2026-06-01 19:31:50.269] [default_pysyslink] [debug] Parsing block configuration key: Value of type complex_double
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: Id of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: Name of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: SourceBlockId of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: SourcePortIdx of type int
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: DestinationBlockId of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: DestinationPortIdx of type int
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: Id of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: Name of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: SourceBlockId of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: SourcePortIdx of type int
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: DestinationBlockId of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: DestinationPortIdx of type int
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: Id of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: Name of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: SourceBlockId of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: SourcePortIdx of type int
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: DestinationBlockId of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: DestinationPortIdx of type int
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: Id of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: Name of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: SourceBlockId of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: SourcePortIdx of type int
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: DestinationBlockId of type string
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Parsing link configuration key: DestinationPortIdx of type int
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Configurations parsed
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] BasicCpp being configured...
 Parsing port type metadata from string: FullySupportedSignalValue.complex_double
 Parsed a FullySupportedSignalValue port type with signal value type: complex_double
 Resolved signal type from output port: complex_double
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] BasicBlocks/Constant class block to create with type complex_double
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] BasicBlocks/Constant class block to create with type complex_double
 Parsing port type metadata from string: FullySupportedSignalValue.complex_double
 Parsed a FullySupportedSignalValue port type with signal value type: complex_double
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] Creating basic simulation block cpp...
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] Input ports: 0, Output ports: 1
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] Ports configured...
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] Basic simulation block cpp created
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] BasicCpp being configured...
-Parsing port type metadata from string: FullySupportedSignalValue.complex_double
-Parsed a FullySupportedSignalValue port type with signal value type: complex_double
-Parsing port type metadata from string: FullySupportedSignalValue.complex_double
-Parsed a FullySupportedSignalValue port type with signal value type: complex_double
-Resolved signal type from input port: complex_double
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] BasicBlocks/Gain class block to create with type complex_double
-Parsing port type metadata from string: FullySupportedSignalValue.complex_double
-Parsed a FullySupportedSignalValue port type with signal value type: complex_double
-Parsing port type metadata from string: FullySupportedSignalValue.complex_double
-Parsed a FullySupportedSignalValue port type with signal value type: complex_double
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] Creating basic simulation block cpp...
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] Input ports: 1, Output ports: 1
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] Ports configured...
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] Basic simulation block cpp created
-[2026-05-31 15:58:18.051] [default_pysyslink] [debug] BasicCpp being configured...
-Parsing port type metadata from string: FullySupportedSignalValue.complex_double
-Parsed a FullySupportedSignalValue port type with signal value type: complex_double
-Resolved signal type from input port: complex_double
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] BasicBlocks/Display class block to create with type complex_double
-Parsing port type metadata from string: FullySupportedSignalValue.complex_double
-Parsed a FullySupportedSignalValue port type with signal value type: complex_double
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Creating basic simulation block cpp...
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Input ports: 1, Output ports: 0
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Ports configured...
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Basic simulation block cpp created
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] BasicCpp being configured...
-Parsing port type metadata from string: FullySupportedSignalValue.complex_double
-Parsed a FullySupportedSignalValue port type with signal value type: complex_double
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Creating basic simulation block cpp...
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Input ports: 0, Output ports: 1
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Ports configured...
+[2026-06-01 19:31:50.270] [default_pysyslink] [debug] Basic simulation block cpp created
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] BasicCpp being configured...
 Parsing port type metadata from string: FullySupportedSignalValue.complex_double
 Parsed a FullySupportedSignalValue port type with signal value type: complex_double
 Parsing port type metadata from string: FullySupportedSignalValue.complex_double
 Parsed a FullySupportedSignalValue port type with signal value type: complex_double
 Resolved signal type from input port: complex_double
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] BasicBlocks/Adder class block to create with type complex_double
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] BasicBlocks/Gain class block to create with type complex_double
+Parsing port type metadata from string: FullySupportedSignalValue.complex_double
+Parsed a FullySupportedSignalValue port type with signal value type: complex_double
+Parsing port type metadata from string: FullySupportedSignalValue.complex_double
+Parsed a FullySupportedSignalValue port type with signal value type: complex_double
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Creating basic simulation block cpp...
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Input ports: 1, Output ports: 1
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Ports configured...
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Basic simulation block cpp created
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] BasicCpp being configured...
+Parsing port type metadata from string: FullySupportedSignalValue.complex_double
+Parsed a FullySupportedSignalValue port type with signal value type: complex_double
+Resolved signal type from input port: complex_double
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] BasicBlocks/Display class block to create with type complex_double
+Parsing port type metadata from string: FullySupportedSignalValue.complex_double
+Parsed a FullySupportedSignalValue port type with signal value type: complex_double
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Creating basic simulation block cpp...
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Input ports: 1, Output ports: 0
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Ports configured...
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Basic simulation block cpp created
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] BasicCpp being configured...
 Parsing port type metadata from string: FullySupportedSignalValue.complex_double
 Parsed a FullySupportedSignalValue port type with signal value type: complex_double
 Parsing port type metadata from string: FullySupportedSignalValue.complex_double
 Parsed a FullySupportedSignalValue port type with signal value type: complex_double
 Parsing port type metadata from string: FullySupportedSignalValue.complex_double
 Parsed a FullySupportedSignalValue port type with signal value type: complex_double
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Creating basic simulation block cpp...
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Input ports: 2, Output ports: 1
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Ports configured...
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Basic simulation block cpp created
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] BasicCpp being configured...
+Resolved signal type from input port: complex_double
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] BasicBlocks/Adder class block to create with type complex_double
+Parsing port type metadata from string: FullySupportedSignalValue.complex_double
+Parsed a FullySupportedSignalValue port type with signal value type: complex_double
+Parsing port type metadata from string: FullySupportedSignalValue.complex_double
+Parsed a FullySupportedSignalValue port type with signal value type: complex_double
+Parsing port type metadata from string: FullySupportedSignalValue.complex_double
+Parsed a FullySupportedSignalValue port type with signal value type: complex_double
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Creating basic simulation block cpp...
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Input ports: 2, Output ports: 1
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Ports configured...
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Basic simulation block cpp created
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] BasicCpp being configured...
 Parsing port type metadata from string: FullySupportedSignalValue.complex_double
 Parsed a FullySupportedSignalValue port type with signal value type: complex_double
 Resolved signal type from output port: complex_double
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] BasicBlocks/Constant class block to create with type complex_double
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] BasicBlocks/Constant class block to create with type complex_double
 Parsing port type metadata from string: FullySupportedSignalValue.complex_double
 Parsed a FullySupportedSignalValue port type with signal value type: complex_double
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Creating basic simulation block cpp...
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Input ports: 0, Output ports: 1
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Ports configured...
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Basic simulation block cpp created
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Blocks parsed
-[2026-05-31 15:58:18.052] [default_pysyslink] [debug] Blocks and links parsed
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Free source blocks found:
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Processing free source block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Starting to find chains for free source block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Direct block chain end reached
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Chain start:
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Processing free source block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Starting to find chains for free source block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Direct block chain end reached
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Chain start:
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Final chain start:
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Forward sample time propagation start
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] All inputs resolved for block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Inherited sample time
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67 gets sample time Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] All inputs resolved for block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Inherited sample time
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9 gets sample time Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] All inputs resolved for block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Inherited sample time
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Block FV7NHflKks0wYFMs1l61P9hHFlpR0C2T gets sample time Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] All inputs resolved for block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] All inputs resolved for block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] All inputs resolved for block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Checking block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] All inputs resolved for block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start backward propagation of sample time
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start propagating with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Sample time type: Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start propagating with block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Sample time type: Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start propagating with block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Sample time type: Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Start propagating with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Sample time type: Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Validation start
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Validation complete
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Free source blocks found:
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Processing free source block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Starting to find chains for free source block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Direct block chain end reached
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Chain start:
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Processing free source block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Starting to find chains for free source block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Finding chains, current block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Direct block chain end reached
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Chain start:
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Final chain start:
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Block UDdiznjUsNhqeU3qDvjhBYM60zHszHKK has sample time Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Block fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA has sample time Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67 has sample time Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9 has sample time Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Block FV7NHflKks0wYFMs1l61P9hHFlpR0C2T has sample time Constant
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Different discrete sample times: 0
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Blocks with constant sample time: 5
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Different continuous sample times: 0
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Simulation start
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Processing block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK at time 0
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Processing block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA at time 0
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Processing block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67 at time 0
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Processing block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9 at time 0
-[2026-05-31 15:58:18.053] [default_pysyslink] [debug] Processing block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T at time 0
-[2026-05-31 15:58:18.054] [default_pysyslink] [info] Value BasicCppBlock/FV7NHflKks0wYFMs1l61P9hHFlpR0C2T, 0.00 s : (13,84)
-[2026-05-31 15:58:18.054] [default_pysyslink] [debug] Value update event type: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.054] [default_pysyslink] [debug] Display id: BasicCppBlock/FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
-[2026-05-31 15:58:18.054] [default_pysyslink] [debug] Main simulation loop start
-[2026-05-31 15:58:18.054] [default_pysyslink] [debug] Time hits size: 0
-[2026-05-31 15:58:18.054] [default_pysyslink] [debug] Current time: nan
-[2026-05-31 15:58:18.054] [default_pysyslink] [debug] Simulation end
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Creating basic simulation block cpp...
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Input ports: 0, Output ports: 1
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Ports configured...
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Basic simulation block cpp created
+[2026-06-01 19:31:50.271] [default_pysyslink] [debug] Blocks parsed
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Blocks and links parsed
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Free source blocks found:
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Processing free source block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Starting to find chains for free source block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Direct block chain end reached
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Chain start:
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Processing free source block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Starting to find chains for free source block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Direct block chain end reached
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Chain start:
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Final chain start:
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Forward sample time propagation start
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] All inputs resolved for block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Inherited sample time
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67 gets sample time Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] All inputs resolved for block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Inherited sample time
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9 gets sample time Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] All inputs resolved for block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Inherited sample time
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Block FV7NHflKks0wYFMs1l61P9hHFlpR0C2T gets sample time Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] All inputs resolved for block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] All inputs resolved for block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] All inputs resolved for block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Checking block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] All inputs resolved for block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start backward propagation of sample time
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start propagating with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Sample time type: Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start propagating with block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Sample time type: Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start propagating with block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Sample time type: Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Start propagating with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Sample time type: Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Validation start
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Validation complete
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Free source blocks found:
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Processing free source block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Starting to find chains for free source block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Direct block chain end reached
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Working with block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Chain start:
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Processing free source block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Starting to find chains for free source block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Finding chains, current block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] 1 connected blocks found for output port index 0 of block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Direct block chain end reached
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Working with block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Chain start:
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Final chain start:
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] UDdiznjUsNhqeU3qDvjhBYM60zHszHKK
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] EmPQK8h6NnivEJKXdCaQwAub7hhNvH67
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Block UDdiznjUsNhqeU3qDvjhBYM60zHszHKK has sample time Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Block fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA has sample time Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Block EmPQK8h6NnivEJKXdCaQwAub7hhNvH67 has sample time Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Block t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9 has sample time Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Block FV7NHflKks0wYFMs1l61P9hHFlpR0C2T has sample time Constant
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Different discrete sample times: 0
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Blocks with constant sample time: 5
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Different continuous sample times: 0
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Simulation start
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Processing block: UDdiznjUsNhqeU3qDvjhBYM60zHszHKK at time 0
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Processing block: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA at time 0
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Processing block: EmPQK8h6NnivEJKXdCaQwAub7hhNvH67 at time 0
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Processing block: t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9 at time 0
+[2026-06-01 19:31:50.272] [default_pysyslink] [debug] Processing block: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T at time 0
+[2026-06-01 19:31:50.273] [default_pysyslink] [info] Value BasicCppBlock/FV7NHflKks0wYFMs1l61P9hHFlpR0C2T, 0.00 s : (1,93)
+[2026-06-01 19:31:50.273] [default_pysyslink] [debug] Value update event type: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.273] [default_pysyslink] [debug] Display id: BasicCppBlock/FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
+[2026-06-01 19:31:50.273] [default_pysyslink] [debug] Main simulation loop start
+[2026-06-01 19:31:50.273] [default_pysyslink] [debug] Time hits size: 0
+[2026-06-01 19:31:50.273] [default_pysyslink] [debug] Current time: nan
+[2026-06-01 19:31:50.273] [default_pysyslink] [debug] Simulation end
 Simulation complete, output written to /home/pellousabiaga/pysyslink/editor/.debug_root/exampleFile/simulation_output.json

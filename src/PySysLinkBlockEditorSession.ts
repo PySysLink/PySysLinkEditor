@@ -147,10 +147,10 @@ export class PySysLinkBlockEditorSession {
         this.notifySelectedBlock();
     };
 
-    private async updateBlockParameters(block: BlockData): Promise<void> {
+    private updateBlockParameters = async (block: BlockData): Promise<void> => {
         await this.documentManager.updateBlockParameters(block);
         this.updateWebview();
-    }
+    };
 
     private loadBlockLibraries = async (): Promise<void> => {        
         if (!this.pythonServer.isRunning()) {
@@ -180,7 +180,7 @@ export class PySysLinkBlockEditorSession {
             console.error('Error loading block libraries:', error);
             vscode.window.showErrorMessage(`Could not load block libraries: ${error}`);
         }
-    }
+    };
 
     public displayBlockHTML = async (blockId: IdType): Promise<void> => {
         const json = this.documentManager.getJson();
@@ -232,7 +232,7 @@ ${result.html}
             console.error(`Error on python server while getting block HTML: ${error}`);
             vscode.window.showErrorMessage(`Error on python server while getting block HTML: ${error}`);
         }
-    }
+    };
 
     private async notifySelectedBlock(): Promise<void> {
         if (!this.selectedBlockId) {
