@@ -1,6 +1,22 @@
 import { IdType, JsonData } from "../../shared/JsonTypes";
 import { CommunicationManager } from "../managers/CommunicationManager";
 
+// Capability interfaces
+export interface Movable {
+    move(dx: number, dy: number): void;
+    getX(): number;
+    getY(): number;
+}
+
+export interface Rotatable {
+    rotate(newRotation: number): void;
+    getRotation(): number;
+}
+
+export interface Connectable {
+    getPortPositions(): Array<{ x: number; y: number; type: "input" | "output"; index: number }>;
+}
+
 export abstract class CanvasElement {
 
     abstract getElement(): HTMLElement | SVGElement;

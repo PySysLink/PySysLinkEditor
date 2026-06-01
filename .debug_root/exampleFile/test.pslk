@@ -1,5 +1,5 @@
 {
-  "version": 48,
+  "version": 12,
   "blocks": [
     {
       "id": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
@@ -32,7 +32,7 @@
         },
         "Value": {
           "type": "complex_double",
-          "value": "10 + 8j"
+          "value": "11 + 8j"
         }
       },
       "blockRenderInformation": {
@@ -66,8 +66,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Gain",
       "label": "Gain",
-      "x": 650,
-      "y": 170,
+      "x": 660,
+      "y": 270,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 1,
@@ -143,7 +143,7 @@
       "blockType": "Display",
       "label": "Display",
       "x": 1030,
-      "y": 170,
+      "y": 130,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 0,
@@ -332,21 +332,35 @@
       "id": "nHjsrX3kY0tU7HesRrrNDr54wd6XJYf5",
       "sourceId": "t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9",
       "sourcePort": 0,
-      "sourceX": 770,
-      "sourceY": 200,
+      "sourceX": 780,
+      "sourceY": 300,
       "targetNodes": {
-        "VLHE9pBO8wM1KRC1W9f0r8alFMdp3MXK": {
+        "Rxqs1Dbiu6E2uvUJpYGmOlmxi0APzn1m": {
           "targetId": "FV7NHflKks0wYFMs1l61P9hHFlpR0C2T",
           "port": 0,
           "x": 1030,
-          "y": 200
+          "y": 160
         }
       },
       "segmentNode": {
         "id": "VLHE9pBO8wM1KRC1W9f0r8alFMdp3MXK",
         "orientation": "Horizontal",
-        "xOrY": 200,
-        "children": []
+        "xOrY": 300,
+        "children": [
+          {
+            "id": "k9GQPdhTLNWDYORMlJtqul382avVknZV",
+            "orientation": "Vertical",
+            "xOrY": 890,
+            "children": [
+              {
+                "id": "Rxqs1Dbiu6E2uvUJpYGmOlmxi0APzn1m",
+                "orientation": "Horizontal",
+                "xOrY": 160,
+                "children": []
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -356,18 +370,32 @@
       "sourceX": 590,
       "sourceY": 200,
       "targetNodes": {
-        "sH750KumX4XqRjTA9WxYnw4zhDAcmOd7": {
+        "ZWVgbRD7qMDXsNM1s5SojXHJApymebth": {
           "targetId": "t2xqrLexpBrt4ApGRJj3FarUt7ujSOK9",
           "port": 0,
-          "x": 650,
-          "y": 200
+          "x": 660,
+          "y": 300
         }
       },
       "segmentNode": {
         "id": "sH750KumX4XqRjTA9WxYnw4zhDAcmOd7",
         "orientation": "Horizontal",
         "xOrY": 200,
-        "children": []
+        "children": [
+          {
+            "id": "hvFemmbx0gDWR1Js0gRFz14L5LoDraJI",
+            "orientation": "Vertical",
+            "xOrY": 625,
+            "children": [
+              {
+                "id": "ZWVgbRD7qMDXsNM1s5SojXHJApymebth",
+                "orientation": "Horizontal",
+                "xOrY": 300,
+                "children": []
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -443,5 +471,5 @@
   ],
   "simulation_configuration": "lowLevelOptions.yaml",
   "initialization_python_script_path": "initParam.py",
-  "toolkit_configuration_path": "toolkit_config.yaml"
+  "toolkit_configuration_path": ""
 }

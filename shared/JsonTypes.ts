@@ -49,6 +49,40 @@ export interface BlockData {
     blockRenderInformation?: BlockRenderInformation;
 }
 
+export interface NoteData {
+    id: IdType;
+    x: number;
+    y: number;
+    text: string;
+    color?: string;
+    width?: number;
+    height?: number;
+    zIndex?: number;
+}
+
+export interface ImageData {
+    id: IdType;
+    x: number;
+    y: number;
+    src: string;
+    width: number;
+    height: number;
+    rotation?: Rotation;
+    zIndex?: number;
+}
+
+export interface SubsystemData {
+    id: IdType;
+    label: string;
+    x: number;
+    y: number;
+    blocks?: BlockData[];
+    links?: LinkJson[];
+    notes?: NoteData[];
+    images?: ImageData[];
+    subsystems?: SubsystemData[];
+}
+
 export interface JsonData {
     version: number;
     simulation_configuration: string;
@@ -56,6 +90,9 @@ export interface JsonData {
     toolkit_configuration_path: string;
     blocks: BlockData[] | undefined;
     links: LinkJson[] | undefined;
+    notes?: NoteData[];
+    images?: ImageData[];
+    subsystems?: SubsystemData[];
 }
 
 export type BlockShape = "square" | "triangle" | "circle";

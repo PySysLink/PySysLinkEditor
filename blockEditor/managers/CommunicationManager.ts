@@ -27,6 +27,7 @@ export class CommunicationManager {
 
     private localJsonChangedCallbacks: ((json: JsonData) => void)[] = [];
 
+    private currentPath: string[] = ['root'];
 
     libraries: Library[] = [];
     librariesChangedCallbacks: ((json: Library[]) => void)[] = [];
@@ -525,5 +526,82 @@ export class CommunicationManager {
 
         const link = new Link(linkData);
         return link.findSegmentNodeById(id);
+    }
+
+    // ============ Subsystem Navigation ============
+
+    /**
+     * Get the current subsystem path (e.g., ['root', 'sub1', 'sub11'])
+     */
+    public getCurrentPath(): string[] {
+        return [...this.currentPath];
+    }
+
+    /**
+     * Get the current subsystem data from the JSON tree
+     */
+    public getCurrentSubsystemData(): JsonData | undefined {
+        if (!this.localJson) {
+            return undefined;
+        }
+        
+        if (this.currentPath.length === 1 && this.currentPath[0] === 'root') {
+            return this.localJson;
+        }
+
+        let current: any = this.localJson;
+        for (let i = 1; i < this.currentPath.length; i++) {
+            const subsystemId = this.currentPath[i];
+            if (!current.subsystems) {
+                return undefined;
+            }
+            const subsystem = current.subsystems.find((s: any) => s.id === subsystemId);
+            if (!subsystem) {
+                return undefined;
+            }
+            current = subsystem;
+        }
+        return current;
+    }
+
+    /**
+     * Enter a subsystem by ID
+     */
+    public enterSubsystem(subsystemId: IdType): void {
+        const currentData = this.getCurrentSubsystemData();
+        if (!currentData || !currentData.subsystems) {
+            this.print(`Cannot enter subsystem: no subsystems found`);
+            return;
+        }
+        
+        const subsystem = currentData.subsystems.find(s => s.id === subsystemId);
+        if (!subsystem) {
+            this.print(`Cannot enter subsystem: subsystem not found`);
+            return;
+        }
+
+        this.currentPath.push(subsystemId);
+        this.print(`Entered subsystem: ${this.currentPath.join('/')}`);
+    }
+
+    /**
+     * Exit the current subsystem (go up one level)
+     */
+    public exitSubsystem(): void {
+        if (this.currentPath.length <= 1) {
+            this.print(`Cannot exit subsystem: already at root`);
+            return;
+        }
+
+        this.currentPath.pop();
+        this.print(`Exited subsystem, now at: ${this.currentPath.join('/')}`);
+    }
+
+    /**
+     * Navigate to a specific path (e.g., ['root', 'sub1', 'sub11'])
+     */
+    public navigateToPath(path: string[]): void {
+        this.currentPath = [...path];
+        this.print(`Navigated to: ${this.currentPath.join('/')}`);
     }
 }
