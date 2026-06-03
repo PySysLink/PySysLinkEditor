@@ -1,5 +1,5 @@
 import { CommunicationManager } from "./managers/CommunicationManager";
-import { ZoomController } from "./ZoomController";
+import { ZoomController } from "./editorCore/ZoomController";
 
 interface DroppedBlockMeta {
     library: string;

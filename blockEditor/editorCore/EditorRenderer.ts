@@ -1,4 +1,5 @@
 import { JsonData } from "../shared/JsonTypes";
+import { EditorContext, EditorSystems } from "./BlockEditorApp";
 import { BlockPalette } from "./BlockPalette";
 import { BlockInteractionManager } from "./managers/BlockInteractionManager";
 import { CommunicationManager } from "./managers/CommunicationManager";
@@ -8,17 +9,17 @@ import { NoteInteractionManager } from "./managers/NoteInteractionManager";
 import { SelectableManager } from "./managers/SelectableManager";
 
 export class EditorRenderer {
+
+    private readonly context: EditorContext;
+    private readonly systems: EditorSystems;
+
     constructor(
-        private readonly canvas: HTMLElement,
-        private readonly blockInteractionManager: BlockInteractionManager,
-        private readonly linkInteractionManager: LinkInteractionManager,
-        private readonly noteInteractionManager: NoteInteractionManager,
-        private readonly imageInteractionManager: ImageInteractionManager,
-        private readonly selectableManager: SelectableManager,
-        private readonly breadcrumbView: BreadcrumbView,
-        private readonly blockPalette: BlockPalette,
-        private readonly blockPaletteContent: HTMLElement
-    ) {}
+        context: EditorContext,
+        systems: EditorSystems
+    ) {
+        this.context = context;
+        this.systems = systems;
+    }
 
     public render(json: JsonData): void {
         this.clearCanvas();
@@ -27,70 +28,68 @@ export class EditorRenderer {
         this.renderLinks(json);
         this.renderGenericElements();
 
-        this.selectableManager.updateSelectables();
-        this.linkInteractionManager.updateLinkAndNodeClickCallback();
+        this.systems.selectableManager.updateSelectables();
+        this.systems.linkManager.updateLinkAndNodeClickCallback();
 
-        this.breadcrumbView.render();
+        this.systems.breadcrumbView.render();
 
-        this.blockPalette.renderPalette(
-            this.blockPaletteContent
+        this.systems.blockPalette.renderPalette(
+            this.systems.blockPaletteContent
         );
     }
 
     private clearCanvas(): void {
-        this.canvas.innerHTML = '';
+        this.context.canvas.innerHTML = '';
     }
 
     private renderBlocks(): void {
-        this.blockInteractionManager.blocks.forEach(
+        this.systems.blockManager.blocks.forEach(
             block => {
-                block.addElementToCanvas(this.canvas);
+                block.addElementToCanvas(this.context.canvas);
             }
         );
     }
 
     private renderLinks(json: JsonData): void {
         const svg =
-            this.linkInteractionManager
+            this.systems.linkInteractionManager
                 .updateFromJson(json);
 
-        this.canvas.appendChild(svg);
+        this.context.canvas.appendChild(svg);
     }
 
-    private renderGenericElements(): void {
-        this.renderNotes();
-        this.renderImages();
-    }
+    // private renderGenericElements(): void {
+    //     this.renderNotes();
+    //     this.renderImages();
+    // }
 
-    private renderNotes(): void {
-        this.noteInteractionManager
-            .getNotes()
-            .forEach(note => {
-                note.addElementToCanvas(
-                    this.canvas
-                );
-            });
-    }
+    // private renderNotes(): void {
+    //     this.noteInteractionManager
+    //         .getNotes()
+    //         .forEach(note => {
+    //             note.addElementToCanvas(
+    //                 this.context.canvas
+    //             );
+    //         });
+    // }
 
-    private renderImages(): void {
-        this.imageInteractionManager
-            .getImages()
-            .forEach(image => {
-                image.addElementToCanvas(
-                    this.canvas
-                );
-            });
-    }
+    // private renderImages(): void {
+    //     this.imageInteractionManager
+    //         .getImages()
+    //         .forEach(image => {
+    //             image.addElementToCanvas(
+    //                 this.context.canvas
+    //             );
+    //         });
+    // }
 }
 
 
 export class BreadcrumbView {
     constructor(
         private readonly container: HTMLElement,
-        private readonly communicationManager:
-            CommunicationManager,
-        private readonly onNavigate:
-            () => void
+        private readonly communicationManager: CommunicationManager,
+        private readonly onNavigate: () => void
     ) {}
 
     public render(): void {
