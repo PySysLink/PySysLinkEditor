@@ -111,7 +111,7 @@ export class SelectableManager {
         }
     }
 
-    public updateSelectables(): void {
+    public updateSelectablesCallbacks(): void {
         this.getSelectableList().forEach(selectable => {
             selectable.addOnMouseDownListener("selectable_manager", this.onMouseDownInSelectable);
         });

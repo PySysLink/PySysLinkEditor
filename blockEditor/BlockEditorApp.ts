@@ -6,20 +6,16 @@ import { EditorSystems } from "./editorCore/EditorSystems";
 import { EditorRenderer } from "./editorCore/EditorRenderer";
 import { ElementEventBus } from "./events/ElementEventBus";
 import { BlockInteractionManager } from "./managers/BlockInteractionManager";
-import { CommunicationManager } from "./CommunicationManager";
-import { ElementFactory } from "./managers/ElementFactory";
-import { ImageInteractionManager } from "./managers/ImageInteractionManager";
-import { LinkInteractionManager } from "./managers/LinkInteractionManager";
-import { NoteInteractionManager } from "./managers/NoteInteractionManager";
+// import { CommunicationManager } from "./CommunicationManager";
+// import { ElementFactory } from "./managers/ElementFactory";
+// import { ImageInteractionManager } from "./managers/ImageInteractionManager";
+// import { LinkInteractionManager } from "./managers/LinkInteractionManager";
+// import { NoteInteractionManager } from "./managers/NoteInteractionManager";
 import { SelectableManager } from "./editorCore/SelectableManager";
 import { ZoomController } from "./editorCore/ZoomController";
 import { Library } from "../shared/BlockPalette";
 import { JsonData } from "../shared/JsonTypes";
 import { LinkVisual } from "./visualElements/LinkVisual";
-
-declare const acquireVsCodeApi: () => any;
-const vscode = acquireVsCodeApi();
-
 
 
 
@@ -37,7 +33,11 @@ export class BlockEditorApp {
     private readonly dropHandler: CanvasDropHandler;
     // private readonly router: WebviewMessageRouter;
 
-    constructor() {
+    private readonly vscode: any;
+
+    constructor(vscode: any) {
+
+        this.vscode = vscode;
 
         this.context = new EditorContext();
 
@@ -54,10 +54,11 @@ export class BlockEditorApp {
 
         this.systems = new EditorSystems(
             this.context,
-            this.zoomController
+            this.zoomController,
+            this.vscode
         );
 
-        this.renderer = new EditorRenderer(this.context, this.systems);
+        this.renderer = new EditorRenderer(this.context, this.systems, this.zoomController);
         // this.synchronizer = new EditorSynchronizer(this.systems);
         // this.scheduler = new UpdateScheduler();
 
@@ -71,13 +72,18 @@ export class BlockEditorApp {
             this.zoomController
         );
 
+        // Restore state if reloaded
+        const state = vscode.getState();
+        if (state) {
+            this.systems.communicationManager.print(`Restoring state: ${state.text}`);
+            this.systems.communicationManager.newJsonFromServer(JSON.parse(state.text));
+        }
+
         // this.router = new WebviewMessageRouter(
         //     this.systems.communicationManager,
         //     this.handleJsonUpdate
         // );
-    }
 
-    public start(): void {
         window.addEventListener('message', (e: MessageEvent) => {
         if (e.data.type === 'update') {
             this.systems.communicationManager.newJsonFromServer(e.data.json);
@@ -87,7 +93,7 @@ export class BlockEditorApp {
             this.systems.communicationManager.setBlockLibraries(e.data.model as Library[]);
         }
 
-        this.systems.communicationManager.registerLocalJsonChangedCallback(this.updateWebView.bind(this));
+        this.systems.communicationManager.registerLocalJsonChangedCallback(this.updateWebView);
 
     });
     }
@@ -96,7 +102,9 @@ export class BlockEditorApp {
     private minUpdateInterval = 10; 
     private timerRunning = false;
 
-    public updateWebView(json: JsonData): void {
+    public updateWebView = (json: JsonData) : void => {
+        console.log("Updating webview with JSON");
+
         const currentTime = Date.now();
         if (currentTime - this.lastWebViewUpdateTime < this.minUpdateInterval) {
             if (!this.timerRunning) {
@@ -116,8 +124,8 @@ export class BlockEditorApp {
 
         this.systems.elementManagers.forEach(manager => manager.updateFromJson(json));
 
-        this.renderHTML(json);
-    }
+        this.renderer.render();
+    };
 
     public applyThemeClass(kind: string) {
         if (kind === "light") {

@@ -32,9 +32,7 @@ export class ZoomController {
         this.canvasHeight = options.canvasHeight ?? 4000;
 
         this.applyZoom();
-    }
 
-    public initialize(): void {
         this.eventTarget?.addEventListener(
             'wheel',
             this.handleMouseWheelZoom

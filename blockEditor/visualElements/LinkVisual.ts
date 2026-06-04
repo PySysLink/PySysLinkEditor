@@ -65,7 +65,8 @@ export class LinkVisual {
         return undefined;
     };
 
-    public addToSvg(svg: SVGSVGElement, communicationManager: CommunicationManager): void {
+    public addToSvg(svg?: SVGSVGElement): void {
+        if (!svg) { return; }
         this.segments.forEach(seg => svg.appendChild(seg.getElement()));
         this.junctionNodes.forEach(node => svg.appendChild(node.getElement()));
         svg.appendChild(this.sourceNode.getElement());

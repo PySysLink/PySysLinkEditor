@@ -7,8 +7,6 @@ import { EditorContext } from "./EditorContext";
 import { ZoomController } from "./ZoomController";
 import { ElementManager } from "../interfaces/ElementManager";
 
-declare const acquireVsCodeApi: () => any;
-const vscode = acquireVsCodeApi();
 
 export class EditorSystems {
     readonly context: EditorContext;
@@ -26,11 +24,15 @@ export class EditorSystems {
     readonly selectableManager: SelectableManager;
     readonly blockPalette: BlockPalette;
 
+    private readonly vscode: any;
+
     constructor(
         context: EditorContext,
-        private readonly zoomController: ZoomController
+        private readonly zoomController: ZoomController,
+        vscode: any
     ) {
         this.context = context;
+        this.vscode = vscode;
 
         this.communicationManager =
             new CommunicationManager(vscode);
@@ -54,7 +56,6 @@ export class EditorSystems {
             new LinkInteractionManager(
                 this.communicationManager,
                 this.context.canvas,
-                linksLayer,
                 this.blockManager,
                 this.selectableManager,
                 this.zoomController.getRealZoom
@@ -97,13 +98,13 @@ export class EditorSystems {
             () => this.linkManager.getAllLinkNodes()
         );
 
-        this.selectableManager.registerSelectableList(
-            () => this.noteManager.getNotes()
-        );
+        // this.selectableManager.registerSelectableList(
+        //     () => this.noteManager.getNotes()
+        // );
 
-        this.selectableManager.registerSelectableList(
-            () => this.imageManager.getImages()
-        );
+        // this.selectableManager.registerSelectableList(
+        //     () => this.imageManager.getImages()
+        // );
 
         this.selectableManager.addRotationListener(
             this.linkManager.rotateSelectedLinks

@@ -16,7 +16,7 @@ import { ElementEventBus } from './events/ElementEventBus';
 import '@vscode-elements/elements/dist/bundled.js';
 import { BlockEditorApp } from './BlockEditorApp';
 
-declare const acquireVsCodeApi: () => any;
+declare const acquireVsCodeApi: any;
 const vscode = acquireVsCodeApi();
 
 setInterval(() => {
@@ -30,28 +30,12 @@ setInterval(() => {
 
 (function () {
     
-    const app = new BlockEditorApp();
-    app.start();
+    const app = new BlockEditorApp(vscode);
+    // app.start();
 
 })();
-    // Initialize event bus and factory
     
-    let lastWebViewUpdateTime = Date.now();
-    const minUpdateInterval = 10; 
-    let timerRunning = false;
 
 
 
     
-    
-
-
-    
-
-    // Restore state if reloaded
-    const state = vscode.getState();
-    if (state) {
-        communicationManager.print(`Restoring state: ${state.text}`);
-        communicationManager.newJsonFromServer(JSON.parse(state.text));
-    }
-})();

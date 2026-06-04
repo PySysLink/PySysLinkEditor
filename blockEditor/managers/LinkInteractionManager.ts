@@ -12,7 +12,7 @@ import { ElementManager } from '../interfaces/ElementManager';
 
 export class LinkInteractionManager extends ElementManager {
     public links: LinkVisual[] = [];
-    public linksSvg: SVGSVGElement;
+    public linksSvg?: SVGSVGElement;
     
     private getZoomLevelReal: () => number;
 
@@ -22,14 +22,13 @@ export class LinkInteractionManager extends ElementManager {
     private blockInteractionManager: BlockInteractionManager;
     private selectableManager: SelectableManager;
 
-    constructor (communicationManager: CommunicationManager, canvas: HTMLElement, linksSvg: SVGSVGElement, blockInteractionManager: BlockInteractionManager,
+    constructor (communicationManager: CommunicationManager, canvas: HTMLElement, blockInteractionManager: BlockInteractionManager,
         selectableManager: SelectableManager, getZoomLevelReal: () => number
     ) {
         super();
         this.communicationManager = communicationManager;
         this.selectableManager = selectableManager;
         this.canvas = canvas;
-        this.linksSvg = linksSvg;
         this.blockInteractionManager = blockInteractionManager;
         this.getZoomLevelReal = getZoomLevelReal;
         this.blockInteractionManager.registerOnMouseDownOnPortCallback(this.onMouseDownOnPort);
@@ -102,7 +101,10 @@ export class LinkInteractionManager extends ElementManager {
         );
 
         this.links.push(newLink);
-        newLink.addToSvg(this.linksSvg, this.communicationManager);
+
+        if (this.linksSvg) {
+            newLink.addToSvg(this.linksSvg);
+        }
 
         return newLink;
     }
@@ -196,12 +198,19 @@ export class LinkInteractionManager extends ElementManager {
 
         // this.links.forEach(link => link.removeFromSvg(this.linksSvg));
         this.links.forEach(link => link.updateFromJson(json, this.communicationManager));
-        this.links.forEach(link => link.addToSvg(this.linksSvg, this.communicationManager));
+        this.links.forEach(link => link.addToSvg(this.linksSvg));
 
         this.highlightNodesNearPorts();
     }
 
     public getLinksSvg(): SVGSVGElement {
+        if (!this.linksSvg) {
+            this.linksSvg = document.querySelector('.links') as SVGSVGElement;
+            if (!this.linksSvg) {
+                this.linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                this.linksSvg.classList.add('links');
+            }
+        }
         return this.linksSvg;
     }
 
@@ -259,7 +268,9 @@ export class LinkInteractionManager extends ElementManager {
 
     public deleteLink = (link: LinkVisual): void => {
         this.communicationManager.print(`Deleting link visual: ${link.id}`);
-        link.removeFromSvg(this.linksSvg);
+        if (this.linksSvg) {
+            link.removeFromSvg(this.linksSvg);
+        }
         const index = this.links.indexOf(link);
         if (index !== -1) {
             this.links.splice(index, 1);
@@ -337,7 +348,7 @@ export class LinkInteractionManager extends ElementManager {
         return undefined;
     }
 
-    public updateLinkAndNodeClickCallback(): void {
+    public updateElementCallbacks(): void {
         this.links.forEach(linkVisual => {
             linkVisual.segments.forEach(segment => {
                 segment.addOnMouseDownListener("link_interaction_manager", this.onMouseDownInSegment);
