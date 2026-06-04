@@ -1,16 +1,16 @@
-import { link } from 'fs';
 import { BlockInteractionManager } from './BlockInteractionManager';
 import { LinkVisual } from '../visualElements/LinkVisual';
 import { LinkNode, LinkSegment, SourceNode, TargetNode } from '../visualElements/LinkHelpers';
 import { BlockVisual } from '../visualElements/BlockVisual';
 import { IdType, JsonData } from '../../shared/JsonTypes'; 
 import { LinkJson, Link } from '../../shared/Link';
-import { CommunicationManager } from './CommunicationManager';
-import { SelectableManager } from './SelectableManager';
+import { CommunicationManager } from '../editorCore/CommunicationManager';
+import { SelectableManager } from '../editorCore/SelectableManager';
 import { CanvasElement } from '../interfaces/CanvasElement';
 import { RotationDirection } from '../interfaces/Rotatable';
+import { ElementManager } from '../interfaces/ElementManager';
 
-export class LinkInteractionManager {
+export class LinkInteractionManager extends ElementManager {
     public links: LinkVisual[] = [];
     public linksSvg: SVGSVGElement;
     
@@ -25,6 +25,7 @@ export class LinkInteractionManager {
     constructor (communicationManager: CommunicationManager, canvas: HTMLElement, linksSvg: SVGSVGElement, blockInteractionManager: BlockInteractionManager,
         selectableManager: SelectableManager, getZoomLevelReal: () => number
     ) {
+        super();
         this.communicationManager = communicationManager;
         this.selectableManager = selectableManager;
         this.canvas = canvas;
@@ -156,7 +157,14 @@ export class LinkInteractionManager {
         }            
     };
 
-    public updateFromJson(json: JsonData): SVGSVGElement {
+    public updateFromJson(json: JsonData): void {
+        this.links.forEach((link: LinkVisual) => {
+            const linkData = json.links?.find(l => l.id === link.id);
+            if (!linkData) {
+                this.deleteLink(link);
+            }
+        });
+
         this.linksSvg = document.querySelector('.links') as SVGSVGElement;
         if (!this.linksSvg) {
             this.linksSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -191,10 +199,10 @@ export class LinkInteractionManager {
         this.links.forEach(link => link.addToSvg(this.linksSvg, this.communicationManager));
 
         this.highlightNodesNearPorts();
+    }
 
-
+    public getLinksSvg(): SVGSVGElement {
         return this.linksSvg;
-
     }
 
 

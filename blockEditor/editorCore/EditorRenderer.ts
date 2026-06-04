@@ -1,12 +1,13 @@
-import { JsonData } from "../shared/JsonTypes";
-import { EditorContext, EditorSystems } from "./BlockEditorApp";
+import { JsonData } from "../../shared/JsonTypes";
+import { EditorSystems } from "./EditorSystems";
+import { EditorContext } from "./EditorContext";
 import { BlockPalette } from "./BlockPalette";
-import { BlockInteractionManager } from "./managers/BlockInteractionManager";
-import { CommunicationManager } from "./managers/CommunicationManager";
-import { ImageInteractionManager } from "./managers/ImageInteractionManager";
-import { LinkInteractionManager } from "./managers/LinkInteractionManager";
-import { NoteInteractionManager } from "./managers/NoteInteractionManager";
-import { SelectableManager } from "./managers/SelectableManager";
+import { BlockInteractionManager } from "../managers/BlockInteractionManager";
+import { CommunicationManager } from "./CommunicationManager";
+import { ImageInteractionManager } from "../managers/ImageInteractionManager";
+import { LinkInteractionManager } from "../managers/LinkInteractionManager";
+import { NoteInteractionManager } from "../managers/NoteInteractionManager";
+import { SelectableManager } from "./SelectableManager";
 
 export class EditorRenderer {
 
@@ -26,7 +27,9 @@ export class EditorRenderer {
 
         this.renderBlocks();
         this.renderLinks(json);
-        this.renderGenericElements();
+        // this.renderGenericElements();
+
+        setZoom(zoomLevel);
 
         this.systems.selectableManager.updateSelectables();
         this.systems.linkManager.updateLinkAndNodeClickCallback();
@@ -51,9 +54,7 @@ export class EditorRenderer {
     }
 
     private renderLinks(json: JsonData): void {
-        const svg =
-            this.systems.linkInteractionManager
-                .updateFromJson(json);
+        const svg = this.systems.linkManager.getLinksSvg();
 
         this.context.canvas.appendChild(svg);
     }

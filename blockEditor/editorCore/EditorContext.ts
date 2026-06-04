@@ -5,6 +5,7 @@ export class EditorContext {
     readonly canvasContainer: HTMLElement;
     readonly sidebar: HTMLElement;
     readonly blockPaletteContent: HTMLElement;
+    
 
     readonly canvasWidth = 8000;
     readonly canvasHeight = 4000;

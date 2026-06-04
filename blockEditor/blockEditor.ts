@@ -1,20 +1,20 @@
 import { LinkVisual } from './visualElements/LinkVisual';
 import { BlockVisual } from './visualElements/BlockVisual';
-import { NoteVisual } from './visualElements/NoteVisual';
-import { ImageVisual } from './visualElements/ImageVisual';
+// import { NoteVisual } from './visualElements/NoteVisual';
+// import { ImageVisual } from './visualElements/ImageVisual';
 import { BlockInteractionManager } from './managers/BlockInteractionManager';
 import { LinkInteractionManager } from './managers/LinkInteractionManager';
-import { NoteInteractionManager } from './managers/NoteInteractionManager';
-import { ImageInteractionManager } from './managers/ImageInteractionManager';
+// import { NoteInteractionManager } from './managers/NoteInteractionManager';
+// import { ImageInteractionManager } from './managers/ImageInteractionManager';
 import { Selectable } from './interfaces/Selectable';
-import { SelectableManager } from './managers/SelectableManager';
+import { SelectableManager } from './editorCore/SelectableManager';
 import { BlockPalette } from './editorCore/BlockPalette';
 import { JsonData } from '../shared/JsonTypes';
-import { CommunicationManager } from './managers/CommunicationManager';
+import { CommunicationManager } from './editorCore/CommunicationManager';
 import { Library } from '../shared/BlockPalette';
-import { ElementFactory, BlockElementCreator, ElementCreator } from './managers/ElementFactory';
 import { ElementEventBus } from './events/ElementEventBus';
 import '@vscode-elements/elements/dist/bundled.js';
+import { BlockEditorApp } from './BlockEditorApp';
 
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
@@ -41,7 +41,6 @@ setInterval(() => {
     let timerRunning = false;
 
 
-    communicationManager.registerLocalJsonChangedCallback(updateWebView);
 
     
     

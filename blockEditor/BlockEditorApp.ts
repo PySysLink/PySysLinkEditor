@@ -6,14 +6,16 @@ import { EditorSystems } from "./editorCore/EditorSystems";
 import { EditorRenderer } from "./editorCore/EditorRenderer";
 import { ElementEventBus } from "./events/ElementEventBus";
 import { BlockInteractionManager } from "./managers/BlockInteractionManager";
-import { CommunicationManager } from "./managers/CommunicationManager";
+import { CommunicationManager } from "./CommunicationManager";
 import { ElementFactory } from "./managers/ElementFactory";
 import { ImageInteractionManager } from "./managers/ImageInteractionManager";
 import { LinkInteractionManager } from "./managers/LinkInteractionManager";
 import { NoteInteractionManager } from "./managers/NoteInteractionManager";
-import { SelectableManager } from "./managers/SelectableManager";
+import { SelectableManager } from "./editorCore/SelectableManager";
 import { ZoomController } from "./editorCore/ZoomController";
 import { Library } from "../shared/BlockPalette";
+import { JsonData } from "../shared/JsonTypes";
+import { LinkVisual } from "./visualElements/LinkVisual";
 
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
@@ -84,7 +86,37 @@ export class BlockEditorApp {
         } else if (e.data.type === 'setBlockLibraries') {
             this.systems.communicationManager.setBlockLibraries(e.data.model as Library[]);
         }
+
+        this.systems.communicationManager.registerLocalJsonChangedCallback(this.updateWebView.bind(this));
+
     });
+    }
+
+    private lastWebViewUpdateTime = Date.now();
+    private minUpdateInterval = 10; 
+    private timerRunning = false;
+
+    public updateWebView(json: JsonData): void {
+        const currentTime = Date.now();
+        if (currentTime - this.lastWebViewUpdateTime < this.minUpdateInterval) {
+            if (!this.timerRunning) {
+                this.timerRunning = true;
+                setTimeout(() => {
+                    const lastJson = this.systems.communicationManager.getLocalJson();
+                    if (lastJson) {
+                        this.updateWebView(lastJson);
+                    }
+                    this.timerRunning = false;
+                }, this.minUpdateInterval);
+            }
+            return; 
+        }
+
+        this.lastWebViewUpdateTime = currentTime;
+
+        this.systems.elementManagers.forEach(manager => manager.updateFromJson(json));
+
+        this.renderHTML(json);
     }
 
     public applyThemeClass(kind: string) {

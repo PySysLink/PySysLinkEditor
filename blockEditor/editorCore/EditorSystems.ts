@@ -1,16 +1,19 @@
 import { BlockPalette } from "./BlockPalette";
 import { BlockInteractionManager } from "../managers/BlockInteractionManager";
-import { CommunicationManager } from "../managers/CommunicationManager";
+import { CommunicationManager } from "./CommunicationManager";
 import { LinkInteractionManager } from "../managers/LinkInteractionManager";
-import { SelectableManager } from "../managers/SelectableManager";
+import { SelectableManager } from "./SelectableManager";
 import { EditorContext } from "./EditorContext";
 import { ZoomController } from "./ZoomController";
+import { ElementManager } from "../interfaces/ElementManager";
 
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
 
 export class EditorSystems {
     readonly context: EditorContext;
+
+    readonly elementManagers: ElementManager[] = [ ];
 
     readonly communicationManager: CommunicationManager;
     // readonly elementEventBus: ElementEventBus;
@@ -38,6 +41,8 @@ export class EditorSystems {
         this.blockManager =
             new BlockInteractionManager(this.communicationManager);
 
+        this.elementManagers.push(this.blockManager);
+
         this.selectableManager =
             new SelectableManager(
                 this.communicationManager,
@@ -54,18 +59,19 @@ export class EditorSystems {
                 this.selectableManager,
                 this.zoomController.getRealZoom
             );
+        this.elementManagers.push(this.linkManager);
+        
+        // this.noteManager =
+        //     new NoteInteractionManager(
+        //         this.communicationManager,
+        //         this.elementEventBus
+        //     );
 
-        this.noteManager =
-            new NoteInteractionManager(
-                this.communicationManager,
-                this.elementEventBus
-            );
-
-        this.imageManager =
-            new ImageInteractionManager(
-                this.communicationManager,
-                this.elementEventBus
-            );
+        // this.imageManager =
+        //     new ImageInteractionManager(
+        //         this.communicationManager,
+        //         this.elementEventBus
+        //     );
 
         this.blockPalette =
             new BlockPalette(this.communicationManager);

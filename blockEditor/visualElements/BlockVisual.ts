@@ -1,5 +1,5 @@
 import { BlockData, BlockRenderInformation, IdType, JsonData, Rotation } from "../../shared/JsonTypes";
-import { CommunicationManager } from "../managers/CommunicationManager";
+import { CommunicationManager } from "../editorCore/CommunicationManager";
 import { Movable } from "../interfaces/Movable";
 import { Rotatable } from "../interfaces/Rotatable";
 import { Selectable } from "../interfaces/Selectable";

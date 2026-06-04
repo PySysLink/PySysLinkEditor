@@ -1,4 +1,4 @@
-import { CommunicationManager } from "../managers/CommunicationManager";
+import { CommunicationManager } from "../editorCore/CommunicationManager";
 import { Selectable } from "./Selectable";
 
 export interface Movable {

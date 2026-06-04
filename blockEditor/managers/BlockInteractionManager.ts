@@ -1,8 +1,9 @@
 import { BlockData, IdType, JsonData } from '../../shared/JsonTypes';
+import { ElementManager } from '../interfaces/ElementManager';
 import { BlockVisual } from '../visualElements/BlockVisual';
-import { CommunicationManager } from './CommunicationManager';
+import { CommunicationManager } from '../editorCore/CommunicationManager';
 
-export class BlockInteractionManager {
+export class BlockInteractionManager extends ElementManager {
     public blocks: BlockVisual[] = [];
     private dragStartX = 0;
     private dragStartY = 0;
@@ -16,6 +17,7 @@ export class BlockInteractionManager {
     private onDeleteCallbacks: ((block: BlockVisual) => void)[] = [];
 
     constructor(communicationManager: CommunicationManager) {
+        super();
         this.communicationManager = communicationManager;
     }
 

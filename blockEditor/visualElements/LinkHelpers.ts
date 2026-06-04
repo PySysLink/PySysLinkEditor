@@ -1,9 +1,8 @@
-import { debug, timeStamp } from 'console';
+// import { debug, timeStamp } from 'console';
 import { Selectable } from '../interfaces/Selectable';
 import { IdType, JsonData } from '../../shared/JsonTypes';
 import { isMovable, Movable } from '../interfaces/Movable';
-import { CommunicationManager } from '../managers/CommunicationManager';
-import { link } from 'fs';
+import { CommunicationManager } from '../editorCore/CommunicationManager';
 
 export class LinkNode extends Selectable implements Movable {
     id: string;

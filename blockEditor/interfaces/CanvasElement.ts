@@ -1,5 +1,5 @@
 import { IdType, JsonData } from "../../shared/JsonTypes";
-import { CommunicationManager } from "../managers/CommunicationManager";
+import { CommunicationManager } from "../editorCore/CommunicationManager";
 
 // Capability interfaces
 export interface Movable {

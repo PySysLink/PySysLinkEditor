@@ -1,7 +1,7 @@
 // blockPalette.ts
 
 import { Library } from "../../shared/BlockPalette";
-import { CommunicationManager } from "../managers/CommunicationManager";
+import { CommunicationManager } from "./CommunicationManager";
 
 
 
