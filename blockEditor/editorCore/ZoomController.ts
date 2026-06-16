@@ -71,9 +71,9 @@ export class ZoomController {
         return this.zoomLevel;
     }
 
-    public getRealZoom(): number {
+    public getRealZoom = (): number => {
         return this.zoomLevel / 2;
-    }
+    };
 
     private applyZoom(): void {
         this.zoomContainer.style.transform =

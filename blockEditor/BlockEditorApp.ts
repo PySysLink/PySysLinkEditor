@@ -72,6 +72,9 @@ export class BlockEditorApp {
             this.zoomController
         );
 
+        this.systems.communicationManager.registerLocalJsonChangedCallback(this.updateWebView);
+
+
         // Restore state if reloaded
         const state = vscode.getState();
         if (state) {
@@ -92,9 +95,6 @@ export class BlockEditorApp {
         } else if (e.data.type === 'setBlockLibraries') {
             this.systems.communicationManager.setBlockLibraries(e.data.model as Library[]);
         }
-
-        this.systems.communicationManager.registerLocalJsonChangedCallback(this.updateWebView);
-
     });
     }
 

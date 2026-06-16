@@ -113,5 +113,9 @@ export class EditorSystems {
         this.selectableManager.addOnMouseMoveListener(
             this.linkManager.highlightNodesNearPorts
         );
+
+        this.selectableManager.updateSelectablesCallbacks();
+
+        this.linkManager.updateElementCallbacks();
     }
 }

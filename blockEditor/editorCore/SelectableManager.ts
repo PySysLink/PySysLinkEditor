@@ -373,6 +373,7 @@ export class SelectableManager {
                 }
             });
         } else {
+            
             this.snapAppliedTotalX += scaledDeltaX;
             this.snapAppliedTotalY += scaledDeltaY;
 
