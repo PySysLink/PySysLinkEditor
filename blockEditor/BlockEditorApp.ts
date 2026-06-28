@@ -4,7 +4,6 @@ import { CanvasPanning } from "./editorCore/CanvasPanning";
 import { EditorContext } from "./editorCore/EditorContext";
 import { EditorSystems } from "./editorCore/EditorSystems";
 import { EditorRenderer } from "./editorCore/EditorRenderer";
-import { ElementEventBus } from "./events/ElementEventBus";
 import { BlockInteractionManager } from "./managers/BlockInteractionManager";
 // import { CommunicationManager } from "./CommunicationManager";
 // import { ElementFactory } from "./managers/ElementFactory";

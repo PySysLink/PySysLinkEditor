@@ -12,7 +12,6 @@ import { BlockPalette } from './editorCore/BlockPalette';
 import { JsonData } from '../shared/JsonTypes';
 import { CommunicationManager } from './editorCore/CommunicationManager';
 import { Library } from '../shared/BlockPalette';
-import { ElementEventBus } from './events/ElementEventBus';
 import '@vscode-elements/elements/dist/bundled.js';
 import { BlockEditorApp } from './BlockEditorApp';
 
