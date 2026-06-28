@@ -200,6 +200,7 @@ export class PySysLinkBlockEditorSession {
             );
 
             await vscode.commands.executeCommand('workbench.action.moveEditorToNewWindow');
+            await vscode.commands.executeCommand('workbench.action.toggleCompactAuxiliaryWindow');
 
             const scriptUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'out', 'blockPropertiesEditor', 'blockPropertiesEditor.js'));
             const cssUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'blockPropertiesEditor', 'blockPropertiesEditor.css'));
@@ -210,7 +211,7 @@ export class PySysLinkBlockEditorSession {
 <link rel="stylesheet" href="${cssUri}">
 <style>
     html, body {
-        background-color: white !important;
+        background-color: var(--vscode-editor-background) !important;
         color: black;
         margin: 0;
         padding: 0;
@@ -221,15 +222,14 @@ export class PySysLinkBlockEditorSession {
     .pysyslink-container {
         display: flex;
         flex-direction: column;
-        height: 100vh;
     }
     .plot-area {
-        flex: 1 1 auto;
+        flex: 0 0 auto;
         overflow: auto;
         padding: 8px;
+        background-color: white;
     }
     .props-area {
-        flex: 0 0 360px;
         border-top: 1px solid #ddd;
         padding: 8px;
         background: var(--vscode-editor-background);
