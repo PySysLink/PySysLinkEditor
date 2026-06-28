@@ -207,7 +207,6 @@ export class PySysLinkBlockEditorSession {
             panel.webview.html = `<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; script-src 'unsafe-inline' ${panel.webview.cspSource}; style-src 'unsafe-inline' ${panel.webview.cspSource};">
 <link rel="stylesheet" href="${cssUri}">
 <style>
     html, body {
