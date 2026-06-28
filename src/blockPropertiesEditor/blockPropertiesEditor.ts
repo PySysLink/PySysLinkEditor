@@ -1,7 +1,9 @@
 /* Frontend script for VSCode Webview: dynamically builds the block properties form,
    handles messages from the extension backend, and sends updates back. */
 
-import { BlockData } from "../shared/JsonTypes";
+/// <reference lib="dom" />
+
+import { BlockData } from "../../shared/JsonTypes";
 import '@vscode-elements/elements/dist/bundled.js';
 
 declare const acquireVsCodeApi: any;
@@ -49,13 +51,31 @@ function buildForm(block: BlockData) {
 		}
 	}
 
-	// Save button
-	const saveBtn = document.createElement('vscode-button');
-	saveBtn.id = 'saveBtn';
-	saveBtn.setAttribute('appearance', 'cta');
-	saveBtn.textContent = 'Save';
-	saveBtn.addEventListener('click', onSave);
-	container.appendChild(saveBtn);
+	// Buttons: Cancel, Apply, Apply & Close
+	const btnContainer = document.createElement('div');
+	btnContainer.style.display = 'flex';
+	btnContainer.style.gap = '8px';
+
+	const cancelBtn = document.createElement('vscode-button');
+	cancelBtn.id = 'cancelBtn';
+	cancelBtn.textContent = 'Cancel';
+	cancelBtn.addEventListener('click', () => onCancel());
+
+	const applyBtn = document.createElement('vscode-button');
+	applyBtn.id = 'applyBtn';
+	applyBtn.textContent = 'Apply';
+	applyBtn.addEventListener('click', () => onSave('apply'));
+
+	const applyCloseBtn = document.createElement('vscode-button');
+	applyCloseBtn.id = 'applyCloseBtn';
+	applyCloseBtn.setAttribute('appearance', 'cta');
+	applyCloseBtn.textContent = 'Apply & Close';
+	applyCloseBtn.addEventListener('click', () => onSave('applyAndClose'));
+
+	btnContainer.appendChild(cancelBtn);
+	btnContainer.appendChild(applyBtn);
+	btnContainer.appendChild(applyCloseBtn);
+	container.appendChild(btnContainer);
 
 	// Render
 	const root = document.getElementById('app');
@@ -178,7 +198,7 @@ function appendPropertyField(container: HTMLElement, key: string, property: {typ
 /**
  * Handle save click: gather form values and post update message.
  */
-function onSave() {
+function onSave(action: 'apply' | 'applyAndClose' | 'save' = 'save') {
     if (!currentBlock) {return;}
 
     const updatedBlock: BlockData = { ...currentBlock };
@@ -215,8 +235,13 @@ function onSave() {
 
     vscode.postMessage({
         type: 'update',
+        action,
         block: updatedBlock
     });
+}
+
+function onCancel() {
+    vscode.postMessage({ type: 'cancel' });
 }
 
 /**
@@ -239,12 +264,10 @@ window.addEventListener('message', event => {
             // Clear current selection
             currentBlock = null;
             document.getElementById('app')!.innerHTML = '<p>No block selected</p>';
-            document.getElementById('saveBtn')?.removeEventListener('click', onSave);
             break;
 		case 'setHtml':
 			// Deprecated: direct HTML replace
 			document.getElementById('app')!.innerHTML = msg.html;
-			document.getElementById('saveBtn')!.addEventListener('click', onSave);
 			break;
 		default:
 			console.warn('Unknown message type:', msg.type);

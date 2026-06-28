@@ -1,5 +1,5 @@
 {
-  "version": 21,
+  "version": 37,
   "blocks": [
     {
       "id": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
@@ -100,7 +100,7 @@
         },
         "Gain": {
           "type": "double",
-          "value": "300 + 4j"
+          "value": "30 + 4j"
         }
       },
       "blockRenderInformation": {
@@ -230,7 +230,7 @@
         "Gains": {
           "type": "complex_double[]",
           "value": [
-            1,
+            2,
             1
           ]
         }
@@ -355,7 +355,7 @@
         },
         "Value": {
           "type": "DataType",
-          "value": "3"
+          "value": "-6"
         }
       },
       "blockRenderInformation": {
@@ -387,7 +387,7 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Integrator",
       "label": "Integrator",
-      "x": 810,
+      "x": 860,
       "y": 380,
       "rotation": 0,
       "inputPorts": 1,
@@ -645,7 +645,7 @@
         "2tWdxNhcNK2S1Wyd3JxTTgqHs5uzTPUQ": {
           "targetId": "cB9wH6d1duPv0eTPLRXGaQVAh1MGv5ol",
           "port": 0,
-          "x": 810,
+          "x": 860,
           "y": 410
         }
       },
@@ -660,7 +660,7 @@
       "id": "6Lh7zfKG5VsVuMv31y7UayWCjgQ4mtqW",
       "sourceId": "cB9wH6d1duPv0eTPLRXGaQVAh1MGv5ol",
       "sourcePort": 0,
-      "sourceX": 930,
+      "sourceX": 980,
       "sourceY": 410,
       "targetNodes": {
         "oPzvGhqROm0rJtgEJYIl8GugAavRWWnN": {

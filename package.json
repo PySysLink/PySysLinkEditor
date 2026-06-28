@@ -47,12 +47,6 @@
       "pysyslink_BlockPropertiesActivityBar": [
         {
           "type": "webview",
-          "id": "pysyslink-editor.blockPropertiesView",
-          "name": "Block Properties",
-          "icon": "$(graph-line)"
-        },
-        {
-          "type": "webview",
           "id": "pysyslink-editor.simulationManager",
           "name": "Simulation Manager",
           "icon": "$(graph-line)"

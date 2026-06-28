@@ -2,7 +2,6 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { PySysLinkBlockEditorProvider } from './PySysLinkBlockEditorProvider';
-import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { SimulationManager } from './SimulationManager';
 import { PythonServerManager } from './simulation/PythonServerManager';
 
@@ -20,15 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
         await pythonServer.startServer();
     })();          
 
-    const blockPropertiesProvider = new BlockPropertiesProvider(context);
     const simulationManager = new SimulationManager(context);
-
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(
-			'pysyslink-editor.blockPropertiesView',
-			blockPropertiesProvider
-		)
-	);
 	
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
@@ -124,7 +115,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let pySysLinkBlockEditorProvider = new PySysLinkBlockEditorProvider(
         context,
-        blockPropertiesProvider,
         simulationManager,
         pythonServer
     );

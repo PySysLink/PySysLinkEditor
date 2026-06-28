@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { SimulationManager } from './SimulationManager';
 import { PySysLinkBlockEditorSession } from './PySysLinkBlockEditorSession';
 import { PythonServerManager } from './simulation/PythonServerManager';
@@ -10,7 +9,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
     constructor(
         private readonly context: vscode.ExtensionContext,
-        private readonly blockPropertiesProvider: BlockPropertiesProvider,
         private readonly simulationManager: SimulationManager,
         private readonly pythonServer: PythonServerManager
     ) {}
@@ -21,7 +19,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
     public setActiveSession(session: PySysLinkBlockEditorSession | undefined): void {
         this._activeSession = session;
-        this.blockPropertiesProvider.setSelectedBlock(undefined);
 
         if (session) {
             this.simulationManager.setCurrentPslkPath(session.documentUri.fsPath, session.simulationManagerCallback);
@@ -49,7 +46,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
             this.context,
             document,
             webviewPanel,
-            this.blockPropertiesProvider,
             this.simulationManager,
             this.pythonServer
         );

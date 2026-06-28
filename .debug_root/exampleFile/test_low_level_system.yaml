@@ -23,7 +23,7 @@ Blocks:
   - FullySupportedSignalValue.complex_double
   DataTypeCategory[string]: Inherited
   DataType[string]: complex_double
-  Gain[complex_double]: !!python/complex '300.0+4.0j'
+  Gain[complex_double]: !!python/complex '30.0+4.0j'
 - Id[string]: FV7NHflKks0wYFMs1l61P9hHFlpR0C2T
   Name[string]: Display
   BlockType[string]: BasicCpp
@@ -49,7 +49,7 @@ Blocks:
   DataTypeCategory[string]: FullySupportedSignalValue
   DataType[string]: complex_double
   Gains[vector<complex_double>]:
-  - !!python/complex '1.0'
+  - !!python/complex '2.0'
   - !!python/complex '1.0'
 - Id[string]: fDPJWWOCpsU5H1lPffoE5Z6QCPQfdUuA
   Name[string]: Constant
@@ -74,7 +74,7 @@ Blocks:
   - FullySupportedSignalValue.double
   DataTypeCategory[string]: FullySupportedSignalValue
   DataType[string]: double
-  Value[double]: 3.0
+  Value[double]: -6.0
 - Id[string]: cB9wH6d1duPv0eTPLRXGaQVAh1MGv5ol
   Name[string]: Integrator
   BlockType[string]: BasicCpp

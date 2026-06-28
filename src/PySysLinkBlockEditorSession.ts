@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { BlockPropertiesProvider } from './BlockPropertiesProvider';
 import { BlockData, IdType, JsonData } from '../shared/JsonTypes';
 import { getBlockData } from '../shared/JsonManager';
 import { PythonServerManager } from './simulation/PythonServerManager';
@@ -11,7 +10,6 @@ import { DocumentManager } from './document/DocumentManager';
 export class PySysLinkBlockEditorSession {
     private webviewPanel: vscode.WebviewPanel;
     private selectedBlockId: IdType | undefined;
-    private blockPropertiesProvider: BlockPropertiesProvider;
     private simulationManager: SimulationManager;
     private documentManager: DocumentManager;
     private htmlBuilder: HtmlBuilder;
@@ -28,13 +26,11 @@ export class PySysLinkBlockEditorSession {
         context: vscode.ExtensionContext,
         document: vscode.TextDocument,
         webviewPanel: vscode.WebviewPanel,
-        blockPropertiesProvider: BlockPropertiesProvider,
         simulationManager: SimulationManager,
         pythonServer: PythonServerManager
     ) {
         this.context = context;
         this.webviewPanel = webviewPanel;
-        this.blockPropertiesProvider = blockPropertiesProvider;
         this.simulationManager = simulationManager;
         this.pythonServer = pythonServer;
 
@@ -49,7 +45,6 @@ export class PySysLinkBlockEditorSession {
             onRequestBlockHtml: this.displayBlockHTML
         });
 
-        this.blockPropertiesProvider.registerOnUpdateCallback(this.updateBlockParameters);
         this.simulationManager.registerCurrentSimulationOptionsFileChangedHandler(async (newPath) => {
             await this.documentManager.changeSimulationsOptionsFile(newPath);
         });
@@ -76,7 +71,6 @@ export class PySysLinkBlockEditorSession {
 
         const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
             if (e.document.uri.toString() === this.documentManager.documentUri.toString()) {
-                this.notifySelectedBlock();
                 console.log(`Document changed, updating webview for ${this.documentManager.documentUri.toString()}`);
                 this.updateWebview();
             }
@@ -144,7 +138,6 @@ export class PySysLinkBlockEditorSession {
 
     private handleBlockSelected = (blockId: IdType): void => {
         this.selectedBlockId = blockId;
-        this.notifySelectedBlock();
     };
 
     private updateBlockParameters = async (block: BlockData): Promise<void> => {
@@ -207,9 +200,15 @@ export class PySysLinkBlockEditorSession {
             );
 
             await vscode.commands.executeCommand('workbench.action.moveEditorToNewWindow');
+
+            const scriptUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'out', 'blockPropertiesEditor', 'blockPropertiesEditor.js'));
+            const cssUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'blockPropertiesEditor', 'blockPropertiesEditor.css'));
+
             panel.webview.html = `<!DOCTYPE html>
 <html>
 <head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; script-src 'unsafe-inline' ${panel.webview.cspSource}; style-src 'unsafe-inline' ${panel.webview.cspSource};">
+<link rel="stylesheet" href="${cssUri}">
 <style>
     html, body {
         background-color: white !important;
@@ -220,32 +219,77 @@ export class PySysLinkBlockEditorSession {
     div[id^=\"fig_el\"] {
         background-color: white !important;
     }
+    .pysyslink-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    .plot-area {
+        flex: 1 1 auto;
+        overflow: auto;
+        padding: 8px;
+    }
+    .props-area {
+        flex: 0 0 360px;
+        border-top: 1px solid #ddd;
+        padding: 8px;
+        background: var(--vscode-editor-background);
+    }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
 <script src="https://mpld3.github.io/js/mpld3.v0.5.12.js"></script>
 </head>
 <body>
-${result.html}
+<div class="pysyslink-container">
+  <div class="plot-area">
+    ${result.html}
+  </div>
+  <div class="props-area">
+    <div id="app">Loading block editor...</div>
+  </div>
+</div>
+<script src="${scriptUri}"></script>
 </body>
 </html>`;
+
+            // Wire messages from the webview
+            const disposables: vscode.Disposable[] = [];
+            const msgHandler = panel.webview.onDidReceiveMessage(async (msg: any) => {
+                switch (msg.type) {
+                    case 'ready':
+                        // Webview ready - send selected block data
+                        panel.webview.postMessage({ type: 'updateBlock', block });
+                        break;
+                    case 'update':
+                        try {
+                            await this.documentManager.updateBlockParameters(msg.block);
+                            this.updateWebview();
+                            if (msg.action === 'applyAndClose') {
+                                panel.dispose();
+                            }
+                        } catch (e: any) {
+                            console.error('Error applying block update from popup:', e);
+                            vscode.window.showErrorMessage(`Could not apply block changes: ${e}`);
+                        }
+                        break;
+                    case 'cancel':
+                        panel.dispose();
+                        break;
+                    default:
+                        console.warn('Unknown message from popup webview:', msg);
+                }
+            });
+
+            disposables.push(msgHandler);
+
+            panel.onDidDispose(() => {
+                disposables.forEach(d => d.dispose());
+            });
         } catch (error: any) {
             console.error(`Error on python server while getting block HTML: ${error}`);
             vscode.window.showErrorMessage(`Error on python server while getting block HTML: ${error}`);
         }
     };
-
-    private async notifySelectedBlock(): Promise<void> {
-        if (!this.selectedBlockId) {
-            this.blockPropertiesProvider.setSelectedBlock(undefined);
-            return;
-        }
-
-        const json = this.documentManager.getJson();
-        const blockData = getBlockData(json, this.selectedBlockId);
-        if (blockData) {
-            this.blockPropertiesProvider.setSelectedBlock(blockData);
-        }
-    }
 
     private updateWebview = (): void => {
         const json = this.documentManager.getJson();
