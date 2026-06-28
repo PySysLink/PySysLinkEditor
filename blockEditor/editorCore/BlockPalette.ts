@@ -96,6 +96,7 @@ export class BlockPalette {
 
         blockBtn.setAttribute('draggable', 'true');
         blockBtn.addEventListener('dragstart', (e: DragEvent) => {
+          console.log(`Dragging block: ${block.name} from library: ${lib.name}`);
           const payload = JSON.stringify({
             library: lib.name,
             blockType: block.name

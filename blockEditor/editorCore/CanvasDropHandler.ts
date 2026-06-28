@@ -14,9 +14,7 @@ export class CanvasDropHandler {
         private readonly canvas: HTMLElement,
         private readonly communicationManager: CommunicationManager,
         private readonly zoomController: ZoomController
-    ) {}
-
-    public initialize(): void {
+    ) {
         this.canvas.addEventListener(
             'dragover',
             this.onDragOver
@@ -44,6 +42,7 @@ export class CanvasDropHandler {
         e: DragEvent
     ): void => {
         e.preventDefault();
+        console.log('Drag over event received');
     };
 
     private onDrop = (
