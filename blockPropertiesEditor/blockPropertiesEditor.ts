@@ -3,7 +3,7 @@
 
 /// <reference lib="dom" />
 
-import { BlockData } from "../../shared/JsonTypes";
+import { BlockData } from "../shared/JsonTypes";
 import '@vscode-elements/elements/dist/bundled.js';
 
 declare const acquireVsCodeApi: any;
@@ -32,8 +32,11 @@ function buildForm(block: BlockData) {
         const labelEl = document.createElement('vscode-label');
         labelEl.textContent = label;
         const info = document.createElement('span');
-        info.textContent = value;
+        const infoText = document.createElement('vscode-label');
+        infoText.textContent = value;
         info.style.marginLeft = '8px';
+        info.classList.add('normal');
+        info.appendChild(infoText);
         group.appendChild(labelEl);
         group.appendChild(info);
         container.appendChild(group);
