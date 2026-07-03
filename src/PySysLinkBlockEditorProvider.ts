@@ -9,7 +9,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
     constructor(
         private readonly context: vscode.ExtensionContext,
-        private readonly simulationManager: SimulationManager,
         private readonly pythonServer: PythonServerManager
     ) {}
 
@@ -19,22 +18,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
 
     public setActiveSession(session: PySysLinkBlockEditorSession | undefined): void {
         this._activeSession = session;
-
-        if (session) {
-            this.simulationManager.setCurrentPslkPath(session.documentUri.fsPath, session.simulationManagerCallback);
-            let simPath = session.getSimulationOptionsPath();
-            if (simPath) {
-                this.simulationManager.setCurrentSimulationOptionsPath(simPath);
-            }
-            let initPath = session.getInitializationScriptPath();
-            if (initPath) {
-                this.simulationManager.setCurrentInitializationScriptPath(initPath);
-            }
-            let toolkitPath = session.getToolkitConfigurationPath();
-            if (toolkitPath) {
-                this.simulationManager.setCurrentToolkitConfigurationFilePath(toolkitPath);
-            }
-        }
     }
 
     public async resolveCustomTextEditor(
@@ -46,7 +29,6 @@ export class PySysLinkBlockEditorProvider implements vscode.CustomTextEditorProv
             this.context,
             document,
             webviewPanel,
-            this.simulationManager,
             this.pythonServer
         );
         this.sessions.set(document.uri.toString(), session);

@@ -19,16 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
         await pythonServer.init();
         await pythonServer.startServer();
     })();          
-
-    const simulationManager = new SimulationManager(context);
 	
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(
-			'pysyslink-editor.simulationManager',
-			simulationManager
-		)
-	);
-
     const simulationTerminal = new SimulationTerminalManager();
     
     context.subscriptions.push(
@@ -56,7 +47,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let pySysLinkBlockEditorProvider = new PySysLinkBlockEditorProvider(
         context,
-        simulationManager,
         pythonServer
     );
     const disposable = vscode.window.registerCustomEditorProvider(

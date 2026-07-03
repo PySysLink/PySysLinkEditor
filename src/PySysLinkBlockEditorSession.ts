@@ -26,15 +26,15 @@ export class PySysLinkBlockEditorSession {
         context: vscode.ExtensionContext,
         document: vscode.TextDocument,
         webviewPanel: vscode.WebviewPanel,
-        simulationManager: SimulationManager,
         pythonServer: PythonServerManager
     ) {
         this.context = context;
         this.webviewPanel = webviewPanel;
-        this.simulationManager = simulationManager;
         this.pythonServer = pythonServer;
 
-        this.documentManager = new DocumentManager(document, simulationManager, pythonServer);
+
+        this.simulationManager = new SimulationManager(context);
+        this.documentManager = new DocumentManager(document, this.simulationManager, pythonServer);
         this.htmlBuilder = new HtmlBuilder(context);
         this.messageHandler = new WebviewMessageHandler({
             documentManager: this.documentManager,

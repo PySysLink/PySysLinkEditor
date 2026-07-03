@@ -43,16 +43,6 @@
         "*.pslk": "json"
       }
     },
-    "views": {
-      "pysyslink_BlockPropertiesActivityBar": [
-        {
-          "type": "webview",
-          "id": "pysyslink-editor.simulationManager",
-          "name": "Simulation Manager",
-          "icon": "$(graph-line)"
-        }
-      ]
-    },
     "commands": [
       {
         "command": "pysyslink-editor.runSimulation",
