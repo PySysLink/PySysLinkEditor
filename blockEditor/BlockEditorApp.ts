@@ -123,7 +123,7 @@ export class BlockEditorApp {
 
         this.systems.elementManagers.forEach(manager => manager.updateFromJson(json));
 
-        this.renderer.render();
+        this.renderer.render(json);
     };
 
     public applyThemeClass(kind: string) {

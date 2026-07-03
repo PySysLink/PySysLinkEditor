@@ -26,10 +26,10 @@ export class EditorRenderer {
         this.zoomController = zoomController;
     }
 
-    public render(): void {
+    public render(jsonData: JsonData): void {
         this.clearCanvas();
 
-        this.renderTopControls();
+        this.renderTopControls(jsonData);
 
         this.renderBlocks();
         this.renderLinks();
@@ -62,7 +62,7 @@ export class EditorRenderer {
         this.context.canvas.appendChild(svg);
     }
 
-    private renderTopControls(): void {
+    private renderTopControls(jsonData: JsonData): void {
         this.context.topControls.innerHTML = '';
         // Add button
 
@@ -93,12 +93,75 @@ export class EditorRenderer {
         this.context.topControls.appendChild(btnZoomIn);
         this.context.topControls.appendChild(btnZoomOut);
         this.context.topControls.appendChild(btnResetZoom);
+
+        this.context.topControls.appendChild(
+            this.createFileSelector(
+                'Simulation Options',
+                'simulation_options_file',
+                () => this.systems.communicationManager.openSimulationOptionsFileSelector(),
+                jsonData.simulation_configuration
+            )
+        );
+
+        this.context.topControls.appendChild(
+            this.createFileSelector(
+                'Initialization Script',
+                'initialization_script_file',
+                () => this.systems.communicationManager.openInitializationScriptFileSelector(), 
+                jsonData.initialization_python_script_path
+            )
+        );
+
+        this.context.topControls.appendChild(
+            this.createFileSelector(
+                'Toolkit Config',
+                'toolkit_configuration_file',
+                () => this.systems.communicationManager.openToolkitConfigurationFileSelector(),
+                jsonData.toolkit_configuration_path
+            )
+        );
+
         this.context.topControls.appendChild(btnToggleBlockPalette);
         this.context.topControls.appendChild(btnActivateGridSnapping);
     }
 
     private renderBlockPallete(): void {
         this.systems.blockPalette.renderPalette(this.context.blockPaletteContent);
+    }
+
+
+    private createFileSelector(
+        labelText: string,
+        id: string,
+        onBrowse: () => void,
+        textFieldValue: string = ''
+    ): HTMLElement {
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.gap = '8px';
+        container.style.marginTop = '6px';
+
+        const label = document.createElement('span');
+        label.textContent = labelText;
+
+        const input = document.createElement('vscode-textfield') as any;
+        input.id = id;
+        input.setAttribute('placeholder', 'Select a file...');
+        input.style.width = '350px';
+        if (textFieldValue !== '') {
+            input.value = textFieldValue;
+        }
+
+        const browseBtn = document.createElement('vscode-button');
+        browseBtn.textContent = 'Browse';
+        browseBtn.addEventListener('click', onBrowse);
+
+        container.appendChild(label);
+        container.appendChild(input);
+        container.appendChild(browseBtn);
+
+        return container;
     }
 
     // private renderGenericElements(): void {

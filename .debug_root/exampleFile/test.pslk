@@ -1,5 +1,5 @@
 {
-  "version": 16,
+  "version": 18,
   "blocks": [
     {
       "id": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
@@ -142,8 +142,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Display",
       "label": "Display",
-      "x": 1150,
-      "y": 160,
+      "x": 1180,
+      "y": 80,
       "rotation": 0,
       "inputPorts": 1,
       "outputPorts": 0,
@@ -505,8 +505,8 @@
         "lldVLLCcsXUGEz4KQJNbtMewvCtpBkwg": {
           "targetId": "FV7NHflKks0wYFMs1l61P9hHFlpR0C2T",
           "port": 0,
-          "x": 1150,
-          "y": 190
+          "x": 1180,
+          "y": 110
         }
       },
       "segmentNode": {
@@ -522,7 +522,7 @@
               {
                 "id": "lldVLLCcsXUGEz4KQJNbtMewvCtpBkwg",
                 "orientation": "Horizontal",
-                "xOrY": 190,
+                "xOrY": 110,
                 "children": []
               }
             ]
@@ -680,5 +680,5 @@
   ],
   "simulation_configuration": "lowLevelOptions.yaml",
   "initialization_python_script_path": "initParam.py",
-  "toolkit_configuration_path": ""
+  "toolkit_configuration_path": "toolkit_config.yaml"
 }

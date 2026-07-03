@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
-import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
-import * as readline from 'readline';
 import { PythonServerManager } from './simulation/PythonServerManager';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
@@ -169,7 +167,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
     }
 
 
-    private async openSimulationOptionsFileSelector() {
+    public openSimulationOptionsFileSelector = async () => {
       const options: vscode.OpenDialogOptions = {
         canSelectMany: false,
         openLabel: 'Open',
@@ -195,10 +193,10 @@ export class SimulationManager implements vscode.WebviewViewProvider {
                
           }
       });
-    }
+    };
     
     
-    private async openInitializationScriptFileSelector() {
+    public openInitializationScriptFileSelector = async () => {
       const options: vscode.OpenDialogOptions = {
         canSelectMany: false,
         openLabel: 'Open',
@@ -224,9 +222,9 @@ export class SimulationManager implements vscode.WebviewViewProvider {
                
           }
       });
-    }
+    };
     
-    private async openToolkitConfigurationFileSelector() {
+    public openToolkitConfigurationFileSelector = async () => {
       const options: vscode.OpenDialogOptions = {
         canSelectMany: false,
         openLabel: 'Open',
@@ -252,7 +250,7 @@ export class SimulationManager implements vscode.WebviewViewProvider {
                
           }
       });
-    }
+    };
 
     private sendSimulationConfigToWebview() {
       if (!this._view) {

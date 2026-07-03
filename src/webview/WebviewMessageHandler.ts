@@ -10,6 +10,9 @@ export interface WebviewMessageHandlerOptions {
     onUpdateWebview: () => void;
     onLoadBlockLibraries: () => Promise<void> | void;
     onRequestBlockHtml: (blockId: IdType) => Promise<void>;
+    openSimulationOptionsFileSelector: () => Promise<void>;
+    openInitializationScriptFileSelector: () => Promise<void>;
+    openToolkitConfigurationFileSelector: () => Promise<void>;
 }
 
 export class WebviewMessageHandler {
@@ -49,6 +52,20 @@ export class WebviewMessageHandler {
                     vscode.window.showWarningMessage('Python server is not running. Cannot display block preview.');
                 }
                 return;
+            case 'openSimulationOptionsFileSelector': {
+                this.options.openSimulationOptionsFileSelector();
+                break;
+            }
+
+            case 'openInitializationScriptFileSelector': {
+                this.options.openInitializationScriptFileSelector();
+                break;
+            }
+
+            case 'openToolkitConfigurationFileSelector': {
+                this.options.openToolkitConfigurationFileSelector();
+                break;
+            }
             case 'heartbeat':
                 console.log(`[Heartbeat] [${message.text}] [${new Date().toISOString()}]`);
                 return;

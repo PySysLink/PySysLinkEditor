@@ -42,7 +42,10 @@ export class PySysLinkBlockEditorSession {
             onBlockSelected: this.handleBlockSelected,
             onUpdateWebview: this.updateWebview,
             onLoadBlockLibraries: this.loadBlockLibraries,
-            onRequestBlockHtml: this.displayBlockHTML
+            onRequestBlockHtml: this.displayBlockHTML,
+            openSimulationOptionsFileSelector: this.simulationManager.openSimulationOptionsFileSelector,
+            openInitializationScriptFileSelector: this.simulationManager.openInitializationScriptFileSelector,
+            openToolkitConfigurationFileSelector: this.simulationManager.openToolkitConfigurationFileSelector
         });
 
         this.simulationManager.registerCurrentSimulationOptionsFileChangedHandler(async (newPath) => {

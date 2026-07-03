@@ -528,6 +528,28 @@ export class CommunicationManager {
         return link.findSegmentNodeById(id);
     }
 
+
+    public openSimulationOptionsFileSelector(): void {
+        this.vscode.postMessage({
+            type: 'openSimulationOptionsFileSelector'
+        });
+    }
+
+    public openInitializationScriptFileSelector(): void {
+        this.vscode.postMessage({
+            type: 'openInitializationScriptFileSelector'
+        });
+    }
+
+    public openToolkitConfigurationFileSelector(): void {
+        this.vscode.postMessage({
+            type: 'openToolkitConfigurationFileSelector'
+        });
+    }
+
+
+
+
     // ============ Subsystem Navigation ============
 
     /**
