@@ -1,13 +1,13 @@
 {
-  "version": 37,
+  "version": 16,
   "blocks": [
     {
       "id": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 170,
-      "y": 110,
+      "x": 150,
+      "y": 80,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
@@ -569,8 +569,8 @@
       "id": "AjVUtNAkrq1MCoX2UoSfxLpuqzjiPjFU",
       "sourceId": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
       "sourcePort": 0,
-      "sourceX": 290,
-      "sourceY": 140,
+      "sourceX": 270,
+      "sourceY": 110,
       "targetNodes": {
         "sE5D7GZedCPYxYFgGWAtmVhtCnDj8U9N": {
           "targetId": "EmPQK8h6NnivEJKXdCaQwAub7hhNvH67",
@@ -582,7 +582,7 @@
       "segmentNode": {
         "id": "b1txzkZl8uvlPpK4vXfF5jYpZqP7qg9I",
         "orientation": "Horizontal",
-        "xOrY": 140,
+        "xOrY": 110,
         "children": [
           {
             "id": "jAoIm31yi9RDhgSLwLgGSNnm4fS9uSjG",
@@ -680,5 +680,5 @@
   ],
   "simulation_configuration": "lowLevelOptions.yaml",
   "initialization_python_script_path": "initParam.py",
-  "toolkit_configuration_path": "toolkit_config.yaml"
+  "toolkit_configuration_path": ""
 }

@@ -18,9 +18,7 @@ export class CanvasPanning {
         this.mouseButton = options.mouseButton ?? 1; // middle mouse
         this.panningClassName =
             options.panningClassName ?? 'panning';
-    }
 
-    public initialize(): void {
         this.canvasContainer.addEventListener(
             'mousedown',
             this.onMouseDown
