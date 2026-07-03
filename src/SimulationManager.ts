@@ -14,7 +14,6 @@ export class SimulationManager {
     private currentInitializationScriptPath: string | undefined = undefined;
     private currentToolkitConfigurationFilePath: string | undefined = undefined;
 
-    private pslkCallbacks: Map<string, (msg: any) => void> = new Map();
 
     constructor(private readonly context: vscode.ExtensionContext) {
     }
@@ -31,11 +30,6 @@ export class SimulationManager {
       this.currentToolkitConfigurationFileChangedHandler.push(handler);
     }
     
-
-    public setCurrentPslkPath(pslkPath: string, callback?: (msg: any) => void) {
-      this.currentPslkPath = pslkPath; 
-      this.pslkCallbacks.set(pslkPath, callback || ((msg: any) => {}));    
-    }
 
     public setCurrentSimulationOptionsPath(currentSimulationOptionsPath: string) {
       this.currentSimulationOptionsPath = currentSimulationOptionsPath;

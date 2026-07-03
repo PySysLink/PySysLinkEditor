@@ -74,7 +74,7 @@ Blocks:
   - FullySupportedSignalValue.double
   DataTypeCategory[string]: FullySupportedSignalValue
   DataType[string]: double
-  Value[double]: -6.0
+  Value[double]: 6.0
 - Id[string]: cB9wH6d1duPv0eTPLRXGaQVAh1MGv5ol
   Name[string]: Integrator
   BlockType[string]: BasicCpp

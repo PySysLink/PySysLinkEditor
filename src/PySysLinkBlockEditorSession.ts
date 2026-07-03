@@ -88,7 +88,6 @@ export class PySysLinkBlockEditorSession {
 
         this.updateWebview();
         this.postColorTheme(vscode.window.activeColorTheme.kind);
-        this.simulationManager.setCurrentPslkPath(this.documentManager.documentUri.fsPath, this.simulationManagerCallback);
 
         const simPath = this.getSimulationOptionsPath();
         if (simPath) {
@@ -105,19 +104,6 @@ export class PySysLinkBlockEditorSession {
             this.simulationManager.setCurrentToolkitConfigurationFilePath(toolkitPath);
         }
     }
-
-    public simulationManagerCallback = (msg: any) => {
-        switch (msg.type) {
-            case 'runSimulation':
-                this.sendSimulationStart(msg);
-                break;
-            case 'stopSimulation':
-                this.cancelSimulation();
-                break;
-            default:
-                console.warn(`Unknown simulation manager message type: ${msg.type}`);
-        }
-    };
 
     private onThemeChange(e: vscode.ColorTheme) {
         this.postColorTheme(e.kind);

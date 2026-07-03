@@ -1,5 +1,5 @@
 {
-  "version": 12,
+  "version": 7,
   "blocks": [
     {
       "id": "UDdiznjUsNhqeU3qDvjhBYM60zHszHKK",
@@ -355,7 +355,7 @@
         },
         "Value": {
           "type": "DataType",
-          "value": "-6"
+          "value": "6"
         }
       },
       "blockRenderInformation": {

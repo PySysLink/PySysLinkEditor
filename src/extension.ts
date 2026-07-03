@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                 const pslkPath = session.documentUri.fsPath;
 
-                const command = `python simulate.py "${pslkPath}"`;
+                const command = `pysyslink run "${pslkPath}"`;
                 simulationTerminal.runCommand(command);
             }
         )
