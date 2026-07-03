@@ -58,23 +58,13 @@
         "command": "pysyslink-editor.runSimulation",
         "title": "Run Simulation",
         "icon": "$(play)"
-      },
-      {
-        "command": "pysyslink-editor.stopSimulation",
-        "title": "Stop Simulation",
-        "icon": "$(debug-stop)"
       }
     ],
     "menus": {
       "editor/title": [
         {
           "command": "pysyslink-editor.runSimulation",
-          "when": "activeCustomEditorId == pysyslink-editor.modelBlockEditor && !pysyslink.simulationRunning",
-          "group": "navigation"
-        },
-        {
-          "command": "pysyslink-editor.stopSimulation",
-          "when": "activeCustomEditorId == pysyslink-editor.modelBlockEditor && pysyslink.simulationRunning",
+          "when": "activeCustomEditorId == pysyslink-editor.modelBlockEditor",
           "group": "navigation"
         }
       ]
