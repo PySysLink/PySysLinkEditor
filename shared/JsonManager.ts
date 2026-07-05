@@ -1,5 +1,5 @@
 import { get } from "http";
-import { IdType, JsonData, BlockData, Rotation } from "./JsonTypes";
+import { IdType, JsonData, BlockData, Rotation, SubsystemData } from "./JsonTypes";
 // import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
 import { getNonce } from "./util";
 import { Link, LinkJson, SegmentNode, TargetNodeInfo } from "./Link";
@@ -18,6 +18,7 @@ export function MergeJsons(
         toolkit_configuration_path: "",
         blocks: [],
         links: [],
+        subsystems: []
     };
 
     // Helper function to merge individual objects (blocks or links) property by property
@@ -102,6 +103,13 @@ export function MergeJsons(
         jsonChild2.links
     );
 
+    // Merge subsystems
+    mergedJson.subsystems = mergeArray(
+        jsonBase.subsystems,
+        jsonChildPriority.subsystems,
+        jsonChild2.subsystems
+    );
+
     function addId(value: any) {
         return {id: "dummy", value: value};
     }
@@ -141,6 +149,34 @@ export function deleteBlockFromJson(json: JsonData, blockId: IdType): JsonData {
         links: updatedLinks
     };
     console.log(`Removed block: ${blockId}`);
+    console.log(json);
+    console.log(updatedJson);
+    return updatedJson;
+}
+
+export function deleteSubsystemFromJson(json: JsonData, subsystemId: IdType): JsonData {
+    let updatedLinks = json.links;
+    if (updatedLinks) {
+        updatedLinks.forEach(link => {
+            if (link.sourceId === subsystemId) {
+                link.sourceId = "undefined";
+                link.sourcePort = -1;
+            }
+            for (const segmentId in link.targetNodes) {
+                const targetInfo = link.targetNodes[segmentId];
+                if (targetInfo.targetId === subsystemId) {
+                    targetInfo.targetId = "undefined";
+                    targetInfo.port = -1;
+                }
+            }
+        });
+    }
+    const updatedJson: JsonData = {
+        ...json,
+        subsystems: json.subsystems?.filter(subsystem => subsystem.id !== subsystemId),
+        links: updatedLinks
+    };
+    console.log(`Removed subsystem: ${subsystemId}`);
     console.log(json);
     console.log(updatedJson);
     return updatedJson;
@@ -229,6 +265,33 @@ export function moveBlockInJson(json: JsonData, blockId: IdType, x: number, y: n
     return updatedJson;
 }
 
+export function moveSubsystemInJson(json: JsonData, subsystemId: IdType, x: number, y: number, selectedSelectableIds: IdType[], removeColinear: boolean = true): JsonData {
+    const previousX = json.subsystems?.find(s => s.id === subsystemId)?.x;
+    const previousY = json.subsystems?.find(s => s.id === subsystemId)?.y;
+
+    let updatedJson: JsonData = {
+        ...json,
+        subsystems: json.subsystems?.map(subsystem => {
+            if (subsystem.id === subsystemId) {
+                return {
+                    ...subsystem,
+                    x: x,
+                    y: y
+                };
+            }
+            return subsystem;
+        })
+    };
+
+    if (previousX && previousY && (previousX !== x || previousY !== y)) {
+        console.log(`Calling updateLinksSourceTargetPosition after moving subsystem ${subsystemId}`);
+        console.log(`Previous position: (${previousX}, ${previousY}), New position: (${x}, ${y})`);
+        updatedJson = updateLinksSourceTargetPosition(updatedJson, selectedSelectableIds, removeColinear);
+    }
+
+    return updatedJson;
+}
+
 export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation, updateLinks: boolean = true): JsonData {
     let updatedJson: JsonData = {
         ...json,
@@ -244,6 +307,27 @@ export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation,
     };
 
     console.log(`Calling updateLinksSourceTargetPosition after rotating block ${blockId}`);
+    updatedJson = updateLinksSourceTargetPosition(updatedJson, []);
+
+    return updatedJson;
+}
+
+
+export function rotateSubsystem(json: JsonData, subsystemId: IdType, rotation: Rotation, updateLinks: boolean = true): JsonData {
+    let updatedJson: JsonData = {  
+        ...json,
+        subsystems: json.subsystems?.map(subsystem => {
+            if (subsystem.id === subsystemId) {
+                return {
+                    ...subsystem,
+                    rotation: rotation
+                };
+            }
+            return subsystem;
+        })
+    };
+
+    console.log(`Calling updateLinksSourceTargetPosition after rotating subsystem ${subsystemId}`);
     updatedJson = updateLinksSourceTargetPosition(updatedJson, []);
 
     return updatedJson;
@@ -395,10 +479,16 @@ export function getPortPosition(
 
     if (!json) {return undefined;}
 
-    const block = json.blocks?.find(b => b.id === blockId);
-    if (!block) {return undefined;}
+    let blockOrSubsystem: BlockData | SubsystemData | undefined = json.blocks?.find(b => b.id === blockId);
+    if (!blockOrSubsystem) {
+        const subsystem = json.subsystems?.find(s => s.id === blockId);
+        if (!subsystem) {
+            return undefined;
+        }
+        blockOrSubsystem = subsystem;
+    }
 
-    const totalPorts = portType === "input" ? block.inputPorts : block.outputPorts;
+    const totalPorts = portType === "input" ? blockOrSubsystem.inputPorts : blockOrSubsystem.outputPorts;
 
     // Calculate center-based y-offset
     const totalSpan = (totalPorts - 1) * portSpacing;
@@ -408,14 +498,14 @@ export function getPortPosition(
     const localX = portType === "input" ? 0 : blockWidth;
     const localY = blockHeight / 2 + yOffset;
 
-    let rotation = block.rotation ?? 0;
+    let rotation = blockOrSubsystem.rotation ?? 0;
     if (ignoreRotation) {
         rotation = 0; 
     }
 
     // Rotate point around the center of the block
-    const cx = block.x + blockWidth / 2;
-    const cy = block.y + blockHeight / 2;
+    const cx = blockOrSubsystem.x + blockWidth / 2;
+    const cy = blockOrSubsystem.y + blockHeight / 2;
 
     let dx = localX - blockWidth / 2;
     let dy = localY - blockHeight / 2;
@@ -543,24 +633,46 @@ export function moveLinkDelta(
 }
 
 export function checkIfPortInPosition(json: JsonData, x: number, y: number, maxDistance: number): { blockId: IdType, portType: 'input' | 'output', portIndex: number } | undefined {
-    if (!json.blocks) {
-        return undefined; // No blocks to check
+    if (!json.blocks && !json.subsystems) {
+        return undefined; // No blocks or subsystems to check
     }
 
-    for (const block of json.blocks) {
-        // Check input ports
-        for (let i = 0; i < block.inputPorts; i++) {
-            const portPosition = getPortPosition(json, block.id, 'input', i);
-            if (portPosition && isWithinDistance(portPosition, x, y, maxDistance)) {
-                return { blockId: block.id, portType: 'input', portIndex: i };
+    if (json.blocks) {
+        for (const block of json.blocks) {
+            // Check input ports
+            for (let i = 0; i < block.inputPorts; i++) {
+                const portPosition = getPortPosition(json, block.id, 'input', i);
+                if (portPosition && isWithinDistance(portPosition, x, y, maxDistance)) {
+                    return { blockId: block.id, portType: 'input', portIndex: i };
+                }
+            }
+
+            // Check output ports
+            for (let i = 0; i < block.outputPorts; i++) {
+                const portPosition = getPortPosition(json, block.id, 'output', i);
+                if (portPosition && isWithinDistance(portPosition, x, y, maxDistance)) {
+                    return { blockId: block.id, portType: 'output', portIndex: i };
+                }
             }
         }
+    }
 
-        // Check output ports
-        for (let i = 0; i < block.outputPorts; i++) {
-            const portPosition = getPortPosition(json, block.id, 'output', i);
-            if (portPosition && isWithinDistance(portPosition, x, y, maxDistance)) {
-                return { blockId: block.id, portType: 'output', portIndex: i };
+    if (json.subsystems) {
+        for (const subsystem of json.subsystems) {
+            // Check input ports
+            for (let i = 0; i < subsystem.inputPorts; i++) {
+                const portPosition = getPortPosition(json, subsystem.id, 'input', i);
+                if (portPosition && isWithinDistance(portPosition, x, y, maxDistance)) {
+                    return { blockId: subsystem.id, portType: 'input', portIndex: i };
+                }
+            }
+
+            // Check output ports
+            for (let i = 0; i < subsystem.outputPorts; i++) {
+                const portPosition = getPortPosition(json, subsystem.id, 'output', i);
+                if (portPosition && isWithinDistance(portPosition, x, y, maxDistance)) {
+                    return { blockId: subsystem.id, portType: 'output', portIndex: i };
+                }
             }
         }
     }

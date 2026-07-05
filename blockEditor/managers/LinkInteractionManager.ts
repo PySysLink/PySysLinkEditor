@@ -9,6 +9,7 @@ import { SelectableManager } from '../editorCore/SelectableManager';
 import { CanvasElement } from '../interfaces/CanvasElement';
 import { RotationDirection } from '../interfaces/Rotatable';
 import { ElementManager } from '../interfaces/ElementManager';
+import { SubsystemInteractionManager } from './SubsystemInteractionManager';
 
 export class LinkInteractionManager extends ElementManager {
     public links: LinkVisual[] = [];
@@ -20,18 +21,21 @@ export class LinkInteractionManager extends ElementManager {
     private communicationManager: CommunicationManager;
 
     private blockInteractionManager: BlockInteractionManager;
+    private subsystemInteractionManager: SubsystemInteractionManager;
     private selectableManager: SelectableManager;
 
     constructor (communicationManager: CommunicationManager, canvas: HTMLElement, blockInteractionManager: BlockInteractionManager,
-        selectableManager: SelectableManager, getZoomLevelReal: () => number
+        subsystemInteractionManager: SubsystemInteractionManager, selectableManager: SelectableManager, getZoomLevelReal: () => number
     ) {
         super();
         this.communicationManager = communicationManager;
+        this.subsystemInteractionManager = subsystemInteractionManager;
         this.selectableManager = selectableManager;
         this.canvas = canvas;
         this.blockInteractionManager = blockInteractionManager;
         this.getZoomLevelReal = getZoomLevelReal;
         this.blockInteractionManager.registerOnMouseDownOnPortCallback(this.onMouseDownOnPort);
+        this.subsystemInteractionManager.registerOnMouseDownOnPortCallback(this.onMouseDownOnPort);
     }
 
     public getAllLinkSegments(): LinkSegment[] {
@@ -109,14 +113,14 @@ export class LinkInteractionManager extends ElementManager {
         return newLink;
     }
 
-    private onMouseDownOnPort = (block: BlockVisual, e: any, portType: "input" | "output", portIndex: number): void => {
+    private onMouseDownOnPort = (elementId: IdType, e: any, portType: "input" | "output", portIndex: number): void => {
         let isLinkOnNode = false;
         this.communicationManager.print(`[link log] Checking if block already have connection`);
 
         if (portType === "input") {
             this.communicationManager.getLocalJson()?.links?.forEach(link => {
                 for (const segmentId in link.targetNodes) {
-                    if (link.targetNodes[segmentId].targetId === block.id && link.targetNodes[segmentId].port === portIndex) {
+                    if (link.targetNodes[segmentId].targetId === elementId && link.targetNodes[segmentId].port === portIndex) {
                         this.communicationManager.print(`Connected link found ${link.id}`);
                         isLinkOnNode = true;
                     }
@@ -124,7 +128,7 @@ export class LinkInteractionManager extends ElementManager {
             });
         } else {
             this.communicationManager.getLocalJson()?.links?.forEach(link => {
-                if (link.sourceId === block.id && link.sourcePort === portIndex) {
+                if (link.sourceId === elementId && link.sourcePort === portIndex) {
                     this.communicationManager.print(`Connected link found ${link.id}`);
                     isLinkOnNode = true;
                 }
@@ -137,7 +141,7 @@ export class LinkInteractionManager extends ElementManager {
             e.stopPropagation();
 
 
-            let newLinkData = this.communicationManager.createNewLinkFromPort(block.id, portType, portIndex);
+            let newLinkData = this.communicationManager.createNewLinkFromPort(elementId, portType, portIndex);
             if (newLinkData) {
                 this.communicationManager.print(`Creating new link visual due to click on port id: ${newLinkData.id}`);
                 let newLink = this.createLinkVisual(newLinkData);

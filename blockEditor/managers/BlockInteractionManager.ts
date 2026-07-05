@@ -5,15 +5,10 @@ import { CommunicationManager } from '../editorCore/CommunicationManager';
 
 export class BlockInteractionManager extends ElementManager {
     public blocks: BlockVisual[] = [];
-    private dragStartX = 0;
-    private dragStartY = 0;
-
-    private dragThreshold = 5; // Minimum distance to detect a drag
-    private isDragging = false;
 
     private communicationManager: CommunicationManager;
 
-    private onMouseDownOnPortCallbacks: ((block: BlockVisual, e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
+    private onMouseDownOnPortCallbacks: ((elementId: IdType, e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
     private onDeleteCallbacks: ((block: BlockVisual) => void)[] = [];
 
     constructor(communicationManager: CommunicationManager) {
@@ -59,11 +54,11 @@ export class BlockInteractionManager extends ElementManager {
     private onMouseDownOnPort(block: BlockVisual, e: any, portType: "input" | "output", portIndex: number): void {
         this.communicationManager.print( `Mouse down on ${portType} port ${portIndex} of block ${block.id}` );
         this.onMouseDownOnPortCallbacks.forEach(callback => {
-            callback(block, e, portType, portIndex);
+            callback(block.id, e, portType, portIndex);
         });
     }
 
-    public registerOnMouseDownOnPortCallback(callback: (block: BlockVisual, e: any, portType: "input" | "output", portIndex: number) => void): void {
+    public registerOnMouseDownOnPortCallback(callback: (elementId: IdType, e: any, portType: "input" | "output", portIndex: number) => void): void {
         this.onMouseDownOnPortCallbacks.push(callback);
     }
     

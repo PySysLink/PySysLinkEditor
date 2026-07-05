@@ -2,7 +2,6 @@ import { LinkVisual } from './visualElements/LinkVisual';
 import { BlockVisual } from './visualElements/BlockVisual';
 // import { NoteVisual } from './visualElements/NoteVisual';
 // import { ImageVisual } from './visualElements/ImageVisual';
-import { BlockInteractionManager } from './managers/BlockInteractionManager';
 import { LinkInteractionManager } from './managers/LinkInteractionManager';
 // import { NoteInteractionManager } from './managers/NoteInteractionManager';
 // import { ImageInteractionManager } from './managers/ImageInteractionManager';

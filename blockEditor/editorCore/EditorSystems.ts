@@ -6,6 +6,7 @@ import { SelectableManager } from "./SelectableManager";
 import { EditorContext } from "./EditorContext";
 import { ZoomController } from "./ZoomController";
 import { ElementManager } from "../interfaces/ElementManager";
+import { SubsystemInteractionManager } from "../managers/SubsystemInteractionManager";
 
 
 export class EditorSystems {
@@ -18,6 +19,7 @@ export class EditorSystems {
     // readonly elementFactory: ElementFactory;
 
     readonly blockManager: BlockInteractionManager;
+    readonly subsystemManager: SubsystemInteractionManager;
     readonly linkManager: LinkInteractionManager;
     // readonly noteManager: NoteInteractionManager;
     // readonly imageManager: ImageInteractionManager;
@@ -45,6 +47,11 @@ export class EditorSystems {
 
         this.elementManagers.push(this.blockManager);
 
+        this.subsystemManager =
+            new SubsystemInteractionManager(this.communicationManager);
+
+        this.elementManagers.push(this.subsystemManager);
+        
         this.selectableManager =
             new SelectableManager(
                 this.communicationManager,
@@ -57,6 +64,7 @@ export class EditorSystems {
                 this.communicationManager,
                 this.context.canvas,
                 this.blockManager,
+                this.subsystemManager,
                 this.selectableManager,
                 this.zoomController.getRealZoom
             );

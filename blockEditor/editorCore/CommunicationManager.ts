@@ -548,6 +548,46 @@ export class CommunicationManager {
     }
 
 
+    public notifySubsystemSelected = (subsystemId: IdType, selected: boolean) => {
+        if (selected) {
+            this.vscode.postMessage({ type: 'subsystemSelected', subsystemId: subsystemId });
+        } else {
+            this.vscode.postMessage({ type: 'subsystemUnselected', subsystemId: subsystemId });
+        }
+    };
+
+    public notifyDoubleClickOnSubsystem(id: string) {
+        this.vscode.postMessage({ type: 'doubleClickOnSubsystem', subsystemId: id});
+    }
+
+    public rotateSubsystem = (subsystemId: IdType, rotation: Rotation) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = rotateSubsystem(json, subsystemId, rotation, !this.freezedLinkUpdates);
+            this.print(`Rotate subsystem: ${subsystemId} to rotation ${rotation}`);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public moveSubsystem = (subsystemId: IdType, x: number, y: number, selectedSelectableIds: IdType[]) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = moveSubsystemInJson(json, subsystemId, x, y, selectedSelectableIds, !this.isDragging);
+            this.print(`Move subsystem: ${subsystemId} to position (${x}, ${y})`);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+    public deleteSubsystem = (subsystemId: IdType) => {
+        let json = this.getLocalJson();
+        if (json) {
+            this.print(`Delete subsystem: ${subsystemId}`);
+            let newJson = deleteSubsystemFromJson(json, subsystemId);
+            this.setLocalJson(newJson, true);
+        }
+    };
+
+
 
 
     // ============ Subsystem Navigation ============

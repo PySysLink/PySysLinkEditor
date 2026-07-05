@@ -2,7 +2,6 @@ import { JsonData } from "../../shared/JsonTypes";
 import { EditorSystems } from "./EditorSystems";
 import { EditorContext } from "./EditorContext";
 import { BlockPalette } from "./BlockPalette";
-import { BlockInteractionManager } from "../managers/BlockInteractionManager";
 import { CommunicationManager } from "./CommunicationManager";
 // import { ImageInteractionManager } from "../managers/ImageInteractionManager";
 // import { LinkInteractionManager } from "../managers/LinkInteractionManager";

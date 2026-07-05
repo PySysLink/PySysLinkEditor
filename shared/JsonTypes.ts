@@ -49,38 +49,15 @@ export interface BlockData {
     blockRenderInformation?: BlockRenderInformation;
 }
 
-export interface NoteData {
-    id: IdType;
-    x: number;
-    y: number;
-    text: string;
-    color?: string;
-    width?: number;
-    height?: number;
-    zIndex?: number;
-}
-
-export interface ImageData {
-    id: IdType;
-    x: number;
-    y: number;
-    src: string;
-    width: number;
-    height: number;
-    rotation?: Rotation;
-    zIndex?: number;
-}
-
 export interface SubsystemData {
     id: IdType;
     label: string;
-    x: number;
-    y: number;
-    blocks?: BlockData[];
-    links?: LinkJson[];
-    notes?: NoteData[];
-    images?: ImageData[];
-    subsystems?: SubsystemData[];
+    x: number; y: number;
+    rotation: Rotation;
+    inputPorts: number; outputPorts: number;
+    inputPortTypes: PortType[]; outputPortTypes: PortType[];   
+    jsonData: JsonData;
+    subsystemRenderInformation?: SubsystemRenderInformation;
 }
 
 export interface JsonData {
@@ -90,9 +67,7 @@ export interface JsonData {
     toolkit_configuration_path: string;
     blocks: BlockData[] | undefined;
     links: LinkJson[] | undefined;
-    notes?: NoteData[];
-    images?: ImageData[];
-    subsystems?: SubsystemData[];
+    subsystems: SubsystemData[] | undefined;
 }
 
 export type BlockShape = "square" | "triangle" | "circle";
@@ -115,6 +90,23 @@ export interface BlockRenderInformation {
     figure?: BlockRenderFigure | null;
     text: string;
     show_image_and_text: boolean;
+
+    default_width: number;
+    default_height: number;
+    min_width: number;
+    min_height: number;
+    max_width: number;
+    max_height: number;
+
+    input_ports: number;
+    output_ports: number;
+
+    input_port_types: PortType[];
+    output_port_types: PortType[];
+}
+
+export interface SubsystemRenderInformation {
+    text: string;
 
     default_width: number;
     default_height: number;
