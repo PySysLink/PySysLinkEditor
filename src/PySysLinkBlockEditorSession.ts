@@ -18,6 +18,8 @@ export class PySysLinkBlockEditorSession {
     private lastJson: JsonData | undefined;
     private context: vscode.ExtensionContext;
 
+    private currentSubsystemIds: IdType[] = [];
+
     public get documentUri(): vscode.Uri {
         return this.documentManager.documentUri;
     }
@@ -45,7 +47,8 @@ export class PySysLinkBlockEditorSession {
             onRequestBlockHtml: this.displayBlockHTML,
             openSimulationOptionsFileSelector: this.simulationManager.openSimulationOptionsFileSelector,
             openInitializationScriptFileSelector: this.simulationManager.openInitializationScriptFileSelector,
-            openToolkitConfigurationFileSelector: this.simulationManager.openToolkitConfigurationFileSelector
+            openToolkitConfigurationFileSelector: this.simulationManager.openToolkitConfigurationFileSelector,
+            onDoubleClickOnSubsystem: this.handleDoubleClickOnSubsystem
         });
 
         this.simulationManager.registerCurrentSimulationOptionsFileChangedHandler(async (newPath) => {
@@ -129,11 +132,6 @@ export class PySysLinkBlockEditorSession {
         this.selectedBlockId = blockId;
     };
 
-    private updateBlockParameters = async (block: BlockData): Promise<void> => {
-        await this.documentManager.updateBlockParameters(block);
-        this.updateWebview();
-    };
-
     private loadBlockLibraries = async (): Promise<void> => {        
         if (!this.pythonServer.isRunning()) {
             console.warn('Python server is not running, skipping block library load.');
@@ -164,8 +162,12 @@ export class PySysLinkBlockEditorSession {
         }
     };
 
+    public handleDoubleClickOnSubsystem = async (subsystemId: IdType): Promise<void> => {
+        // TODO: Implement logic to handle double-click on subsystem, e.g., open a new editor for the subsystem
+    };
+
     public displayBlockHTML = async (blockId: IdType): Promise<void> => {
-        const json = this.documentManager.getJson();
+        const json = this.documentManager.getJson(this.currentSubsystemIds);
         const block = getBlockData(json, blockId);
         if (!block) {
             vscode.window.showErrorMessage(`Block with id: ${blockId} not found on document json`);
@@ -250,7 +252,7 @@ export class PySysLinkBlockEditorSession {
                         break;
                     case 'update':
                         try {
-                            await this.documentManager.updateBlockParameters(msg.block);
+                            await this.documentManager.updateBlockParameters(msg.block, this.currentSubsystemIds);
                             this.updateWebview();
                             if (msg.action === 'applyAndClose') {
                                 panel.dispose();
@@ -280,7 +282,7 @@ export class PySysLinkBlockEditorSession {
     };
 
     private updateWebview = (): void => {
-        const json = this.documentManager.getJson();
+        const json = this.documentManager.getJson(this.currentSubsystemIds);
         if (this.lastJson && JSON.stringify(this.lastJson) === JSON.stringify(json)) {
             console.log('No changes detected, skipping webview update.');
             return;
@@ -294,6 +296,7 @@ export class PySysLinkBlockEditorSession {
         this.webviewPanel.webview.postMessage({
             type: 'update',
             json: json,
+            subsystemIds: this.currentSubsystemIds
         });
     };
 

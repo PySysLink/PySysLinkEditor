@@ -19,33 +19,24 @@ export class DocumentManager {
         this.document = document;
     }
 
-    public getJson(): JsonData {
+    public getJson(subsystemIds: IdType[]): JsonData {
+        // TODO: Implement subsystem-specific JSON retrieval logic here.
         return this.getDocumentAsJson(this.document);
     }
 
-    public async updateBlockParameters(block: BlockData): Promise<void> {
-        if (!this.isBlockInDocument(block.id)) {
-            console.warn(`Block with id ${block.id} is not in the current document.`);
-            return;
-        }
-
+    public async updateBlockParameters(block: BlockData, subsystemIds: IdType[]): Promise<void> {
         await this.withDocumentLock(async () => {
-            const json = this.getDocumentAsJson(this.document);
+            const json = this.getJson(subsystemIds);
             const updated = updateBlockParameters(json, block);
             const rendered = await this.updateBlockRenderInformation(updated);
-            await this.updateTextDocument(this.document, rendered);
+            await this.updateTextDocument(this.document, rendered, subsystemIds);
         });
     }
 
-    public isBlockInDocument(blockId: IdType): boolean {
-        const json = this.getDocumentAsJson(this.document);
-        return Array.isArray(json.blocks) && json.blocks.some(block => block.id === blockId);
-    }
-
-    public async writeJson(json: JsonData): Promise<void> {
+    public async writeJson(json: JsonData, subsystemIds: IdType[]): Promise<void> {
         await this.withDocumentLock(async () => {
             const rendered = await this.updateBlockRenderInformation(json);
-            await this.updateTextDocument(this.document, rendered);
+            await this.updateTextDocument(this.document, rendered, subsystemIds);
         });
     }
 
@@ -67,6 +58,7 @@ export class DocumentManager {
                 version: this.lastVersion,
                 blocks: [],
                 links: [],
+                subsystems: [],
                 simulation_configuration: '',
                 initialization_python_script_path: '',
                 toolkit_configuration_path: ''
@@ -82,6 +74,7 @@ export class DocumentManager {
             json.simulation_configuration = json.simulation_configuration ?? '';
             json.initialization_python_script_path = json.initialization_python_script_path ?? '';
             json.toolkit_configuration_path = json.toolkit_configuration_path ?? '';
+            json.subsystems = Array.isArray(json.subsystems) ? json.subsystems : [];
             return json;
         } catch (error) {
             console.error('Error parsing document JSON:', error);
@@ -89,7 +82,8 @@ export class DocumentManager {
         }
     };
 
-    private updateTextDocument = async (document: vscode.TextDocument, json: JsonData) => {
+    private updateTextDocument = async (document: vscode.TextDocument, json: JsonData, subsystemIds: IdType[]) => {
+        // TODO: Update the document taking into account the current subsystem path, so that the update is applied to the correct subsystem in the hierarchy.
         console.log('Updating text document with new JSON data...');
 
         const edit = new vscode.WorkspaceEdit();
@@ -103,25 +97,25 @@ export class DocumentManager {
     };
 
     public getSimulationOptionsPath(): string | undefined {
-        const json = this.getDocumentAsJson(this.document);
+        const json = this.getJson([]);
         return json.simulation_configuration;
     }
 
     public getInitializationScriptPath(): string | undefined {
-        const json = this.getDocumentAsJson(this.document);
+        const json = this.getJson([]);
         return json.initialization_python_script_path;
     }
 
     public getToolkitConfigurationPath(): string | undefined {
-        const json = this.getDocumentAsJson(this.document);
+        const json = this.getJson([]);
         return json.toolkit_configuration_path;
     }
 
     public async changeSimulationsOptionsFile(newPath: string): Promise<void> {
         await this.withDocumentLock(async () => {
-            const json = this.getDocumentAsJson(this.document);
+            const json = this.getJson([]);
             json.simulation_configuration = newPath;
-            await this.updateTextDocument(this.document, json);
+            await this.updateTextDocument(this.document, json, []);
         });
 
         this.simulationManager.setCurrentSimulationOptionsPath(newPath);
@@ -129,10 +123,10 @@ export class DocumentManager {
 
     public async changeInitializationScriptFile(newPath: string): Promise<void> {
         await this.withDocumentLock(async () => {
-            const json = this.getDocumentAsJson(this.document);
+            const json = this.getJson([]);
             json.initialization_python_script_path = newPath;
             const rendered = await this.updateBlockRenderInformation(json);
-            await this.updateTextDocument(this.document, rendered);
+            await this.updateTextDocument(this.document, rendered, []);
         });
 
         this.simulationManager.setCurrentInitializationScriptPath(newPath);
@@ -140,18 +134,15 @@ export class DocumentManager {
 
     public async changeToolkitConfigurationFile(newPath: string): Promise<void> {
         await this.withDocumentLock(async () => {
-            const json = this.getDocumentAsJson(this.document);
+            const json = this.getJson([]);
             json.toolkit_configuration_path = newPath;
             const rendered = await this.updateBlockRenderInformation(json);
-            await this.updateTextDocument(this.document, rendered);
+            await this.updateTextDocument(this.document, rendered, []);
         });
 
         this.simulationManager.setCurrentToolkitConfigurationFilePath(newPath);
     }
 
-    public async updateJsonContent(json: JsonData): Promise<void> {
-        await this.writeJson(json);
-    }
 
     private async updateBlockRenderInformation(json: JsonData): Promise<JsonData> {
         if (!this.pythonServer.isRunning()) {

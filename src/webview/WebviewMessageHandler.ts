@@ -10,6 +10,7 @@ export interface WebviewMessageHandlerOptions {
     onUpdateWebview: () => void;
     onLoadBlockLibraries: () => Promise<void> | void;
     onRequestBlockHtml: (blockId: IdType) => Promise<void>;
+    onDoubleClickOnSubsystem: (subsystemId: IdType) => Promise<void>;
     openSimulationOptionsFileSelector: () => Promise<void>;
     openInitializationScriptFileSelector: () => Promise<void>;
     openToolkitConfigurationFileSelector: () => Promise<void>;
@@ -33,7 +34,7 @@ export class WebviewMessageHandler {
         switch (message.type) {
             case 'updateJson':
                 console.log('update json called');
-                await this.handleUpdateJson(message.json);
+                await this.handleUpdateJson(message.json, message.subsystemIds);
                 return;
             case 'print':
                 console.log(message.text);
@@ -52,19 +53,22 @@ export class WebviewMessageHandler {
                     vscode.window.showWarningMessage('Python server is not running. Cannot display block preview.');
                 }
                 return;
+            case 'doubleClickOnSubsystem':
+                await this.options.onDoubleClickOnSubsystem(message.subsystemId);
+                return;
             case 'openSimulationOptionsFileSelector': {
                 this.options.openSimulationOptionsFileSelector();
-                break;
+                return;
             }
 
             case 'openInitializationScriptFileSelector': {
                 this.options.openInitializationScriptFileSelector();
-                break;
+                return;
             }
 
             case 'openToolkitConfigurationFileSelector': {
                 this.options.openToolkitConfigurationFileSelector();
-                break;
+                return;
             }
             case 'heartbeat':
                 console.log(`[Heartbeat] [${message.text}] [${new Date().toISOString()}]`);
@@ -75,25 +79,13 @@ export class WebviewMessageHandler {
         }
     }
 
-    private async handleUpdateJson(json: JsonData): Promise<void> {
-        const currentJson = this.options.documentManager.getJson();
-        currentJson.version = currentJson.version + 1;
+    private async handleUpdateJson(json: JsonData, subsystemIds: IdType[]): Promise<void> {
+        const currentJson = this.options.documentManager.getJson(subsystemIds);
         currentJson.blocks = json.blocks;
         currentJson.links = json.links;
+        currentJson.subsystems = json.subsystems;
 
-        if (json.simulation_configuration !== undefined) {
-            currentJson.simulation_configuration = json.simulation_configuration;
-        }
-
-        if (json.initialization_python_script_path !== undefined) {
-            currentJson.initialization_python_script_path = json.initialization_python_script_path;
-        }
-
-        if (json.toolkit_configuration_path !== undefined) {
-            currentJson.toolkit_configuration_path = json.toolkit_configuration_path;
-        }
-
-        await this.options.documentManager.writeJson(currentJson);
+        await this.options.documentManager.writeJson(currentJson, subsystemIds);
         this.options.onUpdateWebview();
     }
 }

@@ -76,18 +76,13 @@ export class BlockEditorApp {
         // Restore state if reloaded
         const state = vscode.getState();
         if (state) {
-            this.systems.communicationManager.print(`Restoring state: ${state.text}`);
-            this.systems.communicationManager.newJsonFromServer(JSON.parse(state.text));
+            this.systems.communicationManager.print(`Restoring state: ${state.text}, Subsystem IDs: ${state.subsystemIds}`);
+            this.systems.communicationManager.newJsonFromServer(JSON.parse(state.text), state.subsystemIds);
         }
-
-        // this.router = new WebviewMessageRouter(
-        //     this.systems.communicationManager,
-        //     this.handleJsonUpdate
-        // );
 
         window.addEventListener('message', (e: MessageEvent) => {
         if (e.data.type === 'update') {
-            this.systems.communicationManager.newJsonFromServer(e.data.json);
+            this.systems.communicationManager.newJsonFromServer(e.data.json, e.data.subsystemIds);
         }else if (e.data.type === 'colorThemeKindChanged') {
             this.applyThemeClass(e.data.kind);
         } else if (e.data.type === 'setBlockLibraries') {
