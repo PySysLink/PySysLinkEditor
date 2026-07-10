@@ -19,9 +19,78 @@ export class DocumentManager {
         this.document = document;
     }
 
+
     public getJson(subsystemIds: IdType[]): JsonData {
-        // TODO: Implement subsystem-specific JSON retrieval logic here.
-        return this.getDocumentAsJson(this.document);
+        const root = this.getDocumentAsJson(this.document);
+        return this.getSubsystemJson(root, subsystemIds);
+    }
+
+    private getSubsystemJson(
+        root: JsonData,
+        subsystemIds: IdType[]
+    ): JsonData {
+
+        let current = root;
+
+        for (const id of subsystemIds) {
+
+            const subsystem =
+                current.subsystems?.find(s => s.id === id);
+
+            if (!subsystem) {
+                throw new Error(
+                    `Subsystem '${id}' not found.`
+                );
+            }
+
+            current = subsystem.jsonData;
+        }
+
+        return current;
+    }
+
+    private replaceSubsystemJson(
+        root: JsonData,
+        subsystemIds: IdType[],
+        newJson: JsonData
+    ): JsonData {
+
+        if (subsystemIds.length === 0) {
+            return newJson;
+        }
+
+        let current = root;
+
+        for (let i = 0; i < subsystemIds.length - 1; i++) {
+
+            const subsystem =
+                current.subsystems?.find(
+                    s => s.id === subsystemIds[i]
+                );
+
+            if (!subsystem) {
+                throw new Error(
+                    `Subsystem '${subsystemIds[i]}' not found.`
+                );
+            }
+
+            current = subsystem.jsonData;
+        }
+
+        const target =
+            current.subsystems?.find(
+                s => s.id === subsystemIds[subsystemIds.length - 1]
+            );
+
+        if (!target) {
+            throw new Error(
+                `Subsystem '${subsystemIds[subsystemIds.length - 1]}' not found.`
+            );
+        }
+
+        target.jsonData = newJson;
+
+        return root;
     }
 
     public async updateBlockParameters(block: BlockData, subsystemIds: IdType[]): Promise<void> {
@@ -34,6 +103,7 @@ export class DocumentManager {
     }
 
     public async writeJson(json: JsonData, subsystemIds: IdType[]): Promise<void> {
+        console.log("Writing JSON to document for subsystem path: " + subsystemIds.join(" > "));
         await this.withDocumentLock(async () => {
             const rendered = await this.updateBlockRenderInformation(json);
             await this.updateTextDocument(this.document, rendered, subsystemIds);
@@ -68,13 +138,15 @@ export class DocumentManager {
         try {
             const json = JSON.parse(text);
             this.lastVersion += 1;
-            json.version = this.lastVersion;
             json.blocks = Array.isArray(json.blocks) ? json.blocks : [];
             json.links = Array.isArray(json.links) ? json.links : [];
             json.simulation_configuration = json.simulation_configuration ?? '';
             json.initialization_python_script_path = json.initialization_python_script_path ?? '';
             json.toolkit_configuration_path = json.toolkit_configuration_path ?? '';
             json.subsystems = Array.isArray(json.subsystems) ? json.subsystems : [];
+
+            this.updateJsonVersions(json, this.lastVersion);
+
             return json;
         } catch (error) {
             console.error('Error parsing document JSON:', error);
@@ -82,15 +154,35 @@ export class DocumentManager {
         }
     };
 
+    private updateJsonVersions(json: JsonData, version: number): void {
+        json.version = version;
+
+        for (const subsystem of json.subsystems ?? []) {
+            this.updateJsonVersions(subsystem.jsonData, version);
+        }
+    }
+
     private updateTextDocument = async (document: vscode.TextDocument, json: JsonData, subsystemIds: IdType[]) => {
-        // TODO: Update the document taking into account the current subsystem path, so that the update is applied to the correct subsystem in the hierarchy.
-        console.log('Updating text document with new JSON data...');
+
+        console.log(
+            "Updating text document with new JSON data on subsystem path: " + subsystemIds.join(" > ")
+        );
+
+        const root = this.getDocumentAsJson(document);
+
+        const updatedRoot =
+            this.replaceSubsystemJson(
+                root,
+                subsystemIds,
+                json
+            );
 
         const edit = new vscode.WorkspaceEdit();
+
         edit.replace(
             document.uri,
             new vscode.Range(0, 0, document.lineCount, 0),
-            JSON.stringify(json, null, 2)
+            JSON.stringify(updatedRoot, null, 2)
         );
 
         return vscode.workspace.applyEdit(edit);

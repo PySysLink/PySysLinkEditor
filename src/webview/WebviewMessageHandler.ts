@@ -11,9 +11,11 @@ export interface WebviewMessageHandlerOptions {
     onLoadBlockLibraries: () => Promise<void> | void;
     onRequestBlockHtml: (blockId: IdType) => Promise<void>;
     onDoubleClickOnSubsystem: (subsystemId: IdType) => Promise<void>;
+    goToSubsystem: (subsystemId: IdType) => Promise<void>;
     openSimulationOptionsFileSelector: () => Promise<void>;
     openInitializationScriptFileSelector: () => Promise<void>;
     openToolkitConfigurationFileSelector: () => Promise<void>;
+    goToRootSubsystem: () => Promise<void>;
 }
 
 export class WebviewMessageHandler {
@@ -55,6 +57,12 @@ export class WebviewMessageHandler {
                 return;
             case 'doubleClickOnSubsystem':
                 await this.options.onDoubleClickOnSubsystem(message.subsystemId);
+                return;
+            case 'goToSubsystem':
+                await this.options.goToSubsystem(message.subsystemId);
+                return;
+            case 'goToRootSubsystem':
+                await this.options.goToRootSubsystem();
                 return;
             case 'openSimulationOptionsFileSelector': {
                 this.options.openSimulationOptionsFileSelector();

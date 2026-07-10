@@ -25,12 +25,14 @@ export class EditorRenderer {
         this.zoomController = zoomController;
     }
 
-    public render(jsonData: JsonData): void {
+    public render(jsonData: JsonData, subsystemIds: string[]): void {
         this.clearCanvas();
 
-        this.renderTopControls(jsonData);
+        this.renderTopControls(jsonData, subsystemIds);
+        this.renderSubsystemNavigation(subsystemIds);
 
         this.renderBlocks();
+        this.renderSubsystems();
         this.renderLinks();
         // this.renderGenericElements();
 
@@ -55,15 +57,22 @@ export class EditorRenderer {
         );
     }
 
+    private renderSubsystems(): void {
+        this.systems.subsystemManager.subsystems.forEach(
+            subsystem => {
+                subsystem.addElementToCanvas(this.context.canvas);
+            }
+        );
+    }
+
     private renderLinks(): void {
         const svg = this.systems.linkManager.getLinksSvg();
 
         this.context.canvas.appendChild(svg);
     }
 
-    private renderTopControls(jsonData: JsonData): void {
+    private renderTopControls(jsonData: JsonData, subsystemIds: string[]): void {
         this.context.topControls.innerHTML = '';
-        // Add button
 
         const btnZoomIn = document.createElement('vscode-button');
         btnZoomIn.textContent = 'Zoom In';
@@ -122,6 +131,55 @@ export class EditorRenderer {
 
         this.context.topControls.appendChild(btnToggleBlockPalette);
         this.context.topControls.appendChild(btnActivateGridSnapping);
+    }
+
+
+    private renderSubsystemNavigation(subsystemIds: string[]): void {
+        this.context.subsystemNavigation.innerHTML = '';
+
+        console.log("Rendering subsystem navigation for IDs:", subsystemIds);
+        if (subsystemIds.length === 0) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.flexDirection = 'row';
+        container.style.alignItems = 'center';
+        container.style.gap = '6px';
+        container.style.marginTop = '8px';
+        container.style.width = '100%';
+
+        // Top subsystem navigation button
+        const btnGoToRoot = document.createElement('vscode-button');
+        btnGoToRoot.textContent = 'Go to root subsystem';
+        btnGoToRoot.style.width = '140px';
+        btnGoToRoot.style.minWidth = '140px';
+        btnGoToRoot.style.maxWidth = '140px';
+
+        btnGoToRoot.addEventListener('click', () => {
+            this.systems.communicationManager.goToRootSubsystem();
+        });
+
+        container.appendChild(btnGoToRoot);
+
+        subsystemIds.forEach(subsystemId => {
+            const button = document.createElement('vscode-button');
+
+            button.textContent = subsystemId;
+            button.style.width = '140px';
+            button.style.minWidth = '140px';
+            button.style.maxWidth = '140px';
+
+            button.addEventListener('click', () => {
+                this.systems.communicationManager.goToSubsystem(subsystemId);
+            });
+
+            container.appendChild(button);
+        });
+        
+        console.log("Appending subsystem navigation container to top controls");
+        this.context.subsystemNavigation.appendChild(container);
     }
 
     private renderBlockPallete(): void {

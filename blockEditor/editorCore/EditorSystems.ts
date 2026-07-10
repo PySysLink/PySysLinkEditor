@@ -99,6 +99,10 @@ export class EditorSystems {
         );
 
         this.selectableManager.registerSelectableList(
+            () => this.subsystemManager.subsystems
+        );
+
+        this.selectableManager.registerSelectableList(
             () => this.linkManager.getAllLinkSegments()
         );
 

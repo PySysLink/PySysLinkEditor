@@ -48,7 +48,9 @@ export class PySysLinkBlockEditorSession {
             openSimulationOptionsFileSelector: this.simulationManager.openSimulationOptionsFileSelector,
             openInitializationScriptFileSelector: this.simulationManager.openInitializationScriptFileSelector,
             openToolkitConfigurationFileSelector: this.simulationManager.openToolkitConfigurationFileSelector,
-            onDoubleClickOnSubsystem: this.handleDoubleClickOnSubsystem
+            onDoubleClickOnSubsystem: this.handleDoubleClickOnSubsystem,
+            goToSubsystem: this.goToSubsystem,
+            goToRootSubsystem: this.goToRootSubsystem
         });
 
         this.simulationManager.registerCurrentSimulationOptionsFileChangedHandler(async (newPath) => {
@@ -163,7 +165,23 @@ export class PySysLinkBlockEditorSession {
     };
 
     public handleDoubleClickOnSubsystem = async (subsystemId: IdType): Promise<void> => {
-        // TODO: Implement logic to handle double-click on subsystem, e.g., open a new editor for the subsystem
+        this.currentSubsystemIds.push(subsystemId);
+        this.updateWebview();
+    };
+
+    public goToRootSubsystem = async (): Promise<void> => {
+        this.currentSubsystemIds = [];
+        this.updateWebview();
+    };
+
+    public goToSubsystem = async (subsystemId: IdType): Promise<void> => {
+        const index = this.currentSubsystemIds.indexOf(subsystemId);
+        if (index !== -1) {
+            this.currentSubsystemIds = this.currentSubsystemIds.slice(0, index + 1);
+            this.updateWebview();
+        } else {
+            console.warn(`Subsystem ID ${subsystemId} not found in current subsystem path.`);
+        }
     };
 
     public displayBlockHTML = async (blockId: IdType): Promise<void> => {

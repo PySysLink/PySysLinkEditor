@@ -95,7 +95,7 @@ export class BlockEditorApp {
     private minUpdateInterval = 10; 
     private timerRunning = false;
 
-    public updateWebView = (json: JsonData) : void => {
+    public updateWebView = (json: JsonData, subsystemIds: string[]) : void => {
         console.log("Updating webview with JSON");
 
         const currentTime = Date.now();
@@ -105,7 +105,7 @@ export class BlockEditorApp {
                 setTimeout(() => {
                     const lastJson = this.systems.communicationManager.getLocalJson();
                     if (lastJson) {
-                        this.updateWebView(lastJson);
+                        this.updateWebView(lastJson, subsystemIds);
                     }
                     this.timerRunning = false;
                 }, this.minUpdateInterval);
@@ -117,7 +117,7 @@ export class BlockEditorApp {
 
         this.systems.elementManagers.forEach(manager => manager.updateFromJson(json));
 
-        this.renderer.render(json);
+        this.renderer.render(json, subsystemIds);
     };
 
     public applyThemeClass(kind: string) {

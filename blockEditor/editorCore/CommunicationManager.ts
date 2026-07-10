@@ -28,7 +28,7 @@ export class CommunicationManager {
     private serverJsonBeforeFreeze: JsonData | undefined;
     private serverJson: JsonData | undefined;
 
-    private localJsonChangedCallbacks: ((json: JsonData) => void)[] = [];
+    private localJsonChangedCallbacks: ((json: JsonData, subsystemIds: string[]) => void)[] = [];
 
     private subsystemIds: IdType[] = [];
 
@@ -47,7 +47,7 @@ export class CommunicationManager {
         // });
     }
 
-    public registerLocalJsonChangedCallback(callback: (json: JsonData) => void) {
+    public registerLocalJsonChangedCallback(callback: (json: JsonData, subsystemIds: string[]) => void) {
         this.localJsonChangedCallbacks.push(callback);
     }
 
@@ -90,7 +90,7 @@ export class CommunicationManager {
             }
             if (mergedJson) {
                 this.print("set merged json");
-                this.setLocalJson(mergedJson);
+                this.setLocalJson(mergedJson, true, undefined, true);
                 this.serverJson = undefined;
                 this.serverJsonBeforeFreeze = undefined;
             }
@@ -103,7 +103,7 @@ export class CommunicationManager {
             this.freezedLocalJsonCallback = false;
             this.localJsonChangedCallbacks.forEach(callback => {
                 if (this.localJson) {
-                    callback(this.localJson);
+                    callback(this.localJson, this.subsystemIds);
                 }
             });
         }
@@ -136,9 +136,13 @@ export class CommunicationManager {
         }
     }
 
-    public setLocalJson(json: JsonData, sendToServer: boolean = true, subsystemIds: IdType[] | undefined = undefined) {
+    public setLocalJson(json: JsonData, sendToServer: boolean = true, subsystemIds: IdType[] | undefined = undefined, forceUpdate: boolean = false) {
+
+        console.log(`Current json: ${JSON.stringify(this.localJson)}`);
+        console.log(`New json: ${JSON.stringify(json)}`);
+
         // TODO: Check calls to see if needed to send subsystemIds
-        if (JSON.stringify(json) === JSON.stringify(this.localJson)) {
+        if (!forceUpdate && JSON.stringify(json) === JSON.stringify(this.localJson)) {
             return;
         } else {
             // this.print('JSON changed:');
@@ -146,6 +150,8 @@ export class CommunicationManager {
         }
 
         this.localJson = json;
+
+        console.log(`Subsystem IDs being set: ${subsystemIds ? subsystemIds.join(', ') : 'undefined'}`);
         
         if (subsystemIds) {
             this.vscode.setState({ text: JSON.stringify(this.localJson), subsystemIds: subsystemIds });
@@ -157,10 +163,13 @@ export class CommunicationManager {
         if (!this.freezed && sendToServer) {
             this.sendJsonToServer(this.localJson);
         } 
+        else if (this.freezed && sendToServer) {
+            this.print("JSON changed while freezed, storing for later");
+        }
         if (!this.freezedLocalJsonCallback) {
             this.localJsonChangedCallbacks.forEach(callback => {
                 if (this.localJson) {
-                    callback(this.localJson);
+                    callback(this.localJson, this.subsystemIds);
                 }
             });
         }
@@ -191,10 +200,10 @@ export class CommunicationManager {
             let localJson = this.getLocalJson();
             if (localJson === undefined) {
                 this.print('No local JSON, setting new JSON from server');
-                this.setLocalJson(json, false);
+                this.setLocalJson(json, false, subsystemIds);
             } else {
                 this.print('Setting local JSON with server JSON');
-                this.setLocalJson(json, false);
+                this.setLocalJson(json, false, subsystemIds);
             }
         }
     }
@@ -570,6 +579,14 @@ export class CommunicationManager {
 
     public notifyDoubleClickOnSubsystem(id: string) {
         this.vscode.postMessage({ type: 'doubleClickOnSubsystem', subsystemId: id});
+    }
+
+    public goToSubsystem(subsystemId: string) {
+        this.vscode.postMessage({ type: 'goToSubsystem', subsystemId: subsystemId });
+    }
+
+    public goToRootSubsystem() {
+        this.vscode.postMessage({ type: 'goToRootSubsystem' });
     }
 
     public rotateSubsystem = (subsystemId: IdType, rotation: Rotation) => {

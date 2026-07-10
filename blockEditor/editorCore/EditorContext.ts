@@ -2,6 +2,7 @@ export class EditorContext {
     readonly canvas: HTMLElement;
     readonly zoomContainer: HTMLElement;
     readonly topControls: HTMLElement;
+    readonly subsystemNavigation: HTMLElement;
     readonly canvasContainer: HTMLElement;
     readonly sidebar: HTMLElement;
     readonly blockPaletteContent: HTMLElement;
@@ -14,6 +15,7 @@ export class EditorContext {
         this.canvas = document.querySelector('.canvas') as HTMLElement;
         this.zoomContainer = document.querySelector('.zoom-container') as HTMLElement;
         this.topControls = document.querySelector('.top-controls') as HTMLElement;
+        this.subsystemNavigation = document.querySelector('.subsystem-navigation') as HTMLElement;
         this.canvasContainer = document.querySelector('.canvas-container') as HTMLElement;
         this.sidebar = document.getElementById('block-palette-sidebar') as HTMLElement;
         this.blockPaletteContent = document.getElementById('block-palette-content') as HTMLElement;

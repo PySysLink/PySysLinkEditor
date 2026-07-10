@@ -47,6 +47,7 @@ export class HtmlBuilder {
             <body>
                 <div class="main">
                     <div class="top-controls"></div>
+                    <div class="subsystem-navigation"></div>
                     <div class="editor-layout">
                         <div class="canvas-container">
                             <div class="zoom-container">
