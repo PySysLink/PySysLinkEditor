@@ -52,6 +52,12 @@ export class EditorRenderer {
     private renderBlocks(): void {
         this.systems.blockManager.blocks.forEach(
             block => {
+                console.log('Rendering block:', block);
+            }
+        );
+    
+        this.systems.blockManager.blocks.forEach(
+            block => {
                 block.addElementToCanvas(this.context.canvas);
             }
         );

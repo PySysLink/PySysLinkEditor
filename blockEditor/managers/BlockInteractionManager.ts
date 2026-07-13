@@ -29,6 +29,8 @@ export class BlockInteractionManager extends ElementManager {
     }
 
     public updateFromJson(json: JsonData): void {
+        console.log('Updating blocks from JSON:', json.blocks);
+        console.log('Current blocks:', this.blocks.map(b => b.id));
         json.blocks?.forEach(blockData => {
             var block = this.blocks.find(b => b.id === blockData.id);
             if (!block) {
@@ -36,14 +38,17 @@ export class BlockInteractionManager extends ElementManager {
             }
         });
 
-        this.blocks.forEach((block: BlockVisual) => {
+        for (let i = this.blocks.length - 1; i >= 0; i--) {
+            const block = this.blocks[i];
             const blockData = json.blocks?.find(b => b.id === block.id);
             if (!blockData) {
                 this.deleteBlock(block);
             }
-        });
+        }
 
         this.blocks.forEach(block => block.updateFromJson(json, this.communicationManager));
+
+        console.log('Updated blocks:', this.blocks.map(b => b.id));
     }
 
     private onBlockSelected(block: BlockVisual, selected: boolean): void {
