@@ -36,15 +36,17 @@ export class SubsystemInteractionManager extends ElementManager {
             }
         });
 
-        this.subsystems.forEach((subsystem: SubsystemVisual) => {
+        for (let i = this.subsystems.length - 1; i >= 0; i--) {
+            const subsystem = this.subsystems[i];
             const subsystemData = json.subsystems?.find(b => b.id === subsystem.id);
             if (!subsystemData) {
                 this.deleteSubsystem(subsystem);
             }
-        });
+        }
 
         this.subsystems.forEach(subsystem => subsystem.updateFromJson(json, this.communicationManager));
     }
+    
 
     private onSubsystemSelected(subsystem: SubsystemVisual, selected: boolean): void {
         this.communicationManager.print(`Subsystem ${subsystem.id} selected: ${selected}`);
