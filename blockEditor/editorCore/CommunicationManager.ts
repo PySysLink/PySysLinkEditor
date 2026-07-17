@@ -9,7 +9,8 @@ import { addBlockToJson, addLinkToJson, updatePortAttachment, attachLinkToPort,
     updateLinksSourceTargetPosition,
     moveSubsystemInJson,
     rotateSubsystem,
-    deleteSubsystemFromJson} from "../../shared/JsonManager";
+    deleteSubsystemFromJson,
+    addSubsystemToJson} from "../../shared/JsonManager";
 import { BlockData, IdType, JsonData, Rotation } from "../../shared/JsonTypes";
 import { getNonce } from "../../shared/util";
 import { Library } from "../../shared/BlockPalette";
@@ -456,6 +457,33 @@ export class CommunicationManager {
         this.libraries = libraries;
         this.librariesChangedCallbacks.forEach(callback => callback(this.libraries));
     }
+
+    public createSubsystem = (x: number, y: number) => {
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = addSubsystemToJson(json, {
+                id: getNonce(),
+                label: "New Subsystem",
+                x,
+                y,
+                rotation: 0,
+                inputPorts: 0,
+                outputPorts: 0,
+                inputPortTypes: [],
+                outputPortTypes: [],
+                jsonData: {
+                    version: 1,
+                    simulation_configuration: "",
+                    initialization_python_script_path: "",
+                    toolkit_configuration_path: "",
+                    blocks: [],
+                    links: [],
+                    subsystems: []
+                }
+            });
+            this.setLocalJson(newJson, true);
+        }
+    };
 
     public createBlockOfType(library: string, blockType: string, x: number, y: number) {
         // Find the block definition from the libraries

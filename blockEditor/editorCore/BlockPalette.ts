@@ -99,7 +99,8 @@ export class BlockPalette {
           console.log(`Dragging block: ${block.name} from library: ${lib.name}`);
           const payload = JSON.stringify({
             library: lib.name,
-            blockType: block.name
+            blockType: block.name,
+            pluginType: lib.pluginType
           });
           e.dataTransfer?.setData('application/vnd.codeblock', payload);
         });

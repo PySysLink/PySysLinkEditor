@@ -4,6 +4,7 @@ import { ZoomController } from "./ZoomController";
 interface DroppedBlockMeta {
     library: string;
     blockType: string;
+    pluginType: string;
 }
 
 export class CanvasDropHandler {
@@ -56,6 +57,12 @@ export class CanvasDropHandler {
 
         const meta = this.extractBlockMeta(e);
 
+        this.communicationManager.print(
+            `Drop event: Extracted meta: ${JSON.stringify(
+                meta
+            )}`
+        );
+
         if (!meta) {
             return;
         }
@@ -67,12 +74,30 @@ export class CanvasDropHandler {
             `Drop event: ${meta.blockType}, x: ${x}, y: ${y}`
         );
 
-        this.communicationManager.createBlockOfType(
-            meta.library,
-            meta.blockType,
-            x,
-            y
-        );
+        if (meta.pluginType === 'systemLibrary') {
+            if (meta.blockType === 'subsystem') {
+                this.communicationManager.createSubsystem(
+                    x,
+                    y
+                );
+            }
+            else if (meta.blockType === 'input_port' || meta.blockType === 'output_port') {
+                this.communicationManager.createBlockOfType(
+                    meta.library,
+                    meta.blockType,
+                    x,
+                    y
+                );
+            }
+        }
+        else {
+            this.communicationManager.createBlockOfType(
+                meta.library,
+                meta.blockType,
+                x,
+                y
+            );
+        }
     };
 
     private extractBlockMeta(
@@ -100,7 +125,8 @@ export class CanvasDropHandler {
 
             return {
                 library: parsed.library,
-                blockType: parsed.blockType
+                blockType: parsed.blockType,
+                pluginType: parsed.pluginType
             };
         } catch {
             this.communicationManager.print(

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as crypto from 'crypto';
-import { BlockData, BlockRenderInformation, IdType, JsonData } from '../../shared/JsonTypes';
+import { BlockData, BlockRenderInformation, IdType, JsonData, SubsystemData } from '../../shared/JsonTypes';
 import { updateBlockParameters } from '../../shared/JsonManager';
 import { PythonServerManager } from '../simulation/PythonServerManager';
 import { SimulationManager } from '../SimulationManager';
@@ -258,7 +258,23 @@ export class DocumentManager {
             }
         });
 
-        await Promise.all(blockPromises);
+        const subsystemPromises = (json.subsystems ?? []).map(async subsystem => {
+            try {
+                const subsystemRenderInfo = await this.getSubsystemRenderInformation(subsystem, this.document.uri.fsPath);
+                if (subsystemRenderInfo) {
+                    subsystem.subsystemRenderInformation = subsystemRenderInfo;
+                    subsystem.inputPorts = subsystemRenderInfo.input_ports;
+                    subsystem.outputPorts = subsystemRenderInfo.output_ports;
+                    subsystem.inputPortTypes = subsystemRenderInfo.input_port_types;
+                    subsystem.outputPortTypes = subsystemRenderInfo.output_port_types;
+                }
+            } catch (err) {
+                console.error(`Error getting subsystem render information for subsystem ${subsystem.id}:`, err);
+            }
+        });
+
+        await Promise.all([...blockPromises, ...subsystemPromises]);
+
         return json;
     }
 
@@ -291,6 +307,35 @@ export class DocumentManager {
         }
     }
 
+    private async getSubsystemRenderInformation(subsystem: SubsystemData, pslkPath: string): Promise<BlockRenderInformation | undefined> {
+        const cacheKey = this.hashSubsystemKey(subsystem);
+        const cached = this.renderInfoCache.get(cacheKey);
+        if (cached) {
+            return cached;
+        }
+
+        try {
+            const result = await this.pythonServer.sendRequestAsync({
+                method: 'getSubsystemRenderInformation',
+                params: {
+                    subsystem,
+                    pslkPath
+                }
+            }, 10000);
+
+            const renderInfo = typeof result === 'string' ? JSON.parse(result) : result;
+            if (renderInfo) {
+                this.renderInfoCache.set(cacheKey, renderInfo);
+            }
+            return renderInfo;
+        } catch (error) {
+            console.error(`Error on python server while getting subsystem render information: ${error}`);
+            vscode.window.showErrorMessage(
+                `Error on python server while getting subsystem render information: ${error}`
+            );
+        }
+    }
+
     private hashBlockKey(block: BlockData): string {
         const relevant = {
             blockLibrary: block.blockLibrary,
@@ -299,6 +344,17 @@ export class DocumentManager {
             inputPorts: block.inputPorts,
             outputPorts: block.outputPorts,
             properties: block.properties
+        };
+
+        return crypto.createHash('sha256').update(JSON.stringify(relevant)).digest('hex');
+    }
+
+    private hashSubsystemKey(subsystem: SubsystemData): string {
+        const relevant = {
+            label: subsystem.label,
+            inputPorts: subsystem.inputPorts,
+            outputPorts: subsystem.outputPorts,
+            jsonData: subsystem.jsonData
         };
 
         return crypto.createHash('sha256').update(JSON.stringify(relevant)).digest('hex');

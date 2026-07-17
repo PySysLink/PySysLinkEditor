@@ -190,6 +190,14 @@ export function addBlockToJson(json: JsonData, block: BlockData): JsonData {
     return updatedJson;
 }
 
+export function addSubsystemToJson(json: JsonData, subsystem: SubsystemData): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        subsystems: [...(json.subsystems || []), subsystem]
+    };
+    return updatedJson;
+}
+
 export function addLinkToJson(json: JsonData, link: LinkJson): JsonData {
     const updatedJson: JsonData = {
         ...json,

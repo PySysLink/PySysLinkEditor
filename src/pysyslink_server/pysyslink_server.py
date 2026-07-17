@@ -178,6 +178,10 @@ async def get_block_render_information(block: str, pslkPath: str):
     render_information = get_toolkit().get_block_render_information(get_toolkit_config_path(pslkPath), block, pslkPath)
     return render_information.to_json()
 
+async def get_subsystem_render_information(subsystem: str, pslkPath: str):
+    render_information = get_toolkit().get_subsystem_render_information(get_toolkit_config_path(pslkPath), subsystem, pslkPath)
+    return render_information.to_json()
+
 async def get_block_html(block: str, pslkPath: str):
     html_str = get_toolkit().get_block_html(get_toolkit_config_path(pslkPath), block, pslkPath)
     return { "html": html_str }
@@ -188,6 +192,7 @@ server = RPCServer(before_request)
 server.register_method("runSimulation", run_simulation)
 server.register_method("getLibraries", get_libraries)
 server.register_method("getBlockRenderInformation", get_block_render_information)
+server.register_method("getSubsystemRenderInformation", get_subsystem_render_information)
 server.register_method("getBlockHTML", get_block_html)
 
 if __name__ == "__main__":

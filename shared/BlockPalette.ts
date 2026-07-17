@@ -17,5 +17,6 @@ export interface BlockType {
 
 export interface Library {
   name: string;
+  pluginType: string;
   blockTypes: BlockType[];
 }
