@@ -166,19 +166,22 @@ export class PySysLinkBlockEditorSession {
 
     public handleDoubleClickOnSubsystem = async (subsystemId: IdType): Promise<void> => {
         this.currentSubsystemIds.push(subsystemId);
-        this.updateWebview();
+        await this.documentManager.updateBlockRenderInformation(this.currentSubsystemIds);
+        this.updateWebview(true);
     };
 
     public goToRootSubsystem = async (): Promise<void> => {
         this.currentSubsystemIds = [];
-        this.updateWebview();
+        await this.documentManager.updateBlockRenderInformation(this.currentSubsystemIds);
+        this.updateWebview(true);
     };
 
     public goToSubsystem = async (subsystemId: IdType): Promise<void> => {
         const index = this.currentSubsystemIds.indexOf(subsystemId);
         if (index !== -1) {
             this.currentSubsystemIds = this.currentSubsystemIds.slice(0, index + 1);
-            this.updateWebview();
+            await this.documentManager.updateBlockRenderInformation(this.currentSubsystemIds);
+            this.updateWebview(true);
         } else {
             console.warn(`Subsystem ID ${subsystemId} not found in current subsystem path.`);
         }
@@ -299,9 +302,9 @@ export class PySysLinkBlockEditorSession {
         }
     };
 
-    private updateWebview = (): void => {
+    private updateWebview = (force: boolean = false): void => {
         const json = this.documentManager.getJson(this.currentSubsystemIds);
-        if (this.lastJson && JSON.stringify(this.lastJson) === JSON.stringify(json)) {
+        if (this.lastJson && JSON.stringify(this.lastJson) === JSON.stringify(json) && !force) {
             console.log('No changes detected, skipping webview update.');
             return;
         }

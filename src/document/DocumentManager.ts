@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as crypto from 'crypto';
-import { BlockData, BlockRenderInformation, IdType, JsonData, SubsystemData } from '../../shared/JsonTypes';
+import { BlockData, BlockRenderInformation, IdType, JsonData, SubsystemData, SubsystemRenderInformation } from '../../shared/JsonTypes';
 import { updateBlockParameters } from '../../shared/JsonManager';
 import { PythonServerManager } from '../simulation/PythonServerManager';
 import { SimulationManager } from '../SimulationManager';
@@ -14,6 +14,7 @@ export class DocumentManager {
 
     private lastVersion: number = 0;
     private renderInfoCache: Map<string, BlockRenderInformation> = new Map();
+    private subsystemRenderInfoCache: Map<string, SubsystemRenderInformation> = new Map();
 
     constructor(document: vscode.TextDocument, private readonly simulationManager: SimulationManager, private readonly pythonServer: PythonServerManager) {
         this.document = document;
@@ -97,7 +98,7 @@ export class DocumentManager {
         await this.withDocumentLock(async () => {
             const json = this.getJson(subsystemIds);
             const updated = updateBlockParameters(json, block);
-            const rendered = await this.updateBlockRenderInformation(updated);
+            const rendered = await this._updateBlockRenderInformation(updated);
             await this.updateTextDocument(this.document, rendered, subsystemIds);
         });
     }
@@ -105,7 +106,7 @@ export class DocumentManager {
     public async writeJson(json: JsonData, subsystemIds: IdType[]): Promise<void> {
         console.log("Writing JSON to document for subsystem path: " + subsystemIds.join(" > "));
         await this.withDocumentLock(async () => {
-            const rendered = await this.updateBlockRenderInformation(json);
+            const rendered = await this._updateBlockRenderInformation(json);
             await this.updateTextDocument(this.document, rendered, subsystemIds);
         });
     }
@@ -217,7 +218,7 @@ export class DocumentManager {
         await this.withDocumentLock(async () => {
             const json = this.getJson([]);
             json.initialization_python_script_path = newPath;
-            const rendered = await this.updateBlockRenderInformation(json);
+            const rendered = await this._updateBlockRenderInformation(json);
             await this.updateTextDocument(this.document, rendered, []);
         });
 
@@ -228,15 +229,23 @@ export class DocumentManager {
         await this.withDocumentLock(async () => {
             const json = this.getJson([]);
             json.toolkit_configuration_path = newPath;
-            const rendered = await this.updateBlockRenderInformation(json);
+            const rendered = await this._updateBlockRenderInformation(json);
             await this.updateTextDocument(this.document, rendered, []);
         });
 
         this.simulationManager.setCurrentToolkitConfigurationFilePath(newPath);
     }
 
+    public async updateBlockRenderInformation(subsystemIds: IdType[]): Promise<void> {
+        await this.withDocumentLock(async () => {
+            const currentJson = this.getJson(subsystemIds);
+            const updatedJson = await this._updateBlockRenderInformation(currentJson);
+            await this.updateTextDocument(this.document, updatedJson, subsystemIds);
+        });
+    }
 
-    private async updateBlockRenderInformation(json: JsonData): Promise<JsonData> {
+
+    private async _updateBlockRenderInformation(json: JsonData): Promise<JsonData> {
         if (!this.pythonServer.isRunning()) {
             console.warn('Python server is not running, skipping block render information update.');
             return json;
@@ -307,9 +316,9 @@ export class DocumentManager {
         }
     }
 
-    private async getSubsystemRenderInformation(subsystem: SubsystemData, pslkPath: string): Promise<BlockRenderInformation | undefined> {
+    private async getSubsystemRenderInformation(subsystem: SubsystemData, pslkPath: string): Promise<SubsystemRenderInformation | undefined> {
         const cacheKey = this.hashSubsystemKey(subsystem);
-        const cached = this.renderInfoCache.get(cacheKey);
+        const cached = this.subsystemRenderInfoCache.get(cacheKey);
         if (cached) {
             return cached;
         }
@@ -325,7 +334,7 @@ export class DocumentManager {
 
             const renderInfo = typeof result === 'string' ? JSON.parse(result) : result;
             if (renderInfo) {
-                this.renderInfoCache.set(cacheKey, renderInfo);
+                this.subsystemRenderInfoCache.set(cacheKey, renderInfo);
             }
             return renderInfo;
         } catch (error) {

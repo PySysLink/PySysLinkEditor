@@ -1,5 +1,5 @@
 {
-  "version": 71,
+  "version": 30,
   "simulation_configuration": "lowLevelOptions.yaml",
   "initialization_python_script_path": "initParam.py",
   "toolkit_configuration_path": "toolkit_config.yaml",
@@ -40,8 +40,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Adder",
       "label": "Adder",
-      "x": 260,
-      "y": 90,
+      "x": 290,
+      "y": 210,
       "rotation": 0,
       "inputPorts": 2,
       "outputPorts": 1,
@@ -122,7 +122,7 @@
       "blockType": "Constant",
       "label": "Constant",
       "x": 90,
-      "y": 230,
+      "y": 250,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
@@ -178,20 +178,20 @@
       "id": "w44KkTOA7rLN8rubJ2NN8m5QdWRtNmjM",
       "sourceId": "lLMQIwvVSl3y5c0Y75dkloum2imoKZWE",
       "sourcePort": 0,
-      "sourceX": 380,
-      "sourceY": 120,
+      "sourceX": 410,
+      "sourceY": 240,
       "targetNodes": {
         "hTRYUF51yQYwpmRgrQCPB5ujz7RAKfrL": {
           "targetId": "9OeA9nd0BviuWmS88SZH7gtxxsjDvuzD",
           "port": 0,
-          "x": 500,
-          "y": 110
+          "x": 510,
+          "y": 140
         }
       },
       "segmentNode": {
         "id": "bpVns80HN1IRz94DTdrJmuaL9nn4ugRj",
         "orientation": "Horizontal",
-        "xOrY": 120,
+        "xOrY": 240,
         "children": [
           {
             "id": "f4pIRMYCsD7PVcy6oquUUyaGrG0wsf3Y",
@@ -201,7 +201,7 @@
               {
                 "id": "hTRYUF51yQYwpmRgrQCPB5ujz7RAKfrL",
                 "orientation": "Horizontal",
-                "xOrY": 110,
+                "xOrY": 140,
                 "children": []
               }
             ]
@@ -430,7 +430,7 @@
         ]
       },
       "jsonData": {
-        "version": 66,
+        "version": 30,
         "simulation_configuration": "",
         "initialization_python_script_path": "",
         "toolkit_configuration_path": "",
@@ -644,7 +644,7 @@
               "output_port_types": []
             },
             "jsonData": {
-              "version": 66,
+              "version": 30,
               "simulation_configuration": "",
               "initialization_python_script_path": "",
               "toolkit_configuration_path": "",
@@ -691,8 +691,8 @@
     {
       "id": "9OeA9nd0BviuWmS88SZH7gtxxsjDvuzD",
       "label": "New Subsystem",
-      "x": 500,
-      "y": 90,
+      "x": 510,
+      "y": 120,
       "rotation": 0,
       "inputPorts": 2,
       "outputPorts": 1,
@@ -818,7 +818,7 @@
         }
       ],
       "jsonData": {
-        "version": 66,
+        "version": 30,
         "simulation_configuration": "",
         "initialization_python_script_path": "",
         "toolkit_configuration_path": "",
@@ -1104,19 +1104,193 @@
     {
       "id": "22iy8LQxqGCCoAdUACbUCFyK3A07Dba0",
       "label": "New Subsystem",
-      "x": 700,
+      "x": 750,
       "y": 180,
       "rotation": 0,
       "inputPorts": 0,
-      "outputPorts": 0,
+      "outputPorts": 2,
       "inputPortTypes": [],
-      "outputPortTypes": [],
+      "outputPortTypes": [
+        {
+          "port_category": "Inherited",
+          "inheritance_group": 0,
+          "supported_port_types_for_inheritance": [
+            "F",
+            "u",
+            "l",
+            "l",
+            "y",
+            "S",
+            "u",
+            "p",
+            "p",
+            "o",
+            "r",
+            "t",
+            "e",
+            "d",
+            "S",
+            "i",
+            "g",
+            "n",
+            "a",
+            "l",
+            "V",
+            "a",
+            "l",
+            "u",
+            "e",
+            "T",
+            "y",
+            "p",
+            "e",
+            ".",
+            "A",
+            "n",
+            "y"
+          ]
+        },
+        {
+          "port_category": "Inherited",
+          "inheritance_group": 0,
+          "supported_port_types_for_inheritance": [
+            "F",
+            "u",
+            "l",
+            "l",
+            "y",
+            "S",
+            "u",
+            "p",
+            "p",
+            "o",
+            "r",
+            "t",
+            "e",
+            "d",
+            "S",
+            "i",
+            "g",
+            "n",
+            "a",
+            "l",
+            "V",
+            "a",
+            "l",
+            "u",
+            "e",
+            "T",
+            "y",
+            "p",
+            "e",
+            ".",
+            "A",
+            "n",
+            "y"
+          ]
+        }
+      ],
       "jsonData": {
-        "version": 66,
+        "version": 30,
         "simulation_configuration": "",
         "initialization_python_script_path": "",
         "toolkit_configuration_path": "",
-        "blocks": [],
+        "blocks": [
+          {
+            "id": "VU3tODFzuiw7O1ZUMKzwRqYwtqaXaCfq",
+            "blockLibrary": "subsystems_library",
+            "blockType": "output_port",
+            "label": "output_port",
+            "x": 540,
+            "y": 290,
+            "rotation": 0,
+            "inputPorts": 1,
+            "outputPorts": 0,
+            "inputPortTypes": [
+              {
+                "port_category": "Inherited",
+                "inheritance_group": 0,
+                "supported_port_types_for_inheritance": [
+                  "FullySupportedSignalValueType.Any"
+                ]
+              }
+            ],
+            "outputPortTypes": [],
+            "properties": {},
+            "blockRenderInformation": {
+              "shape": "circle",
+              "icon": "",
+              "text": "output_port",
+              "show_image_and_text": false,
+              "figure": null,
+              "default_width": 120,
+              "default_height": 50,
+              "min_width": 60,
+              "min_height": 25,
+              "max_width": 360,
+              "max_height": 150,
+              "input_ports": 1,
+              "output_ports": 0,
+              "input_port_types": [
+                {
+                  "port_category": "Inherited",
+                  "inheritance_group": 0,
+                  "supported_port_types_for_inheritance": [
+                    "FullySupportedSignalValueType.Any"
+                  ]
+                }
+              ],
+              "output_port_types": []
+            }
+          },
+          {
+            "id": "FBALtU9raOFl3rOyTABxebVpXyf0L3wu",
+            "blockLibrary": "subsystems_library",
+            "blockType": "output_port",
+            "label": "output_port",
+            "x": 540,
+            "y": 170,
+            "rotation": 0,
+            "inputPorts": 1,
+            "outputPorts": 0,
+            "inputPortTypes": [
+              {
+                "port_category": "Inherited",
+                "inheritance_group": 0,
+                "supported_port_types_for_inheritance": [
+                  "FullySupportedSignalValueType.Any"
+                ]
+              }
+            ],
+            "outputPortTypes": [],
+            "properties": {},
+            "blockRenderInformation": {
+              "shape": "circle",
+              "icon": "",
+              "text": "output_port",
+              "show_image_and_text": false,
+              "figure": null,
+              "default_width": 120,
+              "default_height": 50,
+              "min_width": 60,
+              "min_height": 25,
+              "max_width": 360,
+              "max_height": 150,
+              "input_ports": 1,
+              "output_ports": 0,
+              "input_port_types": [
+                {
+                  "port_category": "Inherited",
+                  "inheritance_group": 0,
+                  "supported_port_types_for_inheritance": [
+                    "FullySupportedSignalValueType.Any"
+                  ]
+                }
+              ],
+              "output_port_types": []
+            }
+          }
+        ],
         "links": [],
         "subsystems": []
       },
@@ -1129,9 +1303,88 @@
         "max_width": 360,
         "max_height": 150,
         "input_ports": 0,
-        "output_ports": 0,
+        "output_ports": 2,
         "input_port_types": [],
-        "output_port_types": []
+        "output_port_types": [
+          {
+            "port_category": "Inherited",
+            "inheritance_group": 0,
+            "supported_port_types_for_inheritance": [
+              "F",
+              "u",
+              "l",
+              "l",
+              "y",
+              "S",
+              "u",
+              "p",
+              "p",
+              "o",
+              "r",
+              "t",
+              "e",
+              "d",
+              "S",
+              "i",
+              "g",
+              "n",
+              "a",
+              "l",
+              "V",
+              "a",
+              "l",
+              "u",
+              "e",
+              "T",
+              "y",
+              "p",
+              "e",
+              ".",
+              "A",
+              "n",
+              "y"
+            ]
+          },
+          {
+            "port_category": "Inherited",
+            "inheritance_group": 0,
+            "supported_port_types_for_inheritance": [
+              "F",
+              "u",
+              "l",
+              "l",
+              "y",
+              "S",
+              "u",
+              "p",
+              "p",
+              "o",
+              "r",
+              "t",
+              "e",
+              "d",
+              "S",
+              "i",
+              "g",
+              "n",
+              "a",
+              "l",
+              "V",
+              "a",
+              "l",
+              "u",
+              "e",
+              "T",
+              "y",
+              "p",
+              "e",
+              ".",
+              "A",
+              "n",
+              "y"
+            ]
+          }
+        ]
       }
     }
   ]
