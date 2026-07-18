@@ -2,8 +2,16 @@ import { Selectable } from "../interfaces/Selectable";
 import { Movable, isMovable } from "../interfaces/Movable";
 import { CanvasElement } from "../interfaces/CanvasElement";
 import { CommunicationManager } from "./CommunicationManager";
-import { IdType } from "../../shared/JsonTypes";
+import { IdType, JsonData } from "../../shared/JsonTypes";
 import { isRotatable, RotationDirection } from "../interfaces/Rotatable";
+
+
+type ClipboardPayload = {
+    kind: "pysyslink-copy";
+    version: 1;
+    mousePosition: { x: number; y: number };
+    data: JsonData;
+};
 
 export class SelectableManager {
     private snappingToGrid = true;
@@ -64,8 +72,15 @@ export class SelectableManager {
             return;
         } 
 
-        // Handle Ctrl+R (or Cmd+R on Mac) for rotate
         const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+
+        if (isCtrlOrCmd && e.key.toLowerCase() === 'c') {
+            e.preventDefault();
+            e.stopPropagation();
+            this.copySelectedToClipboard();
+            return;
+        }
+
         if (isCtrlOrCmd && e.key.toLowerCase() === 'r') {
             e.preventDefault(); // prevent browser refresh
             e.stopPropagation(); // prevent event from bubbling up
@@ -483,4 +498,43 @@ export class SelectableManager {
         return this.snappingToGrid;
     }
 
+    private copySelectedToClipboard(): void {
+        const selectedSelectables = this.getSelectedSelectables();
+
+        const copiedFragments: JsonData[] = [];
+
+        for (const selectable of selectedSelectables) {
+            if (typeof (selectable as any).copy === "function") {
+                const fragment = (selectable as any).copy(
+                    selectedSelectables,
+                    this.communicationManager
+                );
+                if (fragment) {
+                    copiedFragments.push(fragment);
+                }
+            }
+        }
+
+        const merged: JsonData = {
+            version: 1,
+            simulation_configuration: "",
+            initialization_python_script_path: "",
+            toolkit_configuration_path: "",
+            blocks: copiedFragments.flatMap(f => f.blocks ?? []),
+            links: copiedFragments.flatMap(f => f.links ?? []),
+            subsystems: copiedFragments.flatMap(f => f.subsystems ?? [])
+        };
+
+        const payload: ClipboardPayload = {
+            kind: "pysyslink-copy",
+            version: 1,
+            mousePosition: {
+                x: this.dragStartX,
+                y: this.dragStartY
+            },
+            data: merged
+        };
+
+        navigator.clipboard.writeText(JSON.stringify(payload, null, 2));    
+    }
 }
