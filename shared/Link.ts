@@ -27,6 +27,45 @@ export interface LinkJson {
     segmentNode: SegmentNode;
 }
 
+export function changeIdsInLinkData(linkData: LinkJson, blockIdMap: Map<IdType, IdType> | undefined = undefined): LinkJson {
+    const idMap = new Map<IdType, IdType>();
+
+    const remapSegmentNode = (node: SegmentNode): SegmentNode => {
+        const oldId = node.id;
+        const newId = getNonce();
+        idMap.set(oldId, newId);
+
+        return {
+            ...node,
+            id: newId,
+            children: node.children.map(child => remapSegmentNode(child))
+        };
+    };
+
+    const remappedSegmentNode = remapSegmentNode(linkData.segmentNode);
+
+    const remappedTargetNodes: LinkJson["targetNodes"] = {};
+    for (const [segmentId, targetInfo] of Object.entries(linkData.targetNodes)) {
+        const newSegmentId = idMap.get(segmentId) ?? getNonce();
+        remappedTargetNodes[newSegmentId] = {
+            ...targetInfo,
+            targetId: blockIdMap === undefined
+                ? "undefined"
+                : (blockIdMap.get(targetInfo.targetId) ?? "undefined"),
+            port: blockIdMap === undefined ? -1 : targetInfo.port
+        };
+    }
+
+    return {
+        ...linkData,
+        id: getNonce(),
+        sourceId: blockIdMap === undefined ? "undefined" : (blockIdMap.get(linkData.sourceId) ?? "undefined"),
+        sourcePort: blockIdMap === undefined ? -1 : linkData.sourcePort,
+        segmentNode: remappedSegmentNode,
+        targetNodes: remappedTargetNodes
+    };
+}
+
 export class Link {
     id: IdType;
     sourceId: IdType;

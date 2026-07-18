@@ -3,8 +3,10 @@ import { Selectable } from '../interfaces/Selectable';
 import { IdType, JsonData } from '../../shared/JsonTypes';
 import { isMovable, Movable } from '../interfaces/Movable';
 import { CommunicationManager } from '../editorCore/CommunicationManager';
+import { Copiable } from '../interfaces/Copiable';
+import { changeIdsInLinkData } from '../../shared/Link';
 
-export class LinkNode extends Selectable implements Movable {
+export class LinkNode extends Copiable implements Movable {
     id: string;
     getNeighboringSegmentsToNode: (nodeId: IdType) => { before: LinkSegment; after: LinkSegment; } | undefined;
 
@@ -45,6 +47,18 @@ export class LinkNode extends Selectable implements Movable {
         if (this.isHighlighted) {
             this.nodeElement.classList.add('highlighted');
         }
+    }
+
+    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
+        return {
+            version: 1,
+            simulation_configuration: "",
+            initialization_python_script_path: "",
+            toolkit_configuration_path: "",
+            blocks: [],
+            links: [],
+            subsystems: []
+        };
     }
 
     protected createNodeElement(): SVGElement {
@@ -143,6 +157,34 @@ export class SourceNode extends LinkNode implements Movable {
         }
     }
 
+    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
+        const isFullySelected = communicationManager.isLinkFullySelected(this.linkId, selectedSelectables);
+        if (isFullySelected) {
+            const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
+            if (linkData) {
+                const linkDataNewId = changeIdsInLinkData(linkData); 
+                return {
+                    version: 1,
+                    simulation_configuration: "",
+                    initialization_python_script_path: "",
+                    toolkit_configuration_path: "",
+                    blocks: [],
+                    links: [linkDataNewId],
+                    subsystems: []
+                };
+            }
+        }
+        return {
+            version: 1,
+            simulation_configuration: "",
+            initialization_python_script_path: "",
+            toolkit_configuration_path: "",
+            blocks: [],
+            links: [],
+            subsystems: []
+        };
+    }
+
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
         communicationManager.print(`Source node with id: ${this.getId()} moving to ${x}, ${y}`);
 
@@ -215,6 +257,18 @@ export class TargetNode extends LinkNode implements Movable {
         super(linkId, segmentId + "TargetNode", getNeighboringSegmentsToNode, onDelete);
         this.segmentId = segmentId;
         this.nodeElement.classList.add('target-node');
+    }
+
+    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
+        return {
+            version: 1,
+            simulation_configuration: "",
+            initialization_python_script_path: "",
+            toolkit_configuration_path: "",
+            blocks: [],
+            links: [],
+            subsystems: []
+        };
     }
 
     protected createNodeElement(): SVGElement {
@@ -309,7 +363,7 @@ export class TargetNode extends LinkNode implements Movable {
 }
 
 
-export class LinkSegment extends Selectable implements Movable {
+export class LinkSegment extends Copiable implements Movable {
     id: IdType;
     orientation: "Horizontal" | "Vertical";
     xOrY: number;
@@ -350,6 +404,18 @@ export class LinkSegment extends Selectable implements Movable {
         if (segmentLimits) {
             this.getElement().setAttribute("points", `${segmentLimits.before.x},${segmentLimits.before.y} ${segmentLimits.after.x},${segmentLimits.after.y}`);
         }
+    }
+
+    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
+        return {
+            version: 1,
+            simulation_configuration: "",
+            initialization_python_script_path: "",
+            toolkit_configuration_path: "",
+            blocks: [],
+            links: [],
+            subsystems: []
+        };
     }
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {

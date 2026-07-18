@@ -1,10 +1,12 @@
 import { BlockData, BlockRenderInformation, IdType, JsonData, Rotation } from "../../shared/JsonTypes";
+import { getNonce } from "../../shared/util";
 import { CommunicationManager } from "../editorCore/CommunicationManager";
+import { Copiable } from "../interfaces/Copiable";
 import { Movable } from "../interfaces/Movable";
 import { Rotatable } from "../interfaces/Rotatable";
 import { Selectable } from "../interfaces/Selectable";
 
-export class BlockVisual extends Selectable implements Movable, Rotatable {
+export class BlockVisual extends Copiable implements Movable, Rotatable {
     id: string;
     _isSelected: boolean = false;
 
@@ -115,6 +117,29 @@ export class BlockVisual extends Selectable implements Movable, Rotatable {
             this.outputPorts.push(outputPort);
         }
     }
+
+    copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
+        const blockData = communicationManager.getLocalJson()?.blocks?.find((block: BlockData) => block.id === this.id);
+        if (!blockData) {
+            throw new Error(`Block with id ${this.id} not found in local JSON.`);
+        }
+        const blockDataNewId = { ...blockData, id: getNonce() }; // Assign a new unique ID for the copied block
+        if (blockData) {
+            return {
+                version: 1,
+                simulation_configuration: "",
+                initialization_python_script_path: "",
+                toolkit_configuration_path: "",
+                blocks: [blockDataNewId],
+                links: [],
+                subsystems: []
+            };
+        }
+        else {
+            throw new Error(`Block with id ${this.id} not found in local JSON.`);
+        }
+    }
+
     getRotation(communicationManager: CommunicationManager): Rotation {
         const blockData = communicationManager.getLocalJson()?.blocks?.find((block: BlockData) => block.id === this.id);
         return blockData?.rotation ?? 0; // Default rotation is 0 if not found

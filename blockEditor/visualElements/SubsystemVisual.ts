@@ -1,11 +1,12 @@
 import { BlockData, BlockRenderInformation, IdType, JsonData, Rotation, SubsystemData, SubsystemRenderInformation } from "../../shared/JsonTypes";
 import { CommunicationManager } from "../editorCore/CommunicationManager";
+import { Copiable } from "../interfaces/Copiable";
 import { Movable } from "../interfaces/Movable";
 import { Rotatable } from "../interfaces/Rotatable";
 import { Selectable } from "../interfaces/Selectable";
 import { BlockVisual } from "./BlockVisual";
 
-export class SubsystemVisual extends Selectable implements Movable, Rotatable {
+export class SubsystemVisual extends Copiable implements Movable, Rotatable {
     id: string;
     _isSelected: boolean = false;
 
@@ -114,6 +115,12 @@ export class SubsystemVisual extends Selectable implements Movable, Rotatable {
             this.outputPorts.push(outputPort);
         }
     }
+
+    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
+        const copyedSubsystemData = communicationManager.getCopyOfSubsystem(this.id, selectedSelectables);
+        return copyedSubsystemData;
+    }
+
     getRotation(communicationManager: CommunicationManager): Rotation {
         const subsystemData = communicationManager.getLocalJson()?.subsystems?.find((subsystem: SubsystemData) => subsystem.id === this.id);
         return subsystemData?.rotation ?? 0; // Default rotation is 0 if not found

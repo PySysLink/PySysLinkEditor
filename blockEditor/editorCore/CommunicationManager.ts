@@ -11,10 +11,11 @@ import { addBlockToJson, addLinkToJson, updatePortAttachment, attachLinkToPort,
     rotateSubsystem,
     deleteSubsystemFromJson,
     addSubsystemToJson} from "../../shared/JsonManager";
-import { BlockData, IdType, JsonData, Rotation } from "../../shared/JsonTypes";
+import { BlockData, IdType, JsonData, Rotation, SubsystemData } from "../../shared/JsonTypes";
 import { getNonce } from "../../shared/util";
 import { Library } from "../../shared/BlockPalette";
-import { SegmentNode, LinkJson, TargetNodeInfo, Link } from "../../shared/Link";
+import { SegmentNode, LinkJson, TargetNodeInfo, Link, changeIdsInLinkData } from "../../shared/Link";
+import { Selectable } from "../interfaces/Selectable";
 
 
 export class CommunicationManager {
@@ -326,6 +327,27 @@ export class CommunicationManager {
         return undefined;
     };
 
+    public isLinkFullySelected(linkId: string, selectedSelectables: Selectable[]) {
+        let json = this.getLocalJson();
+        if (json) {
+            const link = json.links?.find(l => l.id === linkId);
+            if (!link) {
+                return false;
+            }
+            const segmentIds = this.getAllSegmentIds(link.segmentNode);
+            return segmentIds.every(segmentId => selectedSelectables.some(sel => sel.getId() === segmentId));
+        }
+        return false;
+    }
+
+    public getAllSegmentIds(segmentNode: SegmentNode): IdType[] {
+        let ids: IdType[] = [segmentNode.id];
+        for (const child of segmentNode.children) {
+            ids = ids.concat(this.getAllSegmentIds(child));
+        }
+        return ids;
+    }
+
     public getLimitsOfSegment = (linkId: IdType, segmentId: IdType): {before: {x: number, y: number}, after: {x: number, y: number}} | undefined => {
         let json = this.getLocalJson();
         if (json) {
@@ -484,6 +506,72 @@ export class CommunicationManager {
             this.setLocalJson(newJson, true);
         }
     };
+
+    public getCopyOfSubsystem(id: string, selectedSelectables: Selectable[]) {
+        const json = this.getLocalJson();
+        if (!json) {
+            return {
+                version: 1,
+                simulation_configuration: "",
+                initialization_python_script_path: "",
+                toolkit_configuration_path: "",
+                blocks: [],
+                links: [],
+                subsystems: []
+            };
+        }
+
+        const subsystem = json.subsystems?.find((s) => s.id === id);
+        if (!subsystem) {
+            return {
+                version: 1,
+                simulation_configuration: "",
+                initialization_python_script_path: "",
+                toolkit_configuration_path: "",
+                blocks: [],
+                links: [],
+                subsystems: []
+            };
+        }
+
+        const remapSubsystem = (subsystemData: SubsystemData): SubsystemData => {
+            const blockIdMap = new Map<IdType, IdType>();
+
+            const remappedBlocks = subsystemData.jsonData.blocks?.map((block) => {
+                const newBlockId = getNonce();
+                blockIdMap.set(block.id, newBlockId);
+                return {
+                    ...block,
+                    id: newBlockId
+                };
+            }) ?? [];
+
+            return {
+                ...subsystemData,
+                id: getNonce(),
+                jsonData: {
+                    ...subsystemData.jsonData,
+                    blocks: remappedBlocks,
+                    links: subsystemData.jsonData.links?.map((link) =>
+                        changeIdsInLinkData(link, blockIdMap)
+                    ),
+                    subsystems: subsystemData.jsonData.subsystems?.map((child) =>
+                        remapSubsystem(child)
+                    )
+                }
+            };
+        };
+
+        return {
+            version: 1,
+            simulation_configuration: "",
+            initialization_python_script_path: "",
+            toolkit_configuration_path: "",
+            blocks: [],
+            links: [],
+            subsystems: [remapSubsystem(subsystem)]
+        };
+    }
 
     public createBlockOfType(library: string, blockType: string, x: number, y: number) {
         // Find the block definition from the libraries

@@ -127,20 +127,6 @@ export class LinkVisual {
         this.junctionNodes.forEach(node => node.updateFromJson(json, communicationManager));
     }
 
-    public select() {
-        this.segments.forEach(s => s.select());
-        this.junctionNodes.forEach(n => n.select());
-        this.sourceNode.select();
-        this.targetNodes.forEach(tn => tn.select());
-    }
-
-    public unselect() {
-        this.segments.forEach(s => s.unselect());
-        this.junctionNodes.forEach(n => n.unselect());
-        this.sourceNode.unselect();
-        this.targetNodes.forEach(tn => tn.unselect());
-    }
-
     public delete = (communicationManager: CommunicationManager, segmentId: IdType): void => {
         communicationManager.deleteLinkFromSegment(this.id, segmentId);
         this.onDelete(this.id, segmentId);
