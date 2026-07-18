@@ -217,6 +217,10 @@ export class SubsystemVisual extends Copiable implements Movable, Rotatable {
             const txt = document.createElement('div');
             txt.classList.add('block-text');
             txt.textContent = renderInfo.text;
+            // Clear childs
+            if (this.contentElement.lastChild) {
+                this.contentElement.removeChild(this.contentElement.lastChild);
+            }
             this.contentElement.appendChild(txt);
         }
 
