@@ -4,7 +4,7 @@ import { IdType, JsonData } from '../../shared/JsonTypes';
 import { isMovable, Movable } from '../interfaces/Movable';
 import { CommunicationManager } from '../editorCore/CommunicationManager';
 import { Copiable } from '../interfaces/Copiable';
-import { changeIdsInLinkData } from '../../shared/Link';
+import { collectIdsInLinkData } from '../../shared/Link';
 
 export class LinkNode extends Copiable implements Movable {
     id: string;
@@ -49,8 +49,9 @@ export class LinkNode extends Copiable implements Movable {
         }
     }
 
-    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
-        return {
+    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): [JsonData, IdType[]] {
+        return [
+        {
             version: 1,
             simulation_configuration: "",
             initialization_python_script_path: "",
@@ -58,7 +59,7 @@ export class LinkNode extends Copiable implements Movable {
             blocks: [],
             links: [],
             subsystems: []
-        };
+        }, []];
     }
 
     protected createNodeElement(): SVGElement {
@@ -157,24 +158,26 @@ export class SourceNode extends LinkNode implements Movable {
         }
     }
 
-    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
+    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): [JsonData, IdType[]] {
         const isFullySelected = communicationManager.isLinkFullySelected(this.linkId, selectedSelectables);
         if (isFullySelected) {
             const linkData = communicationManager.getLocalJson()?.links?.find(link => link.id === this.linkId);
             if (linkData) {
-                const linkDataNewId = changeIdsInLinkData(linkData); 
-                return {
+                const linkDataNewId = collectIdsInLinkData(linkData); 
+                return [
+                {
                     version: 1,
                     simulation_configuration: "",
                     initialization_python_script_path: "",
                     toolkit_configuration_path: "",
                     blocks: [],
-                    links: [linkDataNewId],
+                    links: [linkData],
                     subsystems: []
-                };
+                }, linkDataNewId];
             }
         }
-        return {
+        return [
+        {
             version: 1,
             simulation_configuration: "",
             initialization_python_script_path: "",
@@ -182,7 +185,7 @@ export class SourceNode extends LinkNode implements Movable {
             blocks: [],
             links: [],
             subsystems: []
-        };
+        }, []];
     }
 
     moveTo(x: number, y: number, communicationManager: CommunicationManager, selectables: Selectable[]): void {
@@ -259,8 +262,9 @@ export class TargetNode extends LinkNode implements Movable {
         this.nodeElement.classList.add('target-node');
     }
 
-    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
-        return {
+    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): [JsonData, IdType[]] {
+        return [
+        {
             version: 1,
             simulation_configuration: "",
             initialization_python_script_path: "",
@@ -268,7 +272,7 @@ export class TargetNode extends LinkNode implements Movable {
             blocks: [],
             links: [],
             subsystems: []
-        };
+        }, []];
     }
 
     protected createNodeElement(): SVGElement {
@@ -406,8 +410,9 @@ export class LinkSegment extends Copiable implements Movable {
         }
     }
 
-    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
-        return {
+    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): [JsonData, IdType[]] {
+        return [
+        {
             version: 1,
             simulation_configuration: "",
             initialization_python_script_path: "",
@@ -415,7 +420,7 @@ export class LinkSegment extends Copiable implements Movable {
             blocks: [],
             links: [],
             subsystems: []
-        };
+        }, []];
     }
 
     public updateFromJson(json: JsonData, communicationManager: CommunicationManager): void {

@@ -4,6 +4,8 @@ import { CanvasElement } from "../interfaces/CanvasElement";
 import { CommunicationManager } from "./CommunicationManager";
 import { IdType, JsonData } from "../../shared/JsonTypes";
 import { isRotatable, RotationDirection } from "../interfaces/Rotatable";
+import { Copiable } from "../interfaces/Copiable";
+import { getNonce } from "../../shared/util";
 
 
 type ClipboardPayload = {
@@ -502,15 +504,17 @@ export class SelectableManager {
         const selectedSelectables = this.getSelectedSelectables();
 
         const copiedFragments: JsonData[] = [];
+        const idsToReplace: IdType[] = [];
 
         for (const selectable of selectedSelectables) {
             if (typeof (selectable as any).copy === "function") {
-                const fragment = (selectable as any).copy(
+                    const [fragment, idToReplace] = (selectable as Copiable).copy(
                     selectedSelectables,
                     this.communicationManager
                 );
                 if (fragment) {
                     copiedFragments.push(fragment);
+                    idsToReplace.push(...idToReplace);
                 }
             }
         }
@@ -525,6 +529,25 @@ export class SelectableManager {
             subsystems: copiedFragments.flatMap(f => f.subsystems ?? [])
         };
 
+        const idMap = new Map<IdType, IdType>();
+
+        for (const id of idsToReplace) {
+            if (!idMap.has(id)) {
+                idMap.set(id, getNonce());
+            }
+        }
+
+        let dataJson = JSON.stringify(merged);
+
+        for (const [oldId, newId] of idMap) {
+            dataJson = dataJson.replaceAll(
+                `"${oldId}"`,
+                `"${newId}"`
+            );
+        }
+
+        const remapped = JSON.parse(dataJson) as JsonData;
+
         const payload: ClipboardPayload = {
             kind: "pysyslink-copy",
             version: 1,
@@ -532,7 +555,7 @@ export class SelectableManager {
                 x: this.dragStartX,
                 y: this.dragStartY
             },
-            data: merged
+            data: remapped
         };
 
         navigator.clipboard.writeText(JSON.stringify(payload, null, 2));    

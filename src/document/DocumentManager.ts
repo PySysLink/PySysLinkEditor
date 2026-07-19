@@ -271,6 +271,7 @@ export class DocumentManager {
             try {
                 const subsystemRenderInfo = await this.getSubsystemRenderInformation(subsystem, this.document.uri.fsPath);
                 if (subsystemRenderInfo) {
+
                     subsystem.subsystemRenderInformation = subsystemRenderInfo;
                     subsystem.inputPorts = subsystemRenderInfo.input_ports;
                     subsystem.outputPorts = subsystemRenderInfo.output_ports;

@@ -27,43 +27,27 @@ export interface LinkJson {
     segmentNode: SegmentNode;
 }
 
-export function changeIdsInLinkData(linkData: LinkJson, blockIdMap: Map<IdType, IdType> | undefined = undefined): LinkJson {
-    const idMap = new Map<IdType, IdType>();
+export function collectIdsInLinkData(linkData: LinkJson): IdType[] {
+    const collectedIds: IdType[] = [];
 
-    const remapSegmentNode = (node: SegmentNode): SegmentNode => {
-        const oldId = node.id;
-        const newId = getNonce();
-        idMap.set(oldId, newId);
-
-        return {
-            ...node,
-            id: newId,
-            children: node.children.map(child => remapSegmentNode(child))
-        };
+    const collectSegmentNodeIds = (node: SegmentNode): void => {
+        collectedIds.push(node.id);
+        for (const child of node.children) {
+            collectSegmentNodeIds(child);
+        }
     };
 
-    const remappedSegmentNode = remapSegmentNode(linkData.segmentNode);
 
-    const remappedTargetNodes: LinkJson["targetNodes"] = {};
+    collectSegmentNodeIds(linkData.segmentNode);
+
     for (const [segmentId, targetInfo] of Object.entries(linkData.targetNodes)) {
-        const newSegmentId = idMap.get(segmentId) ?? getNonce();
-        remappedTargetNodes[newSegmentId] = {
-            ...targetInfo,
-            targetId: blockIdMap === undefined
-                ? "undefined"
-                : (blockIdMap.get(targetInfo.targetId) ?? "undefined"),
-            port: blockIdMap === undefined ? -1 : targetInfo.port
-        };
+        collectedIds.push(segmentId);
+        collectedIds.push(targetInfo.targetId);
     }
 
-    return {
-        ...linkData,
-        id: getNonce(),
-        sourceId: blockIdMap === undefined ? "undefined" : (blockIdMap.get(linkData.sourceId) ?? "undefined"),
-        sourcePort: blockIdMap === undefined ? -1 : linkData.sourcePort,
-        segmentNode: remappedSegmentNode,
-        targetNodes: remappedTargetNodes
-    };
+    collectedIds.push(linkData.id, linkData.sourceId);
+
+    return collectedIds;
 }
 
 export class Link {

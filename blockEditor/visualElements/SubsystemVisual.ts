@@ -116,9 +116,9 @@ export class SubsystemVisual extends Copiable implements Movable, Rotatable {
         }
     }
 
-    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
-        const copyedSubsystemData = communicationManager.getCopyOfSubsystem(this.id, selectedSelectables);
-        return copyedSubsystemData;
+    public copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): [JsonData, IdType[]] {
+        const [subsystemData, idsToReplace] = communicationManager.getIdsOfSubsystem(this.id, selectedSelectables);
+        return [subsystemData, idsToReplace];
     }
 
     getRotation(communicationManager: CommunicationManager): Rotation {

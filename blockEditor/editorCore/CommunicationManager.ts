@@ -14,7 +14,7 @@ import { addBlockToJson, addLinkToJson, updatePortAttachment, attachLinkToPort,
 import { BlockData, IdType, JsonData, Rotation, SubsystemData } from "../../shared/JsonTypes";
 import { getNonce } from "../../shared/util";
 import { Library } from "../../shared/BlockPalette";
-import { SegmentNode, LinkJson, TargetNodeInfo, Link, changeIdsInLinkData } from "../../shared/Link";
+import { SegmentNode, LinkJson, TargetNodeInfo, Link, collectIdsInLinkData } from "../../shared/Link";
 import { Selectable } from "../interfaces/Selectable";
 
 
@@ -507,70 +507,57 @@ export class CommunicationManager {
         }
     };
 
-    public getCopyOfSubsystem(id: string, selectedSelectables: Selectable[]) {
+    public getIdsOfSubsystem(id: string, selectedSelectables: Selectable[]): [JsonData, IdType[]] {
         const json = this.getLocalJson();
-        if (!json) {
-            return {
-                version: 1,
-                simulation_configuration: "",
-                initialization_python_script_path: "",
-                toolkit_configuration_path: "",
-                blocks: [],
-                links: [],
-                subsystems: []
-            };
-        }
-
-        const subsystem = json.subsystems?.find((s) => s.id === id);
-        if (!subsystem) {
-            return {
-                version: 1,
-                simulation_configuration: "",
-                initialization_python_script_path: "",
-                toolkit_configuration_path: "",
-                blocks: [],
-                links: [],
-                subsystems: []
-            };
-        }
-
-        const remapSubsystem = (subsystemData: SubsystemData): SubsystemData => {
-            const blockIdMap = new Map<IdType, IdType>();
-
-            const remappedBlocks = subsystemData.jsonData.blocks?.map((block) => {
-                const newBlockId = getNonce();
-                blockIdMap.set(block.id, newBlockId);
-                return {
-                    ...block,
-                    id: newBlockId
-                };
-            }) ?? [];
-
-            return {
-                ...subsystemData,
-                id: getNonce(),
-                jsonData: {
-                    ...subsystemData.jsonData,
-                    blocks: remappedBlocks,
-                    links: subsystemData.jsonData.links?.map((link) =>
-                        changeIdsInLinkData(link, blockIdMap)
-                    ),
-                    subsystems: subsystemData.jsonData.subsystems?.map((child) =>
-                        remapSubsystem(child)
-                    )
-                }
-            };
-        };
-
-        return {
+        const emptyJson: JsonData = {
             version: 1,
             simulation_configuration: "",
             initialization_python_script_path: "",
             toolkit_configuration_path: "",
             blocks: [],
             links: [],
-            subsystems: [remapSubsystem(subsystem)]
+            subsystems: []
         };
+
+        if (!json) {
+            return [emptyJson, []];
+        }
+
+        const subsystem = json.subsystems?.find((s) => s.id === id);
+        if (!subsystem) {
+            return [emptyJson, []];
+        }
+
+        const idsToReplace: IdType[] = [];
+
+        const collectIds = (subsystemData: SubsystemData): void => {
+            idsToReplace.push(subsystemData.id);
+
+            subsystemData.jsonData.blocks?.forEach(block => {
+                idsToReplace.push(block.id);
+            });
+
+            subsystemData.jsonData.links?.forEach(link => {
+                idsToReplace.push(...collectIdsInLinkData(link));
+            });
+
+            subsystemData.jsonData.subsystems?.forEach(child => {
+                collectIds(child);
+            });
+        };
+
+        collectIds(subsystem);
+
+        return [
+        {
+            version: 1,
+            simulation_configuration: "",
+            initialization_python_script_path: "",
+            toolkit_configuration_path: "",
+            blocks: [],
+            links: [],
+            subsystems: [subsystem]
+        }, idsToReplace];
     }
 
     public createBlockOfType(library: string, blockType: string, x: number, y: number) {

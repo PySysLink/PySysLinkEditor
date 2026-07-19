@@ -118,22 +118,23 @@ export class BlockVisual extends Copiable implements Movable, Rotatable {
         }
     }
 
-    copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): JsonData {
+    copy(selectedSelectables: Selectable[], communicationManager: CommunicationManager): [JsonData, IdType[]] {
         const blockData = communicationManager.getLocalJson()?.blocks?.find((block: BlockData) => block.id === this.id);
         if (!blockData) {
             throw new Error(`Block with id ${this.id} not found in local JSON.`);
         }
-        const blockDataNewId = { ...blockData, id: getNonce() }; // Assign a new unique ID for the copied block
         if (blockData) {
-            return {
+            return [
+            {
                 version: 1,
                 simulation_configuration: "",
                 initialization_python_script_path: "",
                 toolkit_configuration_path: "",
-                blocks: [blockDataNewId],
+                blocks: [blockData],
                 links: [],
                 subsystems: []
-            };
+            },
+            [blockData.id]];
         }
         else {
             throw new Error(`Block with id ${this.id} not found in local JSON.`);
