@@ -59,6 +59,8 @@ export class EditorSystems {
                 this.zoomController.getRealZoom
             );
 
+        this.elementManagers.push(this.selectableManager);
+
         this.linkManager =
             new LinkInteractionManager(
                 this.communicationManager,

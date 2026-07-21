@@ -6,16 +6,18 @@ import { IdType, JsonData } from "../../shared/JsonTypes";
 import { isRotatable, RotationDirection } from "../interfaces/Rotatable";
 import { Copiable } from "../interfaces/Copiable";
 import { getNonce } from "../../shared/util";
+import { ElementManager } from "../interfaces/ElementManager";
+import { collectIdsInLinkData } from "../../shared/Link";
 
 
 type ClipboardPayload = {
     kind: "pysyslink-copy";
     version: 1;
-    mousePosition: { x: number; y: number };
+    center: { x: number; y: number };
     data: JsonData;
 };
 
-export class SelectableManager {
+export class SelectableManager extends ElementManager {
     private snappingToGrid = true;
 
     private snapAppliedTotalX: number = 0;
@@ -34,6 +36,9 @@ export class SelectableManager {
     private rotationTimer: number | null = null;
     private pendingRotationDirection: RotationDirection = "clockwise";
 
+    private currentMousePositionX = 0;
+    private currentMousePositionY = 0;
+
     private rotationCallbacks: ((rotationDirection: RotationDirection, centralX: number, centralY: number, selectedSelectableIds: IdType[]) => void)[] = [];
 
     private selectionBox: HTMLElement | null = null;
@@ -50,6 +55,7 @@ export class SelectableManager {
 
 
     constructor(communicationManager: CommunicationManager, canvas: HTMLElement, getZoomLevelReal: () => number) {
+        super();
         this.communicationManager = communicationManager;
         this.canvas = canvas;
         this.getZoomLevelReal = getZoomLevelReal;
@@ -57,7 +63,14 @@ export class SelectableManager {
         this.canvas.addEventListener('mousedown', this.onMouseDownInCanvas);
 
         document.addEventListener('keydown', this.onKeyDown);
+
+        document.addEventListener('mousemove', this.recordMousePosition);
     }
+    
+    private recordMousePosition = (e: MouseEvent): void => {
+        this.currentMousePositionX = e.clientX;
+        this.currentMousePositionY = e.clientY;
+    };
 
     private onKeyDown = (e: KeyboardEvent): void => {
         if (e.key === 'Delete') {
@@ -80,6 +93,13 @@ export class SelectableManager {
             e.preventDefault();
             e.stopPropagation();
             this.copySelectedToClipboard();
+            return;
+        }
+
+        if (isCtrlOrCmd && e.key.toLowerCase() === 'v') {
+            e.preventDefault();
+            e.stopPropagation();
+            this.pasteFromClipboard();
             return;
         }
 
@@ -546,18 +566,113 @@ export class SelectableManager {
             );
         }
 
+        const positions: {x: number, y: number}[] = [];
+        selectedSelectables.forEach(selectable => {
+            if (isMovable(selectable)) {
+                const position = selectable.getPosition(this.communicationManager);
+                if (position) {
+                    positions.push(position);
+                }
+            }
+        });
+
+        let center = {
+            x: this.currentMousePositionX,
+            y: this.currentMousePositionY
+        };
+
+        if (positions.length > 0) {
+            const minX = Math.min(...positions.map(p => p.x));
+            const maxX = Math.max(...positions.map(p => p.x));
+            const minY = Math.min(...positions.map(p => p.y));
+            const maxY = Math.max(...positions.map(p => p.y));
+
+            center = {
+                x: (minX + maxX) / 2,
+                y: (minY + maxY) / 2
+            };
+        }
+
         const remapped = JSON.parse(dataJson) as JsonData;
 
         const payload: ClipboardPayload = {
             kind: "pysyslink-copy",
             version: 1,
-            mousePosition: {
-                x: this.dragStartX,
-                y: this.dragStartY
-            },
+            center: center,
             data: remapped
         };
 
         navigator.clipboard.writeText(JSON.stringify(payload, null, 2));    
+    }
+
+    private idsToSelectAndMove: IdType[] | undefined = undefined;
+    private movementDeltaForSelectablesX = 0;
+    private movementDeltaForSelectablesY = 0;
+
+    private async pasteFromClipboard() {
+        const payloadText = await navigator.clipboard.readText(); 
+        const payload = JSON.parse(payloadText) as ClipboardPayload;
+        
+        this.idsToSelectAndMove = [];
+        payload.data.blocks?.forEach(b => this.idsToSelectAndMove?.push(b.id));
+        payload.data.links?.forEach(l => this.idsToSelectAndMove?.concat(collectIdsInLinkData(l)));
+        payload.data.subsystems?.forEach(s => this.idsToSelectAndMove?.push(s.id));
+
+        const canvasPosition = this.computeCanvasPosition(this.currentMousePositionX, this.currentMousePositionY);
+        this.movementDeltaForSelectablesX = canvasPosition.x - payload.center.x;
+        this.movementDeltaForSelectablesY = canvasPosition.y - payload.center.y;
+
+        console.log(`currentMousePositionX: ${this.currentMousePositionX }`);
+        console.log(`this.getZoomLevelReal(): ${this.getZoomLevelReal()}`);
+        console.log(`movementDeltaForSelectablesX: ${this.movementDeltaForSelectablesX}`);
+
+        this.communicationManager.freeze();
+        this.communicationManager.pasteJson(payload.data);
+        this.unselectAll();
+    }
+
+    private computeCanvasPosition(x: number, y: number): { x: number; y: number } {
+        const rect =
+            this.canvas.getBoundingClientRect();
+
+        const zoom =
+            this.getZoomLevelReal();
+
+        return {
+            x: (x - rect.left) / zoom,
+            y: (y - rect.top) / zoom
+        };
+    }
+
+    updateFromJson(json: JsonData): void {
+        if (this.idsToSelectAndMove)
+        {
+            this.unselectAll();
+            this.getSelectableList().forEach(selectable => 
+            {
+                if (this.idsToSelectAndMove?.includes(selectable.getId())) {
+                    selectable.select();
+                }
+            });
+
+            this.idsToSelectAndMove = undefined;
+
+            let selectedSelectables = this.getSelectedSelectables();
+            console.log(`Selected selectables after paste: ${selectedSelectables}`);
+            selectedSelectables.forEach(selectable =>
+            {
+                if (isMovable(selectable)) {
+                    if (!this.snappingToGrid) {
+                        selectable.moveDelta(this.movementDeltaForSelectablesX, this.movementDeltaForSelectablesY, this.communicationManager, selectedSelectables);
+                    }
+                    else {
+                        const snappedMovementDeltaForSelectablesX = Math.round(this.movementDeltaForSelectablesX / this.GRID_SIZE) * this.GRID_SIZE;
+                        const snappedMovementDeltaForSelectablesY = Math.round(this.movementDeltaForSelectablesY / this.GRID_SIZE) * this.GRID_SIZE;
+                        selectable.moveDelta(snappedMovementDeltaForSelectablesX, snappedMovementDeltaForSelectablesY, this.communicationManager, selectedSelectables);
+                    }
+                } 
+            });
+
+        }
     }
 }

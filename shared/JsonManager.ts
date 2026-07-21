@@ -198,6 +198,16 @@ export function addSubsystemToJson(json: JsonData, subsystem: SubsystemData): Js
     return updatedJson;
 }
 
+export function addNewJsonToJson(json: JsonData, jsonToPaste: JsonData): JsonData {
+    const updatedJson: JsonData = {
+        ...json,
+        links: [...(json.links || []), ...(jsonToPaste.links || [])],
+        blocks: [...(json.blocks || []), ...(jsonToPaste.blocks || [])],
+        subsystems: [...(json.subsystems || []), ...(jsonToPaste.subsystems || [])]
+    };
+    return updatedJson;
+}
+
 export function addLinkToJson(json: JsonData, link: LinkJson): JsonData {
     const updatedJson: JsonData = {
         ...json,

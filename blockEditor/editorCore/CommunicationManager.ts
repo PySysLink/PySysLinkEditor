@@ -10,7 +10,8 @@ import { addBlockToJson, addLinkToJson, updatePortAttachment, attachLinkToPort,
     moveSubsystemInJson,
     rotateSubsystem,
     deleteSubsystemFromJson,
-    addSubsystemToJson} from "../../shared/JsonManager";
+    addSubsystemToJson,
+    addNewJsonToJson} from "../../shared/JsonManager";
 import { BlockData, IdType, JsonData, Rotation, SubsystemData } from "../../shared/JsonTypes";
 import { getNonce } from "../../shared/util";
 import { Library } from "../../shared/BlockPalette";
@@ -597,6 +598,18 @@ export class CommunicationManager {
         };
 
         this.addBlock(newBlock);
+    }
+
+    pasteJson(pastedJson: JsonData) {
+        let json = this.getLocalJson();
+        if (json) {
+            console.log(`Json before pasting: ${JSON.stringify(json)}`);
+            console.log(`Json to paste: ${JSON.stringify(pastedJson)}`);
+            let newJson = addNewJsonToJson(json, pastedJson);
+            console.log(`Json after pasting: ${JSON.stringify(newJson)}`);
+
+            this.setLocalJson(newJson, true);
+        }
     }
 
     public moveLinkSegment(linkId: IdType, segmentId: IdType,
