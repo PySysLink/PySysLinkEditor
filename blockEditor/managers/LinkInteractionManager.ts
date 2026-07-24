@@ -164,12 +164,14 @@ export class LinkInteractionManager extends ElementManager {
     };
 
     public updateFromJson(json: JsonData): void {
-        this.links.forEach((link: LinkVisual) => {
+
+        for (let i = this.links.length - 1; i >= 0; i--) {
+            const link = this.links[i];
             const linkData = json.links?.find(l => l.id === link.id);
             if (!linkData) {
                 this.deleteLink(link);
             }
-        });
+        }
 
         this.linksSvg = document.querySelector('.links') as SVGSVGElement;
         if (!this.linksSvg) {

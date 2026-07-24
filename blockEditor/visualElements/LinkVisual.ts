@@ -133,6 +133,7 @@ export class LinkVisual {
     };
 
     public selectNodesAndSegments(): void {
+        console.log(`Selecting all elements in link ${this.id}`);
         this.segments.forEach(segment => segment.select());
         this.junctionNodes.forEach(node => node.select());
         this.sourceNode.select();

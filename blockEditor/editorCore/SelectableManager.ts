@@ -555,7 +555,7 @@ export class SelectableManager extends ElementManager {
         const selectedSelectables = this.getSelectedSelectables();
 
         const copiedFragments: JsonData[] = [];
-        const idsToReplace: IdType[] = [];
+        let idsToReplace: IdType[] = [];
 
         for (const selectable of selectedSelectables) {
             if (typeof (selectable as any).copy === "function") {
@@ -570,6 +570,8 @@ export class SelectableManager extends ElementManager {
             }
         }
 
+        idsToReplace = [...new Set(idsToReplace)];
+        
         const merged: JsonData = {
             version: 1,
             simulation_configuration: "",
@@ -673,6 +675,9 @@ export class SelectableManager extends ElementManager {
                 }
             });
 
+            console.log(`idsToSelectAndMove: ${this.idsToSelectAndMove}`);
+            console.log(`link id-s available: ${this.linkInteractionManager?.links.map(link => link.id)}`);
+            
             this.linkInteractionManager?.links.forEach(link => {
                 if (this.idsToSelectAndMove?.includes(link.id)) {
                     link.selectNodesAndSegments();

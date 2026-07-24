@@ -59,7 +59,6 @@ export class EditorSystems {
                 this.zoomController.getRealZoom,
             );
 
-        this.elementManagers.push(this.selectableManager);
 
         this.linkManager =
             new LinkInteractionManager(
@@ -73,6 +72,10 @@ export class EditorSystems {
 
         this.selectableManager.registerLinkInteractionManager(this.linkManager);
         this.elementManagers.push(this.linkManager);
+
+        // Selectable manager update on json requires links to be updated
+        this.elementManagers.push(this.selectableManager);
+
         
         // this.noteManager =
         //     new NoteInteractionManager(
