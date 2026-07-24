@@ -625,10 +625,10 @@ export class SelectableManager extends ElementManager {
         console.log(`currentMousePositionX: ${this.currentMousePositionX }`);
         console.log(`this.getZoomLevelReal(): ${this.getZoomLevelReal()}`);
         console.log(`movementDeltaForSelectablesX: ${this.movementDeltaForSelectablesX}`);
+        this.unselectAll();
 
         this.communicationManager.freeze();
         this.communicationManager.pasteJson(payload.data);
-        this.unselectAll();
     }
 
     private computeCanvasPosition(x: number, y: number): { x: number; y: number } {
@@ -658,7 +658,7 @@ export class SelectableManager extends ElementManager {
             this.idsToSelectAndMove = undefined;
 
             let selectedSelectables = this.getSelectedSelectables();
-            console.log(`Selected selectables after paste: ${selectedSelectables}`);
+            console.log(`Selected selectables after paste: ${selectedSelectables.map(selectable => selectable.getId())}`);
             selectedSelectables.forEach(selectable =>
             {
                 if (isMovable(selectable)) {
@@ -672,6 +672,8 @@ export class SelectableManager extends ElementManager {
                     }
                 } 
             });
+
+            console.log(`Selected selectables now: ${this.getSelectedSelectables().map(selectable => selectable.getId())}`);
 
         }
     }

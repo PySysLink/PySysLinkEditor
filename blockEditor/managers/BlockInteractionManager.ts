@@ -53,6 +53,7 @@ export class BlockInteractionManager extends ElementManager {
 
     private onBlockSelected(block: BlockVisual, selected: boolean): void {
         this.communicationManager.print(`Block ${block.id} selected: ${selected}`);
+        console.trace();
         this.communicationManager.notifyBlockSelected(block.id, selected);
     }
 
