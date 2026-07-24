@@ -56,7 +56,7 @@ export class EditorSystems {
             new SelectableManager(
                 this.communicationManager,
                 this.context.canvas,
-                this.zoomController.getRealZoom
+                this.zoomController.getRealZoom,
             );
 
         this.elementManagers.push(this.selectableManager);
@@ -70,6 +70,8 @@ export class EditorSystems {
                 this.selectableManager,
                 this.zoomController.getRealZoom
             );
+
+        this.selectableManager.registerLinkInteractionManager(this.linkManager);
         this.elementManagers.push(this.linkManager);
         
         // this.noteManager =

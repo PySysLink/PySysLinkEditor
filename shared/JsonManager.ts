@@ -1,4 +1,3 @@
-import { get } from "http";
 import { IdType, JsonData, BlockData, Rotation, SubsystemData } from "./JsonTypes";
 // import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
 import { getNonce } from "./util";

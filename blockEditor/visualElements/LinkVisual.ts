@@ -131,4 +131,11 @@ export class LinkVisual {
         communicationManager.deleteLinkFromSegment(this.id, segmentId);
         this.onDelete(this.id, segmentId);
     };
+
+    public selectNodesAndSegments(): void {
+        this.segments.forEach(segment => segment.select());
+        this.junctionNodes.forEach(node => node.select());
+        this.sourceNode.select();
+        this.targetNodes.forEach(node => node.select());
+    }
 }

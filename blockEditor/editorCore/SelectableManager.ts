@@ -8,12 +8,14 @@ import { Copiable } from "../interfaces/Copiable";
 import { getNonce } from "../../shared/util";
 import { ElementManager } from "../interfaces/ElementManager";
 import { collectIdsInLinkData } from "../../shared/Link";
+import { LinkInteractionManager } from "../managers/LinkInteractionManager";
 
 
 type ClipboardPayload = {
     kind: "pysyslink-copy";
     version: 1;
     center: { x: number; y: number };
+    idsToReplace: IdType[];
     data: JsonData;
 };
 
@@ -49,6 +51,7 @@ export class SelectableManager extends ElementManager {
     private getZoomLevelReal: () => number;
 
     private registeredSelectableLists: (() => Selectable[])[] = [];
+    private linkInteractionManager: LinkInteractionManager | undefined = undefined;
 
     private onMouseUpCallbacks: (() => void)[] = [];
     private onMouseMoveCallbacks: ((e: MouseEvent) => void)[] = [];
@@ -65,6 +68,10 @@ export class SelectableManager extends ElementManager {
         document.addEventListener('keydown', this.onKeyDown);
 
         document.addEventListener('mousemove', this.recordMousePosition);
+    }
+
+    public registerLinkInteractionManager(linkInteractionManager: LinkInteractionManager): void {
+        this.linkInteractionManager = linkInteractionManager;
     }
     
     private recordMousePosition = (e: MouseEvent): void => {
@@ -266,6 +273,7 @@ export class SelectableManager extends ElementManager {
     };
 
     private onMouseDownInCanvas = (e: MouseEvent): void => {
+        this.onMouseUpSelectionBox(); // To clear badly remobed boxes
         if (e.button !== 1) {
             if (e.target !== this.canvas) {
                 return; // Ignore clicks on child elements
@@ -520,6 +528,29 @@ export class SelectableManager extends ElementManager {
         return this.snappingToGrid;
     }
 
+
+    private replaceIdsInJson(json: JsonData, idsToReplace: IdType[]): JsonData {
+        const idMap = new Map<IdType, IdType>();
+
+        for (const id of idsToReplace) {
+            if (!idMap.has(id)) {
+                idMap.set(id, getNonce());
+            }
+        }
+
+        let dataJson = JSON.stringify(json);
+
+        for (const [oldId, newId] of idMap) {
+            dataJson = dataJson.replaceAll(
+                `"${oldId}"`,
+                `"${newId}"`
+            );
+        }
+
+        return JSON.parse(dataJson) as JsonData;
+
+    }
+
     private copySelectedToClipboard(): void {
         const selectedSelectables = this.getSelectedSelectables();
 
@@ -549,23 +580,7 @@ export class SelectableManager extends ElementManager {
             subsystems: copiedFragments.flatMap(f => f.subsystems ?? [])
         };
 
-        const idMap = new Map<IdType, IdType>();
-
-        for (const id of idsToReplace) {
-            if (!idMap.has(id)) {
-                idMap.set(id, getNonce());
-            }
-        }
-
-        let dataJson = JSON.stringify(merged);
-
-        for (const [oldId, newId] of idMap) {
-            dataJson = dataJson.replaceAll(
-                `"${oldId}"`,
-                `"${newId}"`
-            );
-        }
-
+        
         const positions: {x: number, y: number}[] = [];
         selectedSelectables.forEach(selectable => {
             if (isMovable(selectable)) {
@@ -593,13 +608,13 @@ export class SelectableManager extends ElementManager {
             };
         }
 
-        const remapped = JSON.parse(dataJson) as JsonData;
 
         const payload: ClipboardPayload = {
             kind: "pysyslink-copy",
             version: 1,
             center: center,
-            data: remapped
+            idsToReplace: idsToReplace,
+            data: merged
         };
 
         navigator.clipboard.writeText(JSON.stringify(payload, null, 2));    
@@ -612,11 +627,13 @@ export class SelectableManager extends ElementManager {
     private async pasteFromClipboard() {
         const payloadText = await navigator.clipboard.readText(); 
         const payload = JSON.parse(payloadText) as ClipboardPayload;
+
+        const dataReplacedIds = this.replaceIdsInJson(payload.data, payload.idsToReplace);
         
         this.idsToSelectAndMove = [];
-        payload.data.blocks?.forEach(b => this.idsToSelectAndMove?.push(b.id));
-        payload.data.links?.forEach(l => this.idsToSelectAndMove?.concat(collectIdsInLinkData(l)));
-        payload.data.subsystems?.forEach(s => this.idsToSelectAndMove?.push(s.id));
+        dataReplacedIds.blocks?.forEach(b => this.idsToSelectAndMove?.push(b.id));
+        dataReplacedIds.links?.forEach(l => this.idsToSelectAndMove?.push(l.id));
+        dataReplacedIds.subsystems?.forEach(s => this.idsToSelectAndMove?.push(s.id));
 
         const canvasPosition = this.computeCanvasPosition(this.currentMousePositionX, this.currentMousePositionY);
         this.movementDeltaForSelectablesX = canvasPosition.x - payload.center.x;
@@ -628,7 +645,8 @@ export class SelectableManager extends ElementManager {
         this.unselectAll();
 
         this.communicationManager.freeze();
-        this.communicationManager.pasteJson(payload.data);
+        this.communicationManager.pasteJson(dataReplacedIds);
+        this.communicationManager.unfreeze();
     }
 
     private computeCanvasPosition(x: number, y: number): { x: number; y: number } {
@@ -652,6 +670,12 @@ export class SelectableManager extends ElementManager {
             {
                 if (this.idsToSelectAndMove?.includes(selectable.getId())) {
                     selectable.select();
+                }
+            });
+
+            this.linkInteractionManager?.links.forEach(link => {
+                if (this.idsToSelectAndMove?.includes(link.id)) {
+                    link.selectNodesAndSegments();
                 }
             });
 
