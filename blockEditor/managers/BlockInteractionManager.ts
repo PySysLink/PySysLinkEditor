@@ -2,6 +2,7 @@ import { BlockData, IdType, JsonData } from '../../shared/JsonTypes';
 import { ElementManager } from '../interfaces/ElementManager';
 import { BlockVisual } from '../visualElements/BlockVisual';
 import { CommunicationManager } from '../editorCore/CommunicationManager';
+import { ResizeMode } from '../interfaces/Resizeable';
 
 export class BlockInteractionManager extends ElementManager {
     public blocks: BlockVisual[] = [];
@@ -11,13 +12,22 @@ export class BlockInteractionManager extends ElementManager {
     private onMouseDownOnPortCallbacks: ((elementId: IdType, e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
     private onDeleteCallbacks: ((block: BlockVisual) => void)[] = [];
 
+    private startResize: ((resizableId: IdType, e: MouseEvent, mode: ResizeMode) => void) | undefined = undefined;
+
     constructor(communicationManager: CommunicationManager) {
         super();
         this.communicationManager = communicationManager;
     }
 
+    public registerStartResize(startResize: (resizableId: IdType, e: MouseEvent, mode: ResizeMode) => void) {
+        this.startResize = startResize;
+    }
+
     public createBlockVisual(blockData: BlockData): void {
-        const block = new BlockVisual(blockData, this.communicationManager, this.deleteBlock);
+        if (!this.startResize) {
+            throw new Error(`Trying to create new block with data ${blockData}, but startResize not registered`);
+        }
+        const block = new BlockVisual(blockData, this.communicationManager, this.deleteBlock, this.startResize);
         block.registerOnDoubleClickCallback(this.doubleClickOnBlock);
         block.registerOnMouseDownOnPortCallback((e: any, portType: "input" | "output", portIndex: number) => {
             this.onMouseDownOnPort(block, e, portType, portIndex);

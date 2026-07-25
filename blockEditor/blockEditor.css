@@ -144,8 +144,33 @@ body.pysyslink-light {
   z-index: 3;
   pointer-events: auto;
 }
+/* ---------- Edges ---------- */
 
-.block-resize-handle--width {
+.block-resize-handle--t {
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+  border-top: 3px solid var(--pysyslink-block-selected-border);
+}
+
+.block-resize-handle--b {
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+  border-bottom: 3px solid var(--pysyslink-block-selected-border);
+}
+
+.block-resize-handle--l {
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+  border-left: 3px solid var(--pysyslink-block-selected-border);
+}
+
+.block-resize-handle--r {
   right: -4px;
   top: 50%;
   transform: translateY(-50%);
@@ -153,20 +178,38 @@ body.pysyslink-light {
   border-right: 3px solid var(--pysyslink-block-selected-border);
 }
 
-.block-resize-handle--height {
-  left: 50%;
-  bottom: -4px;
-  transform: translateX(-50%);
-  cursor: ns-resize;
-  border-bottom: 3px solid var(--pysyslink-block-selected-border);
+/* ---------- Corners ---------- */
+
+.block-resize-handle--tl {
+  top: -4px;
+  left: -4px;
+  cursor: nwse-resize;
+  border-top: 3px solid var(--pysyslink-block-selected-border);
+  border-left: 3px solid var(--pysyslink-block-selected-border);
 }
 
-.block-resize-handle--both {
+.block-resize-handle--tr {
+  top: -4px;
   right: -4px;
-  bottom: -4px;
-  cursor: nwse-resize;
+  cursor: nesw-resize;
+  border-top: 3px solid var(--pysyslink-block-selected-border);
   border-right: 3px solid var(--pysyslink-block-selected-border);
+}
+
+.block-resize-handle--bl {
+  bottom: -4px;
+  left: -4px;
+  cursor: nesw-resize;
   border-bottom: 3px solid var(--pysyslink-block-selected-border);
+  border-left: 3px solid var(--pysyslink-block-selected-border);
+}
+
+.block-resize-handle--br {
+  bottom: -4px;
+  right: -4px;
+  cursor: nwse-resize;
+  border-bottom: 3px solid var(--pysyslink-block-selected-border);
+  border-right: 3px solid var(--pysyslink-block-selected-border);
 }
 
 /* Shapes */

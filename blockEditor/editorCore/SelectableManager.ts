@@ -2,13 +2,14 @@ import { Selectable } from "../interfaces/Selectable";
 import { Movable, isMovable } from "../interfaces/Movable";
 import { CanvasElement } from "../interfaces/CanvasElement";
 import { CommunicationManager } from "./CommunicationManager";
-import { IdType, JsonData } from "../../shared/JsonTypes";
+import { BlockRenderInformation, IdType, JsonData } from "../../shared/JsonTypes";
 import { isRotatable, RotationDirection } from "../interfaces/Rotatable";
 import { Copiable } from "../interfaces/Copiable";
 import { getNonce } from "../../shared/util";
 import { ElementManager } from "../interfaces/ElementManager";
 import { collectIdsInLinkData } from "../../shared/Link";
 import { LinkInteractionManager } from "../managers/LinkInteractionManager";
+import { isResizeable, Resizeable, ResizeMode } from "../interfaces/Resizeable";
 
 
 type ClipboardPayload = {
@@ -528,6 +529,116 @@ export class SelectableManager extends ElementManager {
         return this.snappingToGrid;
     }
 
+    private isResizing: boolean = false;
+    private resizingResizeable: Resizeable | undefined = undefined;
+    private resizeMode: ResizeMode | null = null;
+    private resizeStart: { x: number; y: number; width: number; height: number, resizeableX: number, resizeableY: number } | null = null;
+
+
+    public startResize = (resizeableId: IdType, e: MouseEvent, mode: ResizeMode): void => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const resizeableSelectable = this.getSelectableList().find(s => s.getId() === resizeableId);
+        if (!resizeableSelectable) {
+            return;
+        }
+
+        if (isResizeable(resizeableSelectable)) {
+            const rect = resizeableSelectable.getWidthAndHeight();
+            this.isResizing = true;
+            this.resizeMode = mode;
+
+            let resizeableX = e.clientX;
+            let resizeableY = e.clientY;
+            if (isMovable(resizeableSelectable)) {
+                const position = resizeableSelectable.getPosition(this.communicationManager);
+                if (position) {
+                    resizeableX = position?.x;
+                    resizeableY = position?.y;
+                }
+            }
+            this.resizeStart = { x: e.clientX, y: e.clientY, width: rect.width, height: rect.height, resizeableX: resizeableX, resizeableY: resizeableY };
+            this.resizingResizeable = resizeableSelectable;
+
+            this.communicationManager.freeze();
+            document.addEventListener('mousemove', this.onResizeMouseMove);
+            document.addEventListener('mouseup', this.onResizeMouseUp);   
+        }
+    };
+
+    private onResizeMouseMove = (e: MouseEvent): void => {
+        if (!this.isResizing || !this.resizeStart || !this.resizeMode || !this.resizingResizeable) {
+            return;
+        }
+
+        const dx = e.clientX - this.resizeStart.x;
+        const dy = e.clientY - this.resizeStart.y;
+
+        const constraints = this.resizingResizeable.getResizeConstraints();
+
+        let width = this.resizeStart.width;
+        let height = this.resizeStart.height;
+        let x = this.resizeStart.resizeableX;
+        let y = this.resizeStart.resizeableY;
+
+        if (this.resizeMode.includes("r")) {
+            width = this.clamp(
+                this.resizeStart.width + dx,
+                constraints.minWidth,
+                constraints.maxWidth
+            );
+        }
+
+        if (this.resizeMode.includes("l")) {
+            width = this.clamp(
+                this.resizeStart.width - dx,
+                constraints.minWidth,
+                constraints.maxWidth
+            );
+        }
+
+        if (this.resizeMode.includes("b")) {
+            height = this.clamp(
+                this.resizeStart.height + dy,
+                constraints.minHeight,
+                constraints.maxHeight
+            );
+        }
+
+        if (this.resizeMode.includes("t")) {
+            height = this.clamp(
+                this.resizeStart.height - dy,
+                constraints.minHeight,
+                constraints.maxHeight
+            );
+        }
+
+        this.resizingResizeable.setWidthAndHeight(
+            width,
+            height,
+            this.communicationManager
+        );
+    };
+
+    private clamp(value: number, min: number, max: number): number {
+        return Math.min(Math.max(value, min), max);
+    }
+
+    private onResizeMouseUp = (e: MouseEvent): void => {
+        document.removeEventListener('mousemove', this.onResizeMouseMove);
+        document.removeEventListener('mouseup', this.onResizeMouseUp);
+        this.communicationManager.unfreeze();
+
+        if (!this.isResizing || !this.resizeMode || !this.resizingResizeable) {
+            return;
+        }
+
+        this.isResizing = false;
+        this.resizeMode = null;
+        this.resizeStart = null;
+        this.resizingResizeable = undefined;
+    };
 
     private replaceIdsInJson(json: JsonData, idsToReplace: IdType[]): JsonData {
         const idMap = new Map<IdType, IdType>();

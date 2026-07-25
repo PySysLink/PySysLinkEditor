@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 5,
   "simulation_configuration": "lowLevelOptions.yaml",
   "initialization_python_script_path": "initParam.py",
   "toolkit_configuration_path": "toolkit_config.yaml",
@@ -9,8 +9,8 @@
       "blockLibrary": "core_BasicBlocks",
       "blockType": "Constant",
       "label": "Constant",
-      "x": 320,
-      "y": 170,
+      "x": 200,
+      "y": 70,
       "rotation": 0,
       "inputPorts": 0,
       "outputPorts": 1,
@@ -44,8 +44,6 @@
         "figure": null,
         "default_width": 120,
         "default_height": 50,
-        "width": 120,
-        "height": 50,
         "min_width": 60,
         "min_height": 25,
         "max_width": 360,
@@ -59,7 +57,9 @@
             "inheritance_group": 0,
             "signal_value_type": "double"
           }
-        ]
+        ],
+        "width": 120,
+        "height": 50
       }
     },
     {

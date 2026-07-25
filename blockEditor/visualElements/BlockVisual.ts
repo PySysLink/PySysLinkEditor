@@ -3,17 +3,17 @@ import { getNonce } from "../../shared/util";
 import { CommunicationManager } from "../editorCore/CommunicationManager";
 import { Copiable } from "../interfaces/Copiable";
 import { Movable } from "../interfaces/Movable";
+import { Resizeable, ResizeMode } from "../interfaces/Resizeable";
 import { Rotatable } from "../interfaces/Rotatable";
 import { Selectable } from "../interfaces/Selectable";
 
-export class BlockVisual extends Copiable implements Movable, Rotatable {
+export class BlockVisual extends Copiable implements Movable, Rotatable, Resizeable {
     id: string;
     _isSelected: boolean = false;
-    private communicationManager: CommunicationManager;
+
     private currentRenderInfo?: BlockRenderInformation | null;
-    private isResizing: boolean = false;
-    private resizeMode: "width" | "height" | "both" | null = null;
-    private resizeStart: { x: number; y: number; width: number; height: number } | null = null;
+    
+    private startResize: (resizableId: IdType, e: MouseEvent, mode: ResizeMode) => void;
 
     public getElement(): HTMLElement | SVGElement {
         return this.blockElement;
@@ -41,13 +41,14 @@ export class BlockVisual extends Copiable implements Movable, Rotatable {
 
     private onDelete: (block: BlockVisual) => void;
 
-    constructor(blockData: BlockData, communicationManager: CommunicationManager, onDelete: (block: BlockVisual) => void) {
+    constructor(blockData: BlockData, communicationManager: CommunicationManager, onDelete: (block: BlockVisual) => void,
+                startResize: (resizableId: IdType, e: MouseEvent, mode: ResizeMode) => void) {
         super();
         this.id = blockData.id;
-        this.communicationManager = communicationManager;
         this.inputPortNumber = blockData.inputPorts;
         this.outputPortNumber = blockData.outputPorts;
         this.onDelete = onDelete;
+        this.startResize = startResize;
 
 
         // Create block shape element
@@ -67,10 +68,14 @@ export class BlockVisual extends Copiable implements Movable, Rotatable {
         
         this.applyRenderInfo(blockData.blockRenderInformation);
 
-        this.blockElement.appendChild(this.createResizeHandle('width'));
-        this.blockElement.appendChild(this.createResizeHandle('height'));
-        this.blockElement.appendChild(this.createResizeHandle('both'));
-
+        this.blockElement.appendChild(this.createResizeHandle('r'));
+        this.blockElement.appendChild(this.createResizeHandle('l'));
+        this.blockElement.appendChild(this.createResizeHandle('b'));
+        this.blockElement.appendChild(this.createResizeHandle('t'));
+        this.blockElement.appendChild(this.createResizeHandle('tr'));
+        this.blockElement.appendChild(this.createResizeHandle('tl'));
+        this.blockElement.appendChild(this.createResizeHandle('br'));
+        this.blockElement.appendChild(this.createResizeHandle('bl'));
         // Create external label
         this.labelElement = document.createElement('div');
         this.labelElement.classList.add('block-label');
@@ -230,86 +235,16 @@ export class BlockVisual extends Copiable implements Movable, Rotatable {
         }
     }
     
-    private createResizeHandle(mode: "width" | "height" | "both"): HTMLElement {
+    private createResizeHandle(mode: ResizeMode): HTMLElement {
         const handle = document.createElement('div');
         handle.classList.add('block-resize-handle', `block-resize-handle--${mode}`);
         handle.addEventListener('mousedown', (e: MouseEvent) => {
-            this.startResize(e, mode);
+            this.startResize(this.getId(), e, mode);
         });
         return handle;
     }
 
-    private startResize(e: MouseEvent, mode: "width" | "height" | "both"): void {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const rect = this.blockElement.getBoundingClientRect();
-        this.isResizing = true;
-        this.resizeMode = mode;
-        this.resizeStart = { x: e.clientX, y: e.clientY, width: rect.width, height: rect.height };
-
-        document.addEventListener('mousemove', this.onResizeMouseMove);
-        document.addEventListener('mouseup', this.onResizeMouseUp);
-    }
-
-    private onResizeMouseMove = (e: MouseEvent): void => {
-        if (!this.isResizing || !this.resizeStart || !this.resizeMode) {
-            return;
-        }
-
-        const deltaX = e.clientX - this.resizeStart.x;
-        const deltaY = e.clientY - this.resizeStart.y;
-        const constraints = this.getResizeConstraints();
-
-        let nextWidth = this.resizeStart.width;
-        let nextHeight = this.resizeStart.height;
-
-        if (this.resizeMode === 'width' || this.resizeMode === 'both') {
-            nextWidth = this.clamp(this.resizeStart.width + deltaX, constraints.minWidth, constraints.maxWidth);
-        }
-        if (this.resizeMode === 'height' || this.resizeMode === 'both') {
-            nextHeight = this.clamp(this.resizeStart.height + deltaY, constraints.minHeight, constraints.maxHeight);
-        }
-
-        this.blockElement.style.width = `${nextWidth}px`;
-        this.blockElement.style.height = `${nextHeight}px`;
-        this.blockVisual.style.width = '100%';
-        this.blockVisual.style.height = '100%';
-        this.contentElement.style.width = '100%';
-        this.contentElement.style.height = '100%';
-        this.updatePorts(this.communicationManager);
-    };
-
-    private onResizeMouseUp = (e: MouseEvent): void => {
-        document.removeEventListener('mousemove', this.onResizeMouseMove);
-        document.removeEventListener('mouseup', this.onResizeMouseUp);
-
-        if (!this.isResizing || !this.resizeMode) {
-            return;
-        }
-
-        const width = parseFloat(this.blockElement.style.width || `${this.blockElement.offsetWidth}`);
-        const height = parseFloat(this.blockElement.style.height || `${this.blockElement.offsetHeight}`);
-        const constraints = this.getResizeConstraints();
-        const finalWidth = this.clamp(width, constraints.minWidth, constraints.maxWidth);
-        const finalHeight = this.clamp(height, constraints.minHeight, constraints.maxHeight);
-
-        this.blockElement.style.width = `${finalWidth}px`;
-        this.blockElement.style.height = `${finalHeight}px`;
-        this.blockVisual.style.width = '100%';
-        this.blockVisual.style.height = '100%';
-        this.contentElement.style.width = '100%';
-        this.contentElement.style.height = '100%';
-        this.updatePorts(this.communicationManager);
-
-        this.isResizing = false;
-        this.resizeMode = null;
-        this.resizeStart = null;
-
-        this.communicationManager.resizeBlock(this.id, finalWidth, finalHeight, [this.id]);
-    };
-
-    private getResizeConstraints(): { minWidth: number; minHeight: number; maxWidth: number; maxHeight: number } {
+    public getResizeConstraints(): { minWidth: number; minHeight: number; maxWidth: number; maxHeight: number } {
         const minWidth = this.currentRenderInfo?.min_width ?? (parseFloat(this.blockElement.style.minWidth || '0') || 0);
         const minHeight = this.currentRenderInfo?.min_height ?? (parseFloat(this.blockElement.style.minHeight || '0') || 0);
         const maxWidth = this.currentRenderInfo?.max_width ?? (parseFloat(this.blockElement.style.maxWidth || '100000') || 100000);
@@ -318,8 +253,21 @@ export class BlockVisual extends Copiable implements Movable, Rotatable {
         return { minWidth, minHeight, maxWidth, maxHeight };
     }
 
-    private clamp(value: number, min: number, max: number): number {
-        return Math.min(Math.max(value, min), max);
+    public getWidthAndHeight(): {width: number, height: number} {
+        const rect = this.blockElement.getBoundingClientRect();
+        return {width: rect.width, height: rect.height};
+    }
+
+    public setWidthAndHeight(width: number, height: number, communicationManager: CommunicationManager) {
+        this.blockElement.style.width = `${width}px`;
+        this.blockElement.style.height = `${height}px`;
+        this.blockVisual.style.width = '100%';
+        this.blockVisual.style.height = '100%';
+        this.contentElement.style.width = '100%';
+        this.contentElement.style.height = '100%';
+        this.updatePorts(communicationManager);
+        communicationManager.resizeBlock(this.id, width, height, [this.id]);
+
     }
 
     private updatePorts(communicationManager: CommunicationManager): void {

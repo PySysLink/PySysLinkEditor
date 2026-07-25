@@ -71,6 +71,7 @@ export class EditorSystems {
             );
 
         this.selectableManager.registerLinkInteractionManager(this.linkManager);
+
         this.elementManagers.push(this.linkManager);
 
         // Selectable manager update on json requires links to be updated
@@ -116,6 +117,9 @@ export class EditorSystems {
         this.selectableManager.registerSelectableList(
             () => this.linkManager.getAllLinkNodes()
         );
+
+        this.blockManager.registerStartResize(this.selectableManager.startResize);
+
 
         // this.selectableManager.registerSelectableList(
         //     () => this.noteManager.getNotes()
