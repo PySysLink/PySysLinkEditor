@@ -2,7 +2,6 @@ import { IdType, JsonData, BlockData, Rotation, SubsystemData } from "./JsonType
 // import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
 import { getNonce } from "./util";
 import { Link, LinkJson, SegmentNode, TargetNodeInfo } from "./Link";
-import { link } from "fs";
 
 export function MergeJsons(
     jsonBase: JsonData,
