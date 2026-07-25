@@ -1,4 +1,4 @@
-import { IdType, JsonData, BlockData, Rotation, SubsystemData } from "./JsonTypes";
+import { IdType, JsonData, BlockData, Rotation, SubsystemData, BlockRenderInformation } from "./JsonTypes";
 // import { updateLinksAfterBlockMove, updateLinksAfterBlockUpdate, updateLinksAfterMerge, updateLinksAfterNodesConsolidation, updateLinksAfterNodesUpdated } from "./LInkOrganization";
 import { getNonce } from "./util";
 import { Link, LinkJson, SegmentNode, TargetNodeInfo } from "./Link";
@@ -308,6 +308,32 @@ export function moveSubsystemInJson(json: JsonData, subsystemId: IdType, x: numb
     return updatedJson;
 }
 
+export function resizeBlock(json: JsonData, blockId: IdType, width: number, height: number): JsonData {
+    let updatedJson: JsonData = {
+        ...json, 
+        blocks: json.blocks?.map(block => {
+            if (block.id === blockId) {
+                return {
+                    ...block, 
+                    blockRenderInformation: block.blockRenderInformation
+                    ? {
+                          ...block.blockRenderInformation,
+                          width,
+                          height,
+                      }
+                    : undefined,
+                };
+            } else {
+                return block;
+            }
+            
+        }),
+    };
+    updatedJson = updateLinksSourceTargetPosition(updatedJson, []);
+
+    return updatedJson;
+}
+
 export function rotateBlock(json: JsonData, blockId: IdType, rotation: Rotation, updateLinks: boolean = true): JsonData {
     let updatedJson: JsonData = {
         ...json,
@@ -490,8 +516,9 @@ export function getPortPosition(
     ignoreRotation: boolean = false
 ): { x: number; y: number } | undefined {
     const portSpacing = 20;  // vertical spacing between ports
-    const blockWidth = 120;
-    const blockHeight = 60;
+    const blockWidth = json.blocks?.find(b => b.id === blockId)?.blockRenderInformation?.width ?? json.blocks?.find(b => b.id === blockId)?.blockRenderInformation?.default_width ?? 120;
+    const blockHeight = json.blocks?.find(b => b.id === blockId)?.blockRenderInformation?.height ?? json.blocks?.find(b => b.id === blockId)?.blockRenderInformation?.default_height ?? 60;
+
 
     if (!json) {return undefined;}
 

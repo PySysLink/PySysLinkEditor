@@ -256,6 +256,8 @@ export class DocumentManager {
             try {
                 const renderInfo = await this.getBlockRenderInformation(block, this.document.uri.fsPath);
                 if (renderInfo) {
+                    renderInfo.width = block.blockRenderInformation?.width;
+                    renderInfo.height = block.blockRenderInformation?.height;
                     block.blockRenderInformation = renderInfo;
                     block.inputPorts = renderInfo.input_ports;
                     block.outputPorts = renderInfo.output_ports;
@@ -353,7 +355,9 @@ export class DocumentManager {
             label: block.label,
             inputPorts: block.inputPorts,
             outputPorts: block.outputPorts,
-            properties: block.properties
+            properties: block.properties,
+            width: block.blockRenderInformation?.width,
+            heigth: block.blockRenderInformation?.height,
         };
 
         return crypto.createHash('sha256').update(JSON.stringify(relevant)).digest('hex');

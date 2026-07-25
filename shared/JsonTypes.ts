@@ -93,6 +93,8 @@ export interface BlockRenderInformation {
 
     default_width: number;
     default_height: number;
+    width: number | undefined;
+    height: number | undefined;
     min_width: number;
     min_height: number;
     max_width: number;

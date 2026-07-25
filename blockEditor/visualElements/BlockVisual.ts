@@ -9,6 +9,11 @@ import { Selectable } from "../interfaces/Selectable";
 export class BlockVisual extends Copiable implements Movable, Rotatable {
     id: string;
     _isSelected: boolean = false;
+    private communicationManager: CommunicationManager;
+    private currentRenderInfo?: BlockRenderInformation | null;
+    private isResizing: boolean = false;
+    private resizeMode: "width" | "height" | "both" | null = null;
+    private resizeStart: { x: number; y: number; width: number; height: number } | null = null;
 
     public getElement(): HTMLElement | SVGElement {
         return this.blockElement;
@@ -39,6 +44,7 @@ export class BlockVisual extends Copiable implements Movable, Rotatable {
     constructor(blockData: BlockData, communicationManager: CommunicationManager, onDelete: (block: BlockVisual) => void) {
         super();
         this.id = blockData.id;
+        this.communicationManager = communicationManager;
         this.inputPortNumber = blockData.inputPorts;
         this.outputPortNumber = blockData.outputPorts;
         this.onDelete = onDelete;
@@ -60,6 +66,10 @@ export class BlockVisual extends Copiable implements Movable, Rotatable {
         this.blockElement.appendChild(this.contentElement);
         
         this.applyRenderInfo(blockData.blockRenderInformation);
+
+        this.blockElement.appendChild(this.createResizeHandle('width'));
+        this.blockElement.appendChild(this.createResizeHandle('height'));
+        this.blockElement.appendChild(this.createResizeHandle('both'));
 
         // Create external label
         this.labelElement = document.createElement('div');
@@ -220,18 +230,144 @@ export class BlockVisual extends Copiable implements Movable, Rotatable {
         }
     }
     
+    private createResizeHandle(mode: "width" | "height" | "both"): HTMLElement {
+        const handle = document.createElement('div');
+        handle.classList.add('block-resize-handle', `block-resize-handle--${mode}`);
+        handle.addEventListener('mousedown', (e: MouseEvent) => {
+            this.startResize(e, mode);
+        });
+        return handle;
+    }
+
+    private startResize(e: MouseEvent, mode: "width" | "height" | "both"): void {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const rect = this.blockElement.getBoundingClientRect();
+        this.isResizing = true;
+        this.resizeMode = mode;
+        this.resizeStart = { x: e.clientX, y: e.clientY, width: rect.width, height: rect.height };
+
+        document.addEventListener('mousemove', this.onResizeMouseMove);
+        document.addEventListener('mouseup', this.onResizeMouseUp);
+    }
+
+    private onResizeMouseMove = (e: MouseEvent): void => {
+        if (!this.isResizing || !this.resizeStart || !this.resizeMode) {
+            return;
+        }
+
+        const deltaX = e.clientX - this.resizeStart.x;
+        const deltaY = e.clientY - this.resizeStart.y;
+        const constraints = this.getResizeConstraints();
+
+        let nextWidth = this.resizeStart.width;
+        let nextHeight = this.resizeStart.height;
+
+        if (this.resizeMode === 'width' || this.resizeMode === 'both') {
+            nextWidth = this.clamp(this.resizeStart.width + deltaX, constraints.minWidth, constraints.maxWidth);
+        }
+        if (this.resizeMode === 'height' || this.resizeMode === 'both') {
+            nextHeight = this.clamp(this.resizeStart.height + deltaY, constraints.minHeight, constraints.maxHeight);
+        }
+
+        this.blockElement.style.width = `${nextWidth}px`;
+        this.blockElement.style.height = `${nextHeight}px`;
+        this.blockVisual.style.width = '100%';
+        this.blockVisual.style.height = '100%';
+        this.contentElement.style.width = '100%';
+        this.contentElement.style.height = '100%';
+        this.updatePorts(this.communicationManager);
+    };
+
+    private onResizeMouseUp = (e: MouseEvent): void => {
+        document.removeEventListener('mousemove', this.onResizeMouseMove);
+        document.removeEventListener('mouseup', this.onResizeMouseUp);
+
+        if (!this.isResizing || !this.resizeMode) {
+            return;
+        }
+
+        const width = parseFloat(this.blockElement.style.width || `${this.blockElement.offsetWidth}`);
+        const height = parseFloat(this.blockElement.style.height || `${this.blockElement.offsetHeight}`);
+        const constraints = this.getResizeConstraints();
+        const finalWidth = this.clamp(width, constraints.minWidth, constraints.maxWidth);
+        const finalHeight = this.clamp(height, constraints.minHeight, constraints.maxHeight);
+
+        this.blockElement.style.width = `${finalWidth}px`;
+        this.blockElement.style.height = `${finalHeight}px`;
+        this.blockVisual.style.width = '100%';
+        this.blockVisual.style.height = '100%';
+        this.contentElement.style.width = '100%';
+        this.contentElement.style.height = '100%';
+        this.updatePorts(this.communicationManager);
+
+        this.isResizing = false;
+        this.resizeMode = null;
+        this.resizeStart = null;
+
+        this.communicationManager.resizeBlock(this.id, finalWidth, finalHeight, [this.id]);
+    };
+
+    private getResizeConstraints(): { minWidth: number; minHeight: number; maxWidth: number; maxHeight: number } {
+        const minWidth = this.currentRenderInfo?.min_width ?? (parseFloat(this.blockElement.style.minWidth || '0') || 0);
+        const minHeight = this.currentRenderInfo?.min_height ?? (parseFloat(this.blockElement.style.minHeight || '0') || 0);
+        const maxWidth = this.currentRenderInfo?.max_width ?? (parseFloat(this.blockElement.style.maxWidth || '100000') || 100000);
+        const maxHeight = this.currentRenderInfo?.max_height ?? (parseFloat(this.blockElement.style.maxHeight || '100000') || 100000);
+
+        return { minWidth, minHeight, maxWidth, maxHeight };
+    }
+
+    private clamp(value: number, min: number, max: number): number {
+        return Math.min(Math.max(value, min), max);
+    }
+
+    private updatePorts(communicationManager: CommunicationManager): void {
+        const portWidth = 40;
+        const portHeight = 20;
+
+        this.inputPorts.forEach((portEl, index) => {
+            const position = communicationManager.getPortPosition(this.id, 'input', index, true);
+            const thisPosition = this.getPosition(communicationManager);
+            if (position && thisPosition) {
+                portEl.style.left = `${position.x - thisPosition.x - portWidth / 4}px`;
+                portEl.style.top = `${position.y - thisPosition.y - portHeight / 2}px`;
+            }
+        });
+
+        this.outputPorts.forEach((portEl, index) => {
+            const position = communicationManager.getPortPosition(this.id, 'output', index, true);
+            const thisPosition = this.getPosition(communicationManager);
+            if (position && thisPosition) {
+                portEl.style.left = `${position.x - thisPosition.x - 3 * portWidth / 4}px`;
+                portEl.style.top = `${position.y - thisPosition.y - portHeight / 2}px`;
+            }
+        });
+    }
+
     private applyRenderInfo(renderInfo?: BlockRenderInformation | null) {
+        this.currentRenderInfo = renderInfo;
         if (!renderInfo) {return;}
         // Shape classes: square, circle, triangle
         this.blockVisual.classList.add(`block--${renderInfo.shape}`);
 
         // Size constraints
-        this.blockElement.style.width = `${renderInfo.default_width}px`;
-        this.blockElement.style.height = `${renderInfo.default_height}px`;
+        if (renderInfo.width) {
+            this.blockElement.style.width = `${renderInfo.width}px`;
+        } else {
+            this.blockElement.style.width = `${renderInfo.default_width}px`;
+        }
+        if (renderInfo.width) {
+            this.blockElement.style.height = `${renderInfo.height}px`;
+        } else {
+            this.blockElement.style.height = `${renderInfo.default_height}px`;
+        }
         this.blockElement.style.minWidth = `${renderInfo.min_width}px`;
         this.blockElement.style.minHeight = `${renderInfo.min_height}px`;
         this.blockElement.style.maxWidth = `${renderInfo.max_width}px`;
         this.blockElement.style.maxHeight = `${renderInfo.max_height}px`;
+        this.blockVisual.style.width = '100%';
+        this.blockVisual.style.height = '100%';
 
         // Content: icon, text, both
         this.contentElement.innerHTML = '';
@@ -355,6 +491,8 @@ export class BlockVisual extends Copiable implements Movable, Rotatable {
                 }
             }
 
+            this.updatePorts(communicationManager);
+
             // Remove old output ports if count changed
             if (blockData.outputPorts !== this.outputPortNumber) {
                 // Remove old output port elements from DOM
@@ -383,6 +521,8 @@ export class BlockVisual extends Copiable implements Movable, Rotatable {
                     this.outputPorts.push(outputPort);
                 }
             }
+
+            this.updatePorts(communicationManager);
         }
     }
 
