@@ -119,6 +119,7 @@ export class EditorSystems {
         );
 
         this.blockManager.registerStartResize(this.selectableManager.startResize);
+        this.subsystemManager.registerStartResize(this.selectableManager.startResize);
 
 
         // this.selectableManager.registerSelectableList(

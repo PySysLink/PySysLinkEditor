@@ -2,6 +2,7 @@ import { SubsystemData, IdType, JsonData } from '../../shared/JsonTypes';
 import { ElementManager } from '../interfaces/ElementManager';
 import { SubsystemVisual } from '../visualElements/SubsystemVisual';
 import { CommunicationManager } from '../editorCore/CommunicationManager';
+import { ResizeMode } from '../interfaces/Resizeable';
 
 export class SubsystemInteractionManager extends ElementManager {
     public subsystems: SubsystemVisual[] = [];
@@ -10,14 +11,24 @@ export class SubsystemInteractionManager extends ElementManager {
 
     private onMouseDownOnPortCallbacks: ((elementId: IdType, e: any, portType: "input" | "output", portIndex: number) => void)[] = [];
     private onDeleteCallbacks: ((subsystem: SubsystemVisual) => void)[] = [];
+    
+    private startResize: ((resizableId: IdType, e: MouseEvent, mode: ResizeMode) => void) | undefined = undefined;
 
     constructor(communicationManager: CommunicationManager) {
         super();
         this.communicationManager = communicationManager;
     }
 
+    public registerStartResize(startResize: (resizableId: IdType, e: MouseEvent, mode: ResizeMode) => void) {
+        this.startResize = startResize;
+    }
+
     public createSubsystemVisual(subsystemData: SubsystemData): void {
-        const subsystem = new SubsystemVisual(subsystemData, this.communicationManager, this.deleteSubsystem);
+        if (!this.startResize) {
+            throw new Error(`Trying to create new subsystem with data ${subsystemData}, but startResize not registered`);
+        }
+
+        const subsystem = new SubsystemVisual(subsystemData, this.communicationManager, this.deleteSubsystem, this.startResize);
         subsystem.registerOnDoubleClickCallback(this.doubleClickOnSubsystem);
         subsystem.registerOnMouseDownOnPortCallback((e: any, portType: "input" | "output", portIndex: number) => {
             this.onMouseDownOnPort(subsystem, e, portType, portIndex);

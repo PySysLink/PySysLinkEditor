@@ -76,6 +76,7 @@ export class BlockVisual extends Copiable implements Movable, Rotatable, Resizea
         this.blockElement.appendChild(this.createResizeHandle('tl'));
         this.blockElement.appendChild(this.createResizeHandle('br'));
         this.blockElement.appendChild(this.createResizeHandle('bl'));
+        
         // Create external label
         this.labelElement = document.createElement('div');
         this.labelElement.classList.add('block-label');

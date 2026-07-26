@@ -12,7 +12,8 @@ import { addBlockToJson, addLinkToJson, updatePortAttachment, attachLinkToPort,
     deleteSubsystemFromJson,
     addSubsystemToJson,
     addNewJsonToJson,
-    resizeBlock} from "../../shared/JsonManager";
+    resizeBlock,
+    resizeSubsystem} from "../../shared/JsonManager";
 import { BlockData, IdType, JsonData, Rotation, SubsystemData } from "../../shared/JsonTypes";
 import { getNonce } from "../../shared/util";
 import { Library } from "../../shared/BlockPalette";
@@ -440,6 +441,15 @@ export class CommunicationManager {
         let json = this.getLocalJson();
         if (json) {
             let newJson = resizeBlock(json, blockId, width, height);
+            this.setLocalJson(newJson);
+        }
+    };
+
+    public resizeSubsystem = (subsystemId: IdType, width: number, height: number, selectedSelectableIds: IdType[]) => {
+        this.print(`Resize subsystem: ${subsystemId} to ${width}px × ${height}px`);
+        let json = this.getLocalJson();
+        if (json) {
+            let newJson = resizeSubsystem(json, subsystemId, width, height);
             this.setLocalJson(newJson);
         }
     };

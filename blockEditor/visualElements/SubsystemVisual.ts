@@ -2,13 +2,18 @@ import { BlockData, BlockRenderInformation, IdType, JsonData, Rotation, Subsyste
 import { CommunicationManager } from "../editorCore/CommunicationManager";
 import { Copiable } from "../interfaces/Copiable";
 import { Movable } from "../interfaces/Movable";
+import { Resizeable, ResizeMode } from "../interfaces/Resizeable";
 import { Rotatable } from "../interfaces/Rotatable";
 import { Selectable } from "../interfaces/Selectable";
 import { BlockVisual } from "./BlockVisual";
 
-export class SubsystemVisual extends Copiable implements Movable, Rotatable {
+export class SubsystemVisual extends Copiable implements Movable, Rotatable, Resizeable {
     id: string;
     _isSelected: boolean = false;
+
+    private currentRenderInfo?: SubsystemRenderInformation | null;
+
+    private startResize: (resizableId: IdType, e: MouseEvent, mode: ResizeMode) => void;
 
     public getElement(): HTMLElement | SVGElement {
         return this.subsystemElement;
@@ -36,12 +41,14 @@ export class SubsystemVisual extends Copiable implements Movable, Rotatable {
 
     private onDelete: (subsystem: SubsystemVisual) => void;
 
-    constructor(subsystemData: SubsystemData, communicationManager: CommunicationManager, onDelete: (subsystem: SubsystemVisual) => void) {
+    constructor(subsystemData: SubsystemData, communicationManager: CommunicationManager, onDelete: (subsystem: SubsystemVisual) => void,
+                startResize: (resizableId: IdType, e: MouseEvent, mode: ResizeMode) => void) {
         super();
         this.id = subsystemData.id;
         this.inputPortNumber = subsystemData.inputPorts;
         this.outputPortNumber = subsystemData.outputPorts;
         this.onDelete = onDelete;
+        this.startResize = startResize;
 
 
         this.subsystemElement = document.createElement('div');
@@ -58,6 +65,15 @@ export class SubsystemVisual extends Copiable implements Movable, Rotatable {
         this.subsystemElement.appendChild(this.contentElement);
         
         this.applyRenderInfo(subsystemData.subsystemRenderInformation);
+
+        this.subsystemElement.appendChild(this.createResizeHandle('r'));
+        this.subsystemElement.appendChild(this.createResizeHandle('l'));
+        this.subsystemElement.appendChild(this.createResizeHandle('b'));
+        this.subsystemElement.appendChild(this.createResizeHandle('t'));
+        this.subsystemElement.appendChild(this.createResizeHandle('tr'));
+        this.subsystemElement.appendChild(this.createResizeHandle('tl'));
+        this.subsystemElement.appendChild(this.createResizeHandle('br'));
+        this.subsystemElement.appendChild(this.createResizeHandle('bl'));
 
         // Create external label
         this.labelElement = document.createElement('div');
@@ -199,19 +215,87 @@ export class SubsystemVisual extends Copiable implements Movable, Rotatable {
             this.moveTo(targetPosition.x, targetPosition.y, communicationManager, []);
         }
     }
+
+    private createResizeHandle(mode: ResizeMode): HTMLElement {
+        const handle = document.createElement('div');
+        handle.classList.add('block-resize-handle', `block-resize-handle--${mode}`);
+        handle.addEventListener('mousedown', (e: MouseEvent) => {
+            this.startResize(this.getId(), e, mode);
+        });
+        return handle;
+    }
+
+    public getResizeConstraints(): { minWidth: number; minHeight: number; maxWidth: number; maxHeight: number } {
+        const minWidth = this.currentRenderInfo?.min_width ?? (parseFloat(this.subsystemElement.style.minWidth || '0') || 0);
+        const minHeight = this.currentRenderInfo?.min_height ?? (parseFloat(this.subsystemElement.style.minHeight || '0') || 0);
+        const maxWidth = this.currentRenderInfo?.max_width ?? (parseFloat(this.subsystemElement.style.maxWidth || '100000') || 100000);
+        const maxHeight = this.currentRenderInfo?.max_height ?? (parseFloat(this.subsystemElement.style.maxHeight || '100000') || 100000);
+
+        return { minWidth, minHeight, maxWidth, maxHeight };
+    }
+
+    public getWidthAndHeight(): {width: number, height: number} {
+        const rect = this.subsystemElement.getBoundingClientRect();
+        return {width: rect.width, height: rect.height};
+    }
+
+    public setWidthAndHeight(width: number, height: number, communicationManager: CommunicationManager) {
+        this.subsystemElement.style.width = `${width}px`;
+        this.subsystemElement.style.height = `${height}px`;
+        this.subsystemVisual.style.width = '100%';
+        this.subsystemVisual.style.height = '100%';
+        this.contentElement.style.width = '100%';
+        this.contentElement.style.height = '100%';
+        this.updatePorts(communicationManager);
+        communicationManager.resizeSubsystem(this.id, width, height, [this.id]);
+
+    }
+
+    private updatePorts(communicationManager: CommunicationManager): void {
+        const portWidth = 40;
+        const portHeight = 20;
+
+        this.inputPorts.forEach((portEl, index) => {
+            const position = communicationManager.getPortPosition(this.id, 'input', index, true);
+            const thisPosition = this.getPosition(communicationManager);
+            if (position && thisPosition) {
+                portEl.style.left = `${position.x - thisPosition.x - portWidth / 4}px`;
+                portEl.style.top = `${position.y - thisPosition.y - portHeight / 2}px`;
+            }
+        });
+
+        this.outputPorts.forEach((portEl, index) => {
+            const position = communicationManager.getPortPosition(this.id, 'output', index, true);
+            const thisPosition = this.getPosition(communicationManager);
+            if (position && thisPosition) {
+                portEl.style.left = `${position.x - thisPosition.x - 3 * portWidth / 4}px`;
+                portEl.style.top = `${position.y - thisPosition.y - portHeight / 2}px`;
+            }
+        });
+    }
     
     private applyRenderInfo(renderInfo?: SubsystemRenderInformation | null) {
+        this.currentRenderInfo = renderInfo;
         if (!renderInfo) {return;}
         // Shape classes: square, circle, triangle
 
         // Size constraints
-        this.subsystemElement.style.width = `${renderInfo.default_width}px`;
-        this.subsystemElement.style.height = `${renderInfo.default_height}px`;
+        if (renderInfo.width) {
+            this.subsystemElement.style.width = `${renderInfo.width}px`;
+        } else {
+            this.subsystemElement.style.width = `${renderInfo.default_width}px`;
+        }
+        if (renderInfo.width) {
+            this.subsystemElement.style.height = `${renderInfo.height}px`;
+        } else {
+            this.subsystemElement.style.height = `${renderInfo.default_height}px`;
+        }
         this.subsystemElement.style.minWidth = `${renderInfo.min_width}px`;
         this.subsystemElement.style.minHeight = `${renderInfo.min_height}px`;
         this.subsystemElement.style.maxWidth = `${renderInfo.max_width}px`;
         this.subsystemElement.style.maxHeight = `${renderInfo.max_height}px`;
-
+        this.subsystemVisual.style.width = '100%';
+        this.subsystemVisual.style.height = '100%';
     
         if (renderInfo.text) {
             const txt = document.createElement('div');
@@ -318,6 +402,8 @@ export class SubsystemVisual extends Copiable implements Movable, Rotatable {
                 }
             }
 
+            this.updatePorts(communicationManager);
+
             // Remove old output ports if count changed
             if (subsystemData.outputPorts !== this.outputPortNumber) {
                 // Remove old output port elements from DOM
@@ -346,6 +432,8 @@ export class SubsystemVisual extends Copiable implements Movable, Rotatable {
                     this.outputPorts.push(outputPort);
                 }
             }
+
+            this.updatePorts(communicationManager);
         }
     }
 

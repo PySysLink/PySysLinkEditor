@@ -273,7 +273,8 @@ export class DocumentManager {
             try {
                 const subsystemRenderInfo = await this.getSubsystemRenderInformation(subsystem, this.document.uri.fsPath);
                 if (subsystemRenderInfo) {
-
+                    subsystemRenderInfo.width = subsystem.subsystemRenderInformation?.width;
+                    subsystemRenderInfo.height = subsystem.subsystemRenderInformation?.height;
                     subsystem.subsystemRenderInformation = subsystemRenderInfo;
                     subsystem.inputPorts = subsystemRenderInfo.input_ports;
                     subsystem.outputPorts = subsystemRenderInfo.output_ports;
@@ -368,7 +369,9 @@ export class DocumentManager {
             label: subsystem.label,
             inputPorts: subsystem.inputPorts,
             outputPorts: subsystem.outputPorts,
-            jsonData: subsystem.jsonData
+            jsonData: subsystem.jsonData,
+            width: subsystem.subsystemRenderInformation?.width,
+            height: subsystem.subsystemRenderInformation?.height,
         };
 
         return crypto.createHash('sha256').update(JSON.stringify(relevant)).digest('hex');
