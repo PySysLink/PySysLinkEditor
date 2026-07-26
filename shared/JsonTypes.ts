@@ -10,7 +10,11 @@ export enum FullySupportedSignalValueType {
     Double = "double",
     Bool = "bool",
     ComplexDouble = "complex_double",
-    String = "string"
+    String = "string",
+    IntMatrix = "matrix<int>",
+    DoubleMatrix = "matrix<double>",
+    BoolMatrix = "matrix<bool>",
+    ComplexMatrix = "matrix<complex_double>",
 }
 
 export enum PortCategory {

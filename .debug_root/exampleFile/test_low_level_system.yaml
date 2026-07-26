@@ -7,86 +7,25 @@ Blocks:
   InputPortTypes[vector<string>]: []
   OutputPortNumber[int]: 1
   OutputPortTypes[vector<string>]:
-  - FullySupportedSignalValue.double
+  - FullySupportedSignalValue.complex_double
   DataTypeCategory[string]: FullySupportedSignalValue
-  DataType[string]: double
-  Value[double]: 1.0
-- Id[string]: TbPFjsXf9fccujSJPfMJnQLrSzAHsw1H
-  Name[string]: Constant
-  BlockType[string]: BasicCpp
-  BlockClass[string]: BasicBlocks/Constant
-  InputPortNumber[int]: 0
-  InputPortTypes[vector<string>]: []
-  OutputPortNumber[int]: 1
-  OutputPortTypes[vector<string>]:
-  - FullySupportedSignalValue.double
-  DataTypeCategory[string]: FullySupportedSignalValue
-  DataType[string]: double
-  Value[double]: 1.0
-- Id[string]: IwXUS89JzCzyeDlIoNp7OiXbBlRMFfHG
-  Name[string]: Integrator
-  BlockType[string]: BasicCpp
-  BlockClass[string]: BasicBlocks/Integrator
-  InputPortNumber[int]: 1
-  InputPortTypes[vector<string>]:
-  - FullySupportedSignalValue.double
-  OutputPortNumber[int]: 1
-  OutputPortTypes[vector<string>]:
-  - FullySupportedSignalValue.double
-  InitialValue[double]: 0.0
-  ContinuousSampleTimeGroup[int]: 1
-- Id[string]: yEEXBgAVCW8Q5sIWGtT8elcK47pZwXoW
-  Name[string]: Scope scope Display
+  DataType[string]: matrix<complex_double>
+  Value[matrix<complex_double>]: '[[(-1+5j), (3+7j)], [3, (-8-9j)]]'
+- Id[string]: Kw6fiNJvxcDHQHLdV1gf0Ogk9sJmYQwd
+  Name[string]: Display
   BlockType[string]: BasicCpp
   BlockClass[string]: BasicBlocks/Display
   InputPortNumber[int]: 1
   InputPortTypes[vector<string>]:
-  - FullySupportedSignalValue.double
+  - FullySupportedSignalValue.complex_double
   OutputPortNumber[int]: 0
   OutputPortTypes[vector<string>]: []
-- Id[string]: b3s9AMjqM5k2VJ56x2q4uDr0EesNfyN9
-  Name[string]: Scope scope Display
-  BlockType[string]: BasicCpp
-  BlockClass[string]: BasicBlocks/Display
-  InputPortNumber[int]: 1
-  InputPortTypes[vector<string>]:
-  - FullySupportedSignalValue.double
-  OutputPortNumber[int]: 0
-  OutputPortTypes[vector<string>]: []
-- Id[string]: GErFM0nxOsQ2POzahZIQnQdRHFYtJKWa
-  Name[string]: Integrator
-  BlockType[string]: BasicCpp
-  BlockClass[string]: BasicBlocks/Integrator
-  InputPortNumber[int]: 1
-  InputPortTypes[vector<string>]:
-  - FullySupportedSignalValue.double
-  OutputPortNumber[int]: 1
-  OutputPortTypes[vector<string>]:
-  - FullySupportedSignalValue.double
-  InitialValue[double]: 0.0
-  ContinuousSampleTimeGroup[int]: 1
+  DataTypeCategory[string]: FullySupportedSignalValue
+  DataType[string]: matrix<complex_double>
 Links:
-- Id[string]: o3wi4ocHbmQTAPaqOlXzcTG7LodGtkAI_yGlVxo50faOoE3h6NxXq0ihSVYqy16Zk
-  Name[string]: o3wi4ocHbmQTAPaqOlXzcTG7LodGtkAI_yGlVxo50faOoE3h6NxXq0ihSVYqy16Zk
-  SourceBlockId[string]: TbPFjsXf9fccujSJPfMJnQLrSzAHsw1H
-  SourcePortIdx[int]: 0
-  DestinationBlockId[string]: IwXUS89JzCzyeDlIoNp7OiXbBlRMFfHG
-  DestinationPortIdx[int]: 0
-- Id[string]: F2HhWmbhprodTFKWWgluFO1AvCaarMHq_EPBwxauXULd2g8dls2RbyEpbEv2IUmZ6
-  Name[string]: F2HhWmbhprodTFKWWgluFO1AvCaarMHq_EPBwxauXULd2g8dls2RbyEpbEv2IUmZ6
-  SourceBlockId[string]: GErFM0nxOsQ2POzahZIQnQdRHFYtJKWa
-  SourcePortIdx[int]: 0
-  DestinationBlockId[string]: yEEXBgAVCW8Q5sIWGtT8elcK47pZwXoW
-  DestinationPortIdx[int]: 0
-- Id[string]: UpQ0OqWVU8YfMWIz7HTkbIM1V2rdin6G_3X4O0jVHV5AGLlX7DFT9rDt4gJUym5NH
-  Name[string]: UpQ0OqWVU8YfMWIz7HTkbIM1V2rdin6G_3X4O0jVHV5AGLlX7DFT9rDt4gJUym5NH
-  SourceBlockId[string]: IwXUS89JzCzyeDlIoNp7OiXbBlRMFfHG
-  SourcePortIdx[int]: 0
-  DestinationBlockId[string]: b3s9AMjqM5k2VJ56x2q4uDr0EesNfyN9
-  DestinationPortIdx[int]: 0
-- Id[string]: jppghamvB375f7nEyUInC9Fs9Qsb6MhA_66BdyyFFttjil3GuS54VUhje0lCW3kSO
-  Name[string]: jppghamvB375f7nEyUInC9Fs9Qsb6MhA_66BdyyFFttjil3GuS54VUhje0lCW3kSO
+- Id[string]: I7FV7CeaUu9dIcIVbJ0YSr3UOzEBHYQ2_xoj4wEpefdt7WBnxBLJFRO5H0OnfyXM8
+  Name[string]: I7FV7CeaUu9dIcIVbJ0YSr3UOzEBHYQ2_xoj4wEpefdt7WBnxBLJFRO5H0OnfyXM8
   SourceBlockId[string]: ZD1tLfFveBDdJGyspNnWHMfT7PQIWYcA
   SourcePortIdx[int]: 0
-  DestinationBlockId[string]: GErFM0nxOsQ2POzahZIQnQdRHFYtJKWa
+  DestinationBlockId[string]: Kw6fiNJvxcDHQHLdV1gf0Ogk9sJmYQwd
   DestinationPortIdx[int]: 0

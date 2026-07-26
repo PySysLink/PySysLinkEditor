@@ -1,12 +1,8 @@
 {
   "Displays": {
-    "BasicCppBlock/b3s9AMjqM5k2VJ56x2q4uDr0EesNfyN9": {
-      "times": [0, 1e-06, 7e-06, 4.3e-05, 0.000259, 0.001555, 0.009331, 0.055987, 0.335923, 2.01554, 5],
-      "values": [0, 1e-06, 7e-06, 4.3e-05, 0.000259, 0.001555, 0.009331, 0.055987, 0.335923, 2.01554, 5]
-    },
-    "BasicCppBlock/yEEXBgAVCW8Q5sIWGtT8elcK47pZwXoW": {
-      "times": [0, 1e-06, 7e-06, 4.3e-05, 0.000259, 0.001555, 0.009331, 0.055987, 0.335923, 2.01554, 5],
-      "values": [0, 1e-06, 7e-06, 4.3e-05, 0.000259, 0.001555, 0.009331, 0.055987, 0.335923, 2.01554, 5]
+    "BasicCppBlock/Kw6fiNJvxcDHQHLdV1gf0Ogk9sJmYQwd": {
+      "times": [0],
+      "values": [{"real":-1, "imag":5}]
     }
   }
 }
