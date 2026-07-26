@@ -31,6 +31,11 @@ export class BlockPalette {
     // Clear any existing content
     paletteContainer.innerHTML = '';
 
+    paletteContainer.style.display = 'flex';
+    paletteContainer.style.flexDirection = 'column';
+    paletteContainer.style.height = '100%';
+    paletteContainer.style.overflow = 'hidden';
+
     // Create a header with a Refresh button
     const header = document.createElement('div');
     header.style.display = 'flex';
@@ -53,64 +58,80 @@ export class BlockPalette {
     header.appendChild(refreshBtn);
     paletteContainer.appendChild(header);
 
+    const scrollContainer = document.createElement('div');
+    scrollContainer.style.flex = '1';
+    scrollContainer.style.overflowY = 'auto';
+    scrollContainer.style.overflowX = 'hidden';
+    scrollContainer.style.paddingRight = '4px';
+
+    paletteContainer.appendChild(scrollContainer);
+
     // If there are no libraries, show a placeholder
     if (this.libraries.length === 0) {
       const emptyEl = document.createElement('p');
       emptyEl.textContent = 'No libraries available.';
       emptyEl.style.fontStyle = 'italic';
-      paletteContainer.appendChild(emptyEl);
+      scrollContainer.appendChild(emptyEl);
       return;
     }
 
-    // Render each library as a card
+    // Render each library as a collapsible section
     this.libraries.forEach((lib) => {
-      const card = document.createElement('vscode-card');
-      card.style.marginBottom = '1rem';
-      card.setAttribute('width', '100%');
+        const details = document.createElement('details');
+        details.open = true;
+        details.style.marginBottom = '0.75rem';
+        details.style.border = '1px solid var(--vscode-panel-border)';
+        details.style.borderRadius = '4px';
+        details.style.padding = '0.25rem 0';
 
-      // Card header: library name
-      const headerSlot = document.createElement('div');
-      headerSlot.slot = 'header';
-      headerSlot.style.display = 'flex';
-      headerSlot.style.justifyContent = 'space-between';
-      headerSlot.style.alignItems = 'center';
+        // Header
+        const summary = document.createElement('summary');
+        summary.style.cursor = 'pointer';
+        summary.style.fontWeight = 'bold';
+        summary.style.padding = '0.5rem 0.75rem';
+        summary.style.userSelect = 'none';
 
-      const libName = document.createElement('span');
-      libName.textContent = lib.name;
-      libName.style.fontWeight = 'bold';
-      headerSlot.appendChild(libName);
+        summary.textContent = `${lib.name} (${lib.blockTypes.length})`;
 
-      card.appendChild(headerSlot);
+        details.appendChild(summary);
 
-      // Card content: list of block types
-      const contentSlot = document.createElement('div');
-      contentSlot.slot = 'content';
-      contentSlot.style.display = 'flex';
-      contentSlot.style.flexWrap = 'wrap';
-      contentSlot.style.gap = '0.5rem';
+        // Container for the blocks
+        const content = document.createElement('div');
+        content.style.display = 'flex';
+        content.style.flexWrap = 'wrap';
+        content.style.gap = '0.5rem';
+        content.style.padding = '0.75rem';
 
-      lib.blockTypes.forEach((block) => {
-        const blockBtn = document.createElement('vscode-button');
-        blockBtn.setAttribute('appearance', 'outline');
-        blockBtn.textContent = block.name;
+        lib.blockTypes.forEach((block) => {
 
-        blockBtn.setAttribute('draggable', 'true');
-        blockBtn.addEventListener('dragstart', (e: DragEvent) => {
-          console.log(`Dragging block: ${block.name} from library: ${lib.name}`);
-          const payload = JSON.stringify({
-            library: lib.name,
-            blockType: block.name,
-            pluginType: lib.pluginType
-          });
-          e.dataTransfer?.setData('application/vnd.codeblock', payload);
+            const blockBtn = document.createElement('vscode-button');
+            blockBtn.setAttribute('appearance', 'outline');
+            blockBtn.textContent = block.name;
+
+            blockBtn.setAttribute('draggable', 'true');
+
+            blockBtn.addEventListener('dragstart', (e: DragEvent) => {
+
+                console.log(`Dragging block: ${block.name} from library: ${lib.name}`);
+
+                const payload = JSON.stringify({
+                    library: lib.name,
+                    blockType: block.name,
+                    pluginType: lib.pluginType
+                });
+
+                e.dataTransfer?.setData(
+                    'application/vnd.codeblock',
+                    payload
+                );
+            });
+
+            content.appendChild(blockBtn);
         });
 
-        // Use a custom MIME type to avoid conflicts
-        contentSlot.appendChild(blockBtn);
-      });
+        details.appendChild(content);
 
-      card.appendChild(contentSlot);
-      paletteContainer.appendChild(card);
+        scrollContainer.appendChild(details);
     });
   }
 }
