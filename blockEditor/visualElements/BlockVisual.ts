@@ -347,6 +347,16 @@ export class BlockVisual extends Copiable implements Movable, Rotatable, Resizea
         else {
             this.blockVisual.classList.add('block--square');
         }
+
+        for (let i = 0; i < this.inputPorts.length; i++) {
+            if (renderInfo.input_port_labels.length <= i) { break; }
+            this.inputPorts[i].textContent = renderInfo.input_port_labels[i] ?? `In ${i + 1}`;
+        }
+
+        for (let i = 0; i < this.outputPorts.length; i++) {
+            if (renderInfo.output_port_labels.length <= i) { break; }
+            this.outputPorts[i].textContent = renderInfo.output_port_labels[i] ?? `Out ${i + 1}`;
+        }
     }
 
     public select(): void {
