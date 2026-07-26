@@ -2,7 +2,7 @@
   "Displays": {
     "BasicCppBlock/Kw6fiNJvxcDHQHLdV1gf0Ogk9sJmYQwd": {
       "times": [0],
-      "values": [{"real":-1, "imag":5}]
+      "values": [[[{"real":-2,"imag":10},{"real":6,"imag":14}],[{"real":6,"imag":0},{"real":-16,"imag":-18}]]]
     }
   }
 }

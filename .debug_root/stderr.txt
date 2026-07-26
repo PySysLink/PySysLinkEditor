@@ -1,2 +1,0 @@
-terminate called after throwing an instance of 'std::invalid_argument'
-  what():  Configuration option with key: Value was not of expected type: std::get: wrong index for variant. Actual type was: matrix<complex_double>
