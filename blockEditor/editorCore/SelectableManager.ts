@@ -588,6 +588,10 @@ export class SelectableManager extends ElementManager {
                 constraints.minWidth,
                 constraints.maxWidth
             );
+
+            if (this.snappingToGrid) {
+                width = Math.round(width / (this.GRID_SIZE * 2)) * (this.GRID_SIZE * 2);
+            }
         }
 
         if (this.resizeMode.includes("l")) {
@@ -596,6 +600,12 @@ export class SelectableManager extends ElementManager {
                 constraints.minWidth,
                 constraints.maxWidth
             );
+
+            if (this.snappingToGrid) {
+                width = Math.round(width / (this.GRID_SIZE * 2)) * (this.GRID_SIZE * 2);
+            }
+
+            x = this.resizeStart.resizeableX + (this.resizeStart.width - width);
         }
 
         if (this.resizeMode.includes("b")) {
@@ -604,6 +614,10 @@ export class SelectableManager extends ElementManager {
                 constraints.minHeight,
                 constraints.maxHeight
             );
+            
+            if (this.snappingToGrid) {
+                height = Math.round(height / (this.GRID_SIZE * 2)) * (this.GRID_SIZE * 2);
+            }
         }
 
         if (this.resizeMode.includes("t")) {
@@ -612,13 +626,28 @@ export class SelectableManager extends ElementManager {
                 constraints.minHeight,
                 constraints.maxHeight
             );
+
+            if (this.snappingToGrid) {
+                height = Math.round(height / (this.GRID_SIZE * 2)) * (this.GRID_SIZE * 2);
+            }
+
+            y = this.resizeStart.resizeableY + (this.resizeStart.height - height);
         }
+
+
+        this.communicationManager.freezeLocalJsonCallback();
 
         this.resizingResizeable.setWidthAndHeight(
             width,
             height,
             this.communicationManager
         );
+
+        if (isMovable(this.resizingResizeable)) {
+            this.resizingResizeable.moveTo(x, y, this.communicationManager, this.getSelectedSelectables());
+        }
+
+        this.communicationManager.unfreezeLocalJsonCallback();
     };
 
     private clamp(value: number, min: number, max: number): number {

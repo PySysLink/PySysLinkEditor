@@ -151,7 +151,7 @@ body.pysyslink-light {
   left: 50%;
   transform: translateX(-50%);
   cursor: ns-resize;
-  border-top: 3px solid var(--pysyslink-block-selected-border);
+  border-top: 3px transparent;
 }
 
 .block-resize-handle--b {
@@ -159,7 +159,7 @@ body.pysyslink-light {
   left: 50%;
   transform: translateX(-50%);
   cursor: ns-resize;
-  border-bottom: 3px solid var(--pysyslink-block-selected-border);
+  border-bottom: 3px transparent;
 }
 
 .block-resize-handle--l {
@@ -167,7 +167,7 @@ body.pysyslink-light {
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
-  border-left: 3px solid var(--pysyslink-block-selected-border);
+  border-left: 3px transparent;
 }
 
 .block-resize-handle--r {
@@ -175,7 +175,7 @@ body.pysyslink-light {
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
-  border-right: 3px solid var(--pysyslink-block-selected-border);
+  border-right: 3px transparent;
 }
 
 /* ---------- Corners ---------- */
@@ -184,32 +184,32 @@ body.pysyslink-light {
   top: -4px;
   left: -4px;
   cursor: nwse-resize;
-  border-top: 3px solid var(--pysyslink-block-selected-border);
-  border-left: 3px solid var(--pysyslink-block-selected-border);
+  border-top: 3px transparent;
+  border-left: 3px transparent;
 }
 
 .block-resize-handle--tr {
   top: -4px;
   right: -4px;
   cursor: nesw-resize;
-  border-top: 3px solid var(--pysyslink-block-selected-border);
-  border-right: 3px solid var(--pysyslink-block-selected-border);
+  border-top: 3px transparent;
+  border-right: 3px transparent;
 }
 
 .block-resize-handle--bl {
   bottom: -4px;
   left: -4px;
   cursor: nesw-resize;
-  border-bottom: 3px solid var(--pysyslink-block-selected-border);
-  border-left: 3px solid var(--pysyslink-block-selected-border);
+  border-bottom: 3px transparent;
+  border-left: 3px transparent;
 }
 
 .block-resize-handle--br {
   bottom: -4px;
   right: -4px;
   cursor: nwse-resize;
-  border-bottom: 3px solid var(--pysyslink-block-selected-border);
-  border-right: 3px solid var(--pysyslink-block-selected-border);
+  border-bottom: 3px transparent;
+  border-right: 3px transparent;
 }
 
 /* Shapes */
