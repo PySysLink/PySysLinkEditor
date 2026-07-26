@@ -105,6 +105,9 @@ export interface BlockRenderInformation {
 
     input_port_types: PortType[];
     output_port_types: PortType[];
+
+    input_port_labels: (string | undefined)[];
+    output_port_labels: (string | undefined)[];
 }
 
 export interface SubsystemRenderInformation {
@@ -124,4 +127,7 @@ export interface SubsystemRenderInformation {
 
     input_port_types: PortType[];
     output_port_types: PortType[];
+
+    input_port_labels: (string | undefined)[];
+    output_port_labels: (string | undefined)[];
 }
