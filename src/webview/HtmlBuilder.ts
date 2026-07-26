@@ -54,6 +54,7 @@ export class HtmlBuilder {
                                 <div class="canvas"></div>
                             </div>
                         </div>
+                        <div class="sidebar-resizer"></div>
                         <div class="block-palette-sidebar" id="block-palette-sidebar">
                             <div id="block-palette-content"></div>
                         </div>

@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 16,
   "simulation_configuration": "lowLevelOptions.yaml",
   "initialization_python_script_path": "initParam.py",
   "toolkit_configuration_path": "toolkit_config.yaml",
@@ -385,7 +385,7 @@
         }
       ],
       "jsonData": {
-        "version": 6,
+        "version": 15,
         "simulation_configuration": "",
         "initialization_python_script_path": "",
         "toolkit_configuration_path": "",
@@ -441,7 +441,9 @@
                 }
               ],
               "input_port_labels": [],
-              "output_port_labels": []
+              "output_port_labels": [
+                null
+              ]
             }
           },
           {
@@ -494,8 +496,66 @@
                 }
               ],
               "output_port_types": [],
-              "input_port_labels": [],
+              "input_port_labels": [
+                null
+              ],
               "output_port_labels": []
+            }
+          },
+          {
+            "id": "Nma36lGIcowdAUS2YbsiZPuZFFUgyhEB",
+            "blockLibrary": "subsystems_library",
+            "blockType": "input_port",
+            "label": "input_port",
+            "x": 540,
+            "y": 322.85714285714283,
+            "rotation": 0,
+            "inputPorts": 0,
+            "outputPorts": 1,
+            "inputPortTypes": [],
+            "outputPortTypes": [
+              {
+                "port_category": "Inherited",
+                "inheritance_group": 0,
+                "supported_port_types_for_inheritance": [
+                  "FullySupportedSignalValueType.Any"
+                ]
+              }
+            ],
+            "properties": {
+              "PortIndex": {
+                "type": "int",
+                "value": "1"
+              }
+            },
+            "blockRenderInformation": {
+              "shape": "circle",
+              "icon": "",
+              "text": "input_port",
+              "show_image_and_text": false,
+              "figure": null,
+              "default_width": 120,
+              "default_height": 50,
+              "min_width": 60,
+              "min_height": 25,
+              "max_width": 360,
+              "max_height": 150,
+              "input_ports": 0,
+              "output_ports": 1,
+              "input_port_types": [],
+              "output_port_types": [
+                {
+                  "port_category": "Inherited",
+                  "inheritance_group": 0,
+                  "supported_port_types_for_inheritance": [
+                    "FullySupportedSignalValueType.Any"
+                  ]
+                }
+              ],
+              "input_port_labels": [],
+              "output_port_labels": [
+                null
+              ]
             }
           }
         ],

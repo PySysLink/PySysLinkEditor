@@ -8,6 +8,7 @@ import { CommunicationManager } from "./CommunicationManager";
 // import { NoteInteractionManager } from "../managers/NoteInteractionManager";
 import { SelectableManager } from "./SelectableManager";
 import { ZoomController } from "./ZoomController";
+import { configureSidebarResizing } from "./SidebarResizing";
 
 export class EditorRenderer {
 
@@ -38,6 +39,7 @@ export class EditorRenderer {
 
         this.renderBlockPallete();
 
+        configureSidebarResizing();
 
         this.systems.selectableManager.updateSelectablesCallbacks();
         this.systems.linkManager.updateElementCallbacks();
