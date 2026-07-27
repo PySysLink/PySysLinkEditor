@@ -350,34 +350,37 @@ export class DocumentManager {
     }
 
     private hashBlockKey(block: BlockData): string {
-        const relevant = {
-            blockLibrary: block.blockLibrary,
-            blockType: block.blockType,
-            label: block.label,
-            inputPorts: block.inputPorts,
-            outputPorts: block.outputPorts,
-            inputPortTypes: block.inputPortTypes,
-            outputPortTypes: block.outputPortTypes,
-            properties: block.properties,
-            width: block.blockRenderInformation?.width,
-            heigth: block.blockRenderInformation?.height,
-        };
+        const ignoredFields = new Set([
+            "x",
+            "y",
+            "rotation",
+        ]);
 
-        return crypto.createHash('sha256').update(JSON.stringify(relevant)).digest('hex');
+        const relevant = Object.fromEntries(
+            Object.entries(block).filter(([key]) => !ignoredFields.has(key))
+        );
+
+        return crypto
+            .createHash("sha256")
+            .update(JSON.stringify(relevant))
+            .digest("hex");
     }
 
     private hashSubsystemKey(subsystem: SubsystemData): string {
-        const relevant = {
-            label: subsystem.label,
-            inputPorts: subsystem.inputPorts,
-            outputPorts: subsystem.outputPorts,
-            inputPortTypes: subsystem.inputPortTypes,
-            outputPortTypes: subsystem.outputPortTypes,
-            jsonData: subsystem.jsonData,
-            width: subsystem.subsystemRenderInformation?.width,
-            height: subsystem.subsystemRenderInformation?.height,
-        };
+        const ignoredFields = new Set([
+            "x",
+            "y",
+            "rotation",
+        ]);
 
-        return crypto.createHash('sha256').update(JSON.stringify(relevant)).digest('hex');
+        const relevant = Object.fromEntries(
+            Object.entries(subsystem).filter(([key]) => !ignoredFields.has(key))
+        );
+
+
+        return crypto
+            .createHash("sha256")
+            .update(JSON.stringify(relevant))
+            .digest("hex");
     }
 }

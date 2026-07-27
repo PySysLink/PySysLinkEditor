@@ -50,13 +50,20 @@ Blocks:
   DataTypeCategory[string]: FullySupportedSignalValue
   DataType[string]: matrix<complex_double>
   Value[matrix<complex_double>]: '[[(-1+5j), (3+7j)], [3, (-8-9j)]]'
+- Id[string]: fty2yjtxhf3BE18zsdNY43vfRw2Y8DK1
+  Name[string]: Gain
+  BlockType[string]: BasicCpp
+  BlockClass[string]: BasicBlocks/Gain
+  InputPortNumber[int]: 1
+  InputPortTypes[vector<string>]:
+  - FullySupportedSignalValue.matrix<complex_double>
+  OutputPortNumber[int]: 1
+  OutputPortTypes[vector<string>]:
+  - FullySupportedSignalValue.matrix<complex_double>
+  DataTypeCategory[string]: FullySupportedSignalValue
+  DataType[string]: matrix<complex_double>
+  Gain[matrix<complex_double>]: '[[2, (4-7j)], [9, 8]]'
 Links:
-- Id[string]: SlR7xHE05c4BpLVHqWcYlRYlpDCH9gxN_UmE8RhobB5IAKexWtfUoymp64GX0W2YN
-  Name[string]: SlR7xHE05c4BpLVHqWcYlRYlpDCH9gxN_UmE8RhobB5IAKexWtfUoymp64GX0W2YN
-  SourceBlockId[string]: cAsiMkCgXMge9tNexSyt5Ns2b5sBfY9b
-  SourcePortIdx[int]: 0
-  DestinationBlockId[string]: Kw6fiNJvxcDHQHLdV1gf0Ogk9sJmYQwd
-  DestinationPortIdx[int]: 0
 - Id[string]: vo4Hr76x4I1zmofGSYZzpuT57frcoEQu_XD4Znh6bOujg4dn1cPB3URZdZxcvudXs
   Name[string]: vo4Hr76x4I1zmofGSYZzpuT57frcoEQu_XD4Znh6bOujg4dn1cPB3URZdZxcvudXs
   SourceBlockId[string]: ZD1tLfFveBDdJGyspNnWHMfT7PQIWYcA
@@ -69,3 +76,15 @@ Links:
   SourcePortIdx[int]: 0
   DestinationBlockId[string]: cAsiMkCgXMge9tNexSyt5Ns2b5sBfY9b
   DestinationPortIdx[int]: 1
+- Id[string]: HAqvJGjVBB4cl00sXTUojFb05P69d74B_NKqFDPciHZrHof1H9CQ6STznFP9fqLCv
+  Name[string]: HAqvJGjVBB4cl00sXTUojFb05P69d74B_NKqFDPciHZrHof1H9CQ6STznFP9fqLCv
+  SourceBlockId[string]: cAsiMkCgXMge9tNexSyt5Ns2b5sBfY9b
+  SourcePortIdx[int]: 0
+  DestinationBlockId[string]: fty2yjtxhf3BE18zsdNY43vfRw2Y8DK1
+  DestinationPortIdx[int]: 0
+- Id[string]: sZUnlmvuJaKzpIDDDlvp3UYxF9YVwwSI_KOuug9itVYegONKlSjnlfyl7R1xWCnF0
+  Name[string]: sZUnlmvuJaKzpIDDDlvp3UYxF9YVwwSI_KOuug9itVYegONKlSjnlfyl7R1xWCnF0
+  SourceBlockId[string]: fty2yjtxhf3BE18zsdNY43vfRw2Y8DK1
+  SourcePortIdx[int]: 0
+  DestinationBlockId[string]: Kw6fiNJvxcDHQHLdV1gf0Ogk9sJmYQwd
+  DestinationPortIdx[int]: 0
