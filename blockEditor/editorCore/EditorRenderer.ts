@@ -202,23 +202,29 @@ export class EditorRenderer {
         textFieldValue: string = ''
     ): HTMLElement {
         const container = document.createElement('div');
-        container.style.display = 'flex';
-        container.style.alignItems = 'center';
-        container.style.gap = '8px';
-        container.style.marginTop = '6px';
+        container.className = 'file-selector';
 
         const label = document.createElement('span');
+        label.className = 'file-selector-label';
         label.textContent = labelText;
 
         const input = document.createElement('vscode-textfield') as any;
+        input.className = 'file-selector-input';
         input.id = id;
         input.setAttribute('placeholder', 'Select a file...');
-        input.style.width = '350px';
+        input.setAttribute('readonly', '');
+
         if (textFieldValue !== '') {
-            input.value = textFieldValue;
+            const maxDisplayLength = 28;
+            const displayValue = textFieldValue.length > maxDisplayLength
+                ? `...${textFieldValue.slice(-(maxDisplayLength - 3))}`
+                : textFieldValue;
+            input.value = displayValue;
+            input.title = textFieldValue;
         }
 
         const browseBtn = document.createElement('vscode-button');
+        browseBtn.className = 'file-selector-button';
         browseBtn.textContent = 'Browse';
         browseBtn.addEventListener('click', onBrowse);
 
