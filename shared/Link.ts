@@ -827,6 +827,24 @@ export class Link {
         for (const [segId, targetInfo] of Object.entries(mergedLink.targetNodes)) {
             this.targetNodes[segId] = targetInfo;
         }
+
+        let targetNodesToRemove: IdType[] = [];
+        let targetNodesToAdd: { [key: string]: TargetNodeInfo } = {};
+
+        for (let [segId, targetInfo] of Object.entries(this.targetNodes)) {
+            if (segId === segmentId) {
+                targetNodesToRemove.push(segId);
+                targetNodesToAdd[newSegmentNode.id] = targetInfo;
+            }
+        }
+
+        for (let segId of targetNodesToRemove) {
+            delete this.targetNodes[segId];
+        }
+
+        for (let [newSegId, targetInfo] of Object.entries(targetNodesToAdd)) {
+            this.targetNodes[newSegId] = targetInfo;
+        }
     }
 
     deleteFromSegment(segmentId: IdType) : boolean {
