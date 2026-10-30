@@ -1,3 +1,4 @@
+import { BlockConfigurationValue } from "./BlockPalette";
 import { LinkJson } from "./Link";
 
 export type IdType = string;
@@ -112,6 +113,8 @@ export interface BlockRenderInformation {
 
     input_port_labels: (string | undefined)[];
     output_port_labels: (string | undefined)[];
+
+    additional_properties: Record<string, BlockConfigurationValue>;
 }
 
 export interface SubsystemRenderInformation {

@@ -176,6 +176,8 @@ async def get_libraries(pslkPath: str):
 
 async def get_block_render_information(block: str, pslkPath: str):
     render_information = get_toolkit().get_block_render_information(get_toolkit_config_path(pslkPath), block, pslkPath)
+    print(f"Render information for block '{block['id']}': {render_information}")
+    print(f"additional_properties for block '{block['id']}': {render_information.additional_properties}")
     return render_information.to_json()
 
 async def get_subsystem_render_information(subsystem: str, pslkPath: str):

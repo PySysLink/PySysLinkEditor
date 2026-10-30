@@ -263,6 +263,15 @@ export class DocumentManager {
                     block.outputPorts = renderInfo.output_ports;
                     block.inputPortTypes = renderInfo.input_port_types;
                     block.outputPortTypes = renderInfo.output_port_types;
+                    for (const [key, val] of Object.entries(renderInfo.additional_properties)) {
+                        console.log(`Ensuring property '${key}' exists for block ${block.id}`);
+                        if (!block.properties) {
+                            block.properties = {};
+                        }
+                        if (!block.properties[key]) {
+                            block.properties[key] = { type: val.type, value: val.defaultValue };
+                        }
+                    }
                 }
             } catch (err) {
                 console.error(`Error getting block render information for block ${block.id}:`, err);
