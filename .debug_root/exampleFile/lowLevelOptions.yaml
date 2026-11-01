@@ -1,5 +1,5 @@
 StartTime: 0
-StopTime: 20
+StopTime: 0.01
 RunInNaturalTime: false
 NaturalTimeSpeedMultiplier: 1
 SolversConfiguration:

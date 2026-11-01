@@ -1,3 +1,0 @@
-/usr/bin/ghdl:warning: directory '/path/to/work' set by --workdir= does not exist [-Wlibrary]
-loading VPI module '/usr/local/lib/pysyslink_plugins/block_type_supports/ghdl_support_0_1_0/pysyslink_ghdl_bridge.vpi'
-VPI module loaded!
