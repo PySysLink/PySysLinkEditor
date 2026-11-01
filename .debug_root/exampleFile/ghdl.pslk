@@ -1,0 +1,537 @@
+{
+  "version": 26,
+  "simulation_configuration": "/home/pellousabiaga/pysyslink/editor/.debug_root/exampleFile/lowLevelOptions.yaml",
+  "initialization_python_script_path": "initParam.py",
+  "toolkit_configuration_path": "toolkit_config.yaml",
+  "blocks": [
+    {
+      "id": "Ht8x7ywH8BHytviD5ARoOIQKMD9Nip4x",
+      "blockLibrary": "core_GHDLBlocks",
+      "blockType": "GHDL",
+      "label": "GHDL",
+      "x": 1100,
+      "y": 570,
+      "rotation": 0,
+      "inputPorts": 2,
+      "outputPorts": 2,
+      "inputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "bool"
+        },
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 1,
+          "signal_value_type": "matrix<bool>"
+        }
+      ],
+      "outputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "bool"
+        },
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 1,
+          "signal_value_type": "matrix<bool>"
+        }
+      ],
+      "properties": {
+        "SimulationExecutable": {
+          "type": "string",
+          "value": "ghdl"
+        },
+        "SimulationArguments": {
+          "type": "string[]",
+          "value": [
+            "-r",
+            "--std=08",
+            "--workdir=/path/to/work",
+            "ghdl_test_top"
+          ]
+        },
+        "TopEntity": {
+          "type": "string",
+          "value": "ghdl_test_top"
+        },
+        "ClockPort": {
+          "type": "string",
+          "value": "clk"
+        },
+        "ResetPort": {
+          "type": "string",
+          "value": "rst"
+        },
+        "ResetActiveLevel": {
+          "type": "bool",
+          "value": "True"
+        },
+        "ResetCycles": {
+          "type": "int",
+          "value": "1"
+        },
+        "BooleanInputs": {
+          "type": "string[]",
+          "value": [
+            "enable"
+          ]
+        },
+        "BooleanVectorInputs": {
+          "type": "string[]",
+          "value": [
+            "data_in"
+          ]
+        },
+        "BooleanOutputs": {
+          "type": "string[]",
+          "value": [
+            "done"
+          ]
+        },
+        "BooleanVectorOutputs": {
+          "type": "string[]",
+          "value": [
+            "data_out"
+          ]
+        },
+        "VpiLibraryPath": {
+          "type": "string",
+          "value": ""
+        },
+        "SampleTime": {
+          "type": "double",
+          "value": "0.1"
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "GHDL",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 140,
+        "default_height": 60,
+        "min_width": 60,
+        "min_height": 20,
+        "max_width": 360,
+        "max_height": 160,
+        "input_ports": 2,
+        "output_ports": 2,
+        "input_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "bool"
+          },
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 1,
+            "signal_value_type": "matrix<bool>"
+          }
+        ],
+        "output_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "bool"
+          },
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 1,
+            "signal_value_type": "matrix<bool>"
+          }
+        ],
+        "input_port_labels": [
+          null,
+          null
+        ],
+        "output_port_labels": [
+          null,
+          null
+        ],
+        "additional_properties": {}
+      }
+    },
+    {
+      "id": "HdDy1f1iMly5lN0s42B6huur6Qxdobzx",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 775.3846153846152,
+      "y": 532.3076923076922,
+      "rotation": 0,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "inputPortTypes": [],
+      "outputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "bool"
+        }
+      ],
+      "properties": {
+        "DataTypeCategory": {
+          "type": "options(Inherited, FullySupportedSignalValue)",
+          "value": "FullySupportedSignalValue"
+        },
+        "DataType": {
+          "type": "enum(FullySupportedSignalValueType)",
+          "value": "bool"
+        },
+        "Value": {
+          "type": "DataType",
+          "value": "True"
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 140,
+        "default_height": 60,
+        "min_width": 60,
+        "min_height": 20,
+        "max_width": 360,
+        "max_height": 160,
+        "input_ports": 0,
+        "output_ports": 1,
+        "input_port_types": [],
+        "output_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "bool"
+          }
+        ],
+        "input_port_labels": [],
+        "output_port_labels": [
+          null
+        ],
+        "additional_properties": {}
+      }
+    },
+    {
+      "id": "7ayCbN98479WaO2xkJJi4CjWFmPDOpQ3",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Constant",
+      "label": "Constant",
+      "x": 780,
+      "y": 620,
+      "rotation": 0,
+      "inputPorts": 0,
+      "outputPorts": 1,
+      "inputPortTypes": [],
+      "outputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "matrix<bool>"
+        }
+      ],
+      "properties": {
+        "DataTypeCategory": {
+          "type": "options(Inherited, FullySupportedSignalValue)",
+          "value": "FullySupportedSignalValue"
+        },
+        "DataType": {
+          "type": "enum(FullySupportedSignalValueType)",
+          "value": "matrix<bool>"
+        },
+        "Value": {
+          "type": "DataType",
+          "value": "[[True, True, False, True]]"
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Constant",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 140,
+        "default_height": 60,
+        "min_width": 60,
+        "min_height": 20,
+        "max_width": 360,
+        "max_height": 160,
+        "input_ports": 0,
+        "output_ports": 1,
+        "input_port_types": [],
+        "output_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "matrix<bool>"
+          }
+        ],
+        "input_port_labels": [],
+        "output_port_labels": [
+          null
+        ],
+        "additional_properties": {}
+      }
+    },
+    {
+      "id": "6A57o1wcyxebTibFkSzpDRVypIudgvyw",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 1440,
+      "y": 510,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "inputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "bool"
+        }
+      ],
+      "outputPortTypes": [],
+      "properties": {
+        "DataTypeCategory": {
+          "type": "options(Inherited, FullySupportedSignalValue)",
+          "value": "FullySupportedSignalValue"
+        },
+        "DataType": {
+          "type": "enum(FullySupportedSignalValueType)",
+          "value": "bool"
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Display",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 140,
+        "default_height": 60,
+        "min_width": 60,
+        "min_height": 20,
+        "max_width": 360,
+        "max_height": 160,
+        "input_ports": 1,
+        "output_ports": 0,
+        "input_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "bool"
+          }
+        ],
+        "output_port_types": [],
+        "input_port_labels": [
+          null
+        ],
+        "output_port_labels": [],
+        "additional_properties": {}
+      }
+    },
+    {
+      "id": "yFxBpr2RrzI6VzNJBNwEVJaDrYBJnLOK",
+      "blockLibrary": "core_BasicBlocks",
+      "blockType": "Display",
+      "label": "Display",
+      "x": 1440,
+      "y": 620,
+      "rotation": 0,
+      "inputPorts": 1,
+      "outputPorts": 0,
+      "inputPortTypes": [
+        {
+          "port_category": "FullySupportedSignalValue",
+          "inheritance_group": 0,
+          "signal_value_type": "matrix<bool>"
+        }
+      ],
+      "outputPortTypes": [],
+      "properties": {
+        "DataTypeCategory": {
+          "type": "options(Inherited, FullySupportedSignalValue)",
+          "value": "FullySupportedSignalValue"
+        },
+        "DataType": {
+          "type": "enum(FullySupportedSignalValueType)",
+          "value": "matrix<bool>"
+        }
+      },
+      "blockRenderInformation": {
+        "shape": "square",
+        "icon": "",
+        "text": "Display",
+        "show_image_and_text": false,
+        "figure": null,
+        "default_width": 140,
+        "default_height": 60,
+        "min_width": 60,
+        "min_height": 20,
+        "max_width": 360,
+        "max_height": 160,
+        "input_ports": 1,
+        "output_ports": 0,
+        "input_port_types": [
+          {
+            "port_category": "FullySupportedSignalValue",
+            "inheritance_group": 0,
+            "signal_value_type": "matrix<bool>"
+          }
+        ],
+        "output_port_types": [],
+        "input_port_labels": [
+          null
+        ],
+        "output_port_labels": [],
+        "additional_properties": {}
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "z98DCee7SlzogTaOx2KUUbN3gkJAVdBA",
+      "sourceId": "7ayCbN98479WaO2xkJJi4CjWFmPDOpQ3",
+      "sourcePort": 0,
+      "sourceX": 920,
+      "sourceY": 650,
+      "targetNodes": {
+        "WQhiNHIX6uavGSwemDVrfmEzOnk4SS1X": {
+          "targetId": "Ht8x7ywH8BHytviD5ARoOIQKMD9Nip4x",
+          "port": 1,
+          "x": 1100,
+          "y": 610
+        }
+      },
+      "segmentNode": {
+        "id": "lxmT3IIGCyQWTsKe3sDtLGAisnia7MXQ",
+        "orientation": "Horizontal",
+        "xOrY": 650,
+        "children": [
+          {
+            "id": "fEaKx3iAbvIcBUM5yfWfx6RUATfpoSRA",
+            "orientation": "Vertical",
+            "xOrY": 1010,
+            "children": [
+              {
+                "id": "WQhiNHIX6uavGSwemDVrfmEzOnk4SS1X",
+                "orientation": "Horizontal",
+                "xOrY": 610,
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "N2WqzOnr3vRFqW5O1r8e11EdxIoKna52",
+      "sourceId": "HdDy1f1iMly5lN0s42B6huur6Qxdobzx",
+      "sourcePort": 0,
+      "sourceX": 915.3846153846152,
+      "sourceY": 562.3076923076922,
+      "targetNodes": {
+        "tY4TEygDI6tv24HGqzdEj6NiVTW6ybZV": {
+          "targetId": "Ht8x7ywH8BHytviD5ARoOIQKMD9Nip4x",
+          "port": 0,
+          "x": 1100,
+          "y": 590
+        }
+      },
+      "segmentNode": {
+        "id": "ZDzrQaCrFA8np5ipQLF6VG1vDkKzCWpR",
+        "orientation": "Horizontal",
+        "xOrY": 562.3076923076922,
+        "children": [
+          {
+            "id": "IBoppbylOn03o56ljPVzBfGZKizqMdTo",
+            "orientation": "Vertical",
+            "xOrY": 1007.6923076923076,
+            "children": [
+              {
+                "id": "tY4TEygDI6tv24HGqzdEj6NiVTW6ybZV",
+                "orientation": "Horizontal",
+                "xOrY": 590,
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "yf0ksnbwHxZPpMOs18aAL3nzO7xiXAON",
+      "sourceId": "Ht8x7ywH8BHytviD5ARoOIQKMD9Nip4x",
+      "sourcePort": 0,
+      "sourceX": 1240,
+      "sourceY": 590,
+      "targetNodes": {
+        "7tGmQ9gM0rmgv8t1rRQ9UroNDZIlVEnc": {
+          "targetId": "6A57o1wcyxebTibFkSzpDRVypIudgvyw",
+          "port": 0,
+          "x": 1440,
+          "y": 540
+        }
+      },
+      "segmentNode": {
+        "id": "RwbEBXaLUM45kT42kq25MR84bI3KB6hU",
+        "orientation": "Horizontal",
+        "xOrY": 590,
+        "children": [
+          {
+            "id": "4EdUwY6uMdTejnS9cCerLqkEEPvAQMlz",
+            "orientation": "Vertical",
+            "xOrY": 1330,
+            "children": [
+              {
+                "id": "7tGmQ9gM0rmgv8t1rRQ9UroNDZIlVEnc",
+                "orientation": "Horizontal",
+                "xOrY": 540,
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "UpPSbw8VafLHVzSzCFm9NHmcHDarkFU6",
+      "sourceId": "Ht8x7ywH8BHytviD5ARoOIQKMD9Nip4x",
+      "sourcePort": 1,
+      "sourceX": 1240,
+      "sourceY": 610,
+      "targetNodes": {
+        "kQIo72aDNlWDesvA8JFedd8AWjwrVVVE": {
+          "targetId": "yFxBpr2RrzI6VzNJBNwEVJaDrYBJnLOK",
+          "port": 0,
+          "x": 1440,
+          "y": 650
+        }
+      },
+      "segmentNode": {
+        "id": "Yl1tNvgfrBzGHHzDXZgdBz83qninxmwh",
+        "orientation": "Horizontal",
+        "xOrY": 610,
+        "children": [
+          {
+            "id": "kbooH01H5PnSyTUTtLw5KkReKWTsiYNt",
+            "orientation": "Vertical",
+            "xOrY": 1335,
+            "children": [
+              {
+                "id": "kQIo72aDNlWDesvA8JFedd8AWjwrVVVE",
+                "orientation": "Horizontal",
+                "xOrY": 650,
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "subsystems": []
+}

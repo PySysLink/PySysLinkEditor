@@ -1,0 +1,4 @@
+v 4
+file . "ghdl_test_top.vhd" "f09c95dd9be859d6a638c399d76ad574b6b739fd" "20261101190945.112":
+  entity ghdl_test_top at 1( 0) + 0 on 15;
+  architecture rtl of ghdl_test_top at 16( 362) + 0 on 16;

@@ -1,0 +1,105 @@
+Blocks:
+- Id[string]: Ht8x7ywH8BHytviD5ARoOIQKMD9Nip4x
+  Name[string]: GHDL
+  BlockType[string]: GHDL
+  BlockClass[string]: GHDLBlocks/GHDL
+  InputPortNumber[int]: 2
+  InputPortTypes[vector<string>]:
+  - FullySupportedSignalValue.bool
+  - FullySupportedSignalValue.matrix<bool>
+  OutputPortNumber[int]: 2
+  OutputPortTypes[vector<string>]:
+  - FullySupportedSignalValue.bool
+  - FullySupportedSignalValue.matrix<bool>
+  SimulationExecutable[string]: ghdl
+  SimulationArguments[vector<string>]:
+  - -r
+  - --std=08
+  - --workdir=/path/to/work
+  - ghdl_test_top
+  TopEntity[string]: ghdl_test_top
+  ClockPort[string]: clk
+  ResetPort[string]: rst
+  ResetActiveLevel[bool]: true
+  ResetCycles[int]: 1
+  BooleanInputs[vector<string>]:
+  - enable
+  BooleanVectorInputs[vector<string>]:
+  - data_in
+  BooleanOutputs[vector<string>]:
+  - done
+  BooleanVectorOutputs[vector<string>]:
+  - data_out
+  VpiLibraryPath[string]: ''
+  SampleTime[double]: 0.1
+- Id[string]: HdDy1f1iMly5lN0s42B6huur6Qxdobzx
+  Name[string]: Constant
+  BlockType[string]: BasicCpp
+  BlockClass[string]: BasicBlocks/Constant
+  InputPortNumber[int]: 0
+  InputPortTypes[vector<string>]: []
+  OutputPortNumber[int]: 1
+  OutputPortTypes[vector<string>]:
+  - FullySupportedSignalValue.bool
+  DataTypeCategory[string]: FullySupportedSignalValue
+  DataType[string]: bool
+  Value[bool]: true
+- Id[string]: 7ayCbN98479WaO2xkJJi4CjWFmPDOpQ3
+  Name[string]: Constant
+  BlockType[string]: BasicCpp
+  BlockClass[string]: BasicBlocks/Constant
+  InputPortNumber[int]: 0
+  InputPortTypes[vector<string>]: []
+  OutputPortNumber[int]: 1
+  OutputPortTypes[vector<string>]:
+  - FullySupportedSignalValue.matrix<bool>
+  DataTypeCategory[string]: FullySupportedSignalValue
+  DataType[string]: matrix<bool>
+  Value[matrix<bool>]: '[[True, True, False, True]]'
+- Id[string]: 6A57o1wcyxebTibFkSzpDRVypIudgvyw
+  Name[string]: Display
+  BlockType[string]: BasicCpp
+  BlockClass[string]: BasicBlocks/Display
+  InputPortNumber[int]: 1
+  InputPortTypes[vector<string>]:
+  - FullySupportedSignalValue.bool
+  OutputPortNumber[int]: 0
+  OutputPortTypes[vector<string>]: []
+  DataTypeCategory[string]: FullySupportedSignalValue
+  DataType[string]: bool
+- Id[string]: yFxBpr2RrzI6VzNJBNwEVJaDrYBJnLOK
+  Name[string]: Display
+  BlockType[string]: BasicCpp
+  BlockClass[string]: BasicBlocks/Display
+  InputPortNumber[int]: 1
+  InputPortTypes[vector<string>]:
+  - FullySupportedSignalValue.matrix<bool>
+  OutputPortNumber[int]: 0
+  OutputPortTypes[vector<string>]: []
+  DataTypeCategory[string]: FullySupportedSignalValue
+  DataType[string]: matrix<bool>
+Links:
+- Id[string]: z98DCee7SlzogTaOx2KUUbN3gkJAVdBA_WQhiNHIX6uavGSwemDVrfmEzOnk4SS1X
+  Name[string]: z98DCee7SlzogTaOx2KUUbN3gkJAVdBA_WQhiNHIX6uavGSwemDVrfmEzOnk4SS1X
+  SourceBlockId[string]: 7ayCbN98479WaO2xkJJi4CjWFmPDOpQ3
+  SourcePortIdx[int]: 0
+  DestinationBlockId[string]: Ht8x7ywH8BHytviD5ARoOIQKMD9Nip4x
+  DestinationPortIdx[int]: 1
+- Id[string]: N2WqzOnr3vRFqW5O1r8e11EdxIoKna52_tY4TEygDI6tv24HGqzdEj6NiVTW6ybZV
+  Name[string]: N2WqzOnr3vRFqW5O1r8e11EdxIoKna52_tY4TEygDI6tv24HGqzdEj6NiVTW6ybZV
+  SourceBlockId[string]: HdDy1f1iMly5lN0s42B6huur6Qxdobzx
+  SourcePortIdx[int]: 0
+  DestinationBlockId[string]: Ht8x7ywH8BHytviD5ARoOIQKMD9Nip4x
+  DestinationPortIdx[int]: 0
+- Id[string]: yf0ksnbwHxZPpMOs18aAL3nzO7xiXAON_7tGmQ9gM0rmgv8t1rRQ9UroNDZIlVEnc
+  Name[string]: yf0ksnbwHxZPpMOs18aAL3nzO7xiXAON_7tGmQ9gM0rmgv8t1rRQ9UroNDZIlVEnc
+  SourceBlockId[string]: Ht8x7ywH8BHytviD5ARoOIQKMD9Nip4x
+  SourcePortIdx[int]: 0
+  DestinationBlockId[string]: 6A57o1wcyxebTibFkSzpDRVypIudgvyw
+  DestinationPortIdx[int]: 0
+- Id[string]: UpPSbw8VafLHVzSzCFm9NHmcHDarkFU6_kQIo72aDNlWDesvA8JFedd8AWjwrVVVE
+  Name[string]: UpPSbw8VafLHVzSzCFm9NHmcHDarkFU6_kQIo72aDNlWDesvA8JFedd8AWjwrVVVE
+  SourceBlockId[string]: Ht8x7ywH8BHytviD5ARoOIQKMD9Nip4x
+  SourcePortIdx[int]: 1
+  DestinationBlockId[string]: yFxBpr2RrzI6VzNJBNwEVJaDrYBJnLOK
+  DestinationPortIdx[int]: 0
